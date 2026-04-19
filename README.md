@@ -1,18 +1,57 @@
-# INF1430-Comparaison-Chiffrement-Symetrique
-Projet académique réalisé dans le cadre du cours INF 1430 à la TÉLUQ, portant sur l’implémentation et la comparaison expérimentale des performances de plusieurs algorithmes de chiffrement symétrique, selon différents modes d’opération et plateformes matérielles.
+# INF1430 - Comparaison du Chiffrement Symétrique
 
-## Objectif du projet
-Comparer expérimentalement les performances et certaines propriétés fondamentales
-de plusieurs algorithmes de chiffrement symétrique (DES, 3DES, AES, Blowfish),
-en fonction :
-- des modes d’opération (ECB, CBC, CTR),
-- de la taille des messages,
-- de la plateforme matérielle (PC sous Windows et Raspberry Pi sous Linux).
+## Aperçu
+Ce projet a pour but d'analyser et de comparer différents algorithmes de chiffrement symétrique en utilisant plusieurs modes de chiffrement.
 
-## Contenu du dépôt
-- Implémentations en Python basées sur la bibliothèque PyCryptodome
-- Scripts de mesure des performances
-- Outils d’analyse et de génération des résultats
+## Objectifs
+- Évaluer l'efficacité des algorithmes de chiffrement.
+- Comparer les performances en termes de temps et de ressources utilisés.
 
-## Status
-Projet en cours – phase de planification et d’implémentation.
+## Hypothèses
+1. Les algorithmes de chiffrement varieront significativement en efficacité.
+2. Les performances dépendent des modes de chiffrement utilisés.
+
+## Méthodologie
+Cette étude sera réalisée par les TN1 à TN4:
+- **TN1**: Recherche et collecte de données sur les algorithmes.
+- **TN2**: Mise en œuvre initiale des algorithmes.
+- **TN3**: Comparaison des performances et implémentation des algorithmes.
+- **TN4**: Rédaction et présentation des résultats.
+
+## Structure du dépôt
+- `/src`: Contient le code source.
+- `/docs`: Documentation du projet.
+- `/tests`: Tests unitaires et d'intégration.
+
+## Prérequis
+- Python 3.x
+- Bibliothèques : `Cryptography`, `pycryptodome`.
+
+## Comment exécuter
+*à compléter si non implémenté*
+
+## Reproductibilité
+Pour reproduire les résultats, suivez les instructions d'installation et d'exécution dans ce README.
+
+## Statut
+En cours de développement.
+
+## Références
+- Documentation sur les algorithmes de chiffrement.
+- Articles de recherche sur le sujet.
+
+## Licence
+Ce projet est sous licence MIT.
+
+## Contact
+Pour toute question, contactez moyamelissa@example.com.
+
+## Tableau des Algorithmes et Modes
+| Algorithmes  | Modes  |
+|--------------|--------|
+| DES          | CBC    |
+| 3DES         | CTR    |
+| AES          | GCM    |
+| Twofish      | OFB    |
+
+*L'implémentation est prévue dans TN3.*
