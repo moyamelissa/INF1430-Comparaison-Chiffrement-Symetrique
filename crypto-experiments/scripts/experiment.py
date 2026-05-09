@@ -95,6 +95,14 @@ def main() -> None:
 
     for algo, primitive_cls, mode_label, mode_cls, key_sizes in EXPERIMENT_MATRIX:
         for key_size in key_sizes:
+            # Pre-check: can we instantiate this primitive at all?
+            try:
+                _probe_key = _make_key(key_size)
+                _probe = primitive_cls(_probe_key)
+            except Exception as exc:  # noqa: BLE001
+                print(f"  SKIPPED {algo} (key={key_size*8}bit) — {exc}")
+                break  # Skip all message sizes / modes for this key size too
+
             for msg_size in MESSAGE_SIZES:
                 key = _make_key(key_size)
                 try:
@@ -121,7 +129,7 @@ def main() -> None:
                     )
 
                 except Exception as exc:  # noqa: BLE001
-                    print(f"SKIPPED — {exc}")
+                    print(f"  SKIPPED {algo}-{mode_label} key={key_size*8}bit msg={msg_size}B — {exc}")
 
     if not results:
         print("No results collected.")

@@ -1,0 +1,52 @@
+"""
+run_kat.py
+Entry-point for the Known-Answer Test (KAT) suite.
+
+Usage
+-----
+    py scripts/run_kat.py
+
+Exits with code 0 if every test passes, 1 otherwise.
+"""
+import sys
+import os
+
+# Ensure the crypto-experiments root is on the path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+from validation import kat_aes, kat_des, kat_3des, kat_modes, kat_gcm
+
+
+def main() -> None:
+    suites = [
+        ("AES  (FIPS 197)",          kat_aes.run),
+        ("DES  (SP 800-17)",         kat_des.run),
+        ("3DES (SP 800-67)",         kat_3des.run),
+        ("Modes ECB/CBC/CTR (SP 800-38A)", kat_modes.run),
+        ("AES-GCM (SP 800-38D)",     kat_gcm.run),
+    ]
+
+    total_failures = 0
+    for name, run_fn in suites:
+        print(f"\n{'─' * 55}")
+        print(f"  {name}")
+        print(f"{'─' * 55}")
+        failures = run_fn(verbose=True)
+        total_failures += failures
+        if failures == 0:
+            print(f"  ✓ All tests passed.")
+        else:
+            print(f"  ✗ {failures} test(s) FAILED.")
+
+    print(f"\n{'═' * 55}")
+    if total_failures == 0:
+        print("  ALL KAT SUITES PASSED")
+    else:
+        print(f"  TOTAL FAILURES: {total_failures}")
+    print(f"{'═' * 55}\n")
+
+    sys.exit(0 if total_failures == 0 else 1)
+
+
+if __name__ == "__main__":
+    main()
