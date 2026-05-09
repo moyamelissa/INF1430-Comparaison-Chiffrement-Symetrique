@@ -77,3 +77,11 @@ class TripleDES(CipherPrimitive):
             )
         cipher = _DES3.new(self._key, _DES3.MODE_ECB)
         return cipher.decrypt(block)
+
+    def encrypt_blocks(self, data: bytes) -> bytes:
+        """Apply full EDE pipeline to multiple blocks in one PyCryptodome call."""
+        return _DES3.new(self._key, _DES3.MODE_ECB).encrypt(data)
+
+    def decrypt_blocks(self, data: bytes) -> bytes:
+        """Apply full DED pipeline to multiple blocks in one PyCryptodome call."""
+        return _DES3.new(self._key, _DES3.MODE_ECB).decrypt(data)

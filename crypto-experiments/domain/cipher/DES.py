@@ -69,3 +69,11 @@ class DES(CipherPrimitive):
             )
         cipher = _DES.new(self._key, _DES.MODE_ECB)
         return cipher.decrypt(block)
+
+    def encrypt_blocks(self, data: bytes) -> bytes:
+        """Encrypt multiple blocks in a single PyCryptodome call (fast path)."""
+        return _DES.new(self._key, _DES.MODE_ECB).encrypt(data)
+
+    def decrypt_blocks(self, data: bytes) -> bytes:
+        """Decrypt multiple blocks in a single PyCryptodome call (fast path)."""
+        return _DES.new(self._key, _DES.MODE_ECB).decrypt(data)

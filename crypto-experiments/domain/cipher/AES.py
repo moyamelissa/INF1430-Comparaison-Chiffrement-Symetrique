@@ -66,3 +66,11 @@ class AES(CipherPrimitive):
             )
         cipher = _AES.new(self._key, _AES.MODE_ECB)
         return cipher.decrypt(block)
+
+    def encrypt_blocks(self, data: bytes) -> bytes:
+        """Encrypt multiple blocks in a single PyCryptodome call (fast path)."""
+        return _AES.new(self._key, _AES.MODE_ECB).encrypt(data)
+
+    def decrypt_blocks(self, data: bytes) -> bytes:
+        """Decrypt multiple blocks in a single PyCryptodome call (fast path)."""
+        return _AES.new(self._key, _AES.MODE_ECB).decrypt(data)

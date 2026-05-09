@@ -1,0 +1,7 @@
+# crypto-experiments
+# Dependencies: pycryptodome, twofish
+#
+# Install:
+#   pip install pycryptodome twofish
+pycryptodome>=3.20
+twofish>=0.3

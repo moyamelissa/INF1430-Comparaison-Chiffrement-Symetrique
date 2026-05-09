@@ -56,6 +56,40 @@ class CipherPrimitive(ABC):
             Plaintext block of exactly ``block_size`` bytes.
         """
 
+    def encrypt_blocks(self, data: bytes) -> bytes:
+        """
+        Encrypt ``data`` (must be a multiple of block_size) as raw ECB blocks.
+
+        Subclasses should override this with a single bulk call to their
+        underlying library so the loop overhead is paid only once per message
+        instead of once per block.  The default falls back to the block loop.
+        """
+        bs = self.block_size
+        if len(data) % bs != 0:
+            raise ValueError(
+                f"data length must be a multiple of {bs}; got {len(data)}."
+            )
+        result = bytearray()
+        for i in range(0, len(data), bs):
+            result += self.encrypt_block(data[i : i + bs])
+        return bytes(result)
+
+    def decrypt_blocks(self, data: bytes) -> bytes:
+        """
+        Decrypt ``data`` (must be a multiple of block_size) as raw ECB blocks.
+
+        Same bulk-optimisation contract as ``encrypt_blocks``.
+        """
+        bs = self.block_size
+        if len(data) % bs != 0:
+            raise ValueError(
+                f"data length must be a multiple of {bs}; got {len(data)}."
+            )
+        result = bytearray()
+        for i in range(0, len(data), bs):
+            result += self.decrypt_block(data[i : i + bs])
+        return bytes(result)
+
     def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}("
