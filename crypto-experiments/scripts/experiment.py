@@ -30,10 +30,12 @@ from domain.cipher.AES import AES
 from domain.cipher.DES import DES
 from domain.cipher.TripleDES import TripleDES
 from domain.cipher.Twofish import Twofish
+from domain.cipher.ChaCha20 import ChaCha20
 from domain.mode.ECB import ECB
 from domain.mode.CBC import CBC
 from domain.mode.CTR import CTR
 from domain.mode.GCM import GCM
+from domain.mode.StreamMode import StreamMode
 from domain.engine.EncryptionEngine import EncryptionEngine
 from application.ExperimentController import ExperimentController
 
@@ -60,9 +62,11 @@ EXPERIMENT_MATRIX = [
     ("3DES",   TripleDES, "ECB", ECB, [16, 24]),
     ("3DES",   TripleDES, "CBC", CBC, [16, 24]),
     ("3DES",   TripleDES, "CTR", CTR, [16, 24]),
-    ("Twofish",Twofish,   "ECB", ECB, [16, 24, 32]),
-    ("Twofish",Twofish,   "CBC", CBC, [16, 24, 32]),
-    ("Twofish",Twofish,   "CTR", CTR, [16, 24, 32]),
+    ("Twofish",Twofish,   "ECB", ECB,        [16, 24, 32]),
+    ("Twofish",Twofish,   "CBC", CBC,        [16, 24, 32]),
+    ("Twofish",Twofish,   "CTR", CTR,        [16, 24, 32]),
+    # Stream cipher — uses StreamMode wrapper (nonce is built into the primitive)
+    ("ChaCha20", ChaCha20, "Stream", StreamMode, [32]),
 ]
 
 MESSAGE_SIZES = [64, 256, 1024, 4096, 16384]  # bytes

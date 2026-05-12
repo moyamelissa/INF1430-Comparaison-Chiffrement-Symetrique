@@ -47,6 +47,10 @@ class TripleDES(CipherPrimitive):
         # PyCryptodome rejects keys where K1 == K3 (weak key guard).
         # Adjust if the caller passes a 24-byte key with K1 == K3.
         self._key = _DES3.adjust_key_parity(key)
+        # Cache stateless ECB cipher objects so encrypt_block / decrypt_block
+        # do not pay the cost of adjust_key_parity on every single block call.
+        self._enc = _DES3.new(self._key, _DES3.MODE_ECB)
+        self._dec = _DES3.new(self._key, _DES3.MODE_ECB)
 
     # ------------------------------------------------------------------ #
     #  CipherPrimitive interface                                           #
@@ -66,8 +70,7 @@ class TripleDES(CipherPrimitive):
             raise ValueError(
                 f"Block must be exactly {self.BLOCK_SIZE} bytes; got {len(block)}."
             )
-        cipher = _DES3.new(self._key, _DES3.MODE_ECB)
-        return cipher.encrypt(block)
+        return self._enc.encrypt(block)
 
     def decrypt_block(self, block: bytes) -> bytes:
         """Apply full DED (Decrypt-Encrypt-Decrypt) pipeline to one block."""
@@ -75,8 +78,7 @@ class TripleDES(CipherPrimitive):
             raise ValueError(
                 f"Block must be exactly {self.BLOCK_SIZE} bytes; got {len(block)}."
             )
-        cipher = _DES3.new(self._key, _DES3.MODE_ECB)
-        return cipher.decrypt(block)
+        return self._dec.decrypt(block)
 
     def encrypt_blocks(self, data: bytes) -> bytes:
         """Apply full EDE pipeline to multiple blocks in one PyCryptodome call."""

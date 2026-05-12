@@ -14,16 +14,17 @@ import os
 # Ensure the crypto-experiments root is on the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from validation import kat_aes, kat_des, kat_3des, kat_modes, kat_gcm
+from validation import kat_aes, kat_des, kat_3des, kat_modes, kat_gcm, kat_chacha20
 
 
 def main() -> None:
     suites = [
-        ("AES  (FIPS 197)",          kat_aes.run),
-        ("DES  (SP 800-17)",         kat_des.run),
-        ("3DES (SP 800-67)",         kat_3des.run),
-        ("Modes ECB/CBC/CTR (SP 800-38A)", kat_modes.run),
-        ("AES-GCM (SP 800-38D)",     kat_gcm.run),
+        ("AES  (FIPS 197)",                   kat_aes.run),
+        ("DES  (SP 800-17)",                  kat_des.run),
+        ("3DES (SP 800-67)",                  kat_3des.run),
+        ("Modes ECB/CBC/CTR (SP 800-38A)",    kat_modes.run),
+        ("AES-GCM (SP 800-38D)",              kat_gcm.run),
+        ("ChaCha20 (RFC 8439)",               kat_chacha20.run),
     ]
 
     total_failures = 0
