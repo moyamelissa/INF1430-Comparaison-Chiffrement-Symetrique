@@ -1,20 +1,20 @@
 """
 experiment.py
-Entry point for the benchmarking campaign.
+Point d'entrée de la campagne de benchmarking.
 
 Usage
 -----
-Run from the crypto-experiments/ root directory:
+Lancer depuis le répertoire racine crypto-experiments/ :
 
     python scripts/experiment.py
 
-The script iterates over all algorithm / mode / key-size / message-size
-combinations defined in EXPERIMENT_MATRIX, runs performance + avalanche
-measurements via ExperimentController, and writes results to
-data/results/experiment_<timestamp>.csv.
+Le script itère sur toutes les combinaisons algorithme / mode / taille de clé /
+taille de message définies dans EXPERIMENT_MATRIX, exécute les mesures de
+performance + avalanche via ExperimentController, et écrit les résultats dans
+data/results/experiment_<horodatage>.csv.
 
-No cryptographic logic lives here — this file only wires up the domain and
-application layers and handles I/O.
+Aucune logique cryptographique ne se trouve ici — ce fichier ne fait que
+cabler les couches domaine et application et gérer les E/S.
 """
 
 import csv
@@ -23,7 +23,7 @@ import sys
 from dataclasses import asdict
 from datetime import datetime
 
-# Make the project root importable regardless of working directory
+# Chemin racine du projet rendu importable quel que soit le répertoire de travail
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from domain.cipher.AES import AES
@@ -40,18 +40,18 @@ from domain.engine.EncryptionEngine import EncryptionEngine
 from application.ExperimentController import ExperimentController
 
 # ------------------------------------------------------------------ #
-#  Experiment matrix                                                   #
+#  Matrice d'expériences                                               #
 # ------------------------------------------------------------------ #
-# Each entry: (algorithm_label, primitive_factory, mode_label, mode_class,
-#              key_sizes_bytes, message_sizes_bytes, repetitions)
+# Chaque entrée : (label_algo, usine_primitive, label_mode, classe_mode,
+#                  tailles_cles_octets, tailles_messages_octets, repetitions)
 #
-# key_sizes_bytes is a list because AES supports 128/192/256-bit keys.
-# GCM is only valid for AES so it is included only in the AES block.
+# key_sizes_bytes est une liste car AES supporte les clés 128/192/256 bits.
+# GCM n'est valide que pour AES, donc inclus uniquement dans le bloc AES.
 
 REPETITIONS = 100
 
 EXPERIMENT_MATRIX = [
-    # (algo, primitive_cls, mode_label, mode_cls, key_sizes)
+    # (algo, primitive_cls, label_mode, mode_cls, tailles_cles)
     ("AES",    AES,       "ECB", ECB, [16, 24, 32]),
     ("AES",    AES,       "CBC", CBC, [16, 24, 32]),
     ("AES",    AES,       "CTR", CTR, [16, 24, 32]),
@@ -65,18 +65,18 @@ EXPERIMENT_MATRIX = [
     ("Twofish",Twofish,   "ECB", ECB,        [16, 24, 32]),
     ("Twofish",Twofish,   "CBC", CBC,        [16, 24, 32]),
     ("Twofish",Twofish,   "CTR", CTR,        [16, 24, 32]),
-    # Stream cipher — uses StreamMode wrapper (nonce is built into the primitive)
+    # Chiffre de flux — utilise le wrapper StreamMode (nonce intégré dans la primitive)
     ("ChaCha20", ChaCha20, "Stream", StreamMode, [32]),
 ]
 
 MESSAGE_SIZES = [64, 256, 1024, 4096, 16384]  # bytes
 
 # ------------------------------------------------------------------ #
-#  Helpers                                                             #
+#  Fonctions utilitaires                                               #
 # ------------------------------------------------------------------ #
 
 def _make_key(size: int) -> bytes:
-    """Generate a random key of the given size."""
+    """Génère une clé aléatoire de la taille donnée."""
     return os.urandom(size)
 
 
@@ -91,7 +91,7 @@ def _output_path() -> str:
 
 
 # ------------------------------------------------------------------ #
-#  Main                                                                #
+#  Point d'entrée principal                                            #
 # ------------------------------------------------------------------ #
 
 def main() -> None:
@@ -99,7 +99,7 @@ def main() -> None:
 
     for algo, primitive_cls, mode_label, mode_cls, key_sizes in EXPERIMENT_MATRIX:
         for key_size in key_sizes:
-            # Pre-check: can we instantiate this primitive at all?
+            # Vérification préalable : peut-on instancier cette primitive ?
             try:
                 _probe_key = _make_key(key_size)
                 _probe = primitive_cls(_probe_key)

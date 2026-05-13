@@ -1,20 +1,21 @@
 """
 kat_3des.py
-Known-Answer Tests for the Triple-DES (3DES / TDEA) primitive.
+Tests à réponse connue (KAT) pour la primitive Triple-DES (3DES / TDEA).
 
 Sources
 -------
-All key bytes in the vectors below have odd DES parity (verified), so
-PyCryptodome's adjust_key_parity() is a no-op and expected values match.
-Expected ciphertexts were computed with PyCryptodome DES3 (reference
-implementation) and cross-checked against the EDE specification in
-NIST SP 800-67 Rev. 2.
+Tous les octets de clé dans les vecteurs ci-dessous possèdent une parité DES
+impaire (vérifiée), donc adjust_key_parity() de PyCryptodome est sans effet
+et les valeurs attendues correspondent.
+Les textes chiffrés attendus ont été calculés avec PyCryptodome DES3
+(implémentation de référence) et vérifiés par rapport à la spécification
+EDE dans NIST SP 800-67 Rev. 2.
 
-  Vector A: 16-byte 2-key TDEA
-    K1 = 0123456789ABCDEF, K2 = FEDCBA9876543210  (K1 ≠ K2 — valid)
-  Vector B: 24-byte 3-key TDEA
+  Vecteur A : TDEA à 2 clés (16 octets)
+    K1 = 0123456789ABCDEF, K2 = FEDCBA9876543210  (K1 ≠ K2 — valide)
+  Vecteur B : TDEA à 3 clés (24 octets)
     K1 = 0123456789ABCDEF, K2 = FEDCBA9876543210, K3 = 89ABCDEF01234567
-    (K1 ≠ K2 ≠ K3 ≠ K1 — valid three-key TDEA)
+    (K1 ≠ K2 ≠ K3 ≠ K1 — TDEA à trois clés valide)
 """
 import sys
 import os
@@ -28,12 +29,12 @@ def _h(hex_str: str) -> bytes:
 
 
 def run(verbose: bool = True) -> int:
-    """Run all 3DES KAT vectors.  Returns number of failures."""
+    """Exécute tous les vecteurs KAT 3DES. Retourne le nombre d'échecs."""
     failures = 0
 
     # ------------------------------------------------------------------
-    # All key bytes have been verified to have odd DES parity.
-    # Expected ciphertexts computed via PyCryptodome DES3 reference.
+    # Tous les octets de clé ont une parité DES impaire vérifiée.
+    # Textes chiffrés attendus calculés via PyCryptodome DES3 (référence).
     # ------------------------------------------------------------------
     vectors_16 = [
         {

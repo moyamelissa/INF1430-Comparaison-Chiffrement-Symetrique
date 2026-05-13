@@ -1,25 +1,26 @@
 """
 analyse_rounds_avalanche.py
-Reduced-round DES avalanche analysis.
+Analyse de l'avalanche DES à nombre de tours réduit.
 
-Inspired by professor feedback (TN1, Feedback 11):
-  "Une chose que vous pouvez observer est le nombre de tours (rounds) optimal
-   qui donne un score d'avalanche maximal."
+Inspiré du retour du professeur (TN1, Retour 11) :
+  « Une chose que vous pouvez observer est le nombre de tours (rounds) optimal
+   qui donne un score d'avalanche maximal. »
 
-This script measures the avalanche score of DES-like Feistel encryption at
-each round count from 1 to 16, showing at which round the diffusion property
-converges toward the ideal value of 0.50.
+Ce script mesure le score d'avalanche du chiffrement Feistel DES à chaque
+nombre de tours de 1 à 16, montrant à quel tour la propriété de diffusion
+converge vers la valeur idéale de 0,50.
 
-It reimplements the DES Feistel structure at the bit level using the standard
-DES S-boxes, P-box, IP and IP-1 permutations so that we can stop after any
-number of rounds.  The key schedule remains full (all 16 subkeys are derived),
-but only the first N subkeys are applied.
+Il réimplémente la structure Feistel DES au niveau des bits en utilisant les
+S-boxes, la P-box, et les permutations IP et IP-1 standard DES, afin de pouvoir
+s'arrêter après un nombre quelconque de tours. Le calendrier de clés reste
+complet (les 16 sous-clés sont dérivées), mais seules les N premières
+sous-clés sont appliquées.
 
 Usage
 -----
     py scripts/analyse_rounds_avalanche.py
 
-Output: data/charts/fig7_rounds_avalanche.png + console table
+Sortie : data/charts/fig7_rounds_avalanche.png + tableau console
 """
 
 import os
@@ -33,10 +34,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 # ---------------------------------------------------------------------------
-# DES constants (standard FIPS 46-3 tables)
+# Constantes DES (tables FIPS 46-3 standard)
 # ---------------------------------------------------------------------------
 
-# Initial Permutation (IP)
+# Permutation initiale (IP)
 _IP = [
     58, 50, 42, 34, 26, 18, 10, 2,
     60, 52, 44, 36, 28, 20, 12, 4,
@@ -48,7 +49,7 @@ _IP = [
     63, 55, 47, 39, 31, 23, 15, 7,
 ]
 
-# Inverse Initial Permutation (IP-1)
+# Permutation initiale inverse (IP-1)
 _IP_INV = [
     40, 8, 48, 16, 56, 24, 64, 32,
     39, 7, 47, 15, 55, 23, 63, 31,
@@ -60,7 +61,7 @@ _IP_INV = [
     33, 1, 41,  9, 49, 17, 57, 25,
 ]
 
-# Expansion permutation (E)
+# Permutation d'expansion (E)
 _E = [
     32,  1,  2,  3,  4,  5,
      4,  5,  6,  7,  8,  9,
@@ -72,7 +73,7 @@ _E = [
     28, 29, 30, 31, 32,  1,
 ]
 
-# P-box permutation
+# Permutation P-box
 _P = [
     16,  7, 20, 21, 29, 12, 28, 17,
      1, 15, 23, 26,  5, 18, 31, 10,
@@ -80,7 +81,7 @@ _P = [
     19, 13, 30,  6, 22, 11,  4, 25,
 ]
 
-# S-boxes (8 boxes × 4 rows × 16 cols)
+# S-boxes (8 boîtes × 4 lignes × 16 colonnes)
 _S = [
     # S1
     [14,4,13,1,2,15,11,8,3,10,6,12,5,9,0,7,
@@ -124,7 +125,7 @@ _S = [
       2,1,14,7,4,10,8,13,15,12,9,0,3,5,6,11],
 ]
 
-# Permuted-choice 1 (PC-1) for key schedule
+# Choix permuté 1 (PC-1) pour le calendrier de clés
 _PC1 = [
     57,49,41,33,25,17, 9,
      1,58,50,42,34,26,18,
@@ -136,7 +137,7 @@ _PC1 = [
     21,13, 5,28,20,12, 4,
 ]
 
-# Permuted-choice 2 (PC-2) for key schedule
+# Choix permuté 2 (PC-2) pour le calendrier de clés
 _PC2 = [
     14,17,11,24, 1, 5, 3,28,
     15, 6,21,10,23,19,12, 4,
@@ -146,11 +147,11 @@ _PC2 = [
     34,53,46,42,50,36,29,32,
 ]
 
-# Left-shift schedule for key schedule
+# Planning des décalages gauches pour le calendrier de clés
 _SHIFTS = [1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1]
 
 # ---------------------------------------------------------------------------
-# Bit-level helpers
+# Fonctions utilitaires au niveau des bits
 # ---------------------------------------------------------------------------
 
 def _bytes_to_bits(b: bytes) -> list:
@@ -179,11 +180,11 @@ def _lrot(bits: list, n: int) -> list:
     return bits[n:] + bits[:n]
 
 # ---------------------------------------------------------------------------
-# Key schedule
+# Calendrier de clés
 # ---------------------------------------------------------------------------
 
 def _generate_subkeys(key: bytes) -> list:
-    """Return all 16 DES round subkeys (each 48 bits as a list)."""
+    """Retourne les 16 sous-clés DES (chacune de 48 bits sous forme de liste)."""
     key_bits = _bytes_to_bits(key)
     key_56   = _permute(key_bits, _PC1)
     C, D     = key_56[:28], key_56[28:]
@@ -195,13 +196,13 @@ def _generate_subkeys(key: bytes) -> list:
     return subkeys
 
 # ---------------------------------------------------------------------------
-# DES F-function
+# Fonction F de DES
 # ---------------------------------------------------------------------------
 
 def _f(R: list, subkey: list) -> list:
     expanded = _permute(R, _E)          # 32 → 48 bits
-    xored    = _xor(expanded, subkey)   # XOR with subkey
-    # S-box substitution
+    xored    = _xor(expanded, subkey)   # XOR avec la sous-clé
+    # Substitution par S-boxes
     sbox_out = []
     for i in range(8):
         chunk = xored[i*6:(i+1)*6]
@@ -209,29 +210,29 @@ def _f(R: list, subkey: list) -> list:
         col = (chunk[1] << 3) | (chunk[2] << 2) | (chunk[3] << 1) | chunk[4]
         val = _S[i][row * 16 + col]
         sbox_out += [(val >> (3 - j)) & 1 for j in range(4)]
-    return _permute(sbox_out, _P)       # P permutation → 32 bits
+    return _permute(sbox_out, _P)       # permutation P → 32 bits
 
 # ---------------------------------------------------------------------------
-# Reduced-round DES encryption
+# Chiffrement DES à nombre de tours réduit
 # ---------------------------------------------------------------------------
 
 def des_encrypt_n_rounds(plaintext: bytes, key: bytes, n_rounds: int) -> bytes:
     """
-    Encrypt one 8-byte block using DES with only n_rounds (1–16).
+    Chiffre un bloc de 8 octets avec DES en n'appliquant que n_rounds (1–16).
 
-    Parameters
+    Paramètres
     ----------
     plaintext : bytes
-        Exactly 8 bytes.
+        Exactement 8 octets.
     key : bytes
-        Exactly 8 bytes.
+        Exactement 8 octets.
     n_rounds : int
-        Number of Feistel rounds to apply (1 to 16).
+        Nombre de tours Feistel à appliquer (1 à 16).
 
-    Returns
-    -------
+    Retourne
+    --------
     bytes
-        8-byte ciphertext.
+        Texte chiffré de 8 octets.
     """
     subkeys = _generate_subkeys(key)[:n_rounds]
     bits    = _bytes_to_bits(plaintext)
@@ -241,12 +242,12 @@ def des_encrypt_n_rounds(plaintext: bytes, key: bytes, n_rounds: int) -> bytes:
     for sk in subkeys:
         L, R = R, _xor(L, _f(R, sk))
 
-    # Final swap + inverse permutation
+    # Échange final + permutation inverse
     combined = _permute(R + L, _IP_INV)
     return _bits_to_bytes(combined)
 
 # ---------------------------------------------------------------------------
-# Avalanche measurement (plaintext bit-flip)
+# Mesure de l'avalanche (flip d'un bit en texte clair)
 # ---------------------------------------------------------------------------
 
 TRIALS = 500
@@ -272,11 +273,11 @@ def measure_avalanche_at_rounds(n_rounds: int) -> float:
     return sum(scores) / len(scores)
 
 # ---------------------------------------------------------------------------
-# Main
+# Programme principal
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    print(f"Measuring DES avalanche score for rounds 1–16 ({TRIALS} trials each)…\n")
+    print(f"Mesure du score d'avalanche DES pour les tours 1–16 ({TRIALS} essais chacun)…\n")
     print(f"{'Rounds':>8}  {'Avalanche Score':>16}  {'Δ from ideal':>14}")
     print("-" * 44)
 

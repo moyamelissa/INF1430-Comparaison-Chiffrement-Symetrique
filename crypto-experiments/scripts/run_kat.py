@@ -1,17 +1,17 @@
 """
 run_kat.py
-Entry-point for the Known-Answer Test (KAT) suite.
+Point d'entrée pour la suite de tests de vecteurs connus (KAT).
 
 Usage
 -----
     py scripts/run_kat.py
 
-Exits with code 0 if every test passes, 1 otherwise.
+Sortie avec le code 0 si tous les tests passent, 1 sinon.
 """
 import sys
 import os
 
-# Ensure the crypto-experiments root is on the path
+# Ajoute la racine crypto-experiments au chemin d'importation
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from validation import kat_aes, kat_des, kat_3des, kat_modes, kat_gcm, kat_chacha20

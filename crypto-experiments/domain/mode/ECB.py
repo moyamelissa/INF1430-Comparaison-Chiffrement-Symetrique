@@ -1,12 +1,13 @@
 """
 ECB.py
-Electronic Codebook (ECB) mode of operation.
+Mode d'opération ECB (Electronic Codebook).
 
-WARNING: ECB is cryptographically weak — identical plaintext blocks produce
-identical ciphertext blocks, revealing data patterns.  It is included here
-solely for academic benchmarking and comparison purposes.
+ATTENTION : ECB est cryptographiquement faible — des blocs de texte en clair
+identiques produisent des blocs de texte chiffré identiques, révélant ainsi
+les motifs des données. Il est inclus ici uniquement à des fins de benchmarking
+et de comparaison académique.
 
-Padding: PKCS#7 is applied so messages of any length are accepted.
+Rembourrage : PKCS#7 est appliqué pour accepter des messages de toute longueur.
 """
 
 from domain.cipher.CipherPrimitive import CipherPrimitive
@@ -25,9 +26,9 @@ def _pkcs7_unpad(data: bytes) -> bytes:
 
 class ECB(OperationMode):
     """
-    Electronic Codebook mode.
+    Mode ECB (Electronic Codebook).
 
-    Each block is encrypted independently — no IV required.
+    Chaque bloc est chiffré indépendamment — aucun IV requis.
     """
 
     def __init__(self, primitive: CipherPrimitive) -> None:
@@ -35,17 +36,17 @@ class ECB(OperationMode):
 
     def encrypt(self, plaintext: bytes, **kwargs) -> bytes:
         """
-        Encrypt ``plaintext`` block by block (no chaining).
+        Chiffre ``plaintext`` bloc par bloc (sans chaînage).
 
-        Parameters
+        Paramètres
         ----------
         plaintext : bytes
-            Arbitrary-length plaintext.
+            Texte en clair de longueur arbitraire.
 
-        Returns
-        -------
+        Retourne
+        --------
         bytes
-            Ciphertext (same length as padded plaintext).
+            Texte chiffré (même longueur que le texte rembourré).
         """
         bs = self._primitive.block_size
         padded = _pkcs7_pad(plaintext, bs)
@@ -53,17 +54,17 @@ class ECB(OperationMode):
 
     def decrypt(self, ciphertext: bytes, **kwargs) -> bytes:
         """
-        Decrypt ``ciphertext`` block by block.
+        Déchiffre ``ciphertext`` bloc par bloc.
 
-        Parameters
+        Paramètres
         ----------
         ciphertext : bytes
-            Must be a multiple of the primitive's block size.
+            Doit être un multiple de la taille de bloc de la primitive.
 
-        Returns
-        -------
+        Retourne
+        --------
         bytes
-            Plaintext with PKCS#7 padding removed.
+            Texte en clair avec le rembourrage PKCS#7 retiré.
         """
         bs = self._primitive.block_size
         if len(ciphertext) % bs != 0:

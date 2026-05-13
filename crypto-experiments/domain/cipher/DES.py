@@ -1,40 +1,40 @@
 """
 DES.py
-Concrete implementation of the DES cipher primitive.
+Implémentation concrète de la primitive de chiffrement DES.
 
-Key size : 64 bits (8 bytes, of which 56 are effective).
-Block size: 64 bits (8 bytes).
+Taille de clé  : 64 bits (8 octets, dont 56 bits effectifs).
+Taille de bloc : 64 bits (8 octets).
 
-Uses PyCryptodome in raw ECB mode internally so a single block can be
-encrypted/decrypted.  All chaining logic lives in the mode layer.
+Utilise PyCryptodome en mode ECB brut afin de chiffrer/déchiffrer un seul bloc.
+Toute la logique de chaînage est gérée par la couche mode d'opération.
 
-Note: DES is considered cryptographically broken and is included here solely
-for academic comparison purposes.
+Note : DES est considéré cryptographiquement compromis et n'est inclus ici qu'à
+des fins de comparaison académique.
 """
 
 from Crypto.Cipher import DES as _DES
 
 from .CipherPrimitive import CipherPrimitive
 
-_KEY_SIZE = 8   # 64-bit key (56 effective bits)
+_KEY_SIZE = 8   # clé 64 bits (56 bits effectifs)
 
 
 class DES(CipherPrimitive):
-    """DES block cipher (legacy — academic use only)."""
+    """Chiffre par blocs DES (hérité — usage académique uniquement)."""
 
-    BLOCK_SIZE = 8  # bytes
+    BLOCK_SIZE = 8  # octets
 
     def __init__(self, key: bytes) -> None:
         """
-        Parameters
+        Paramètres
         ----------
         key : bytes
-            Exactly 8 bytes (64-bit key, 56 effective bits).
+            Exactement 8 octets (clé 64 bits, 56 bits effectifs).
 
-        Raises
-        ------
+        Lève
+        ----
         ValueError
-            If the key length is not 8 bytes.
+            Si la longueur de la clé n'est pas 8 octets.
         """
         if len(key) != _KEY_SIZE:
             raise ValueError(
@@ -43,7 +43,7 @@ class DES(CipherPrimitive):
         self._key = key
 
     # ------------------------------------------------------------------ #
-    #  CipherPrimitive interface                                           #
+    #  Interface CipherPrimitive                                           #
     # ------------------------------------------------------------------ #
 
     @property
@@ -71,9 +71,9 @@ class DES(CipherPrimitive):
         return cipher.decrypt(block)
 
     def encrypt_blocks(self, data: bytes) -> bytes:
-        """Encrypt multiple blocks in a single PyCryptodome call (fast path)."""
+        """Chiffre plusieurs blocs en un seul appel PyCryptodome (chemin rapide)."""
         return _DES.new(self._key, _DES.MODE_ECB).encrypt(data)
 
     def decrypt_blocks(self, data: bytes) -> bytes:
-        """Decrypt multiple blocks in a single PyCryptodome call (fast path)."""
+        """Déchiffre plusieurs blocs en un seul appel PyCryptodome (chemin rapide)."""
         return _DES.new(self._key, _DES.MODE_ECB).decrypt(data)

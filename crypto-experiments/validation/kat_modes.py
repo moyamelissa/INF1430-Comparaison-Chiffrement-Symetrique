@@ -1,25 +1,25 @@
 """
 kat_modes.py
-Known-Answer Tests for ECB, CBC, and CTR operation modes.
+Tests à réponse connue (KAT) pour les modes opératoires ECB, CBC et CTR.
 
 Sources
 -------
-* NIST SP 800-38A (2001), Appendix F
-  F.1 — ECB with AES-128  (encrypt direction matches official vectors)
-  F.2 — CBC with AES-128  (encrypt direction matches official vectors)
-  F.5 — CTR with AES-128  (keystream spot-check; see note below)
+* NIST SP 800-38A (2001), Annexe F
+  F.1 — ECB avec AES-128  (la direction chiffrement correspond aux vecteurs officiels)
+  F.2 — CBC avec AES-128  (la direction chiffrement correspond aux vecteurs officiels)
+  F.5 — CTR avec AES-128  (vérification ponctuelle du train de clés ; voir note ci-dessous)
 
-Notes on CTR:
-  SP 800-38A initialises the counter block to an arbitrary 16-byte value
-  (000102...0f), whereas our CTR always starts the 8-byte counter at 0 and
-  stores a fresh 8-byte nonce prefix.  The test therefore verifies:
-    1. That E(KEY, nonce||0) produces the expected first keystream block.
-    2. A full encrypt→decrypt round-trip over the four SP 800-38A plaintext
-       blocks, confirming correctness of multi-block CTR operation.
+Notes sur CTR :
+  SP 800-38A initialise le bloc compteur à une valeur arbitraire de 16 octets
+  (000102...0f), tandis que notre CTR commence toujours le compteur 8 octets à 0 et
+  stocke un préfixe de nonce frais de 8 octets. Le test vérifie donc :
+    1. Que E(CLÉ, nonce||0) produit le premier bloc de train de clés attendu.
+    2. Un aller-retour complet chiffrement→déchiffrement sur les quatre blocs de
+       texte clair SP 800-38A, confirmant la correction du CTR multi-blocs.
 
-ECB/CBC decrypt tests use the output of our own encrypt() as the input to
-decrypt(), eliminating the need to manually append the PKCS7 padding block
-ciphertext (which is algorithm-dependent).
+Les tests de déchiffrement ECB/CBC utilisent la sortie de notre propre encrypt()
+comme entrée de decrypt(), éliminant le besoin d'ajouter manuellement le bloc
+de rembourrage PKCS7 chiffré (qui dépend de l'algorithme).
 """
 import sys
 import os
@@ -36,12 +36,12 @@ def _h(hex_str: str) -> bytes:
 
 
 # ---------------------------------------------------------------------------
-# SP 800-38A shared key and IV
+# Clé et IV partagés SP 800-38A
 # ---------------------------------------------------------------------------
 KEY = _h("2b7e151628aed2a6abf7158809cf4f3c")
-IV  = _h("000102030405060708090a0b0c0d0e0f")  # used for CBC
+IV  = _h("000102030405060708090a0b0c0d0e0f")  # utilisé pour CBC
 
-# Four plaintext blocks from SP 800-38A
+# Quatre blocs de texte clair extraits de SP 800-38A
 PT_BLOCKS = [
     _h("6bc1bee22e409f96e93d7e117393172a"),
     _h("ae2d8a571e03ac9c9eb76fac45af8e51"),
@@ -55,7 +55,7 @@ def run(verbose: bool = True) -> int:
     failures = 0
 
     # ------------------------------------------------------------------
-    # F.1  ECB-AES128 Encrypt + decrypt round-trip
+    # F.1  ECB-AES128 Chiffrement + aller-retour déchiffrement
     # ------------------------------------------------------------------
     ecb_ciphertext = b"".join([
         _h("3ad77bb40d7a3660a89ecaf32466ef97"),
@@ -67,9 +67,9 @@ def run(verbose: bool = True) -> int:
     aes = AES(KEY)
     ecb = ECB(aes)
 
-    # Our ECB.encrypt appends a PKCS7 padding block for block-aligned input.
+    # Notre ECB.encrypt ajoute un bloc de rembourrage PKCS7 pour une entrée alignée sur les blocs.
     ecb_enc = ecb.encrypt(PLAINTEXT)
-    ecb_enc_payload = ecb_enc[: len(ecb_ciphertext)]  # first 4 blocks = NIST vectors
+    ecb_enc_payload = ecb_enc[: len(ecb_ciphertext)]  # les 4 premiers blocs = vecteurs NIST
 
     ok = ecb_enc_payload == ecb_ciphertext
     if not ok:
@@ -81,7 +81,7 @@ def run(verbose: bool = True) -> int:
             print(f"         expected: {ecb_ciphertext.hex()}")
             print(f"         got:      {ecb_enc_payload.hex()}")
 
-    # Decrypt: feed the full encrypt() output (includes padding block ciphertext)
+    # Déchiffrement : fournit la sortie complète de encrypt() (inclut le bloc de rembourrage chiffré)
     ecb_dec = ecb.decrypt(ecb_enc)
     ok_dec = ecb_dec == PLAINTEXT
     if not ok_dec:
@@ -94,7 +94,7 @@ def run(verbose: bool = True) -> int:
             print(f"         got:      {ecb_dec.hex()}")
 
     # ------------------------------------------------------------------
-    # F.2  CBC-AES128 Encrypt + decrypt round-trip
+    # F.2  CBC-AES128 Chiffrement + aller-retour déchiffrement
     # ------------------------------------------------------------------
     cbc_ciphertext = b"".join([
         _h("7649abac8119b246cee98e9b12e9197d"),
@@ -106,9 +106,9 @@ def run(verbose: bool = True) -> int:
     aes2 = AES(KEY)
     cbc  = CBC(aes2)
 
-    # Our CBC.encrypt output: IV(16) || ciphertext || padding_block_ciphertext
+    # Sortie de notre CBC.encrypt : IV(16) || texte chiffré || bloc_rembourrage_chiffré
     cbc_enc = cbc.encrypt(PLAINTEXT, iv=IV)
-    # Payload: skip prepended IV (16 B), take next 64 B = 4 ciphertext blocks
+    # Charge utile : ignorer l'IV préfixé (16 o), prendre les 64 o suivants = 4 blocs chiffrés
     cbc_enc_payload = cbc_enc[16 : 16 + len(cbc_ciphertext)]
 
     ok = cbc_enc_payload == cbc_ciphertext
@@ -121,7 +121,7 @@ def run(verbose: bool = True) -> int:
             print(f"         expected: {cbc_ciphertext.hex()}")
             print(f"         got:      {cbc_enc_payload.hex()}")
 
-    # Decrypt: feed the full encrypt() output (IV + ciphertext + padding block)
+    # Déchiffrement : fournit la sortie complète de encrypt() (IV + texte chiffré + bloc rembourrage)
     cbc_dec = cbc.decrypt(cbc_enc)
     ok_dec = cbc_dec == PLAINTEXT
     if not ok_dec:
@@ -134,24 +134,24 @@ def run(verbose: bool = True) -> int:
             print(f"         got:      {cbc_dec.hex()}")
 
     # ------------------------------------------------------------------
-    # CTR-AES128  keystream spot-check + round-trip
+    # CTR-AES128  vérification ponctuelle du train de clés + aller-retour
     #
-    # Our CTR: counter_block[i] = nonce(8 B) || i(8 B big-endian), i starts at 0.
-    # SP 800-38A uses nonce = 0001020304050607, initial counter = 0 (aligned).
-    # First keystream block = E(KEY, 0001020304050607 || 0000000000000000).
+    # Notre CTR : counter_block[i] = nonce(8 o) || i(8 o big-endian), i commence à 0.
+    # SP 800-38A utilise nonce = 0001020304050607, compteur initial = 0 (aligné).
+    # Premier bloc de train de clés = E(CLÉ, 0001020304050607 || 0000000000000000).
     # ------------------------------------------------------------------
     ctr_nonce = _h("0001020304050607")
 
     aes3 = AES(KEY)
 
-    # Manually compute expected first keystream block
+    # Calcul manuel du premier bloc de train de clés attendu
     counter_block_0 = ctr_nonce + b"\x00" * 8
     expected_ks0 = aes3.encrypt_block(counter_block_0)
 
     ctr = CTR(aes3)
     ctr_enc = ctr.encrypt(PLAINTEXT, nonce=ctr_nonce)
-    # Our CTR output: nonce(8) || ciphertext(64)
-    actual_ks0_xored = ctr_enc[8 : 24]  # first 16 bytes of ciphertext
+    # Sortie de notre CTR : nonce(8) || texte chiffré(64)
+    actual_ks0_xored = ctr_enc[8 : 24]  # les 16 premiers octets du texte chiffré
     actual_ks0 = bytes(c ^ p for c, p in zip(actual_ks0_xored, PT_BLOCKS[0]))
 
     ok = actual_ks0 == expected_ks0
@@ -164,7 +164,7 @@ def run(verbose: bool = True) -> int:
             print(f"         expected keystream: {expected_ks0.hex()}")
             print(f"         got keystream:      {actual_ks0.hex()}")
 
-    # Full round-trip
+    # Aller-retour complet
     ctr_dec = ctr.decrypt(ctr_enc)
     ok_dec = ctr_dec == PLAINTEXT
     if not ok_dec:

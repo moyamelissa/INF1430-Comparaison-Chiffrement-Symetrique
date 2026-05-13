@@ -1,39 +1,39 @@
 """
 Twofish.py
-Concrete implementation of the Twofish cipher primitive.
+Implémentation concrète de la primitive de chiffrement Twofish.
 
-Key sizes supported: 128, 192 or 256 bits (16, 24, 32 bytes).
-Block size: 128 bits (16 bytes).
+Tailles de clé supportées : 128, 192 ou 256 bits (16, 24, 32 octets).
+Taille de bloc : 128 bits (16 octets).
 
-PyCryptodome does not ship Twofish natively.  This module wraps the
-`twofish` pure-Python package (pip install twofish).  The interface is kept
-identical to all other CipherPrimitive subclasses so the rest of the system
-is unaware of the implementation difference.
+PyCryptodome ne fournit pas Twofish nativement. Ce module encapsule le paquet
+Python pur `twofish` (pip install twofish). L'interface est identique à celle
+de toutes les autres sous-classes de CipherPrimitive, de sorte que le reste
+du système ignore la différence d'implémentation.
 """
 
 from .CipherPrimitive import CipherPrimitive
 
-_VALID_KEY_SIZES = {16, 24, 32}  # 128 / 192 / 256 bits
+_VALID_KEY_SIZES = {16, 24, 32}  # 128 / 192 / 256 bits (tailles de clé valides)
 
 
 class Twofish(CipherPrimitive):
-    """Twofish block cipher."""
+    """Chiffre par blocs Twofish."""
 
-    BLOCK_SIZE = 16  # bytes
+    BLOCK_SIZE = 16  # octets
 
     def __init__(self, key: bytes) -> None:
         """
-        Parameters
+        Paramètres
         ----------
         key : bytes
-            16, 24 or 32 bytes (128 / 192 / 256-bit key).
+            16, 24 ou 32 octets (clé de 128 / 192 / 256 bits).
 
-        Raises
-        ------
+        Lève
+        ----
         ValueError
-            If the key length is not one of the supported sizes.
+            Si la longueur de la clé n'est pas une taille supportée.
         ImportError
-            If the `twofish` package is not installed.
+            Si le paquet `twofish` n'est pas installé.
         """
         if len(key) not in _VALID_KEY_SIZES:
             raise ValueError(
@@ -51,7 +51,7 @@ class Twofish(CipherPrimitive):
         self._cipher = _Twofish(key)
 
     # ------------------------------------------------------------------ #
-    #  CipherPrimitive interface                                           #
+    #  Interface CipherPrimitive                                           #
     # ------------------------------------------------------------------ #
 
     @property

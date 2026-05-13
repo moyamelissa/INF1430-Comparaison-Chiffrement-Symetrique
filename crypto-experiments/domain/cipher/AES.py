@@ -1,37 +1,37 @@
 """
 AES.py
-Concrete implementation of the AES cipher primitive (FIPS 197).
+Implémentation concrète de la primitive de chiffrement AES (FIPS 197).
 
-Key sizes supported: 128, 192 or 256 bits (16, 24, 32 bytes).
-Block size: 128 bits (16 bytes).
+Tailles de clé supportées : 128, 192 ou 256 bits (16, 24, 32 octets).
+Taille de bloc : 128 bits (16 octets).
 
-Uses PyCryptodome in raw ECB mode internally so that a single block can be
-encrypted/decrypted.  All chaining logic lives in the mode layer.
+Utilise PyCryptodome en mode ECB brut afin de chiffrer/déchiffrer un seul bloc.
+Toute la logique de chaînage est gérée par la couche mode d'opération.
 """
 
 from Crypto.Cipher import AES as _AES
 
 from .CipherPrimitive import CipherPrimitive
 
-_VALID_KEY_SIZES = {16, 24, 32}  # 128 / 192 / 256 bits
+_VALID_KEY_SIZES = {16, 24, 32}  # 128 / 192 / 256 bits (tailles de clé valides)
 
 
 class AES(CipherPrimitive):
-    """AES block cipher — FIPS 197."""
+    """Chiffre par blocs AES — FIPS 197."""
 
-    BLOCK_SIZE = 16  # bytes
+    BLOCK_SIZE = 16  # octets
 
     def __init__(self, key: bytes) -> None:
         """
-        Parameters
+        Paramètres
         ----------
         key : bytes
-            16, 24 or 32 bytes (128 / 192 / 256-bit key).
+            16, 24 ou 32 octets (clé de 128 / 192 / 256 bits).
 
-        Raises
-        ------
+        Lève
+        ----
         ValueError
-            If the key length is not one of the supported sizes.
+            Si la longueur de la clé n'est pas une taille supportée.
         """
         if len(key) not in _VALID_KEY_SIZES:
             raise ValueError(
@@ -40,7 +40,7 @@ class AES(CipherPrimitive):
         self._key = key
 
     # ------------------------------------------------------------------ #
-    #  CipherPrimitive interface                                           #
+    #  Interface CipherPrimitive                                           #
     # ------------------------------------------------------------------ #
 
     @property
@@ -68,9 +68,9 @@ class AES(CipherPrimitive):
         return cipher.decrypt(block)
 
     def encrypt_blocks(self, data: bytes) -> bytes:
-        """Encrypt multiple blocks in a single PyCryptodome call (fast path)."""
+        """Chiffre plusieurs blocs en un seul appel PyCryptodome (chemin rapide)."""
         return _AES.new(self._key, _AES.MODE_ECB).encrypt(data)
 
     def decrypt_blocks(self, data: bytes) -> bytes:
-        """Decrypt multiple blocks in a single PyCryptodome call (fast path)."""
+        """Déchiffre plusieurs blocs en un seul appel PyCryptodome (chemin rapide)."""
         return _AES.new(self._key, _AES.MODE_ECB).decrypt(data)

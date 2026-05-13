@@ -1,12 +1,12 @@
 """
 generate_charts.py
-Generates all analysis figures from benchmark CSV data.
+Génère toutes les figures d'analyse à partir des données CSV de benchmarking.
 
 Usage
 -----
     py scripts/generate_charts.py
 
-Output: data/charts/  (PNG files at 150 dpi, suitable for Word insertion)
+Sortie : data/charts/  (fichiers PNG à 150 dpi, adaptés à l'insertion dans Word)
 """
 import os
 import sys
@@ -22,13 +22,13 @@ import matplotlib.patches as mpatches
 import numpy as np
 
 # ---------------------------------------------------------------------------
-# Config
+# Configuration
 # ---------------------------------------------------------------------------
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "results")
 CHARTS_DIR  = os.path.join(os.path.dirname(__file__), "..", "data", "charts")
 os.makedirs(CHARTS_DIR, exist_ok=True)
 
-# Use the first CSV found (most recent if sorted)
+# Utilise le premier fichier CSV trouvé (le plus récent si trié)
 csv_files = sorted(
     [f for f in os.listdir(RESULTS_DIR) if f.endswith(".csv") and f != ".gitkeep"]
 )
@@ -40,7 +40,7 @@ CSV_PATH = os.path.join(RESULTS_DIR, csv_files[-1])
 print(f"Reading: {CSV_PATH}")
 
 # ---------------------------------------------------------------------------
-# Load data
+# Chargement des données
 # ---------------------------------------------------------------------------
 rows = []
 with open(CSV_PATH, newline="", encoding="utf-8") as f:
@@ -61,7 +61,7 @@ with open(CSV_PATH, newline="", encoding="utf-8") as f:
         })
 
 # ---------------------------------------------------------------------------
-# Palette — consistent colours per algorithm
+# Palette — couleurs cohérentes par algorithme
 # ---------------------------------------------------------------------------
 ALGO_COLORS = {
     "AES":      "#2196F3",  # blue
@@ -83,14 +83,14 @@ def savefig(name: str):
 
 
 # ===========================================================================
-# Figure 1 — Throughput comparison at 4 096 bytes (representative mid-point)
-# One bar per algorithm+mode combination, grouped by algorithm.
+# Figure 1 — Comparaison du débit à 4 096 octets (point médian représentatif)
+# Une barre par combinaison algorithme+mode, regroupées par algorithme.
 # ===========================================================================
 def fig1_throughput_4096():
     target_size = 4096
     data = [r for r in rows if r["message_size_bytes"] == target_size]
 
-    # Group: algo → list of (mode, key_bits, enc_mbps)
+    # Groupe : algo → liste de (mode, bits_clé, enc_mbps)
     groups = defaultdict(list)
     for r in data:
         label = f"{r['mode']}\n{r['key_size_bits']}b"
@@ -125,7 +125,7 @@ def fig1_throughput_4096():
         fontsize=11,
     )
 
-    # Draw group labels below
+    # Étiquettes de groupe dessinées en dessous
     for algo, cx in group_centers.items():
         ax.text(cx, -ax.get_ylim()[1] * 0.12, algo,
                 ha="center", fontsize=9, fontweight="bold", color=ALGO_COLORS[algo])
@@ -142,14 +142,14 @@ def fig1_throughput_4096():
 
 
 # ===========================================================================
-# Figure 2 — Throughput vs message size (line chart, ECB mode only)
-# Shows scalability of each algorithm as data size grows.
+# Figure 2 — Débit en fonction de la taille du message (courbe, mode ECB uniquement)
+# Montre la scalabilité de chaque algorithme selon la taille des données.
 # ===========================================================================
 def fig2_throughput_vs_size():
     # Pick ECB (or CTR for DES/3DES which also have ECB; use ECB for all)
     ecb_data = [r for r in rows if r["mode"] == "ECB"]
 
-    # Best key size per algo for clarity (largest = most common recommendation)
+    # Meilleure taille de clé par algo pour la clarté (la plus grande = recommandation courante)
     best_key = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
 
     msg_sizes = sorted({r["message_size_bytes"] for r in ecb_data})
@@ -186,8 +186,8 @@ def fig2_throughput_vs_size():
 
 
 # ===========================================================================
-# Figure 3 — Mode comparison for AES-128 across all message sizes
-# Encrypt throughput: ECB / CBC / CTR / GCM
+# Figure 3 — Comparaison des modes pour AES-128 sur toutes les tailles de message
+# Débit de chiffrement : ECB / CBC / CTR / GCM
 # ===========================================================================
 def fig3_aes_mode_comparison():
     aes128 = [r for r in rows if r["algorithm"] == "AES" and r["key_size_bits"] == 128]
@@ -226,8 +226,8 @@ def fig3_aes_mode_comparison():
 
 
 # ===========================================================================
-# Figure 4 — Avalanche score per algorithm (bar chart, all modes averaged)
-# Expected value ≈ 0.50 (ideal diffusion)
+# Figure 4 — Score d'avalanche par algorithme (barres, moyenne de tous les modes)
+# Valeur attendue ≈ 0,50 (diffusion idéale)
 # ===========================================================================
 def fig4_avalanche():
     algo_scores = defaultdict(list)
@@ -256,7 +256,7 @@ def fig4_avalanche():
     ax.yaxis.grid(True, linestyle="--", alpha=0.5)
     ax.set_axisbelow(True)
 
-    # Annotate mean values
+    # Annotation des valeurs moyennes
     for bar, mean in zip(bars, means):
         ax.text(bar.get_x() + bar.get_width() / 2, mean + 0.001,
                 f"{mean:.4f}", ha="center", va="bottom", fontsize=9)
@@ -266,8 +266,8 @@ def fig4_avalanche():
 
 
 # ===========================================================================
-# Figure 4b — Plaintext avalanche vs Key avalanche comparison
-# Shows that all algorithms respond equally to both types of single-bit flip.
+# Figure 4b — Comparaison avalanche texte clair vs avalanche clé
+# Montre que tous les algorithmes répondent de façon égale aux deux types de flip.
 # ===========================================================================
 def fig4b_key_avalanche():
     algo_scores_pt  = defaultdict(list)
@@ -313,7 +313,7 @@ def fig4b_key_avalanche():
 
 
 # ===========================================================================
-# Figure 5 — Encrypt vs Decrypt throughput (paired bars, 4096 B, ECB mode)
+# Figure 5 — Débit chiffrement vs déchiffrement (barres pairées, 4096 o, mode ECB)
 # ===========================================================================
 def fig5_enc_vs_dec():
     target_size = 4096
@@ -321,7 +321,7 @@ def fig5_enc_vs_dec():
     data = [r for r in rows
             if r["message_size_bytes"] == target_size and r["mode"] == target_mode]
 
-    # One entry per algo+key combination
+    # Une entrée par combinaison algo+clé
     labels, enc_vals, dec_vals, colors = [], [], [], []
     for r in sorted(data, key=lambda r: (r["algorithm"], r["key_size_bits"])):
         labels.append(f"{r['algorithm']}\n{r['key_size_bits']}b")
@@ -353,7 +353,7 @@ def fig5_enc_vs_dec():
 
 
 # ===========================================================================
-# Figure 6 — Key size impact on AES throughput (ECB, 4096 B)
+# Figure 6 — Impact de la taille de clé sur le débit AES (ECB, 4096 o)
 # ===========================================================================
 def fig6_key_size_impact():
     data = [r for r in rows
@@ -392,7 +392,7 @@ def fig6_key_size_impact():
 
 
 # ===========================================================================
-# Run all
+# Exécution de toutes les figures
 # ===========================================================================
 if __name__ == "__main__":
     print("Generating charts...")

@@ -1,59 +1,59 @@
 """
 TripleDES.py
-Concrete implementation of the 3DES (Triple DES) cipher primitive.
+Implémentation concrète de la primitive de chiffrement 3DES (Triple DES).
 
-Key sizes supported:
-  - 16 bytes (112-bit security) — two-key 3DES: K1 || K2, K3 = K1
-  - 24 bytes (168-bit security) — three-key 3DES: K1 || K2 || K3
+Tailles de clé supportées :
+  - 16 octets (sécurité 112 bits) — 3DES à deux clés : K1 || K2, K3 = K1
+  - 24 octets (sécurité 168 bits) — 3DES à trois clés : K1 || K2 || K3
 
-Block size: 64 bits (8 bytes).
+Taille de bloc : 64 bits (8 octets).
 
-The three-step encrypt-decrypt-encrypt (EDE) sequence is handled by
-PyCryptodome so each call to encrypt_block / decrypt_block applies the full
-K1-encrypt → K2-decrypt → K3-encrypt pipeline, not a single DES pass.
+La séquence EDE (Chiffrer-Déchiffrer-Chiffrer) est gérée par PyCryptodome,
+de sorte que chaque appel à encrypt_block / decrypt_block applique le pipeline
+complet K1‑chiffre → K2‑déchiffre → K3‑chiffre, et non un seul passage DES.
 
-Uses PyCryptodome in raw ECB mode internally so a single block can be
-encrypted/decrypted.  All chaining logic lives in the mode layer.
+Utilise PyCryptodome en mode ECB brut afin de chiffrer/déchiffrer un seul bloc.
+Toute la logique de chaînage est gérée par la couche mode d'opération.
 """
 
 from Crypto.Cipher import DES3 as _DES3
 
 from .CipherPrimitive import CipherPrimitive
 
-_VALID_KEY_SIZES = {16, 24}  # 112 or 168 effective bits
+_VALID_KEY_SIZES = {16, 24}  # 112 ou 168 bits effectifs
 
 
 class TripleDES(CipherPrimitive):
-    """3DES (Triple DES / TDEA) block cipher."""
+    """Chiffre par blocs 3DES (Triple DES / TDEA)."""
 
-    BLOCK_SIZE = 8  # bytes
+    BLOCK_SIZE = 8  # octets
 
     def __init__(self, key: bytes) -> None:
         """
-        Parameters
+        Paramètres
         ----------
         key : bytes
-            16 bytes (two-key) or 24 bytes (three-key).
+            16 octets (deux clés) ou 24 octets (trois clés).
 
-        Raises
-        ------
+        Lève
+        ----
         ValueError
-            If the key length is not 16 or 24 bytes.
+            Si la longueur de la clé n'est pas 16 ou 24 octets.
         """
         if len(key) not in _VALID_KEY_SIZES:
             raise ValueError(
                 f"3DES key must be 16 or 24 bytes; got {len(key)}."
             )
-        # PyCryptodome rejects keys where K1 == K3 (weak key guard).
-        # Adjust if the caller passes a 24-byte key with K1 == K3.
+        # PyCryptodome rejette les clés où K1 == K3 (protection clé faible).
+        # Ajustement si l'appelant passe une clé de 24 octets avec K1 == K3.
         self._key = _DES3.adjust_key_parity(key)
-        # Cache stateless ECB cipher objects so encrypt_block / decrypt_block
-        # do not pay the cost of adjust_key_parity on every single block call.
+        # Mémorisation des objets ECB sans état pour éviter de payer le coût
+        # d'adjust_key_parity à chaque appel block par block.
         self._enc = _DES3.new(self._key, _DES3.MODE_ECB)
         self._dec = _DES3.new(self._key, _DES3.MODE_ECB)
 
     # ------------------------------------------------------------------ #
-    #  CipherPrimitive interface                                           #
+    #  Interface CipherPrimitive                                           #
     # ------------------------------------------------------------------ #
 
     @property
@@ -65,7 +65,7 @@ class TripleDES(CipherPrimitive):
         return len(self._key)
 
     def encrypt_block(self, block: bytes) -> bytes:
-        """Apply full EDE (Encrypt-Decrypt-Encrypt) pipeline to one block."""
+        """Applique le pipeline EDE (Chiffrer-Déchiffrer-Chiffrer) à un bloc."""
         if len(block) != self.BLOCK_SIZE:
             raise ValueError(
                 f"Block must be exactly {self.BLOCK_SIZE} bytes; got {len(block)}."
@@ -73,7 +73,7 @@ class TripleDES(CipherPrimitive):
         return self._enc.encrypt(block)
 
     def decrypt_block(self, block: bytes) -> bytes:
-        """Apply full DED (Decrypt-Encrypt-Decrypt) pipeline to one block."""
+        """Applique le pipeline DED (Déchiffrer-Chiffrer-Déchiffrer) à un bloc."""
         if len(block) != self.BLOCK_SIZE:
             raise ValueError(
                 f"Block must be exactly {self.BLOCK_SIZE} bytes; got {len(block)}."
@@ -81,9 +81,9 @@ class TripleDES(CipherPrimitive):
         return self._dec.decrypt(block)
 
     def encrypt_blocks(self, data: bytes) -> bytes:
-        """Apply full EDE pipeline to multiple blocks in one PyCryptodome call."""
+        """Applique le pipeline EDE à plusieurs blocs en un seul appel PyCryptodome."""
         return _DES3.new(self._key, _DES3.MODE_ECB).encrypt(data)
 
     def decrypt_blocks(self, data: bytes) -> bytes:
-        """Apply full DED pipeline to multiple blocks in one PyCryptodome call."""
+        """Applique le pipeline DED à plusieurs blocs en un seul appel PyCryptodome."""
         return _DES3.new(self._key, _DES3.MODE_ECB).decrypt(data)

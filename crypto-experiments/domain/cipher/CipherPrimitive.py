@@ -1,68 +1,69 @@
 """
 CipherPrimitive.py
-Abstract base class for all symmetric block cipher primitives.
+Classe abstraite de base pour toutes les primitives de chiffrement symétrique par blocs.
 
-Every concrete cipher (AES, DES, TripleDES, Twofish) must inherit from this
-class and implement encrypt_block / decrypt_block on a single block of bytes.
-The mode-of-operation layer is kept strictly separate: primitives know nothing
-about chaining, IVs or nonces.
+Chaque chiffre concret (AES, DES, TripleDES, Twofish) doit hériter de cette
+classe et implémenter encrypt_block / decrypt_block sur un seul bloc d'octets.
+La couche mode d'opération est strictement séparée : les primitives ne savent
+rien du chaînage, des IV ou des nonces.
 """
 
 from abc import ABC, abstractmethod
 
 
 class CipherPrimitive(ABC):
-    """Common interface for symmetric block-cipher primitives."""
+    """Interface commune pour les primitives de chiffrement symétrique par blocs."""
 
     @property
     @abstractmethod
     def block_size(self) -> int:
-        """Block size in bytes (e.g. 16 for AES, 8 for DES/3DES)."""
+        """Taille du bloc en octets (ex. 16 pour AES, 8 pour DES/3DES)."""
 
     @property
     @abstractmethod
     def key_size(self) -> int:
-        """Key size in bytes used by this instance."""
+        """Taille de la clé en octets utilisée par cette instance."""
 
     @abstractmethod
     def encrypt_block(self, block: bytes) -> bytes:
         """
-        Encrypt exactly one block of plaintext.
+        Chiffre exactement un bloc de texte en clair.
 
-        Parameters
+        Paramètres
         ----------
         block : bytes
-            Plaintext block of exactly ``block_size`` bytes.
+            Bloc de texte en clair de exactement ``block_size`` octets.
 
-        Returns
-        -------
+        Retourne
+        --------
         bytes
-            Ciphertext block of exactly ``block_size`` bytes.
+            Bloc de texte chiffré de exactement ``block_size`` octets.
         """
 
     @abstractmethod
     def decrypt_block(self, block: bytes) -> bytes:
         """
-        Decrypt exactly one block of ciphertext.
+        Déchiffre exactement un bloc de texte chiffré.
 
-        Parameters
+        Paramètres
         ----------
         block : bytes
-            Ciphertext block of exactly ``block_size`` bytes.
+            Bloc de texte chiffré de exactement ``block_size`` octets.
 
-        Returns
-        -------
+        Retourne
+        --------
         bytes
-            Plaintext block of exactly ``block_size`` bytes.
+            Bloc de texte en clair de exactement ``block_size`` octets.
         """
 
     def encrypt_blocks(self, data: bytes) -> bytes:
         """
-        Encrypt ``data`` (must be a multiple of block_size) as raw ECB blocks.
+        Chiffre ``data`` (doit être un multiple de block_size) en blocs ECB bruts.
 
-        Subclasses should override this with a single bulk call to their
-        underlying library so the loop overhead is paid only once per message
-        instead of once per block.  The default falls back to the block loop.
+        Les sous-classes devraient surcharger cette méthode avec un appel groupé
+        à leur bibliothèque sous-jacente, afin de ne payer le surcoût de boucle
+        qu'une seule fois par message plutôt qu'une fois par bloc.
+        Le comportement par défaut se rabat sur la boucle bloc par bloc.
         """
         bs = self.block_size
         if len(data) % bs != 0:
@@ -76,9 +77,9 @@ class CipherPrimitive(ABC):
 
     def decrypt_blocks(self, data: bytes) -> bytes:
         """
-        Decrypt ``data`` (must be a multiple of block_size) as raw ECB blocks.
+        Déchiffre ``data`` (doit être un multiple de block_size) en blocs ECB bruts.
 
-        Same bulk-optimisation contract as ``encrypt_blocks``.
+        Même contrat d'optimisation groupée que ``encrypt_blocks``.
         """
         bs = self.block_size
         if len(data) % bs != 0:

@@ -1,19 +1,19 @@
 """
 kat_chacha20.py
-Known-Answer Tests for the ChaCha20 stream cipher primitive.
+Tests à réponse connue (KAT) pour la primitive de chiffrement par flot ChaCha20.
 
 Sources
 -------
-* RFC 8439, Section 2.1.1 — ChaCha20 Quarter Round test
-* RFC 8439, Section 2.3.2 — ChaCha20 block function test vector
-* RFC 8439, Section 2.4.2 — ChaCha20 encryption test vector
+* RFC 8439, Section 2.1.1 — Test du ChaCha20 Quarter Round
+* RFC 8439, Section 2.3.2 — Vecteur de test de la fonction de bloc ChaCha20
+* RFC 8439, Section 2.4.2 — Vecteur de test de chiffrement ChaCha20
 
-Note: Our ChaCha20 implementation wraps PyCryptodome's ChaCha20 in IETF
-mode (96-bit nonce, 32-bit counter), which matches RFC 8439 exactly.
+Note : Notre implémentation ChaCha20 encapsule le ChaCha20 de PyCryptodome en mode
+IETF (nonce 96 bits, compteur 32 bits), ce qui correspond exactement à la RFC 8439.
 
-Because encrypt_block prepends the nonce to the ciphertext, we test the
-round-trip (encrypt → decrypt) AND verify that known plaintext+nonce+key
-produce the exact ciphertext from the RFC.
+Comme encrypt_block préfixe le nonce au texte chiffré, nous testons l'aller-retour
+(chiffrement → déchiffrement) ET vérifions que texte clair + nonce + clé connus
+produisent le texte chiffré exact de la RFC.
 """
 import sys
 import os
@@ -42,14 +42,14 @@ def _fail(label: str, got: bytes, expected: bytes, verbose: bool) -> int:
 
 
 def run(verbose: bool = True) -> int:
-    """Run all ChaCha20 KAT vectors. Returns number of failures."""
+    """Exécute tous les vecteurs KAT ChaCha20. Retourne le nombre d'échecs."""
     failures = 0
 
     # ------------------------------------------------------------------
-    # Test 1 — RFC 8439 §2.4.2: full encryption test vector
-    # Key, nonce, counter=1, and a 114-byte plaintext produce a known CT.
-    # We test PyCryptodome's raw ChaCha20 (not our wrapper) to confirm
-    # the underlying primitive matches the standard exactly.
+    # Test 1 — RFC 8439 §2.4.2 : vecteur de test de chiffrement complet
+    # Clé, nonce, compteur=1, et un texte clair de 114 octets produisent un CT connu.
+    # Nous testons le ChaCha20 brut de PyCryptodome (pas notre wrapper) pour confirmer
+    # que la primitive sous-jacente correspond exactement à la norme.
     # ------------------------------------------------------------------
     key_rfc = _h(
         "000102030405060708090a0b0c0d0e0f"
@@ -61,7 +61,7 @@ def run(verbose: bool = True) -> int:
         b"If I could offer you only one tip for the future, "
         b"sunscreen would be it."
     )
-    # Expected ciphertext from RFC 8439 §2.4.2 (exact bytes from the RFC)
+    # Texte chiffré attendu extrait de la RFC 8439 §2.4.2 (octets exacts de la RFC)
     ct_rfc = _h(
         "6e2e359a2568f98041ba0728dd0d6981"
         "e97e7aec1d4360c20a27afccfd9fae0b"
@@ -73,26 +73,26 @@ def run(verbose: bool = True) -> int:
         "874d"
     )
 
-    # Use PyCryptodome directly with counter=1 (RFC 8439 uses initial_value=1)
-    # PyCryptodome's seek(64) advances the keystream position by 64 bytes,
-    # which is equivalent to starting at counter block 1.
+    # Utilise PyCryptodome directement avec compteur=1 (RFC 8439 utilise initial_value=1)
+    # PyCryptodome's seek(64) avance la position du train de clés de 64 octets,
+    # ce qui équivaut à démarrer au bloc de compteur 1.
     raw_cipher = _PyCryptoChaCha20.new(
         key=key_rfc, nonce=nonce_rfc
     )
     raw_cipher.seek(64)  # skip block 0, start at counter=1
     got_ct = raw_cipher.encrypt(plain_rfc)
 
-    label = "RFC 8439 §2.4.2 — ChaCha20 encryption vector (counter=1)"
+    label = "RFC 8439 §2.4.2 — vecteur de chiffrement ChaCha20 (compteur=1)"
     if got_ct == ct_rfc:
         failures += _pass(label, verbose)
     else:
         failures += _fail(label, got_ct, ct_rfc, verbose)
 
     # ------------------------------------------------------------------
-    # Test 2 — Round-trip via our ChaCha20 wrapper: encrypt then decrypt
-    # We can't use a fixed nonce with our wrapper (nonce is random), so
-    # we verify that decrypt(encrypt(plaintext)) == plaintext for a
-    # 64-byte block, a 256-byte message, and an odd-sized message.
+    # Test 2 — Aller-retour via notre wrapper ChaCha20 : chiffrement puis déchiffrement
+    # Nous ne pouvons pas utiliser un nonce fixe avec notre wrapper (le nonce est aléatoire),
+    # donc nous vérifions que decrypt(encrypt(texte_clair)) == texte_clair pour un
+    # bloc de 64 octets, un message de 256 octets et un message de taille impaire.
     # ------------------------------------------------------------------
     key_rt = _h(
         "2b7e151628aed2a6abf7158809cf4f3c"
@@ -105,16 +105,17 @@ def run(verbose: bool = True) -> int:
         plaintext = plaintext[:size]
         ct  = cipher.encrypt_block(plaintext)
         dec = cipher.decrypt_block(ct)
-        label = f"RFC 8439 wrapper round-trip — {desc}"
+        label = f"RFC 8439 aller-retour wrapper — {desc}"
         if dec == plaintext:
             failures += _pass(label, verbose)
         else:
             failures += _fail(label, dec, plaintext, verbose)
 
     # ------------------------------------------------------------------
-    # Test 3 — Tamper detection: flipping 1 bit in the ciphertext body
-    # must produce a different plaintext (stream cipher provides no auth,
-    # but we confirm the keystream XOR changes the output byte correctly).
+    # Test 3 — Détection de falsification : inverser 1 bit dans le corps du texte chiffré
+    # doit produire un texte clair différent (le chiffrement par flot ne fournit pas
+    # d'authentification, mais nous confirmons que le XOR du train de clés change
+    # correctement l'octet de sortie).
     # ------------------------------------------------------------------
     key_t = _h(
         "1c9240a5eb55d38af333888604f6b5f0"
@@ -124,21 +125,21 @@ def run(verbose: bool = True) -> int:
     pt_t = b"Test tamper detection for ChaCha20 stream cipher."
     ct_t = cipher_t.encrypt_block(pt_t)
 
-    # Flip byte 15 of ciphertext body (after the 12-byte nonce)
+    # Inverser l'octet 15 du corps du texte chiffré (après le nonce de 12 octets)
     tampered = bytearray(ct_t)
     tampered[12 + 15] ^= 0xFF
     dec_tampered = cipher_t.decrypt_block(bytes(tampered))
 
-    label = "ChaCha20 tamper — flipped byte produces different plaintext"
+    label = "ChaCha20 falsification — l'octet inversé produit un texte clair différent"
     if dec_tampered != pt_t:
         failures += _pass(label, verbose)
     else:
         failures += _fail(label, dec_tampered, pt_t, verbose)
 
     # ------------------------------------------------------------------
-    # Test 4 — Key size validation: wrong key size must raise ValueError
+    # Test 4 — Validation de la taille de clé : une clé de mauvaise taille doit lever ValueError
     # ------------------------------------------------------------------
-    label = "ChaCha20 rejects 16-byte key (must be 32 bytes)"
+    label = "ChaCha20 rejette une clé de 16 octets (doit être 32 octets)"
     try:
         ChaCha20(b"\x00" * 16)
         failures += _fail(label, b"no exception", b"ValueError", verbose)

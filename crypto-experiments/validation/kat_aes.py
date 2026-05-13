@@ -1,14 +1,14 @@
 """
 kat_aes.py
-Known-Answer Tests for the AES primitive.
+Tests à réponse connue (KAT) pour la primitive AES.
 
 Sources
 -------
-* FIPS 197, Appendix B  — AES-128 encrypt/decrypt
-* NIST FIPS 197, Appendix C.1 — AES-128 (already same as B but cross-checked)
-* NIST Key Expansion Appendix A.1/A.2/A.3 — AES-128/192/256
+* FIPS 197, Annexe B  — chiffrement/déchiffrement AES-128
+* NIST FIPS 197, Annexe C.1 — AES-128 (identique à B, vérification croisée)
+* NIST Key Expansion Annexe A.1/A.2/A.3 — AES-128/192/256
 
-The vectors below are taken directly from the official NIST publications.
+Les vecteurs ci-dessous sont extraits directement des publications officielles NIST.
 """
 import sys
 import os
@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from domain.cipher.AES import AES
 
 # ---------------------------------------------------------------------------
-# Helpers
+# Utilitaires
 # ---------------------------------------------------------------------------
 
 def _h(hex_str: str) -> bytes:
@@ -25,11 +25,11 @@ def _h(hex_str: str) -> bytes:
 
 
 def run(verbose: bool = True) -> int:
-    """Run all AES KAT vectors.  Returns number of failures."""
+    """Exécute tous les vecteurs KAT AES. Retourne le nombre d'échecs."""
     failures = 0
 
     # ------------------------------------------------------------------
-    # AES-128  FIPS 197 Appendix B
+    # AES-128  FIPS 197 Annexe B
     # ------------------------------------------------------------------
     vectors_128 = [
         {
@@ -38,7 +38,7 @@ def run(verbose: bool = True) -> int:
             "plain": "32 43 f6 a8 88 5a 30 8d 31 31 98 a2 e0 37 07 34",
             "cipher":"39 25 84 1d 02 dc 09 fb dc 11 85 97 19 6a 0b 32",
         },
-        # NIST AES-128 ECB Monte-Carlo first step (FIPS 197 Appendix A.1)
+        # Première étape Monte-Carlo NIST AES-128 ECB (FIPS 197 Annexe A.1)
         {
             "label": "FIPS197 App-A.1 AES-128 zero-key zero-plain",
             "key":   "00000000000000000000000000000000",
@@ -48,7 +48,7 @@ def run(verbose: bool = True) -> int:
     ]
 
     # ------------------------------------------------------------------
-    # AES-192  FIPS 197 Appendix C.2
+    # AES-192  FIPS 197 Annexe C.2
     # ------------------------------------------------------------------
     vectors_192 = [
         {
@@ -60,7 +60,7 @@ def run(verbose: bool = True) -> int:
     ]
 
     # ------------------------------------------------------------------
-    # AES-256  FIPS 197 Appendix C.3
+    # AES-256  FIPS 197 Annexe C.3
     # ------------------------------------------------------------------
     vectors_256 = [
         {
@@ -85,7 +85,7 @@ def run(verbose: bool = True) -> int:
 
         aes = AES(key)
 
-        # Encrypt
+        # Chiffrement
         result = aes.encrypt_block(plain)
         ok = result == cipher
         if not ok:
@@ -97,7 +97,7 @@ def run(verbose: bool = True) -> int:
                 print(f"         expected: {cipher.hex()}")
                 print(f"         got:      {result.hex()}")
 
-        # Decrypt (round-trip)
+        # Déchiffrement (aller-retour)
         result_dec = aes.decrypt_block(cipher)
         ok_dec = result_dec == plain
         if not ok_dec:

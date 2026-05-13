@@ -1,25 +1,27 @@
 """
 compare_platforms.py
-Generates cross-platform comparison charts (x86 laptop vs Raspberry Pi).
+Génère les graphiques de comparaison inter-plateformes (laptop x86 vs Raspberry Pi).
 
 Usage
 -----
     py scripts/compare_platforms.py
 
-The script automatically finds CSV files matching the naming convention:
-    laptop-windows-x86_experience*.csv   → x86 platform
-    raspberry-pi_experience*.csv         → ARM / Raspberry Pi platform
+Le script trouve automatiquement les fichiers CSV correspondant à la convention
+de nommage :
+    laptop-windows-x86_experience*.csv   → plateforme x86
+    raspberry-pi_experience*.csv         → ARM / Raspberry Pi
 
-If no Pi CSV is found, the script prints a clear message and exits gracefully.
-All charts are saved to data/charts/comparison/.
+Si aucun CSV Pi n'est trouvé, le script affiche un message explicite et se
+termine proprement.
+Tous les graphiques sont enregistrés dans data/charts/comparison/.
 
-Output figures
---------------
-    cmp1_throughput_all.png     — Side-by-side throughput bars (4096 B, ECB)
-    cmp2_speedup_ratio.png      — x86/Pi speedup ratio per algorithm
-    cmp3_throughput_vs_size.png — Line chart: both platforms, ECB best key
-    cmp4_avalanche.png          — Avalanche scores: both platforms (should match)
-    cmp5_chacha20.png           — ChaCha20 performance: x86 vs Pi
+Figures produites
+-----------------
+    cmp1_throughput_all.png     — Barres de débit côte-à-côte (4096 o, ECB)
+    cmp2_speedup_ratio.png      — Ratio d'accélération x86/Pi par algorithme
+    cmp3_throughput_vs_size.png — Courbe : les deux plateformes, ECB meilleure clé
+    cmp4_avalanche.png          — Scores d'avalanche : les deux plateformes (doivent correspondre)
+    cmp5_chacha20.png           — Performance ChaCha20 : x86 vs Pi
 """
 
 import os
@@ -36,7 +38,7 @@ import matplotlib.patches as mpatches
 import numpy as np
 
 # ---------------------------------------------------------------------------
-# Config
+# Configuration
 # ---------------------------------------------------------------------------
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "results")
 OUT_DIR     = os.path.join(os.path.dirname(__file__), "..", "data", "charts", "comparison")
@@ -59,7 +61,7 @@ PLATFORM_STYLE = {
 }
 
 # ---------------------------------------------------------------------------
-# Find CSV files
+# Recherche des fichiers CSV
 # ---------------------------------------------------------------------------
 all_csvs = [f for f in os.listdir(RESULTS_DIR) if f.endswith(".csv")]
 
@@ -83,7 +85,7 @@ pi_path = os.path.join(RESULTS_DIR, pi_csvs[-1])
 print(f"Pi data  : {pi_csvs[-1]}")
 
 # ---------------------------------------------------------------------------
-# Load data
+# Chargement des données
 # ---------------------------------------------------------------------------
 
 def _load(path: str) -> list:
@@ -125,7 +127,7 @@ def savefig(name: str):
 
 
 # ===========================================================================
-# cmp1 — Side-by-side throughput bars (ECB, 4096 B, best key per algo)
+# cmp1 — Barres de débit côte-à-côte (ECB, 4096 o, meilleure clé par algo)
 # ===========================================================================
 def cmp1_throughput_all():
     target_size = 4096
@@ -169,8 +171,8 @@ def cmp1_throughput_all():
 
 
 # ===========================================================================
-# cmp2 — Speedup ratio x86/Pi per algorithm (ECB, 4096 B)
-# Shows how much faster x86 is than Pi for each algorithm.
+# cmp2 — Rapport d'accélération x86/Pi par algorithme (ECB, 4096 o)
+# Montre dans quelle mesure x86 est plus rapide que le Pi pour chaque algorithme.
 # ===========================================================================
 def cmp2_speedup_ratio():
     target_size = 4096
@@ -212,7 +214,7 @@ def cmp2_speedup_ratio():
 
 
 # ===========================================================================
-# cmp3 — Throughput vs message size: both platforms, ECB, best key per algo
+# cmp3 — Débit selon la taille du message : les deux plateformes, ECB, meilleure clé par algo
 # ===========================================================================
 def cmp3_throughput_vs_size():
     best_key = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
@@ -221,7 +223,7 @@ def cmp3_throughput_vs_size():
     fig, ax = plt.subplots(figsize=(FIG_W, 5))
     for algo, kb in best_key.items():
         color = ALGO_COLORS.get(algo, "#888")
-        # x86 — solid line
+        # x86 — trait plein
         x86_pts = sorted(
             [r for r in x86_rows if r["algorithm"] == algo and r["mode"] == "ECB"
              and r["key_size_bits"] == kb],
@@ -232,7 +234,7 @@ def cmp3_throughput_vs_size():
                     [r["throughput_enc"] for r in x86_pts],
                     marker="o", color=color, linewidth=2,
                     label=f"{algo} x86", linestyle="-")
-        # Pi — dashed line
+        # Pi — trait pointillé
         pi_pts = sorted(
             [r for r in pi_rows if r["algorithm"] == algo and r["mode"] == "ECB"
              and r["key_size_bits"] == kb],
@@ -262,7 +264,7 @@ def cmp3_throughput_vs_size():
 
 
 # ===========================================================================
-# cmp4 — Avalanche scores: both platforms (should be identical — no HW effect)
+# cmp4 — Scores d'avalanche : les deux plateformes (doivent être identiques — aucun effet matériel)
 # ===========================================================================
 def cmp4_avalanche():
     algo_order = ["AES", "DES", "3DES", "Twofish", "ChaCha20"]
@@ -301,15 +303,15 @@ def cmp4_avalanche():
 
 
 # ===========================================================================
-# cmp5 — ChaCha20 performance: x86 vs Pi across message sizes
-# Interesting because Pi has no AES-NI but ChaCha20 has no HW acceleration
-# on either platform — gap should be smaller than for AES.
+# cmp5 — Performance ChaCha20 : x86 vs Pi sur toutes les tailles de message
+# Intéressant car le Pi ne dispose pas d'AES-NI mais ChaCha20 n'a pas d'accélération
+# matérielle sur aucune des deux plateformes — l'écart devrait être plus faible qu'avec AES.
 # ===========================================================================
 def cmp5_chacha20():
     msg_sizes = sorted({r["message_size_bytes"] for r in x86_rows
                         if r["algorithm"] == "ChaCha20"})
     if not msg_sizes:
-        print("  (cmp5 skipped — no ChaCha20 data)")
+        print("  (cmp5 ignoré — aucune donnée ChaCha20)")
         return
 
     fig, ax = plt.subplots(figsize=(8, 4.5))
@@ -345,10 +347,10 @@ def cmp5_chacha20():
 
 
 # ===========================================================================
-# Run all
+# Exécution de toutes les figures
 # ===========================================================================
 if __name__ == "__main__":
-    print("\nGenerating comparison charts...")
+    print("\nGénération des graphiques de comparaison...")
     cmp1_throughput_all()
     cmp2_speedup_ratio()
     cmp3_throughput_vs_size()

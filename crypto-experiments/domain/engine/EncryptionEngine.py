@@ -1,11 +1,12 @@
 """
 EncryptionEngine.py
-Composes a CipherPrimitive with an OperationMode into a complete encryption
-service.
+Compose une CipherPrimitive avec un OperationMode pour former un service
+de chiffrement complet.
 
-This is the central domain object: it is what the application layer
-(ExperimentController) works with.  It knows nothing about timing, CSV files
-or experiment configuration — those concerns belong to upper layers.
+C'est l'objet central du domaine : c'est avec lui que travaille la couche
+application (ExperimentController). Il ne sait rien du chronométrage, des
+fichiers CSV ni de la configuration des expériences — ces préoccupations
+appartiennent aux couches supérieures.
 """
 
 from domain.cipher.CipherPrimitive import CipherPrimitive
@@ -14,15 +15,15 @@ from domain.mode.OperationMode import OperationMode
 
 class EncryptionEngine:
     """
-    Combines a cipher primitive and a mode of operation.
+    Combine une primitive de chiffrement et un mode d'opération.
 
-    Parameters
+    Paramètres
     ----------
     primitive : CipherPrimitive
-        A concrete cipher (AES, DES, TripleDES, Twofish …).
+        Un chiffre concret (AES, DES, TripleDES, Twofish …).
     mode : OperationMode
-        A concrete mode (ECB, CBC, CTR, GCM …) already initialised with
-        the same primitive.
+        Un mode concret (ECB, CBC, CTR, GCM …) déjà initialisé avec
+        la même primitive.
     """
 
     def __init__(self, primitive: CipherPrimitive, mode: OperationMode) -> None:
@@ -36,7 +37,7 @@ class EncryptionEngine:
         self._mode = mode
 
     # ------------------------------------------------------------------ #
-    #  Public API                                                          #
+    #  API publique                                                        #
     # ------------------------------------------------------------------ #
 
     @property
@@ -49,18 +50,18 @@ class EncryptionEngine:
 
     def encrypt(self, plaintext: bytes, **kwargs) -> bytes:
         """
-        Encrypt ``plaintext`` using the configured primitive and mode.
+        Chiffre ``plaintext`` avec la primitive et le mode configurés.
 
-        All keyword arguments are forwarded to the mode (e.g. ``iv``,
+        Tous les arguments nommés sont transmis au mode (ex. ``iv``,
         ``nonce``, ``aad``).
         """
         return self._mode.encrypt(plaintext, **kwargs)
 
     def decrypt(self, ciphertext: bytes, **kwargs) -> bytes:
         """
-        Decrypt ``ciphertext`` using the configured primitive and mode.
+        Déchiffre ``ciphertext`` avec la primitive et le mode configurés.
 
-        All keyword arguments are forwarded to the mode.
+        Tous les arguments nommés sont transmis au mode.
         """
         return self._mode.decrypt(ciphertext, **kwargs)
 

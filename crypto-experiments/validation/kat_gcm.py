@@ -1,16 +1,16 @@
 """
 kat_gcm.py
-Known-Answer Tests for AES-GCM (authenticated encryption).
+Tests à réponse connue (KAT) pour AES-GCM (chiffrement authentifié).
 
 Sources
 -------
-* NIST SP 800-38D, Appendix B — GCM Test Vectors
-  Test Case 1:  AES-128, empty plaintext, empty AAD
-  Test Case 2:  AES-128, empty plaintext, empty AAD, different IV
-  Test Case 3:  AES-128, 16-byte plaintext, empty AAD
-  Test Case 4:  AES-128, 16-byte plaintext, 20-byte AAD
+* NIST SP 800-38D, Annexe B — Vecteurs de test GCM
+  Cas de test 1 : AES-128, texte clair vide, AAD vide
+  Cas de test 2 : AES-128, texte clair vide, AAD vide, IV différent
+  Cas de test 3 : AES-128, texte clair de 16 octets, AAD vide
+  Cas de test 4 : AES-128, texte clair de 16 octets, AAD de 20 octets
 
-Only cases that exercise our code paths are included (non-empty plaintext).
+Seuls les cas exercçant nos chemins de code sont inclus (texte clair non vide).
 """
 import sys
 import os
@@ -25,12 +25,12 @@ def _h(hex_str: str) -> bytes:
 
 
 def run(verbose: bool = True) -> int:
-    """Run all AES-GCM KAT vectors.  Returns number of failures."""
+    """Exécute tous les vecteurs KAT AES-GCM. Retourne le nombre d'échecs."""
     failures = 0
 
     # ------------------------------------------------------------------
-    # NIST SP 800-38D Appendix B, Test Case 3
-    # AES-128, 16-byte plaintext, 12-byte IV (nonce), no AAD
+    # NIST SP 800-38D Annexe B, Cas de test 3
+    # AES-128, texte clair de 16 octets, IV (nonce) de 12 octets, sans AAD
     # ------------------------------------------------------------------
     tc3 = {
         "label":  "SP800-38D TC3 AES-128-GCM",
@@ -48,8 +48,8 @@ def run(verbose: bool = True) -> int:
     }
 
     # ------------------------------------------------------------------
-    # NIST SP 800-38D Appendix B, Test Case 4
-    # AES-128, 60-byte plaintext, 12-byte IV, 20-byte AAD
+    # NIST SP 800-38D Annexe B, Cas de test 4
+    # AES-128, texte clair de 60 octets, IV de 12 octets, AAD de 20 octets
     # ------------------------------------------------------------------
     tc4 = {
         "label":  "SP800-38D TC4 AES-128-GCM with AAD",
@@ -80,7 +80,7 @@ def run(verbose: bool = True) -> int:
         aes = AES(key)
         gcm = GCM(aes)
 
-        # Encrypt — output is nonce(12) || ciphertext || tag(16)
+        # Chiffrement — sortie : nonce(12) || texte chiffré || tag(16)
         enc_out = gcm.encrypt(plain, nonce=nonce, aad=aad)
         enc_nonce     = enc_out[:12]
         enc_ciphertext = enc_out[12:-16]
@@ -101,7 +101,7 @@ def run(verbose: bool = True) -> int:
                 print(f"         tag expected: {tag.hex()}")
                 print(f"         tag got:      {enc_tag.hex()}")
 
-        # Decrypt — feed nonce || ciphertext || tag
+        # Déchiffrement — fournit nonce || texte chiffré || tag
         try:
             dec_out = gcm.decrypt(nonce + cipher + tag, nonce=None, aad=aad)
             ok_dec = dec_out == plain

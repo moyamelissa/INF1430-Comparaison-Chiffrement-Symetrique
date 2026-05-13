@@ -1,27 +1,29 @@
 """
 StreamMode.py
-Thin pass-through mode for stream ciphers (e.g. ChaCha20).
+Mode passthrough pour les chiffres de flux (ex. ChaCha20).
 
-Stream ciphers have no concept of "block chaining" — the primitive itself
-handles nonce generation and keystream XOR internally.  StreamMode simply
-delegates encrypt/decrypt directly to the primitive's encrypt_blocks /
-decrypt_blocks methods so that the EncryptionEngine interface is satisfied
-without forcing a stream cipher through block-mode logic (padding, IV, etc.).
+Les chiffres de flux n'ont pas de notion de chaînage par blocs — la primitive
+gère elle-même la génération du nonce et le XOR du flux de clés. StreamMode
+délègue simplement encrypt/decrypt directement aux méthodes encrypt_blocks /
+decrypt_blocks de la primitive, de sorte que l'interface EncryptionEngine soit
+satisfaite sans forcer un chiffre de flux à traverser la logique de mode par
+blocs (rembourrage, IV, etc.).
 
-This mode is only valid when paired with a stream cipher primitive such as
-ChaCha20.  Using it with a block cipher (AES, DES, etc.) would be incorrect.
+Ce mode n'est valide que lorsqu'il est associé à une primitive de type chiffre
+de flux comme ChaCha20. L'utiliser avec un chiffre par blocs (AES, DES, etc.)
+serait incorrect.
 """
 
 from domain.mode.OperationMode import OperationMode
 
 
 class StreamMode(OperationMode):
-    """Pass-through mode for stream ciphers."""
+    """Mode passthrough pour les chiffres de flux."""
 
     def encrypt(self, plaintext: bytes, **kwargs) -> bytes:
-        """Delegate directly to the primitive (nonce embedded in output)."""
+        """Délègue directement à la primitive (nonce inclus dans la sortie)."""
         return self._primitive.encrypt_blocks(plaintext)
 
     def decrypt(self, ciphertext: bytes, **kwargs) -> bytes:
-        """Delegate directly to the primitive (nonce extracted from input)."""
+        """Délègue directement à la primitive (nonce extrait de l'entrée)."""
         return self._primitive.decrypt_blocks(ciphertext)

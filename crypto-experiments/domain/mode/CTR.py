@@ -1,14 +1,15 @@
 """
 CTR.py
-Counter (CTR) mode of operation (NIST SP 800-38A).
+Mode d'opération CTR (Counter) — NIST SP 800-38A.
 
-CTR turns a block cipher into a stream cipher by encrypting successive counter
-values and XOR-ing the keystream with the plaintext.  No padding is needed and
-encryption/decryption are identical operations.  Blocks can be processed in
-parallel (important for benchmarking parallelism).
+Le mode CTR transforme un chiffre par blocs en chiffre de flux en chiffrant
+des valeurs de compteur successives et en XOR-ant le flux de clés avec le
+texte en clair. Aucun rembourrage n'est nécessaire et chiffrement/déchiffrement
+sont des opérations identiques. Les blocs peuvent être traités en parallèle
+(important pour le benchmarking du parallélisme).
 
-Nonce: ``block_size - 8`` bytes prepended to an 8-byte big-endian counter.
-The full counter block is therefore ``block_size`` bytes.
+Nonce : ``block_size - 8`` octets préfixés à un compteur de 8 octets big-endian.
+Le bloc de compteur complet fait donc ``block_size`` octets.
 """
 
 import os
@@ -17,16 +18,16 @@ import struct
 from domain.cipher.CipherPrimitive import CipherPrimitive
 from .OperationMode import OperationMode
 
-_COUNTER_BYTES = 8  # 64-bit counter
+_COUNTER_BYTES = 8  # compteur 64 bits
 
 
 class CTR(OperationMode):
     """
-    Counter mode (NIST SP 800-38A, Section 6.5).
+    Mode CTR (Counter) — NIST SP 800-38A, section 6.5.
 
-    The counter block is built as: nonce (block_size - 8 bytes) || counter (8 bytes).
-    A fresh random nonce is generated for each encrypt() call when none is
-    supplied; the nonce is prepended to the output and read back in decrypt().
+    Le bloc de compteur est construit comme : nonce (block_size - 8 octets) || compteur (8 octets).
+    Un nonce aléatoire est généré à chaque appel d'encrypt() si aucun n'est fourni ;
+    le nonce est préfixé à la sortie et relu dans decrypt().
     """
 
     def __init__(self, primitive: CipherPrimitive) -> None:
@@ -38,19 +39,19 @@ class CTR(OperationMode):
 
     def encrypt(self, plaintext: bytes, nonce: bytes | None = None, **kwargs) -> bytes:
         """
-        Encrypt ``plaintext`` in CTR mode.
+        Chiffre ``plaintext`` en mode CTR.
 
-        Parameters
+        Paramètres
         ----------
         plaintext : bytes
-            Arbitrary-length plaintext (no padding required).
-        nonce : bytes, optional
-            ``block_size - 8`` random bytes.  Generated automatically when None.
+            Texte en clair de longueur arbitraire (aucun rembourrage requis).
+        nonce : bytes, optionnel
+            ``block_size - 8`` octets aléatoires. Généré automatiquement si None.
 
-        Returns
-        -------
+        Retourne
+        --------
         bytes
-            nonce || ciphertext.
+            nonce || texte chiffré.
         """
         if nonce is None:
             nonce = os.urandom(self._nonce_size)
@@ -62,7 +63,7 @@ class CTR(OperationMode):
         bs = self._primitive.block_size
         num_blocks = (len(plaintext) + bs - 1) // bs
 
-        # Build all counter blocks and encrypt in one bulk call
+        # Construction de tous les blocs de compteur et chiffrement en un appel groupé
         all_counters = b"".join(
             self._counter_block(nonce, i) for i in range(num_blocks)
         )
@@ -75,23 +76,23 @@ class CTR(OperationMode):
 
     def decrypt(self, ciphertext: bytes, nonce: bytes | None = None, **kwargs) -> bytes:
         """
-        Decrypt ``ciphertext`` produced by CTR.encrypt().
+        Déchiffre ``ciphertext`` produit par CTR.encrypt().
 
-        CTR decrypt is identical to CTR encrypt (XOR is its own inverse).
+        Le déchiffrement CTR est identique au chiffrement CTR (XOR est sa propre inverse).
 
-        Parameters
+        Paramètres
         ----------
         ciphertext : bytes
-            nonce || ciphertext (as returned by encrypt) when ``nonce`` is None,
-            or raw ciphertext when ``nonce`` is supplied explicitly.
-        nonce : bytes, optional
-            Explicit nonce.  When None it is read from the first
-            ``block_size - 8`` bytes of ``ciphertext``.
+            nonce || texte chiffré (tel que retourné par encrypt) si ``nonce`` est None,
+            ou texte chiffré brut si ``nonce`` est fourni explicitement.
+        nonce : bytes, optionnel
+            Nonce explicite. Si None, lu dans les premiers
+            ``block_size - 8`` octets de ``ciphertext``.
 
-        Returns
-        -------
+        Retourne
+        --------
         bytes
-            Plaintext.
+            Texte en clair.
         """
         if nonce is None:
             nonce, ciphertext = ciphertext[: self._nonce_size], ciphertext[self._nonce_size :]

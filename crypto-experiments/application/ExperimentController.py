@@ -1,18 +1,19 @@
 """
 ExperimentController.py
-Orchestrates benchmarking experiments over EncryptionEngine instances.
+Orchestre les expériences de benchmarking sur des instances EncryptionEngine.
 
-Responsibilities:
-  - Configure and iterate over experiment parameters (algorithm, mode,
-    key size, message size, repetitions).
-  - Time encrypt / decrypt operations neutrally (timer wraps only the
-    cryptographic call, not setup or I/O).
-  - Compute the avalanche effect score for each primitive.
-  - Return structured result dicts; persistence (CSV) is handled by the
-    calling script, not here.
+Responsabilités :
+  - Configurer et itérer sur les paramètres d'expérience (algorithme, mode,
+    taille de clé, taille de message, répétitions).
+  - Chronométrer les opérations de chiffrement/déchiffrement de façon neutre
+    (le minuteur n'encapsule que l'appel cryptographique, pas l'initialisation
+    ni les E/S).
+  - Calculer le score d'effet d'avalanche pour chaque primitive.
+  - Retourner des dictionnaires de résultats structurés ; la persistance (CSV)
+    est gérée par le script appelant, pas ici.
 
-This layer has no knowledge of which specific primitive or mode is used —
-it only calls the EncryptionEngine interface.
+Cette couche ne sait pas quelle primitive ou quel mode spécifique est utilisé —
+elle n'appelle que l'interface EncryptionEngine.
 """
 
 import math
@@ -27,36 +28,36 @@ from domain.engine.EncryptionEngine import EncryptionEngine
 
 @dataclass
 class ExperimentResult:
-    """Container for a single experiment measurement."""
+    """Conteneur pour une mesure d'expérience unique."""
 
-    algorithm: str          # e.g. "AES"
-    mode: str               # e.g. "CBC"
-    key_size_bytes: int     # e.g. 16
-    message_size_bytes: int # e.g. 1024
-    repetitions: int        # number of timed iterations
+    algorithm: str          # ex. "AES"
+    mode: str               # ex. "CBC"
+    key_size_bytes: int     # ex. 16
+    message_size_bytes: int # ex. 1024
+    repetitions: int        # nombre d'itérations chronométrées
     avg_encrypt_time_s: float
     avg_decrypt_time_s: float
     throughput_encrypt_mbps: float
     throughput_decrypt_mbps: float
-    avalanche_score: float      # plaintext bit-flip → output change ratio
-    key_avalanche_score: float  # key bit-flip → output change ratio
-    ci95_encrypt_mbps: float    # 95% confidence interval half-width (encrypt)
-    ci95_decrypt_mbps: float    # 95% confidence interval half-width (decrypt)
+    avalanche_score: float      # flip d'un bit en clair → taux de changement en sortie
+    key_avalanche_score: float  # flip d'un bit de clé → taux de changement en sortie
+    ci95_encrypt_mbps: float    # demi-largeur de l'intervalle de confiance à 95 % (chiffrement)
+    ci95_decrypt_mbps: float    # demi-largeur de l'intervalle de confiance à 95 % (déchiffrement)
     extra: dict = field(default_factory=dict)
 
 
 class ExperimentController:
     """
-    Coordinates a benchmarking campaign for one EncryptionEngine.
+    Coordonne une campagne de benchmarking pour un EncryptionEngine.
 
-    Parameters
+    Paramètres
     ----------
     engine : EncryptionEngine
-        The fully-configured engine (primitive + mode) to benchmark.
+        Le moteur entirement configuré (primitive + mode) à benchmarker.
     algorithm_name : str
-        Human-readable label used in result rows (e.g. "AES").
+        Étiquette lisible utilisée dans les lignes de résultat (ex. "AES").
     mode_name : str
-        Human-readable label used in result rows (e.g. "CBC").
+        Étiquette lisible utilisée dans les lignes de résultat (ex. "CBC").
     """
 
     def __init__(
@@ -70,7 +71,7 @@ class ExperimentController:
         self._mode_name = mode_name
 
     # ------------------------------------------------------------------ #
-    #  Performance benchmark                                               #
+    #  Benchmarking de performance                                         #
     # ------------------------------------------------------------------ #
 
     def run_performance(
@@ -79,27 +80,28 @@ class ExperimentController:
         repetitions: int = 1000,
     ) -> ExperimentResult:
         """
-        Measure average encrypt / decrypt time and throughput.
+        Mesure le temps moyen de chiffrement/déchiffrement et le débit.
 
-        The timer wraps only the cryptographic call so platform overhead
-        (memory allocation, Python interpreter) is minimised.  A fixed
-        random plaintext is reused across repetitions for comparability.
+        Le minuteur n'encapsule que l'appel cryptographique, minimisant ainsi
+        les surcoûts de la plateforme (allocation mémoire, interpréteur Python).
+        Un texte en clair aléatoire fixe est réutilisé à travers les répétitions
+        pour comparabilité.
 
-        Parameters
+        Paramètres
         ----------
         message_size_bytes : int
-            Size of the random test message in bytes.
+            Taille du message de test aléatoire en octets.
         repetitions : int
-            Number of encrypt (and decrypt) iterations to average over.
+            Nombre d'itérations de chiffrement (et de déchiffrement) à moyenner.
 
-        Returns
-        -------
+        Retourne
+        --------
         ExperimentResult
-            Populated result including throughput and avalanche score.
+            Résultat peuplé incluant le débit et le score d'avalanche.
         """
         plaintext = os.urandom(message_size_bytes)
 
-        # --- encrypt timing ---
+        # --- chronométrage du chiffrement ---
         enc_times = []
         ciphertexts = []
         for _ in range(repetitions):
@@ -108,7 +110,7 @@ class ExperimentController:
             enc_times.append(time.perf_counter() - t0)
             ciphertexts.append(ct)
 
-        # --- decrypt timing (use last ciphertext) ---
+        # --- chronométrage du déchiffrement (utilise le dernier texte chiffré) ---
         last_ct = ciphertexts[-1]
         dec_times = []
         for _ in range(repetitions):
@@ -120,18 +122,18 @@ class ExperimentController:
         avg_dec = sum(dec_times) / repetitions
         mb = message_size_bytes / (1024 * 1024)
 
-        # 95% confidence interval: t_{0.975, n-1} * std / sqrt(n)
-        # For n >= 30 we use z = 1.96 (normal approximation).
+        # Intervalle de confiance à 95 % : t_{0,975, n-1} * std / sqrt(n)
+        # Pour n >= 30, on utilise z = 1,96 (approximation normale).
         def _ci95_mbps(times: list, avg_t: float) -> float:
             n = len(times)
             if n < 2 or avg_t <= 0:
                 return 0.0
             variance = sum((t - avg_t) ** 2 for t in times) / (n - 1)
             std_dev  = math.sqrt(variance)
-            # Convert time std-dev to throughput std-dev (MB/s)
-            # throughput = mb / t  →  std_throughput ≈ mb * std_t / avg_t²
+            # Conversion de l'écart-type temporel en écart-type de débit (MB/s)
+            # débit = mb / t  →  std_débit ≈ mb * std_t / avg_t²
             std_thr  = mb * std_dev / (avg_t ** 2)
-            t_crit   = 1.96 if n >= 30 else 2.045  # t_{0.975} for n~30
+            t_crit   = 1.96 if n >= 30 else 2.045  # t_{0,975} pour n~30
             return t_crit * std_thr / math.sqrt(n)
 
         ci95_enc = _ci95_mbps(enc_times, avg_enc)
@@ -154,33 +156,33 @@ class ExperimentController:
         )
 
     # ------------------------------------------------------------------ #
-    #  Avalanche effect                                                    #
+    #  Effet d'avalanche                                                   #
     # ------------------------------------------------------------------ #
 
     def measure_avalanche(self, trials: int = 200) -> float:
         """
-        Estimate the avalanche score of the primitive (not the mode).
+        Estime le score d'avalanche de la primitive (pas du mode).
 
-        Methodology (per professor feedback):
-          1. Generate a random block of ``primitive.block_size`` bytes.
-          2. Encrypt it → reference ciphertext.
-          3. Flip exactly one bit in the plaintext.
-          4. Encrypt the modified block → modified ciphertext.
-          5. Count the bit differences (Hamming distance).
-          6. Repeat ``trials`` times, averaging the ratio of flipped bits.
+        Méthodologie (selon retour du professeur) :
+          1. Générer un bloc aléatoire de ``primitive.block_size`` octets.
+          2. Le chiffrer → texte chiffré de référence.
+          3. Inverser exactement un bit dans le texte en clair.
+          4. Chiffrer le bloc modifié → texte chiffré modifié.
+          5. Compter les différences de bits (distance de Hamming).
+          6. Répéter ``trials`` fois en moyennant le ratio de bits inversés.
 
-        A perfect avalanche score is 0.5 (50 % of output bits change).
-        This is computed on the primitive directly, independent of the mode.
+        Un score d'avalanche parfait est 0,5 (50 % des bits de sortie changent).
+        Ce calcul s'effectue directement sur la primitive, indépendamment du mode.
 
-        Parameters
+        Paramètres
         ----------
         trials : int
-            Number of single-bit-flip experiments to average over.
+            Nombre d'expériences de flip d'un seul bit à moyenner.
 
-        Returns
-        -------
+        Retourne
+        --------
         float
-            Average proportion of output bits that changed (0.0 – 1.0).
+            Proportion moyenne de bits de sortie qui ont changé (0,0 – 1,0).
         """
         primitive = self._engine.primitive
         bs = primitive.block_size
@@ -199,7 +201,7 @@ class ExperimentController:
 
             mod_ct = primitive.encrypt_block(bytes(modified))
 
-            # Hamming distance
+            # Distance de Hamming
             diff_bits = sum(
                 bin(a ^ b).count("1")
                 for a, b in zip(ref_ct, mod_ct)
@@ -210,29 +212,29 @@ class ExperimentController:
 
     def measure_key_avalanche(self, trials: int = 200) -> float:
         """
-        Estimate the key avalanche score of the primitive.
+        Estime le score d'avalanche clé de la primitive.
 
-        Methodology (per professor feedback, TN1 Feedback 11):
-          1. Generate a fixed random plaintext block.
-          2. Encrypt it with the current key → reference ciphertext.
-          3. Flip exactly one bit in the *key* and re-instantiate the
-             primitive with the modified key.
-          4. Encrypt the same plaintext → modified ciphertext.
-          5. Compute Hamming distance between the two ciphertexts.
-          6. Repeat ``trials`` times, averaging the ratio of flipped bits.
+        Méthodologie (selon retour du professeur, TN1 Retour 11) :
+          1. Générer un bloc de texte en clair fixe aléatoire.
+          2. Le chiffrer avec la clé courante → texte chiffré de référence.
+          3. Inverser exactement un bit dans la *clé* et réinstancier la
+             primitive avec la clé modifiée.
+          4. Chiffrer le même texte en clair → texte chiffré modifié.
+          5. Calculer la distance de Hamming entre les deux textes chiffrés.
+          6. Répéter ``trials`` fois en moyennant le ratio de bits inversés.
 
-        A perfect key avalanche score is 0.5 (50 % of output bits change
-        when a single key bit is flipped with the same plaintext).
+        Un score d'avalanche clé parfait est 0,5 (50 % des bits de sortie
+        changent quand un seul bit de clé est inversé avec le même texte).
 
-        Parameters
+        Paramètres
         ----------
         trials : int
-            Number of single-key-bit-flip experiments to average over.
+            Nombre d'expériences de flip d'un seul bit de clé à moyenner.
 
-        Returns
-        -------
+        Retourne
+        --------
         float
-            Average proportion of output bits that changed (0.0 – 1.0).
+            Proportion moyenne de bits de sortie qui ont changé (0,0 – 1,0).
         """
         primitive = self._engine.primitive
         bs = primitive.block_size
@@ -243,21 +245,21 @@ class ExperimentController:
         for _ in range(trials):
             block = os.urandom(bs)
 
-            # Reference: encrypt with the original key
+            # Référence : chiffrement avec la clé originale
             ref_ct = primitive.encrypt_block(block)
 
-            # Flip one random bit in the key
+            # Inverser un bit aléatoire dans la clé
             key_bytes = bytearray(self._engine.primitive._key)
             flip_byte = secrets.randbelow(ks)
             flip_bit  = secrets.randbelow(8)
             key_bytes[flip_byte] ^= (1 << flip_bit)
 
-            # Build a new primitive with the modified key — catch degenerate
-            # keys (e.g. 3DES K1=K2) by retrying with a different flip
+            # Construction d'une nouvelle primitive avec la clé modifiée — les clés
+            # dégénérées (ex. 3DES K1=K2) sont gérées en réessayant avec un autre flip
             try:
                 modified_prim = type(primitive)(bytes(key_bytes))
             except Exception:  # noqa: BLE001
-                scores.append(0.5)  # assume ideal if key is degenerate
+                scores.append(0.5)  # valeur idéale supposée si la clé est dégénérée
                 continue
 
             mod_ct = modified_prim.encrypt_block(block)

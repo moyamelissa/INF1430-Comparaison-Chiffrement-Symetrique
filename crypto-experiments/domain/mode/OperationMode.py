@@ -1,10 +1,11 @@
 """
 OperationMode.py
-Abstract base class for all block-cipher modes of operation.
+Classe abstraite de base pour tous les modes d'opération de chiffrement par blocs.
 
-A mode receives a CipherPrimitive and applies a chaining/padding strategy to
-encrypt or decrypt arbitrarily-sized messages.  The mode layer knows nothing
-about which primitive it wraps — it only calls encrypt_block / decrypt_block.
+Un mode reçoit une CipherPrimitive et applique une stratégie de chaînage/rembourrage
+pour chiffrer ou déchiffrer des messages de longueur arbitraire. La couche mode
+ne sait rien de la primitive qu'elle encapsule — elle appelle uniquement
+encrypt_block / decrypt_block.
 """
 
 from abc import ABC, abstractmethod
@@ -13,14 +14,14 @@ from domain.cipher.CipherPrimitive import CipherPrimitive
 
 
 class OperationMode(ABC):
-    """Common interface for block-cipher modes of operation."""
+    """Interface commune pour les modes d'opération de chiffrement par blocs."""
 
     def __init__(self, primitive: CipherPrimitive) -> None:
         """
-        Parameters
+        Paramètres
         ----------
         primitive : CipherPrimitive
-            The block-cipher primitive this mode will wrap.
+            La primitive de chiffrement par blocs que ce mode va encapsuler.
         """
         self._primitive = primitive
 
@@ -31,37 +32,37 @@ class OperationMode(ABC):
     @abstractmethod
     def encrypt(self, plaintext: bytes, **kwargs) -> bytes:
         """
-        Encrypt an arbitrary-length plaintext.
+        Chiffre un texte en clair de longueur arbitraire.
 
-        Parameters
+        Paramètres
         ----------
         plaintext : bytes
-            Data to encrypt.  Padding (if required) is handled internally.
+            Données à chiffrer. Le rembourrage (si nécessaire) est géré en interne.
         **kwargs
-            Mode-specific parameters (e.g. ``iv``, ``nonce``).
+            Paramètres spécifiques au mode (ex. ``iv``, ``nonce``).
 
-        Returns
-        -------
+        Retourne
+        --------
         bytes
-            Ciphertext.
+            Texte chiffré.
         """
 
     @abstractmethod
     def decrypt(self, ciphertext: bytes, **kwargs) -> bytes:
         """
-        Decrypt an arbitrary-length ciphertext.
+        Déchiffre un texte chiffré de longueur arbitraire.
 
-        Parameters
+        Paramètres
         ----------
         ciphertext : bytes
-            Data to decrypt.
+            Données à déchiffrer.
         **kwargs
-            Mode-specific parameters (e.g. ``iv``, ``nonce``).
+            Paramètres spécifiques au mode (ex. ``iv``, ``nonce``).
 
-        Returns
-        -------
+        Retourne
+        --------
         bytes
-            Plaintext (padding stripped where applicable).
+            Texte en clair (rembourrage retiré le cas échéant).
         """
 
     def __repr__(self) -> str:

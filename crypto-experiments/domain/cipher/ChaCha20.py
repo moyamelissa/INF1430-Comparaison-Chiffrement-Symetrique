@@ -1,19 +1,21 @@
 """
 ChaCha20.py
-Concrete implementation of ChaCha20 as a stream cipher primitive.
+Implémentation concrète de ChaCha20 en tant que chiffre de flux.
 
-ChaCha20 is a stream cipher designed by Daniel J. Bernstein (2008).
-Unlike block ciphers (AES, DES), it generates a keystream and XORs it
-with the plaintext — there is no concept of a "block" in the same sense.
+ChaCha20 est un chiffre de flux conçu par Daniel J. Bernstein (2008).
+Contrairement aux chiffres par blocs (AES, DES), il génère un flux de clés
+et effectue un XOR avec le texte en clair — il n'existe pas de notion de
+« bloc » au même sens.
 
-For benchmarking purposes we set block_size = 64 bytes (the ChaCha20
-keystream block size, matching one call to the quarter-round function).
+Pour les besoins du benchmarking, block_size est fixé à 64 octets
+(la taille d'un bloc de flux ChaCha20, correspondant à un appel de la
+fonction quart-de-tour).
 
-Key size : 256 bits (32 bytes) only.
-Nonce    : 96 bits (12 bytes), randomly generated per call.
+Taille de clé : 256 bits (32 octets) uniquement.
+Nonce        : 96 bits (12 octets), généré aléatoirement par appel.
 
-Note: ChaCha20 is used in TLS 1.3, WireGuard, and SSH as a modern
-alternative to AES when hardware AES acceleration is unavailable.
+Note : ChaCha20 est utilisé dans TLS 1.3, WireGuard et SSH comme alternative
+moderne à AES lorsque l'accélération matérielle AES est indisponible.
 """
 
 import os
@@ -22,38 +24,38 @@ from Crypto.Cipher import ChaCha20 as _ChaCha20
 
 from .CipherPrimitive import CipherPrimitive
 
-_KEY_SIZE   = 32   # 256-bit key
-_NONCE_SIZE = 12   # 96-bit nonce (IETF variant)
-_BLOCK_SIZE = 64   # ChaCha20 keystream block (for benchmarking block_size property)
+_KEY_SIZE   = 32   # clé 256 bits
+_NONCE_SIZE = 12   # nonce 96 bits (variante IETF)
+_BLOCK_SIZE = 64   # bloc de flux ChaCha20 (pour la propriété block_size en benchmarking)
 
 
 class ChaCha20(CipherPrimitive):
     """
-    ChaCha20 stream cipher.
+    Chiffre de flux ChaCha20.
 
-    Because ChaCha20 is a stream cipher, encrypt_block / decrypt_block
-    operate on arbitrary-length data (not just 64-byte chunks).  The
-    block_size = 64 property is used only for avalanche measurement
-    (where a single keystream block is the natural unit).
+    ChaCha20 étant un chiffre de flux, encrypt_block / decrypt_block
+    opèrent sur des données de longueur arbitraire (pas seulement 64 octets).
+    La propriété block_size = 64 est utilisée uniquement pour la mesure
+    d'avalanche (un bloc de flux est l'unité naturelle).
 
-    The nonce is prepended to the ciphertext (12 bytes) so that
-    decrypt_block can recover it.  This mirrors the convention used
-    by CBC (IV) and GCM (nonce).
+    Le nonce est préfixé au texte chiffré (12 octets) pour que decrypt_block
+    puisse le récupérer. Cette convention est identique à celle utilisée
+    par CBC (IV) et GCM (nonce).
     """
 
-    BLOCK_SIZE = 64  # bytes (keystream block size)
+    BLOCK_SIZE = 64  # octets (taille du bloc de flux)
 
     def __init__(self, key: bytes) -> None:
         """
-        Parameters
+        Paramètres
         ----------
         key : bytes
-            Exactly 32 bytes (256-bit key).
+            Exactement 32 octets (clé 256 bits).
 
-        Raises
-        ------
+        Lève
+        ----
         ValueError
-            If the key length is not 32 bytes.
+            Si la longueur de la clé n'est pas 32 octets.
         """
         if len(key) != _KEY_SIZE:
             raise ValueError(
@@ -62,7 +64,7 @@ class ChaCha20(CipherPrimitive):
         self._key = key
 
     # ------------------------------------------------------------------ #
-    #  CipherPrimitive interface                                           #
+    #  Interface CipherPrimitive                                           #
     # ------------------------------------------------------------------ #
 
     @property
@@ -75,9 +77,9 @@ class ChaCha20(CipherPrimitive):
 
     def encrypt_block(self, plaintext: bytes) -> bytes:
         """
-        Encrypt arbitrary-length data.
+        Chiffre des données de longueur arbitraire.
 
-        Output format: nonce (12 bytes) || ciphertext
+        Format de sortie : nonce (12 octets) || texte chiffré
         """
         nonce = os.urandom(_NONCE_SIZE)
         cipher = _ChaCha20.new(key=self._key, nonce=nonce)
@@ -85,9 +87,9 @@ class ChaCha20(CipherPrimitive):
 
     def decrypt_block(self, data: bytes) -> bytes:
         """
-        Decrypt data produced by encrypt_block.
+        Déchiffre les données produites par encrypt_block.
 
-        Input format: nonce (12 bytes) || ciphertext
+        Format d'entrée : nonce (12 octets) || texte chiffré
         """
         if len(data) < _NONCE_SIZE:
             raise ValueError("ChaCha20 ciphertext too short to contain nonce.")
@@ -96,9 +98,9 @@ class ChaCha20(CipherPrimitive):
         return cipher.decrypt(ciphertext)
 
     def encrypt_blocks(self, plaintext: bytes) -> bytes:
-        """Bulk encrypt — single call (stream cipher is naturally bulk)."""
+        """Chiffrement groupé — appel unique (le chiffre de flux est naturellement groupé)."""
         return self.encrypt_block(plaintext)
 
     def decrypt_blocks(self, data: bytes) -> bytes:
-        """Bulk decrypt — single call."""
+        """Déchiffrement groupé — appel unique."""
         return self.decrypt_block(data)

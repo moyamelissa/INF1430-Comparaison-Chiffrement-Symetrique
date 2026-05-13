@@ -1,14 +1,14 @@
 """
 CBC.py
-Cipher Block Chaining (CBC) mode of operation (NIST SP 800-38A).
+Mode d'opération CBC (Cipher Block Chaining) — NIST SP 800-38A.
 
-Each plaintext block is XOR-ed with the previous ciphertext block before
-encryption.  An Initialization Vector (IV) is XOR-ed with the first block,
-ensuring that identical plaintexts encrypted with different IVs produce
-different ciphertexts.
+Chaque bloc de texte en clair est XORé avec le bloc de texte chiffré précédent
+avant le chiffrement. Un vecteur d'initialisation (IV) est XORé avec le premier
+bloc, garantissant que des textes en clair identiques chiffrés avec des IV
+différents produisent des textes chiffrés différents.
 
-Padding: PKCS#7 is applied so messages of any length are accepted.
-IV: must be exactly ``primitive.block_size`` bytes.
+Rembourrage : PKCS#7 est appliqué pour accepter des messages de toute longueur.
+IV : doit faire exactement ``primitive.block_size`` octets.
 """
 
 import os
@@ -32,11 +32,11 @@ def _xor(a: bytes, b: bytes) -> bytes:
 
 class CBC(OperationMode):
     """
-    Cipher Block Chaining mode (NIST SP 800-38A, Section 6.2).
+    Mode CBC (Cipher Block Chaining) — NIST SP 800-38A, section 6.2.
 
-    Requires an IV of ``primitive.block_size`` bytes.  If no IV is supplied
-    at encrypt/decrypt time, a random one is generated for encryption (and
-    must be passed explicitly for decryption).
+    Nécessite un IV de ``primitive.block_size`` octets. Si aucun IV n'est fourni
+    lors du chiffrement, un IV aléatoire est généré ; il doit être passé
+    explicitement lors du déchiffrement.
     """
 
     def __init__(self, primitive: CipherPrimitive) -> None:
@@ -44,20 +44,20 @@ class CBC(OperationMode):
 
     def encrypt(self, plaintext: bytes, iv: bytes | None = None, **kwargs) -> bytes:
         """
-        Encrypt ``plaintext`` in CBC mode.
+        Chiffre ``plaintext`` en mode CBC.
 
-        Parameters
+        Paramètres
         ----------
         plaintext : bytes
-            Arbitrary-length plaintext.
-        iv : bytes, optional
-            Initialization vector of ``block_size`` bytes.  A fresh random IV
-            is generated when omitted.
+            Texte en clair de longueur arbitraire.
+        iv : bytes, optionnel
+            Vecteur d'initialisation de ``block_size`` octets.
+            Un IV aléatoire est généré automatiquement si omis.
 
-        Returns
-        -------
+        Retourne
+        --------
         bytes
-            IV prepended to the ciphertext (IV || ciphertext).
+            IV préfixé au texte chiffré (IV || texte chiffré).
         """
         bs = self._primitive.block_size
         if iv is None:
@@ -74,26 +74,26 @@ class CBC(OperationMode):
             ciphertext += encrypted
             prev = encrypted
 
-        # Prepend IV so decrypt() can recover it
+        # IV préfixé pour que decrypt() puisse le récupérer
         return iv + bytes(ciphertext)
 
     def decrypt(self, ciphertext: bytes, iv: bytes | None = None, **kwargs) -> bytes:
         """
-        Decrypt ``ciphertext`` produced by CBC.encrypt().
+        Déchiffre ``ciphertext`` produit par CBC.encrypt().
 
-        Parameters
+        Paramètres
         ----------
         ciphertext : bytes
-            IV || ciphertext (as returned by encrypt) when ``iv`` is None,
-            or raw ciphertext when ``iv`` is provided explicitly.
-        iv : bytes, optional
-            Explicit IV.  When None, the IV is read from the first
-            ``block_size`` bytes of ``ciphertext``.
+            IV || texte chiffré (tel que retourné par encrypt) si ``iv`` est None,
+            ou texte chiffré brut si ``iv`` est fourni explicitement.
+        iv : bytes, optionnel
+            IV explicite. Si None, l'IV est lu dans les premiers
+            ``block_size`` octets de ``ciphertext``.
 
-        Returns
-        -------
+        Retourne
+        --------
         bytes
-            Plaintext with PKCS#7 padding removed.
+            Texte en clair avec le rembourrage PKCS#7 retiré.
         """
         bs = self._primitive.block_size
         if iv is None:
@@ -105,8 +105,8 @@ class CBC(OperationMode):
                 f"Ciphertext length must be a multiple of {bs} bytes."
             )
 
-        # Decrypt all blocks in one bulk call, then XOR with the shifted
-        # ciphertext (IV prepended) — CBC decryption is parallelisable.
+        # Déchiffrement de tous les blocs en un appel groupé, puis XOR avec les blocs
+        # décalés (IV préposé) — le déchiffrement CBC est parallélisable.
         raw = self._primitive.decrypt_blocks(ciphertext)
         prev_blocks = iv + ciphertext[:-bs]   # IV || C[0] || C[1] || ... || C[n-2]
         plaintext = _xor(raw, prev_blocks)

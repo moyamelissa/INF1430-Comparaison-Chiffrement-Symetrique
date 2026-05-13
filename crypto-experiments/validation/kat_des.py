@@ -1,11 +1,11 @@
 """
 kat_des.py
-Known-Answer Tests for the DES primitive.
+Tests à réponse connue (KAT) pour la primitive DES.
 
 Sources
 -------
-* NIST SP 800-17, Table 1 (Variable plaintext known-answer test, key=01..01)
-* Widely used DES KAT vectors from NIST validation suite
+* NIST SP 800-17, Tableau 1 (Test KAT à texte clair variable, clé=01..01)
+* Vecteurs KAT DES couramment utilisés issus de la suite de validation NIST
 """
 import sys
 import os
@@ -19,16 +19,16 @@ def _h(hex_str: str) -> bytes:
 
 
 def run(verbose: bool = True) -> int:
-    """Run all DES KAT vectors.  Returns number of failures."""
+    """Exécute tous les vecteurs KAT DES. Retourne le nombre d'échecs."""
     failures = 0
 
     # ------------------------------------------------------------------
-    # NIST SP 800-17 Table 1 — Variable Plaintext KAT
-    # key = 0101010101010101 (all parity bits set, effective key = 0)
-    # A subset of the 64 vectors; these cover the first 8 and last entry.
+    # NIST SP 800-17 Tableau 1 — KAT à texte clair variable
+    # clé = 0101010101010101 (tous les bits de parité à 1, clé effective = 0)
+    # Un sous-ensemble des 64 vecteurs ; couvre les 8 premiers et le dernier.
     # ------------------------------------------------------------------
     vectors = [
-        # (plaintext_hex, ciphertext_hex)
+        # (texte_clair_hex, texte_chiffré_hex)
         ("8000000000000000", "95f8a5e5dd31d900"),
         ("4000000000000000", "dd7f121ca5015619"),
         ("2000000000000000", "2e8653104f3834ea"),
