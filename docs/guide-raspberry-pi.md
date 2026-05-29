@@ -5,7 +5,7 @@
 
 ## Vue d'ensemble
 
-Ce guide documente la procédure que j'ai suivie pour exécuter les expériences de benchmarking sur le Raspberry Pi. Il couvre le transfert du projet, l'installation des dépendances, le correctif obligatoire pour la librairie Twofish, et le rapatriement des résultats sur le laptop.
+Ce guide documente la procédure que j'ai suivie pour exécuter les expériences de benchmarking sur le Raspberry Pi. Il couvre le transfert du projet, l'installation des dépendances, le correctif obligatoire pour la librairie Twofish, l'exécution du benchmark et le rapatriement du fichier CSV.
 
 **Durée estimée** : 20 à 45 minutes selon la connexion et le modèle de Pi.
 
@@ -36,7 +36,7 @@ Sur le Pi :
 
 ```bash
 cd ~
-wget https://github.com/xmeli/INF1430-Comparaison-Chiffrement-Symetrique/archive/refs/heads/main.zip
+wget https://github.com/moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique/archive/refs/heads/main.zip -O main.zip
 unzip main.zip
 mv INF1430-Comparaison-Chiffrement-Symetrique-main INF1430-Comparaison-Chiffrement-Symetrique
 cd INF1430-Comparaison-Chiffrement-Symetrique
@@ -123,7 +123,7 @@ cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
 python3 scripts/experiment.py
 ```
 
-Le script parcourt toutes les combinaisons (algorithme  mode  taille de clé  taille de message), affiche sa progression, et écrit les résultats dans `data/results/`. L'exécution prend entre 10 et 30 minutes sur le Pi — je ne ferme pas le terminal.
+Le script parcourt toutes les combinaisons (algorithme, mode, taille de clé, taille de message), affiche sa progression, et écrit les résultats dans `data/results/`. L'exécution prend entre 10 et 30 minutes selon le modèle du Pi.
 
 ---
 
@@ -199,9 +199,12 @@ Les 26 tests doivent afficher `PASS`.
 ## Résumé des commandes (séquence complète)
 
 ```bash
-# 1. Mise à jour du dépôt
+# 1. Télécharger le projet
+cd ~
+wget https://github.com/moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique/archive/refs/heads/main.zip -O main.zip
+unzip main.zip
+mv INF1430-Comparaison-Chiffrement-Symetrique-main INF1430-Comparaison-Chiffrement-Symetrique
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique
-git pull
 
 # 2. Installation des dépendances
 cd crypto-experiments
@@ -209,7 +212,7 @@ pip3 install pycryptodome twofish
 
 # 3. Trouver le chemin twofish.py pour le correctif
 python3 -c "import twofish; print(twofish.__file__)"
-# diter le fichier avec nano (voir tape 3)
+# Éditer le fichier avec nano (voir Étape 3)
 
 # 4. Valider le correctif
 python3 -c "import twofish; print('Twofish OK')"
