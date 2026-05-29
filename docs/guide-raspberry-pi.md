@@ -48,7 +48,7 @@ cd INF1430-Comparaison-Chiffrement-Symetrique
 
 ---
 
-## Étape 2 — Créer un environnement virtuel et installer les dépendances Python
+## Étape 2 — Créer l'environnement virtuel, installer les dépendances et préparer le dossier de logs
 
 Depuis le dossier `crypto-experiments/` sur le Pi :
 
@@ -62,7 +62,12 @@ mkdir -p data/logs
 
 > **Pourquoi cette étape ?** Sur les versions récentes de Raspberry Pi OS, `pip3 install` peut être bloqué par la protection `externally-managed-environment`. L'environnement virtuel évite ce problème.
 
-Le dossier `data/logs/` servira à enregistrer les sorties texte affichées normalement dans le terminal, afin de pouvoir les récupérer et les importer manuellement plus tard.
+Le dossier `data/logs/` doit être créé **avant** d'exécuter les commandes avec redirection (`> data/logs/...`). Sinon, Bash affiche l'erreur `No such file or directory` et le fichier de sortie ne sera pas créé.
+
+> **Important** : il n'est **pas nécessaire de créer les fichiers `.txt` à la main**. Une fois le dossier `data/logs/` créé, les commandes avec redirection créeront automatiquement les fichiers :
+> - `data/logs/dependencies_check.txt`
+> - `data/logs/kat_results.txt`
+> - `data/logs/benchmark_output.txt`
 
 Pour vérifier que l'environnement virtuel est actif, le terminal doit afficher `(.venv)` au début de la ligne.
 
@@ -71,7 +76,10 @@ Si j'ouvre un nouveau terminal plus tard, je réactive l'environnement virtuel a
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
 source .venv/bin/activate
+mkdir -p data/logs
 ```
+
+> **Conseil** : si j'ai un doute, je peux relancer `mkdir -p data/logs` avant les commandes de test et de benchmark. Cette commande est sans danger même si le dossier existe déjà.
 
 ---
 
@@ -105,6 +113,7 @@ Dans nano, je fais les deux modifications suivantes :
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
 source .venv/bin/activate
+mkdir -p data/logs
 python -c "import Crypto; import twofish; print('Dependencies OK')" > data/logs/dependencies_check.txt 2>&1
 cat data/logs/dependencies_check.txt
 ```
@@ -120,6 +129,7 @@ Avant de lancer le benchmark complet, je valide que l'implémentation fonctionne
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
 source .venv/bin/activate
+mkdir -p data/logs
 python scripts/run_kat.py > data/logs/kat_results.txt 2>&1
 cat data/logs/kat_results.txt
 ```
@@ -135,6 +145,7 @@ Les 26 tests doivent afficher `PASS` dans le fichier de log.
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
 source .venv/bin/activate
+mkdir -p data/logs
 python scripts/experiment.py > data/logs/benchmark_output.txt 2>&1
 cat data/logs/benchmark_output.txt
 ```
@@ -224,7 +235,7 @@ unzip main.zip
 mv INF1430-Comparaison-Chiffrement-Symetrique-main INF1430-Comparaison-Chiffrement-Symetrique
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique
 
-# 2. Créer et activer l'environnement virtuel
+# 2. Créer et activer l'environnement virtuel, puis préparer le dossier de logs
 cd crypto-experiments
 python3 -m venv .venv
 source .venv/bin/activate
@@ -237,12 +248,15 @@ nano .venv/lib/python3.13/site-packages/twofish.py
 # Remplacer imp.find_module('_twofish')[1] par importlib.util.find_spec('_twofish').origin
 
 # 4. Vérifier les dépendances et enregistrer le résultat
+mkdir -p data/logs
 python -c "import Crypto; import twofish; print('Dependencies OK')" > data/logs/dependencies_check.txt 2>&1
 
 # 5. KAT (validation fonctionnelle) avec sortie enregistrée
+mkdir -p data/logs
 python scripts/run_kat.py > data/logs/kat_results.txt 2>&1
 
 # 6. Benchmark avec log console enregistré
+mkdir -p data/logs
 python scripts/experiment.py > data/logs/benchmark_output.txt 2>&1
 
 # 7. Renommer le CSV
