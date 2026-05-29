@@ -5,9 +5,8 @@
 
 ## Vue d'ensemble
 
-Ce guide documente la procédure complète que j'ai finalement utilisée pour exécuter les expériences de benchmarking sur le Raspberry Pi **avec un vrai dépôt Git cloné depuis GitHub**, puis pour envoyer directement les résultats sur GitHub depuis le Pi.
+Ce guide documente la procédure complète utilisée pour exécuter les expériences de benchmarking sur le Raspberry Pi avec un vrai dépôt Git cloné depuis GitHub, puis pour envoyer directement les résultats sur GitHub depuis le Pi.
 
-Cette version remplace l'ancienne méthode basée sur un ZIP et un transfert manuel. Ici, tout est fait dans le dépôt Git cloné sur le Raspberry Pi.
 
 Je conserve **trois exécutions complètes du benchmark sur le Raspberry Pi** afin d'avoir une convention cohérente avec les trois fichiers déjà présents pour le laptop :
 
