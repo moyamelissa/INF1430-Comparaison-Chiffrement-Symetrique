@@ -5,7 +5,7 @@
 
 ## Vue d'ensemble
 
-Ce guide documente la procédure que j'ai suivie pour exécuter les expériences de benchmarking sur le Raspberry Pi. Il couvre toutes les étapes à faire sur le Raspberry Pi en premier, la sauvegarde des résultats localement sur le Pi, puis l'import manuel des fichiers sur le laptop pour régénérer les graphiques.
+Ce guide documente la procédure que j'ai suivie pour exécuter les expériences de benchmarking sur le Raspberry Pi. Il couvre toutes les étapes à faire sur le Raspberry Pi en premier, la sauvegarde locale des fichiers produits, puis leur import manuel dans le dépôt GitHub depuis le laptop.
 
 **Durée estimée** : 20 à 45 minutes selon la connexion et le modèle de Pi.
 
@@ -44,7 +44,7 @@ cd INF1430-Comparaison-Chiffrement-Symetrique
 
 > **Note** : si la commande `unzip` n'existe pas sur le Raspberry Pi, l'installation ci-dessus l'ajoute.
 >
-> **Note** : avec cette méthode, le dossier n'est pas un dépôt Git. Tous les fichiers produits sur le Pi seront donc enregistrés localement dans le dossier du projet, puis importés manuellement sur le laptop à la fin.
+> **Note** : avec cette méthode, le dossier n'est pas un dépôt Git. Tous les fichiers produits sur le Pi seront donc enregistrés localement dans le dossier du projet, puis importés manuellement sur le laptop par la suite.
 
 ---
 
@@ -57,9 +57,12 @@ cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
 python3 -m venv .venv
 source .venv/bin/activate
 pip install pycryptodome twofish
+mkdir -p data/logs
 ```
 
 > **Pourquoi cette étape ?** Sur les versions récentes de Raspberry Pi OS, `pip3 install` peut être bloqué par la protection `externally-managed-environment`. L'environnement virtuel évite ce problème.
+
+Le dossier `data/logs/` servira à enregistrer les sorties texte affichées normalement dans le terminal, afin de pouvoir les récupérer et les importer manuellement plus tard.
 
 Pour vérifier que l'environnement virtuel est actif, le terminal doit afficher `(.venv)` au début de la ligne.
 
@@ -97,47 +100,55 @@ Dans nano, je fais les deux modifications suivantes :
    ```
 3. **Ctrl+O** puis **Entrée** pour sauvegarder, puis **Ctrl+X** pour quitter.
 
-### 3.3 — Vérifier le correctif
+### 3.3 — Vérifier le correctif et enregistrer la sortie dans un fichier
 
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
 source .venv/bin/activate
-python -c "import Crypto; import twofish; print('Dependencies OK')"
+python -c "import Crypto; import twofish; print('Dependencies OK')" > data/logs/dependencies_check.txt 2>&1
+cat data/logs/dependencies_check.txt
 ```
 
-La sortie doit être `Dependencies OK`.
+La sortie attendue dans `data/logs/dependencies_check.txt` est `Dependencies OK`.
 
 ---
 
-## Étape 4 — Valider les KAT sur le Pi
+## Étape 4 — Valider les KAT sur le Pi et enregistrer la sortie
 
 Avant de lancer le benchmark complet, je valide que l'implémentation fonctionne correctement sur l'architecture ARM :
 
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
 source .venv/bin/activate
-python scripts/run_kat.py
+python scripts/run_kat.py > data/logs/kat_results.txt 2>&1
+cat data/logs/kat_results.txt
 ```
 
-Les 26 tests doivent afficher `PASS`.
+Les 26 tests doivent afficher `PASS` dans le fichier de log.
 
-> **Note** : la sortie des tests s'affiche dans le terminal. Si tous les tests passent, cela confirme que les algorithmes produisent les résultats attendus sur le Raspberry Pi.
+> **Note** : ici, la sortie des tests n'est plus seulement affichée dans le terminal. Elle est enregistrée dans `data/logs/kat_results.txt`, ce qui permet de la récupérer ensuite manuellement.
 
 ---
 
-## Étape 5 — Lancer le benchmark
+## Étape 5 — Lancer le benchmark et enregistrer aussi la sortie console
 
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
 source .venv/bin/activate
-python scripts/experiment.py
+python scripts/experiment.py > data/logs/benchmark_output.txt 2>&1
+cat data/logs/benchmark_output.txt
 ```
 
 Le script parcourt toutes les combinaisons (algorithme, mode, taille de clé, taille de message), affiche sa progression, puis enregistre automatiquement les résultats dans `data/results/`.
 
+Avec cette commande, j'obtiens donc **deux types de sorties** :
+
+1. un **fichier CSV** de résultats dans `data/results/`
+2. un **fichier texte de log** dans `data/logs/benchmark_output.txt`
+
 Sur le Raspberry Pi, cette étape peut prendre entre 10 et 30 minutes selon le modèle et la charge du système.
 
-À la fin, une ligne semblable à celle-ci doit apparaître :
+À la fin, une ligne semblable à celle-ci doit apparaître dans `benchmark_output.txt` :
 
 ```bash
 Results saved to: /home/melissamoya/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results/experiment_20260529_131838.csv
@@ -166,22 +177,21 @@ mv experiment_*.csv raspberry-pi_experience2.csv
 
 Une fois le travail terminé sur le Pi, je récupère manuellement les fichiers utiles sur mon laptop.
 
-Le fichier principal à importer est :
+Les fichiers principaux à importer sont :
 
 ```text
+crypto-experiments/data/logs/dependencies_check.txt
+crypto-experiments/data/logs/kat_results.txt
+crypto-experiments/data/logs/benchmark_output.txt
 crypto-experiments/data/results/raspberry-pi_experience2.csv
 ```
 
-Je peux le transférer manuellement de la façon qui me convient :
-- en l'ouvrant depuis le Raspberry Pi puis en le téléversant dans GitHub,
+Je peux les transférer manuellement de la façon qui me convient :
+- en les ouvrant depuis le Raspberry Pi puis en les téléversant dans GitHub,
 - en utilisant une clé USB,
-- ou en le copiant ensuite dans mon dossier local du projet sur le laptop.
+- ou en les copiant ensuite dans mon dossier local du projet sur le laptop.
 
-L'objectif est simplement que `raspberry-pi_experience2.csv` se retrouve dans le dossier suivant sur le laptop :
-
-```text
-crypto-experiments/data/results/
-```
+L'objectif est que ces fichiers se retrouvent dans les mêmes dossiers du projet sur le laptop.
 
 ---
 
@@ -219,20 +229,21 @@ cd crypto-experiments
 python3 -m venv .venv
 source .venv/bin/activate
 pip install pycryptodome twofish
+mkdir -p data/logs
 
 # 3. Corriger Twofish
 nano .venv/lib/python3.13/site-packages/twofish.py
 # Remplacer import imp par import importlib.util
 # Remplacer imp.find_module('_twofish')[1] par importlib.util.find_spec('_twofish').origin
 
-# 4. Vérifier les dépendances
-python -c "import Crypto; import twofish; print('Dependencies OK')"
+# 4. Vérifier les dépendances et enregistrer le résultat
+python -c "import Crypto; import twofish; print('Dependencies OK')" > data/logs/dependencies_check.txt 2>&1
 
-# 5. KAT (validation fonctionnelle)
-python scripts/run_kat.py
+# 5. KAT (validation fonctionnelle) avec sortie enregistrée
+python scripts/run_kat.py > data/logs/kat_results.txt 2>&1
 
-# 6. Benchmark
-python scripts/experiment.py
+# 6. Benchmark avec log console enregistré
+python scripts/experiment.py > data/logs/benchmark_output.txt 2>&1
 
 # 7. Renommer le CSV
 cd data/results
