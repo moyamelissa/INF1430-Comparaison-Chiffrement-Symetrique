@@ -5,46 +5,45 @@
 
 ## Vue d'ensemble
 
-Ce guide documente la procédure que j'ai suivie pour exécuter les expériences de benchmarking sur le Raspberry Pi. Il couvre toutes les étapes à faire sur le Raspberry Pi en premier, la sauvegarde locale des fichiers produits, puis leur import manuel dans le dépôt GitHub depuis le laptop.
+Ce guide documente la procédure complète que j'ai finalement utilisée pour exécuter les expériences de benchmarking sur le Raspberry Pi **avec un vrai dépôt Git cloné depuis GitHub**, puis pour envoyer directement les résultats sur GitHub depuis le Pi.
 
-**Durée estimée** : 20 à 45 minutes selon la connexion et le modèle de Pi.
+Cette version remplace l'ancienne méthode basée sur un ZIP et un transfert manuel. Ici, tout est fait dans le dépôt Git cloné sur le Raspberry Pi.
+
+Je conserve **trois exécutions complètes du benchmark sur le Raspberry Pi** afin d'avoir une convention cohérente avec les trois fichiers déjà présents pour le laptop :
+
+- `raspberry-pi_experience1.csv`
+- `raspberry-pi_experience2.csv`
+- `raspberry-pi_experience3.csv`
+
+**Durée estimée** : 20 à 45 minutes par exécution selon la connexion, le modèle du Pi et la charge du système.
 
 ---
 
 ## Étape 0 — Prérequis sur le Raspberry Pi
 
-Le Pi doit être allumé et connecté au réseau. Je commence par vérifier que Python 3 est bien installé :
+Le Pi doit être allumé et connecté au réseau. Je commence par installer ou vérifier les outils de base :
 
 ```bash
 python3 --version
-```
-
-Si la version affichée est `Python 3.11.x` ou plus récente, c'est suffisant. Sinon, j'installe Python via apt :
-
-```bash
 sudo apt update
-sudo apt install python3 python3-pip python3-venv -y
+sudo apt install python3 python3-pip python3-venv git -y
 ```
+
+Si `python3 --version` affiche `Python 3.11.x` ou plus récente, c'est suffisant.
 
 ---
 
-## Étape 1 — Télécharger le ZIP
+## Étape 1 — Cloner le dépôt GitHub
 
-Sur le Pi :
+Au lieu de télécharger un ZIP, je clone directement le dépôt GitHub sur le Raspberry Pi :
 
 ```bash
 cd ~
-wget https://github.com/moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique/archive/refs/heads/main.zip -O main.zip
-sudo apt update
-sudo apt install unzip -y
-unzip main.zip
-mv INF1430-Comparaison-Chiffrement-Symetrique-main INF1430-Comparaison-Chiffrement-Symetrique
-cd INF1430-Comparaison-Chiffrement-Symetrique
+git clone https://github.com/moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique.git
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique
 ```
 
-> **Note** : si la commande `unzip` n'existe pas sur le Raspberry Pi, l'installation ci-dessus l'ajoute.
->
-> **Note** : avec cette méthode, le dossier n'est pas un dépôt Git. Tous les fichiers produits sur le Pi seront donc enregistrés localement dans le dossier du projet, puis importés manuellement sur le laptop par la suite.
+> **Pourquoi cette méthode ?** Avec `git clone`, les résultats produits sur le Raspberry Pi restent dans un vrai dépôt Git local. Je peux donc ensuite faire `git add`, `git commit` et `git push` directement depuis le Pi, sans transfert manuel vers le laptop.
 
 ---
 
@@ -56,18 +55,14 @@ Depuis le dossier `crypto-experiments/` sur le Pi :
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
 python3 -m venv .venv
 source .venv/bin/activate
-pip install pycryptodome twofish
 mkdir -p data/logs
+pip install pycryptodome twofish > data/logs/pip_install.txt 2>&1
+cat data/logs/pip_install.txt
 ```
-
-> **Pourquoi cette étape ?** Sur les versions récentes de Raspberry Pi OS, `pip3 install` peut être bloqué par la protection `externally-managed-environment`. L'environnement virtuel évite ce problème.
 
 Le dossier `data/logs/` doit être créé **avant** d'exécuter les commandes avec redirection (`> data/logs/...`). Sinon, Bash affiche l'erreur `No such file or directory` et le fichier de sortie ne sera pas créé.
 
-> **Important** : il n'est **pas nécessaire de créer les fichiers `.txt` à la main**. Une fois le dossier `data/logs/` créé, les commandes avec redirection créeront automatiquement les fichiers :
-> - `data/logs/dependencies_check.txt`
-> - `data/logs/kat_results.txt`
-> - `data/logs/benchmark_output.txt`
+> **Important** : il n'est **pas nécessaire de créer les fichiers `.txt` à la main**. Une fois le dossier `data/logs/` créé, les commandes avec redirection créent automatiquement les fichiers.
 
 Pour vérifier que l'environnement virtuel est actif, le terminal doit afficher `(.venv)` au début de la ligne.
 
@@ -79,15 +74,13 @@ source .venv/bin/activate
 mkdir -p data/logs
 ```
 
-> **Conseil** : si j'ai un doute, je peux relancer `mkdir -p data/logs` avant les commandes de test et de benchmark. Cette commande est sans danger même si le dossier existe déjà.
-
 ---
 
 ## Étape 3 — Correctif obligatoire pour la librairie Twofish
 
-La librairie `twofish` utilise `import imp`, qui est supprimé depuis Python 3.12. Je dois corriger ce fichier manuellement dans l'environnement virtuel.
+La librairie `twofish` n'est pas compatible telle quelle avec Python 3.13, car elle utilise `import imp`, qui a été supprimé.
 
-### 3.1 — Ouvrir le fichier twofish.py
+### 3.1 — Ouvrir le fichier `twofish.py`
 
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
@@ -101,12 +94,25 @@ nano .venv/lib/python3.13/site-packages/twofish.py
 
 Dans nano, je fais les deux modifications suivantes :
 
-1. **Ctrl+W** → recherche `import imp` → remplace par `import importlib.util`
-2. **Ctrl+W** → recherche `imp.find_module` → remplace la ligne contenant `imp.find_module('_twofish')[1]` par :
+1. Remplacer :
    ```python
-   importlib.util.find_spec('_twofish').origin
+   import imp
    ```
-3. **Ctrl+O** puis **Entrée** pour sauvegarder, puis **Ctrl+X** pour quitter.
+   par :
+   ```python
+   import importlib.util
+   ```
+
+2. Remplacer :
+   ```python
+   _twofish = cdll.LoadLibrary(imp.find_module('_twofish')[1])
+   ```
+   par :
+   ```python
+   _twofish = cdll.LoadLibrary(importlib.util.find_spec('_twofish').origin)
+   ```
+
+3. Sauvegarder avec **Ctrl+O**, **Entrée**, puis quitter avec **Ctrl+X**.
 
 ### 3.3 — Vérifier le correctif et enregistrer la sortie dans un fichier
 
@@ -118,7 +124,11 @@ python -c "import Crypto; import twofish; print('Dependencies OK')" > data/logs/
 cat data/logs/dependencies_check.txt
 ```
 
-La sortie attendue dans `data/logs/dependencies_check.txt` est `Dependencies OK`.
+La sortie attendue dans `data/logs/dependencies_check.txt` est :
+
+```text
+Dependencies OK
+```
 
 ---
 
@@ -136,130 +146,266 @@ cat data/logs/kat_results.txt
 
 Les 26 tests doivent afficher `PASS` dans le fichier de log.
 
-> **Note** : ici, la sortie des tests n'est plus seulement affichée dans le terminal. Elle est enregistrée dans `data/logs/kat_results.txt`, ce qui permet de la récupérer ensuite manuellement.
-
 ---
 
-## Étape 5 — Lancer le benchmark et enregistrer aussi la sortie console
+## Étape 5 — Lancer les trois benchmarks Raspberry Pi
+
+Je lance maintenant **trois exécutions distinctes** du benchmark sur le Raspberry Pi.
+
+Chaque exécution génère :
+
+1. un **fichier CSV** de résultats dans `data/results/`
+2. un **fichier texte de log** dans `data/logs/`
+
+### Exécution 1
 
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
 source .venv/bin/activate
 mkdir -p data/logs
-python scripts/experiment.py > data/logs/benchmark_output.txt 2>&1
-cat data/logs/benchmark_output.txt
+python scripts/experiment.py > data/logs/benchmark_output_experience1.txt 2>&1
+cat data/logs/benchmark_output_experience1.txt
+cd data/results
+mv experiment_*.csv raspberry-pi_experience1.csv
+cd ../..
 ```
 
-Le script parcourt toutes les combinaisons (algorithme, mode, taille de clé, taille de message), affiche sa progression, puis enregistre automatiquement les résultats dans `data/results/`.
-
-Avec cette commande, j'obtiens donc **deux types de sorties** :
-
-1. un **fichier CSV** de résultats dans `data/results/`
-2. un **fichier texte de log** dans `data/logs/benchmark_output.txt`
-
-Sur le Raspberry Pi, cette étape peut prendre entre 10 et 30 minutes selon le modèle et la charge du système.
-
-À la fin, une ligne semblable à celle-ci doit apparaître dans `benchmark_output.txt` :
+### Exécution 2
 
 ```bash
-Results saved to: /home/melissamoya/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results/experiment_20260529_131838.csv
-```
-
----
-
-## Étape 6 — Renommer le fichier CSV produit
-
-```bash
-cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results
-ls *.csv
-```
-
-Le fichier généré porte un nom horodaté (ex. `experiment_20260529_131838.csv`). Je le renomme pour suivre la convention du projet :
-
-```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+source .venv/bin/activate
+mkdir -p data/logs
+python scripts/experiment.py > data/logs/benchmark_output_experience2.txt 2>&1
+cat data/logs/benchmark_output_experience2.txt
+cd data/results
 mv experiment_*.csv raspberry-pi_experience2.csv
+cd ../..
 ```
 
-À ce stade, tous les fichiers produits sur le Raspberry Pi sont enregistrés localement dans le projet.
+### Exécution 3
+
+```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+source .venv/bin/activate
+mkdir -p data/logs
+python scripts/experiment.py > data/logs/benchmark_output_experience3.txt 2>&1
+cat data/logs/benchmark_output_experience3.txt
+cd data/results
+mv experiment_*.csv raspberry-pi_experience3.csv
+cd ../..
+```
+
+> **Important** : il faut renommer le CSV immédiatement après chaque exécution, avant de relancer le benchmark suivant. Sinon, plusieurs fichiers `experiment_*.csv` risquent de se retrouver dans `data/results/` et la commande `mv experiment_*.csv ...` deviendra ambiguë.
 
 ---
 
-## Étape 7 — Importer manuellement les fichiers sur le laptop
+## Étape 6 — Vérifier les fichiers produits
 
-Une fois le travail terminé sur le Pi, je récupère manuellement les fichiers utiles sur mon laptop.
-
-Les fichiers principaux à importer sont :
+À la fin des trois exécutions, je dois avoir au minimum les fichiers suivants dans le dépôt local du Raspberry Pi :
 
 ```text
+crypto-experiments/data/logs/pip_install.txt
 crypto-experiments/data/logs/dependencies_check.txt
 crypto-experiments/data/logs/kat_results.txt
-crypto-experiments/data/logs/benchmark_output.txt
+crypto-experiments/data/logs/benchmark_output_experience1.txt
+crypto-experiments/data/logs/benchmark_output_experience2.txt
+crypto-experiments/data/logs/benchmark_output_experience3.txt
+crypto-experiments/data/results/raspberry-pi_experience1.csv
 crypto-experiments/data/results/raspberry-pi_experience2.csv
+crypto-experiments/data/results/raspberry-pi_experience3.csv
 ```
 
-Je peux les transférer manuellement de la façon qui me convient :
-- en les ouvrant depuis le Raspberry Pi puis en les téléversant dans GitHub,
-- en utilisant une clé USB,
-- ou en les copiant ensuite dans mon dossier local du projet sur le laptop.
+Je peux vérifier rapidement avec :
 
-L'objectif est que ces fichiers se retrouvent dans les mêmes dossiers du projet sur le laptop.
+```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+ls data/logs
+ls data/results
+```
 
 ---
 
-## Étape 8 — Régénérer les graphiques de comparaison sur le laptop
+## Étape 7 — Où ajouter les fichiers dans le dépôt GitHub
+
+Comme le projet a été cloné avec Git, les fichiers se trouvent déjà **dans le bon dépôt local** sur le Raspberry Pi. Il n'y a plus besoin de les transférer manuellement sur le laptop.
+
+Les fichiers à conserver dans le dépôt sont :
+
+### Dossier `crypto-experiments/data/results/`
+
+```text
+crypto-experiments/data/results/raspberry-pi_experience1.csv
+crypto-experiments/data/results/raspberry-pi_experience2.csv
+crypto-experiments/data/results/raspberry-pi_experience3.csv
+```
+
+### Dossier `crypto-experiments/data/logs/`
+
+```text
+crypto-experiments/data/logs/pip_install.txt
+crypto-experiments/data/logs/dependencies_check.txt
+crypto-experiments/data/logs/kat_results.txt
+crypto-experiments/data/logs/benchmark_output_experience1.txt
+crypto-experiments/data/logs/benchmark_output_experience2.txt
+crypto-experiments/data/logs/benchmark_output_experience3.txt
+```
+
+---
+
+## Étape 8 — Configurer SSH pour pousser vers GitHub directement depuis le Pi
+
+Pour éviter que `git push` demande un nom d'utilisateur et un mot de passe/token HTTPS, je configure une clé SSH.
+
+### 8.1 — Générer une clé SSH
+
+```bash
+ssh-keygen -t ed25519 -C "melissa.moya@ssc-spc.gc.ca"
+```
+
+Quand il demande le chemin de sauvegarde, je peux simplement appuyer sur **Entrée** pour accepter la valeur par défaut :
+
+```text
+/home/melissamoya/.ssh/id_ed25519
+```
+
+### 8.2 — Afficher la clé publique
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+Je copie ensuite la ligne complète affichée.
+
+### 8.3 — Ajouter la clé sur GitHub
+
+Dans GitHub :
+- aller à **Settings**
+- puis **SSH and GPG keys**
+- cliquer sur **New SSH key**
+- choisir **Authentication Key**
+- coller la clé publique
+- enregistrer
+
+### 8.4 — Basculer le dépôt local vers l'URL SSH
+
+```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique
+git remote set-url origin git@github.com:moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique.git
+```
+
+### 8.5 — Tester la connexion SSH
+
+```bash
+ssh -T git@github.com
+```
+
+Au premier essai, GitHub peut demander de confirmer l'empreinte du serveur. Je réponds :
+
+```text
+yes
+```
+
+Si tout fonctionne, un message semblable à celui-ci doit s'afficher :
+
+```text
+Hi moyamelissa! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+---
+
+## Étape 9 — Commit et push des résultats vers GitHub
+
+Une fois les trois exécutions terminées et les fichiers vérifiés, je peux les envoyer directement sur GitHub depuis le Raspberry Pi :
+
+```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique
+git status
+git add crypto-experiments/data/results crypto-experiments/data/logs
+git commit -m "Add Raspberry Pi benchmark runs and logs"
+git push
+```
+
+À ce moment-là, les fichiers sont visibles sur GitHub.
+
+---
+
+## Étape 10 — Régénérer les graphiques de comparaison sur le laptop
 
 Cette étape se fait sur le **laptop**, pas sur le Raspberry Pi.
 
-Une fois le CSV du Pi placé dans `data/results/` sur le laptop, je génère les graphiques de comparaison inter-plateformes :
+Une fois les CSV du Pi poussés sur GitHub, je peux mettre à jour mon dépôt local sur le laptop, puis générer les graphiques de comparaison inter-plateformes :
 
 ```powershell
-cd "C:\Users\xmeli\OneDrive\Documents\GitHub\INF1430-Comparaison-Chiffrement-Symetrique\crypto-experiments"
+cd "C:\Users\xmeli\OneDrive\Documents\GitHub\INF1430-Comparaison-Chiffrement-Symetrique"
+git pull
+cd crypto-experiments
 py scripts/compare_platforms.py
 ```
 
 Les figures sont enregistrées dans `data/charts/comparison/`.
-
-> **Important** : ces commandes sont des commandes Windows/PowerShell. Elles doivent être exécutées sur le laptop, et non sur le Raspberry Pi.
 
 ---
 
 ## Résumé des commandes (séquence complète sur le Raspberry Pi)
 
 ```bash
-# 1. Télécharger le projet
-cd ~
-wget https://github.com/moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique/archive/refs/heads/main.zip -O main.zip
+# 1. Installer les outils de base
+python3 --version
 sudo apt update
-sudo apt install unzip -y
-unzip main.zip
-mv INF1430-Comparaison-Chiffrement-Symetrique-main INF1430-Comparaison-Chiffrement-Symetrique
-cd ~/INF1430-Comparaison-Chiffrement-Symetrique
+sudo apt install python3 python3-pip python3-venv git -y
 
-# 2. Créer et activer l'environnement virtuel, puis préparer le dossier de logs
-cd crypto-experiments
+# 2. Cloner le dépôt
+cd ~
+git clone https://github.com/moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique.git
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+
+# 3. Créer l'environnement virtuel et installer les dépendances
 python3 -m venv .venv
 source .venv/bin/activate
-pip install pycryptodome twofish
 mkdir -p data/logs
+pip install pycryptodome twofish > data/logs/pip_install.txt 2>&1
 
-# 3. Corriger Twofish
+# 4. Corriger Twofish
 nano .venv/lib/python3.13/site-packages/twofish.py
 # Remplacer import imp par import importlib.util
-# Remplacer imp.find_module('_twofish')[1] par importlib.util.find_spec('_twofish').origin
+# Remplacer _twofish = cdll.LoadLibrary(imp.find_module('_twofish')[1])
+# par _twofish = cdll.LoadLibrary(importlib.util.find_spec('_twofish').origin)
 
-# 4. Vérifier les dépendances et enregistrer le résultat
-mkdir -p data/logs
+# 5. Vérifier les dépendances
 python -c "import Crypto; import twofish; print('Dependencies OK')" > data/logs/dependencies_check.txt 2>&1
 
-# 5. KAT (validation fonctionnelle) avec sortie enregistrée
-mkdir -p data/logs
+# 6. KAT
 python scripts/run_kat.py > data/logs/kat_results.txt 2>&1
 
-# 6. Benchmark avec log console enregistré
-mkdir -p data/logs
-python scripts/experiment.py > data/logs/benchmark_output.txt 2>&1
+# 7. Benchmark Raspberry Pi — exécution 1
+python scripts/experiment.py > data/logs/benchmark_output_experience1.txt 2>&1
+cd data/results
+mv experiment_*.csv raspberry-pi_experience1.csv
+cd ../..
 
-# 7. Renommer le CSV
+# 8. Benchmark Raspberry Pi — exécution 2
+python scripts/experiment.py > data/logs/benchmark_output_experience2.txt 2>&1
 cd data/results
 mv experiment_*.csv raspberry-pi_experience2.csv
+cd ../..
+
+# 9. Benchmark Raspberry Pi — exécution 3
+python scripts/experiment.py > data/logs/benchmark_output_experience3.txt 2>&1
+cd data/results
+mv experiment_*.csv raspberry-pi_experience3.csv
+cd ../..
+
+# 10. Configurer SSH (une seule fois)
+ssh-keygen -t ed25519 -C "melissa.moya@ssc-spc.gc.ca"
+cat ~/.ssh/id_ed25519.pub
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique
+git remote set-url origin git@github.com:moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique.git
+ssh -T git@github.com
+
+# 11. Commit et push
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique
+git add crypto-experiments/data/results crypto-experiments/data/logs
+git commit -m "Add Raspberry Pi benchmark runs and logs"
+git push
 ```
