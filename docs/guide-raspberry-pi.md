@@ -32,6 +32,17 @@ sudo apt install python3 python3-pip -y
 
 ### Option A — Via Git (méthode que j'utilise)
 
+> **Note — Authentification GitHub** : GitHub n'accepte plus les mots de passe depuis août 2021.
+> Il faut utiliser un **Personal Access Token (PAT)** à la place du mot de passe.
+> Générer un token sur GitHub.com → Settings → Developer settings → Personal access tokens → Tokens (classic).
+> Cocher la permission `repo`, générer et copier le token.
+>
+> Pour ne pas avoir à le ressaisir à chaque fois :
+> ```bash
+> git config --global credential.helper store
+> ```
+> La première fois que Git demande un mot de passe, coller le token — il sera mémorisé.
+
 Sur le Pi :
 
 ```bash
@@ -156,6 +167,7 @@ cd ~/INF1430-Comparaison-Chiffrement-Symetrique
 git add crypto-experiments/data/results/raspberry-pi_experience2.csv
 git commit -m "Ajout des résultats Raspberry Pi (expérience 2)"
 git push
+# Si demande d'authentification : entrer le nom d'utilisateur GitHub, puis le PAT comme mot de passe
 ```
 
 Sur le laptop (PowerShell) :
