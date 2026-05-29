@@ -5,7 +5,7 @@
 
 ## Vue d'ensemble
 
-Ce guide documente la procédure que j'ai suivie pour exécuter les expériences de benchmarking sur le Raspberry Pi. Il couvre le transfert du projet, l'installation des dépendances, le correctif obligatoire pour la librairie Twofish, l'exécution du benchmark et le rapatriement du fichier CSV.
+Ce guide documente la procédure que j'ai suivie pour exécuter les expériences de benchmarking sur le Raspberry Pi. Il couvre le transfert du projet, l'installation des dépendances dans un environnement virtuel Python, le correctif obligatoire pour la librairie Twofish, l'exécution du benchmark et le rapatriement du fichier CSV.
 
 **Durée estimée** : 20 à 45 minutes selon la connexion et le modèle de Pi.
 
@@ -23,7 +23,7 @@ Si la version affichée est `Python 3.11.x` ou plus récente, c'est suffisant. S
 
 ```bash
 sudo apt update
-sudo apt install python3 python3-pip -y
+sudo apt install python3 python3-pip python3-venv -y
 ```
 
 ---
@@ -48,46 +48,45 @@ cd INF1430-Comparaison-Chiffrement-Symetrique
 
 ---
 
-## Étape 2 — Installer les dépendances Python
+## Étape 2 — Créer un environnement virtuel et installer les dépendances Python
 
 Depuis le dossier `crypto-experiments/` sur le Pi :
 
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
-pip3 install pycryptodome twofish
+python3 -m venv .venv
+source .venv/bin/activate
+pip install pycryptodome twofish
 ```
 
-Si pip3 n'est pas disponible :
+> **Pourquoi cette étape ?** Sur les versions récentes de Raspberry Pi OS, `pip3 install` peut être bloqué par la protection `externally-managed-environment`. L'environnement virtuel évite ce problème.
+
+Pour vérifier que l'environnement virtuel est actif, le terminal doit afficher `(.venv)` au début de la ligne.
+
+Si j'ouvre un nouveau terminal plus tard, je réactive l'environnement virtuel avec :
 
 ```bash
-sudo apt install python3-pip -y
-pip3 install pycryptodome twofish
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+source .venv/bin/activate
 ```
-
-Le Pi est plus lent pour installer les paquets — c'est normal d'attendre quelques minutes.
 
 ---
 
 ## Étape 3 — Correctif obligatoire pour la librairie Twofish
 
-La librairie `twofish` utilise `import imp`, qui est supprimé depuis Python 3.12. Je dois corriger ce fichier manuellement.
+La librairie `twofish` utilise `import imp`, qui est supprimé depuis Python 3.12. Je dois corriger ce fichier manuellement dans l'environnement virtuel.
 
-### 3.1 — Trouver le chemin du fichier twofish.py
+### 3.1 — Ouvrir le fichier twofish.py
 
 ```bash
-python3 -c "import twofish; print(twofish.__file__)"
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+source .venv/bin/activate
+nano .venv/lib/python3.13/site-packages/twofish.py
 ```
 
-Le chemin ressemble à :
-```
-/home/pi/.local/lib/python3.11/site-packages/twofish.py
-```
+> **Note** : le chemin contient ici `python3.13` parce que c'est la version installée sur mon Raspberry Pi. Si une autre version de Python est installée, le dossier peut être différent.
 
 ### 3.2 — Appliquer le correctif
-
-```bash
-nano /home/pi/.local/lib/python3.11/site-packages/twofish.py
-```
 
 Dans nano, je fais les deux modifications suivantes :
 
@@ -101,10 +100,12 @@ Dans nano, je fais les deux modifications suivantes :
 ### 3.3 — Vérifier le correctif
 
 ```bash
-python3 -c "import twofish; print('Twofish OK')"
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+source .venv/bin/activate
+python -c "import Crypto; import twofish; print('Dependencies OK')"
 ```
 
-La sortie doit être `Twofish OK`.
+La sortie doit être `Dependencies OK`.
 
 ---
 
@@ -112,7 +113,8 @@ La sortie doit être `Twofish OK`.
 
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
-python3 scripts/experiment.py
+source .venv/bin/activate
+python scripts/experiment.py
 ```
 
 Le script parcourt toutes les combinaisons (algorithme, mode, taille de clé, taille de message), affiche sa progression, et écrit les résultats dans `data/results/`. L'exécution prend entre 10 et 30 minutes selon le modèle du Pi.
@@ -169,7 +171,8 @@ Pour confirmer que le code produit les mêmes résultats sur l'architecture ARM 
 
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
-python3 scripts/run_kat.py
+source .venv/bin/activate
+python scripts/run_kat.py
 ```
 
 Les 26 tests doivent afficher `PASS`.
@@ -188,22 +191,25 @@ unzip main.zip
 mv INF1430-Comparaison-Chiffrement-Symetrique-main INF1430-Comparaison-Chiffrement-Symetrique
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique
 
-# 2. Installation des dépendances
+# 2. Créer et activer l'environnement virtuel
 cd crypto-experiments
-pip3 install pycryptodome twofish
+python3 -m venv .venv
+source .venv/bin/activate
+pip install pycryptodome twofish
 
-# 3. Trouver le chemin twofish.py pour le correctif
-python3 -c "import twofish; print(twofish.__file__)"
-# Éditer le fichier avec nano (voir Étape 3)
+# 3. Corriger Twofish
+nano .venv/lib/python3.13/site-packages/twofish.py
+# Remplacer import imp par import importlib.util
+# Remplacer imp.find_module('_twofish')[1] par importlib.util.find_spec('_twofish').origin
 
-# 4. Valider le correctif
-python3 -c "import twofish; print('Twofish OK')"
+# 4. Vérifier les dépendances
+python -c "import Crypto; import twofish; print('Dependencies OK')"
 
 # 5. KAT (validation fonctionnelle)
-python3 scripts/run_kat.py
+python scripts/run_kat.py
 
 # 6. Benchmark
-python3 scripts/experiment.py
+python scripts/experiment.py
 
 # 7. Renommer le CSV
 cd data/results
