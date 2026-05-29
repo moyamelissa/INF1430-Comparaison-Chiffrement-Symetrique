@@ -28,31 +28,23 @@ sudo apt install python3 python3-pip -y
 
 ---
 
-## Étape 1 — Copier le projet sur le Raspberry Pi
-
-### Option A — Télécharger le ZIP (méthode recommandée)
+## Étape 1 — Télécharger le ZIP
 
 Sur le Pi :
 
 ```bash
 cd ~
 wget https://github.com/moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique/archive/refs/heads/main.zip -O main.zip
+sudo apt update
+sudo apt install unzip -y
 unzip main.zip
 mv INF1430-Comparaison-Chiffrement-Symetrique-main INF1430-Comparaison-Chiffrement-Symetrique
 cd INF1430-Comparaison-Chiffrement-Symetrique
 ```
 
-> **Note** : avec cette méthode, le dossier n'est pas un dépôt Git. Pour rapatrier le CSV sur le laptop (Étape 6), utiliser SCP ou clé USB.
-
-### Option B — Via clé USB
-
-1. Je copie tout le dossier du projet sur une clé USB depuis le laptop.
-2. Je branche la clé sur le Pi et je lance :
-
-```bash
-cp -r /media/pi/NOM_CLE/INF1430-Comparaison-Chiffrement-Symetrique ~/
-cd ~/INF1430-Comparaison-Chiffrement-Symetrique
-```
+> **Note** : si la commande `unzip` n'existe pas sur le Raspberry Pi, l'installation ci-dessus l'ajoute.
+>
+> **Note** : avec cette méthode, le dossier n'est pas un dépôt Git. Pour rapatrier le CSV sur le laptop (Étape 6), utiliser SCP.
 
 ---
 
@@ -144,8 +136,6 @@ mv experiment_*.csv raspberry-pi_experience2.csv
 
 ## Étape 6 — Rapatrier le CSV sur le laptop
 
-### Option A — Via SCP (méthode recommandée si le Pi est sur le même réseau)
-
 Trouver l'adresse IP du Pi :
 
 ```bash
@@ -157,16 +147,6 @@ Depuis le laptop (PowerShell), remplacer `ADRESSE_IP_DU_PI` par l'IP affichée :
 ```powershell
 scp pi@ADRESSE_IP_DU_PI:~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results/raspberry-pi_experience2.csv "C:\Users\xmeli\OneDrive\Documents\GitHub\INF1430-Comparaison-Chiffrement-Symetrique\crypto-experiments\data\results\"
 ```
-
-### Option B — Via clé USB
-
-Sur le Pi :
-
-```bash
-cp ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results/raspberry-pi_experience2.csv /media/pi/NOM_CLE/
-```
-
-Ensuite copier le fichier depuis la clé USB vers le dossier `data/results/` sur le laptop.
 
 ---
 
@@ -202,6 +182,8 @@ Les 26 tests doivent afficher `PASS`.
 # 1. Télécharger le projet
 cd ~
 wget https://github.com/moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique/archive/refs/heads/main.zip -O main.zip
+sudo apt update
+sudo apt install unzip -y
 unzip main.zip
 mv INF1430-Comparaison-Chiffrement-Symetrique-main INF1430-Comparaison-Chiffrement-Symetrique
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique
