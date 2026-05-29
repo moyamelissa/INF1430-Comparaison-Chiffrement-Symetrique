@@ -5,7 +5,7 @@
 
 ## Vue d'ensemble
 
-Ce guide documente la procédure que j'ai suivie pour exécuter les expériences de benchmarking sur le Raspberry Pi. Il couvre le transfert du projet, l'installation des dépendances dans un environnement virtuel Python, le correctif obligatoire pour la librairie Twofish, l'exécution du benchmark et le rapatriement du fichier CSV.
+Ce guide documente la procédure que j'ai suivie pour exécuter les expériences de benchmarking sur le Raspberry Pi. Il couvre toutes les étapes à faire sur le Raspberry Pi en premier, la sauvegarde des résultats localement sur le Pi, puis l'import manuel des fichiers sur le laptop pour régénérer les graphiques.
 
 **Durée estimée** : 20 à 45 minutes selon la connexion et le modèle de Pi.
 
@@ -44,7 +44,7 @@ cd INF1430-Comparaison-Chiffrement-Symetrique
 
 > **Note** : si la commande `unzip` n'existe pas sur le Raspberry Pi, l'installation ci-dessus l'ajoute.
 >
-> **Note** : avec cette méthode, le dossier n'est pas un dépôt Git. Pour rapatrier le CSV sur le laptop (Étape 6), utiliser SCP.
+> **Note** : avec cette méthode, le dossier n'est pas un dépôt Git. Tous les fichiers produits sur le Pi seront donc enregistrés localement dans le dossier du projet, puis importés manuellement sur le laptop à la fin.
 
 ---
 
@@ -109,73 +109,9 @@ La sortie doit être `Dependencies OK`.
 
 ---
 
-## Étape 4 — Lancer le benchmark
+## Étape 4 — Valider les KAT sur le Pi
 
-```bash
-cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
-source .venv/bin/activate
-python scripts/experiment.py
-```
-
-Le script parcourt toutes les combinaisons (algorithme, mode, taille de clé, taille de message), affiche sa progression, et écrit les résultats dans `data/results/`. L'exécution prend entre 10 et 30 minutes selon le modèle du Pi.
-
----
-
-## Étape 5 — Renommer le fichier CSV produit
-
-```bash
-cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results
-ls *.csv
-```
-
-Le fichier généré porte un nom horodaté (ex. `experiment_20260510_143022.csv`). Je le renomme pour suivre la convention du projet :
-
-```bash
-mv experiment_*.csv raspberry-pi_experience2.csv
-```
-
----
-
-## Étape 6 — Rapatrier le CSV sur le laptop
-
-Trouver l'adresse IP du Pi :
-
-```bash
-hostname -I
-```
-
-Exemple de sortie sur mon Raspberry Pi :
-
-```bash
-192.168.1.72 192.168.1.74 2001:56a:7125:f400:5788:1ca9:673:6a0e 2001:56a:7125:f400:8073:cfe7:a461:7d00
-```
-
-Depuis le laptop (PowerShell), j'utilise l'une des adresses IPv4 affichées ci-dessus. Exemple avec `192.168.1.72` :
-
-```powershell
-scp melissamoya@192.168.1.72:~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results/raspberry-pi_experience2.csv "C:\Users\xmeli\OneDrive\Documents\GitHub\INF1430-Comparaison-Chiffrement-Symetrique\crypto-experiments\data\results\"
-```
-
-Si la connexion ne fonctionne pas avec `192.168.1.72`, essayer `192.168.1.74` à la place.
-
----
-
-## Étape 7 — Régénérer les graphiques de comparaison
-
-Une fois le CSV du Pi dans `data/results/`, je génère les graphiques de comparaison inter-plateformes depuis le laptop :
-
-```powershell
-cd "C:\Users\xmeli\OneDrive\Documents\GitHub\INF1430-Comparaison-Chiffrement-Symetrique\crypto-experiments"
-py scripts/compare_platforms.py
-```
-
-Les figures sont enregistrées dans `data/charts/comparison/`.
-
----
-
-## Étape optionnelle — Valider les KAT sur le Pi
-
-Pour confirmer que le code produit les mêmes résultats sur l'architecture ARM :
+Avant de lancer le benchmark complet, je valide que l'implémentation fonctionne correctement sur l'architecture ARM :
 
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
@@ -185,9 +121,88 @@ python scripts/run_kat.py
 
 Les 26 tests doivent afficher `PASS`.
 
+> **Note** : la sortie des tests s'affiche dans le terminal. Si tous les tests passent, cela confirme que les algorithmes produisent les résultats attendus sur le Raspberry Pi.
+
 ---
 
-## Résumé des commandes (séquence complète)
+## Étape 5 — Lancer le benchmark
+
+```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+source .venv/bin/activate
+python scripts/experiment.py
+```
+
+Le script parcourt toutes les combinaisons (algorithme, mode, taille de clé, taille de message), affiche sa progression, puis enregistre automatiquement les résultats dans `data/results/`.
+
+Sur le Raspberry Pi, cette étape peut prendre entre 10 et 30 minutes selon le modèle et la charge du système.
+
+À la fin, une ligne semblable à celle-ci doit apparaître :
+
+```bash
+Results saved to: /home/melissamoya/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results/experiment_20260529_131838.csv
+```
+
+---
+
+## Étape 6 — Renommer le fichier CSV produit
+
+```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results
+ls *.csv
+```
+
+Le fichier généré porte un nom horodaté (ex. `experiment_20260529_131838.csv`). Je le renomme pour suivre la convention du projet :
+
+```bash
+mv experiment_*.csv raspberry-pi_experience2.csv
+```
+
+À ce stade, tous les fichiers produits sur le Raspberry Pi sont enregistrés localement dans le projet.
+
+---
+
+## Étape 7 — Importer manuellement les fichiers sur le laptop
+
+Une fois le travail terminé sur le Pi, je récupère manuellement les fichiers utiles sur mon laptop.
+
+Le fichier principal à importer est :
+
+```text
+crypto-experiments/data/results/raspberry-pi_experience2.csv
+```
+
+Je peux le transférer manuellement de la façon qui me convient :
+- en l'ouvrant depuis le Raspberry Pi puis en le téléversant dans GitHub,
+- en utilisant une clé USB,
+- ou en le copiant ensuite dans mon dossier local du projet sur le laptop.
+
+L'objectif est simplement que `raspberry-pi_experience2.csv` se retrouve dans le dossier suivant sur le laptop :
+
+```text
+crypto-experiments/data/results/
+```
+
+---
+
+## Étape 8 — Régénérer les graphiques de comparaison sur le laptop
+
+Cette étape se fait sur le **laptop**, pas sur le Raspberry Pi.
+
+Une fois le CSV du Pi placé dans `data/results/` sur le laptop, je génère les graphiques de comparaison inter-plateformes :
+
+```powershell
+cd "C:\Users\xmeli\OneDrive\Documents\GitHub\INF1430-Comparaison-Chiffrement-Symetrique\crypto-experiments"
+py scripts/compare_platforms.py
+```
+
+Les figures sont enregistrées dans `data/charts/comparison/`.
+
+> **Important** : ces commandes sont des commandes Windows/PowerShell. Elles doivent être exécutées sur le laptop, et non sur le Raspberry Pi.
+
+---
+
+## Résumé des commandes (séquence complète sur le Raspberry Pi)
 
 ```bash
 # 1. Télécharger le projet
