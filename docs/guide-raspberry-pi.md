@@ -144,11 +144,19 @@ Trouver l'adresse IP du Pi :
 hostname -I
 ```
 
-Depuis le laptop (PowerShell), remplacer `ADRESSE_IP_DU_PI` par l'IP affichée :
+Exemple de sortie sur mon Raspberry Pi :
+
+```bash
+192.168.1.72 192.168.1.74 2001:56a:7125:f400:5788:1ca9:673:6a0e 2001:56a:7125:f400:8073:cfe7:a461:7d00
+```
+
+Depuis le laptop (PowerShell), j'utilise l'une des adresses IPv4 affichées ci-dessus. Exemple avec `192.168.1.72` :
 
 ```powershell
-scp pi@ADRESSE_IP_DU_PI:~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results/raspberry-pi_experience2.csv "C:\Users\xmeli\OneDrive\Documents\GitHub\INF1430-Comparaison-Chiffrement-Symetrique\crypto-experiments\data\results\"
+scp melissamoya@192.168.1.72:~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results/raspberry-pi_experience2.csv "C:\Users\xmeli\OneDrive\Documents\GitHub\INF1430-Comparaison-Chiffrement-Symetrique\crypto-experiments\data\results\"
 ```
+
+Si la connexion ne fonctionne pas avec `192.168.1.72`, essayer `192.168.1.74` à la place.
 
 ---
 
