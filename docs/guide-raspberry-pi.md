@@ -11,7 +11,7 @@ Ce guide documente la procédure que j'ai suivie pour exécuter les expériences
 
 ---
 
-## tape 0 — Prérequis sur le Raspberry Pi
+## Étape 0 — Prérequis sur le Raspberry Pi
 
 Le Pi doit être allumé et connecté au réseau. Je commence par vérifier que Python 3 est bien installé :
 
@@ -28,35 +28,21 @@ sudo apt install python3 python3-pip -y
 
 ---
 
-## tape 1 — Copier le projet sur le Raspberry Pi
+## Étape 1 — Copier le projet sur le Raspberry Pi
 
-### Option A — Via Git (méthode que j'utilise)
-
-> **Note — Authentification GitHub** : GitHub n'accepte plus les mots de passe depuis août 2021.
-> Il faut utiliser un **Personal Access Token (PAT)** à la place du mot de passe.
-> Générer un token sur GitHub.com → Settings → Developer settings → Personal access tokens → Tokens (classic).
-> Cocher la permission `repo`, générer et copier le token.
->
-> Pour ne pas avoir à le ressaisir à chaque fois :
-> ```bash
-> git config --global credential.helper store
-> ```
-> La première fois que Git demande un mot de passe, coller le token — il sera mémorisé.
+### Option A — Télécharger le ZIP (méthode recommandée)
 
 Sur le Pi :
 
 ```bash
 cd ~
-git clone https://github.com/xmeli/INF1430-Comparaison-Chiffrement-Symetrique.git
+wget https://github.com/xmeli/INF1430-Comparaison-Chiffrement-Symetrique/archive/refs/heads/main.zip
+unzip main.zip
+mv INF1430-Comparaison-Chiffrement-Symetrique-main INF1430-Comparaison-Chiffrement-Symetrique
 cd INF1430-Comparaison-Chiffrement-Symetrique
 ```
 
-Si le dépôt est déjà cloné et que je veux juste récupérer les dernières modifications :
-
-```bash
-cd ~/INF1430-Comparaison-Chiffrement-Symetrique
-git pull
-```
+> **Note** : avec cette méthode, le dossier n'est pas un dépôt Git. Pour rapatrier le CSV sur le laptop (Étape 6), utiliser SCP ou clé USB.
 
 ### Option B — Via clé USB
 
@@ -70,7 +56,7 @@ cd ~/INF1430-Comparaison-Chiffrement-Symetrique
 
 ---
 
-## tape 2 — Installer les dépendances Python
+## Étape 2 — Installer les dépendances Python
 
 Depuis le dossier `crypto-experiments/` sur le Pi :
 
@@ -90,7 +76,7 @@ Le Pi est plus lent pour installer les paquets — c'est normal d'attendre quelq
 
 ---
 
-## tape 3 — Correctif obligatoire pour la librairie Twofish
+## Étape 3 — Correctif obligatoire pour la librairie Twofish
 
 La librairie `twofish` utilise `import imp`, qui est supprimé depuis Python 3.12. Je dois corriger ce fichier manuellement.
 
@@ -130,7 +116,7 @@ La sortie doit être `Twofish OK`.
 
 ---
 
-## tape 4 — Lancer le benchmark
+## Étape 4 — Lancer le benchmark
 
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
@@ -141,7 +127,7 @@ Le script parcourt toutes les combinaisons (algorithme  mode  taille de clé  ta
 
 ---
 
-## tape 5 — Renommer le fichier CSV produit
+## Étape 5 — Renommer le fichier CSV produit
 
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results
@@ -156,40 +142,35 @@ mv experiment_*.csv raspberry-pi_experience2.csv
 
 ---
 
-## tape 6 — Rapatrier le CSV sur le laptop
+## Étape 6 — Rapatrier le CSV sur le laptop
 
-### Option A — Via Git (méthode que j'utilise)
+### Option A — Via SCP (méthode recommandée si le Pi est sur le même réseau)
 
-Sur le Pi :
+Trouver l'adresse IP du Pi :
 
 ```bash
-cd ~/INF1430-Comparaison-Chiffrement-Symetrique
-git add crypto-experiments/data/results/raspberry-pi_experience2.csv
-git commit -m "Ajout des résultats Raspberry Pi (expérience 2)"
-git push
-# Si demande d'authentification : entrer le nom d'utilisateur GitHub, puis le PAT comme mot de passe
+hostname -I
 ```
 
-Sur le laptop (PowerShell) :
-
-```powershell
-cd "C:\Users\xmeli\OneDrive\Documents\GitHub\INF1430-Comparaison-Chiffrement-Symetrique"
-git pull
-```
-
-### Option B — Via SCP (si le Pi est sur le même réseau)
-
-Depuis le laptop :
+Depuis le laptop (PowerShell), remplacer `ADRESSE_IP_DU_PI` par l'IP affichée :
 
 ```powershell
 scp pi@ADRESSE_IP_DU_PI:~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results/raspberry-pi_experience2.csv "C:\Users\xmeli\OneDrive\Documents\GitHub\INF1430-Comparaison-Chiffrement-Symetrique\crypto-experiments\data\results\"
 ```
 
-Je trouve l'adresse IP du Pi avec `hostname -I` sur le Pi.
+### Option B — Via clé USB
+
+Sur le Pi :
+
+```bash
+cp ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results/raspberry-pi_experience2.csv /media/pi/NOM_CLE/
+```
+
+Ensuite copier le fichier depuis la clé USB vers le dossier `data/results/` sur le laptop.
 
 ---
 
-## tape 7 — Régénérer les graphiques de comparaison
+## Étape 7 — Régénérer les graphiques de comparaison
 
 Une fois le CSV du Pi dans `data/results/`, je génère les graphiques de comparaison inter-plateformes depuis le laptop :
 
@@ -202,7 +183,7 @@ Les figures sont enregistrées dans `data/charts/comparison/`.
 
 ---
 
-## tape optionnelle — Valider les KAT sur le Pi
+## Étape optionnelle — Valider les KAT sur le Pi
 
 Pour confirmer que le code produit les mêmes résultats sur l'architecture ARM :
 
