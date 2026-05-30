@@ -116,18 +116,37 @@ Hi moyamelissa! You've successfully authenticated, but GitHub does not provide s
 
 ## Étape 2 — Clonage du dépôt
 
+### Commandes exécutées
+
+```bash
+cd ~
+git clone git@github.com:moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique.git
+cd INF1430-Comparaison-Chiffrement-Symetrique
+```
+
 ### Sortie observée
 
 ```text
-Étape non rejouée pendant cette validation, car le dépôt était déjà présent localement.
+(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique $ cd ~
+git clone git@github.com:moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique.git
+cd INF1430-Comparaison-Chiffrement-Symetrique
+Cloning into 'INF1430-Comparaison-Chiffrement-Symetrique'...
+remote: Enumerating objects: 320, done.
+remote: Counting objects: 100% (320/320), done.
+remote: Compressing objects: 100% (230/230), done.
+remote: Total 320 (delta 129), reused 219 (delta 76), pack-reused 0 (from 0)
+Receiving objects: 100% (320/320), 26.95 MiB | 1.01 MiB/s, done.
+Resolving deltas: 100% (129/129), done.
+(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique $
 ```
 
 ### Conclusion
 
-Étape non rejouée.
+Étape validée.
 
-- Le dépôt `INF1430-Comparaison-Chiffrement-Symetrique` était déjà cloné sur le Raspberry Pi.
-- Les étapes suivantes ont donc été exécutées directement dans le dépôt existant.
+- Le dépôt a été cloné avec succès depuis GitHub via SSH.
+- Le dossier local `~/INF1430-Comparaison-Chiffrement-Symetrique` a été créé.
+- La procédure peut se poursuivre dans le dépôt cloné.
 
 ---
 
