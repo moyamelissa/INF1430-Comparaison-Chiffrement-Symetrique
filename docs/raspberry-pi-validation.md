@@ -187,3 +187,71 @@ Requirement already satisfied: twofish in ./.venv/lib/python3.13/site-packages (
 - Le dossier `data/logs` existe.
 - Le fichier `data/logs/pip_install.txt` a bien été créé.
 - Les dépendances `pycryptodome` et `twofish` sont déjà installées dans l’environnement virtuel.
+
+---
+
+## Étape 4 — Correction de la librairie Twofish pour Python 3.13
+
+### Commandes exécutées
+
+```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+source .venv/bin/activate
+nano .venv/lib/python3.13/site-packages/twofish.py
+```
+
+### Extrait du fichier corrigé
+
+```python
+import importlib.util
+import sys
+
+from ctypes import (cdll, Structure,
+                    POINTER, pointer,
+                    c_char_p, c_int, c_uint32,
+                    create_string_buffer)
+
+_twofish = cdll.LoadLibrary(importlib.util.find_spec('_twofish').origin)
+```
+
+### Conclusion
+
+Étape validée.
+
+- Le fichier `.venv/lib/python3.13/site-packages/twofish.py` a été corrigé pour Python 3.13.
+- L’instruction `import imp` a été remplacée par `import importlib.util`.
+- Le chargement de la librairie `_twofish` utilise désormais `importlib.util.find_spec('_twofish').origin`.
+
+---
+
+## Étape 5 — Vérification des dépendances
+
+### Commandes exécutées
+
+```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+source .venv/bin/activate
+mkdir -p data/logs
+python -c "import Crypto; import twofish; print('Dependencies OK')" > data/logs/dependencies_check.txt 2>&1
+cat data/logs/dependencies_check.txt
+```
+
+### Sortie observée
+
+```text
+(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments $ cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+source .venv/bin/activate
+mkdir -p data/logs
+python -c "import Crypto; import twofish; print('Dependencies OK')" > data/logs/dependencies_check.txt 2>&1
+cat data/logs/dependencies_check.txt
+Dependencies OK
+(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments $
+```
+
+### Conclusion
+
+Étape validée.
+
+- Les modules `Crypto` et `twofish` peuvent être importés correctement.
+- Le correctif appliqué à `twofish.py` fonctionne.
+- Le fichier `data/logs/dependencies_check.txt` a été généré avec succès.
