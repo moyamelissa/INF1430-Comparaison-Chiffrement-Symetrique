@@ -393,172 +393,8 @@ cd ../..
 ### Sortie observée
 
 ```text
-(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments $ cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
-source .venv/bin/activate
-mkdir -p data/logs
-python scripts/experiment.py > data/logs/benchmark_output_experience1.txt 2>&1
-cat data/logs/benchmark_output_experience1.txt
-cd data/results
-mv experiment_*.csv raspberry-pi_experience1.csv
-cd ../..
-  Running AES-ECB key=128bit msg=64B … enc=0.074ms thr=0.82MB/s avalanche=0.499
-  Running AES-ECB key=128bit msg=256B … enc=0.054ms thr=4.52MB/s avalanche=0.501
-  Running AES-ECB key=128bit msg=1024B … enc=0.057ms thr=17.11MB/s avalanche=0.496
-  Running AES-ECB key=128bit msg=4096B … enc=0.120ms thr=32.58MB/s avalanche=0.498
-  Running AES-ECB key=128bit msg=16384B … enc=0.389ms thr=40.18MB/s avalanche=0.503
-  Running AES-ECB key=192bit msg=64B … enc=0.045ms thr=1.36MB/s avalanche=0.499
-  Running AES-ECB key=192bit msg=256B … enc=0.050ms thr=4.93MB/s avalanche=0.503
-  Running AES-ECB key=192bit msg=1024B … enc=0.058ms thr=16.73MB/s avalanche=0.500
-  Running AES-ECB key=192bit msg=4096B … enc=0.123ms thr=31.77MB/s avalanche=0.499
-  Running AES-ECB key=192bit msg=16384B … enc=0.423ms thr=36.91MB/s avalanche=0.507
-  Running AES-ECB key=256bit msg=64B … enc=0.043ms thr=1.41MB/s avalanche=0.502
-  Running AES-ECB key=256bit msg=256B … enc=0.044ms thr=5.54MB/s avalanche=0.495
-  Running AES-ECB key=256bit msg=1024B … enc=0.054ms thr=17.96MB/s avalanche=0.499
-  Running AES-ECB key=256bit msg=4096B … enc=0.103ms thr=38.08MB/s avalanche=0.500
-  Running AES-ECB key=256bit msg=16384B … enc=0.297ms thr=52.53MB/s avalanche=0.492
-  Running AES-CBC key=128bit msg=64B … enc=0.294ms thr=0.21MB/s avalanche=0.496
-  Running AES-CBC key=128bit msg=256B … enc=0.903ms thr=0.27MB/s avalanche=0.500
-  Running AES-CBC key=128bit msg=1024B … enc=3.188ms thr=0.31MB/s avalanche=0.504
-  Running AES-CBC key=128bit msg=4096B … enc=13.950ms thr=0.28MB/s avalanche=0.500
-  Running AES-CBC key=128bit msg=16384B … enc=46.606ms thr=0.34MB/s avalanche=0.501
-  Running AES-CBC key=192bit msg=64B … enc=0.208ms thr=0.29MB/s avalanche=0.499
-  Running AES-CBC key=192bit msg=256B … enc=0.673ms thr=0.36MB/s avalanche=0.503
-  Running AES-CBC key=192bit msg=1024B … enc=2.547ms thr=0.38MB/s avalanche=0.496
-  Running AES-CBC key=192bit msg=4096B … enc=10.063ms thr=0.39MB/s avalanche=0.499
-  Running AES-CBC key=192bit msg=16384B … enc=39.904ms thr=0.39MB/s avalanche=0.501
-  Running AES-CBC key=256bit msg=64B … enc=0.207ms thr=0.30MB/s avalanche=0.499
-  Running AES-CBC key=256bit msg=256B … enc=0.677ms thr=0.36MB/s avalanche=0.503
-  Running AES-CBC key=256bit msg=1024B … enc=2.570ms thr=0.38MB/s avalanche=0.503
-  Running AES-CBC key=256bit msg=4096B … enc=10.725ms thr=0.36MB/s avalanche=0.498
-  Running AES-CBC key=256bit msg=16384B … enc=40.638ms thr=0.38MB/s avalanche=0.502
-  Running AES-CTR key=128bit msg=64B … enc=0.060ms thr=1.02MB/s avalanche=0.502
-  Running AES-CTR key=128bit msg=256B … enc=0.097ms thr=2.51MB/s avalanche=0.501
-  Running AES-CTR key=128bit msg=1024B … enc=0.253ms thr=3.87MB/s avalanche=0.493
-  Running AES-CTR key=128bit msg=4096B … enc=0.851ms thr=4.59MB/s avalanche=0.502
-  Running AES-CTR key=128bit msg=16384B … enc=3.353ms thr=4.66MB/s avalanche=0.496
-  Running AES-CTR key=192bit msg=64B … enc=0.058ms thr=1.05MB/s avalanche=0.503
-  Running AES-CTR key=192bit msg=256B … enc=0.099ms thr=2.46MB/s avalanche=0.505
-  Running AES-CTR key=192bit msg=1024B … enc=0.251ms thr=3.89MB/s avalanche=0.501
-  Running AES-CTR key=192bit msg=4096B … enc=0.868ms thr=4.50MB/s avalanche=0.502
-  Running AES-CTR key=192bit msg=16384B … enc=3.390ms thr=4.61MB/s avalanche=0.497
-  Running AES-CTR key=256bit msg=64B … enc=0.059ms thr=1.04MB/s avalanche=0.497
-  Running AES-CTR key=256bit msg=256B … enc=0.097ms thr=2.52MB/s avalanche=0.497
-  Running AES-CTR key=256bit msg=1024B … enc=0.252ms thr=3.88MB/s avalanche=0.498
-  Running AES-CTR key=256bit msg=4096B … enc=0.856ms thr=4.57MB/s avalanche=0.503
-  Running AES-CTR key=256bit msg=16384B … enc=3.370ms thr=4.64MB/s avalanche=0.499
-  Running AES-GCM key=128bit msg=64B … enc=0.258ms thr=0.24MB/s avalanche=0.503
-  Running AES-GCM key=128bit msg=256B … enc=0.200ms thr=1.22MB/s avalanche=0.493
-  Running AES-GCM key=128bit msg=1024B … enc=0.224ms thr=4.36MB/s avalanche=0.502
-  Running AES-GCM key=128bit msg=4096B … enc=0.317ms thr=12.34MB/s avalanche=0.501
-  Running AES-GCM key=128bit msg=16384B … enc=0.711ms thr=21.98MB/s avalanche=0.504
-  Running AES-GCM key=192bit msg=64B … enc=0.195ms thr=0.31MB/s avalanche=0.500
-  Running AES-GCM key=192bit msg=256B … enc=0.291ms thr=0.84MB/s avalanche=0.500
-  Running AES-GCM key=192bit msg=1024B … enc=0.384ms thr=2.55MB/s avalanche=0.504
-  Running AES-GCM key=192bit msg=4096B … enc=0.367ms thr=10.65MB/s avalanche=0.496
-  Running AES-GCM key=192bit msg=16384B … enc=0.847ms thr=18.44MB/s avalanche=0.499
-  Running AES-GCM key=256bit msg=64B … enc=0.193ms thr=0.32MB/s avalanche=0.503
-  Running AES-GCM key=256bit msg=256B … enc=0.204ms thr=1.20MB/s avalanche=0.496
-  Running AES-GCM key=256bit msg=1024B … enc=0.230ms thr=4.24MB/s avalanche=0.499
-  Running AES-GCM key=256bit msg=4096B … enc=0.343ms thr=11.40MB/s avalanche=0.499
-  Running AES-GCM key=256bit msg=16384B … enc=0.766ms thr=20.39MB/s avalanche=0.495
-  Running DES-ECB key=64bit msg=64B … enc=0.054ms thr=1.14MB/s avalanche=0.497
-  Running DES-ECB key=64bit msg=256B … enc=0.056ms thr=4.34MB/s avalanche=0.496
-  Running DES-ECB key=64bit msg=1024B … enc=0.077ms thr=12.76MB/s avalanche=0.498
-  Running DES-ECB key=64bit msg=4096B … enc=0.149ms thr=26.18MB/s avalanche=0.499
-  Running DES-ECB key=64bit msg=16384B … enc=0.457ms thr=34.21MB/s avalanche=0.502
-  Running DES-CBC key=64bit msg=64B … enc=0.448ms thr=0.14MB/s avalanche=0.494
-  Running DES-CBC key=64bit msg=256B … enc=1.583ms thr=0.15MB/s avalanche=0.495
-  Running DES-CBC key=64bit msg=1024B … enc=6.291ms thr=0.16MB/s avalanche=0.502
-  Running DES-CBC key=64bit msg=4096B … enc=24.589ms thr=0.16MB/s avalanche=0.500
-  Running DES-CBC key=64bit msg=16384B … enc=95.707ms thr=0.16MB/s avalanche=0.495
-  Running DES-CTR key=64bit msg=64B … enc=0.071ms thr=0.86MB/s avalanche=0.495
-  Running DES-CTR key=64bit msg=256B … enc=0.118ms thr=2.06MB/s avalanche=0.502
-  Running DES-CTR key=64bit msg=1024B … enc=0.300ms thr=3.26MB/s avalanche=0.506
-  Running DES-CTR key=64bit msg=4096B … enc=1.046ms thr=3.74MB/s avalanche=0.495
-  Running DES-CTR key=64bit msg=16384B … enc=4.109ms thr=3.80MB/s avalanche=0.510
-  Running 3DES-ECB key=128bit msg=64B … enc=0.123ms thr=0.50MB/s avalanche=0.497
-  Running 3DES-ECB key=128bit msg=256B … enc=0.137ms thr=1.78MB/s avalanche=0.503
-  Running 3DES-ECB key=128bit msg=1024B … enc=0.195ms thr=5.00MB/s avalanche=0.497
-  Running 3DES-ECB key=128bit msg=4096B … enc=0.427ms thr=9.15MB/s avalanche=0.501
-  Running 3DES-ECB key=128bit msg=16384B … enc=1.327ms thr=11.78MB/s avalanche=0.500
-  Running 3DES-ECB key=192bit msg=64B … enc=0.146ms thr=0.42MB/s avalanche=0.509
-  Running 3DES-ECB key=192bit msg=256B … enc=0.160ms thr=1.53MB/s avalanche=0.491
-  Running 3DES-ECB key=192bit msg=1024B … enc=0.219ms thr=4.46MB/s avalanche=0.503
-  Running 3DES-ECB key=192bit msg=4096B … enc=0.442ms thr=8.83MB/s avalanche=0.491
-  Running 3DES-ECB key=192bit msg=16384B … enc=1.395ms thr=11.20MB/s avalanche=0.501
-  Running 3DES-CBC key=128bit msg=64B … enc=0.135ms thr=0.45MB/s avalanche=0.500
-  Running 3DES-CBC key=128bit msg=256B … enc=0.465ms thr=0.53MB/s avalanche=0.500
-  Running 3DES-CBC key=128bit msg=1024B … enc=1.831ms thr=0.53MB/s avalanche=0.496
-  Running 3DES-CBC key=128bit msg=4096B … enc=7.162ms thr=0.55MB/s avalanche=0.508
-  Running 3DES-CBC key=128bit msg=16384B … enc=28.718ms thr=0.54MB/s avalanche=0.500
-  Running 3DES-CBC key=192bit msg=64B … enc=0.135ms thr=0.45MB/s avalanche=0.508
-  Running 3DES-CBC key=192bit msg=256B … enc=0.465ms thr=0.52MB/s avalanche=0.494
-  Running 3DES-CBC key=192bit msg=1024B … enc=1.819ms thr=0.54MB/s avalanche=0.500
-  Running 3DES-CBC key=192bit msg=4096B … enc=7.236ms thr=0.54MB/s avalanche=0.499
-  Running 3DES-CBC key=192bit msg=16384B … enc=28.980ms thr=0.54MB/s avalanche=0.498
-  Running 3DES-CTR key=128bit msg=64B … enc=0.145ms thr=0.42MB/s avalanche=0.499
-  Running 3DES-CTR key=128bit msg=256B … enc=0.201ms thr=1.21MB/s avalanche=0.506
-  Running 3DES-CTR key=128bit msg=1024B … enc=0.420ms thr=2.33MB/s avalanche=0.495
-  Running 3DES-CTR key=128bit msg=4096B … enc=1.316ms thr=2.97MB/s avalanche=0.496
-  Running 3DES-CTR key=128bit msg=16384B … enc=4.976ms thr=3.14MB/s avalanche=0.495
-  Running 3DES-CTR key=192bit msg=64B … enc=0.167ms thr=0.37MB/s avalanche=0.502
-  Running 3DES-CTR key=192bit msg=256B … enc=0.225ms thr=1.09MB/s avalanche=0.506
-  Running 3DES-CTR key=192bit msg=1024B … enc=0.457ms thr=2.14MB/s avalanche=0.499
-  Running 3DES-CTR key=192bit msg=4096B … enc=1.333ms thr=2.93MB/s avalanche=0.499
-  Running 3DES-CTR key=192bit msg=16384B … enc=4.983ms thr=3.14MB/s avalanche=0.493
-  Running Twofish-ECB key=128bit msg=64B … enc=0.062ms thr=0.98MB/s avalanche=0.498
-  Running Twofish-ECB key=128bit msg=256B … enc=0.186ms thr=1.31MB/s avalanche=0.502
-  Running Twofish-ECB key=128bit msg=1024B … enc=0.707ms thr=1.38MB/s avalanche=0.499
-  Running Twofish-ECB key=128bit msg=4096B … enc=2.712ms thr=1.44MB/s avalanche=0.496
-  Running Twofish-ECB key=128bit msg=16384B … enc=10.893ms thr=1.43MB/s avalanche=0.497
-  Running Twofish-ECB key=192bit msg=64B … enc=0.061ms thr=1.00MB/s avalanche=0.502
-  Running Twofish-ECB key=192bit msg=256B … enc=0.187ms thr=1.30MB/s avalanche=0.496
-  Running Twofish-ECB key=192bit msg=1024B … enc=0.708ms thr=1.38MB/s avalanche=0.496
-  Running Twofish-ECB key=192bit msg=4096B … enc=2.751ms thr=1.42MB/s avalanche=0.503
-  Running Twofish-ECB key=192bit msg=16384B … enc=10.872ms thr=1.44MB/s avalanche=0.505
-  Running Twofish-ECB key=256bit msg=64B … enc=0.061ms thr=1.01MB/s avalanche=0.493
-  Running Twofish-ECB key=256bit msg=256B … enc=0.186ms thr=1.32MB/s avalanche=0.499
-  Running Twofish-ECB key=256bit msg=1024B … enc=0.698ms thr=1.40MB/s avalanche=0.509
-  Running Twofish-ECB key=256bit msg=4096B … enc=2.733ms thr=1.43MB/s avalanche=0.502
-  Running Twofish-ECB key=256bit msg=16384B … enc=10.844ms thr=1.44MB/s avalanche=0.496
-  Running Twofish-CBC key=128bit msg=64B … enc=0.097ms thr=0.63MB/s avalanche=0.500
-  Running Twofish-CBC key=128bit msg=256B … enc=0.301ms thr=0.81MB/s avalanche=0.503
-  Running Twofish-CBC key=128bit msg=1024B … enc=1.140ms thr=0.86MB/s avalanche=0.504
-  Running Twofish-CBC key=128bit msg=4096B … enc=4.448ms thr=0.88MB/s avalanche=0.496
-  Running Twofish-CBC key=128bit msg=16384B … enc=17.631ms thr=0.89MB/s avalanche=0.499
-  Running Twofish-CBC key=192bit msg=64B … enc=0.096ms thr=0.64MB/s avalanche=0.498
-  Running Twofish-CBC key=192bit msg=256B … enc=0.301ms thr=0.81MB/s avalanche=0.497
-  Running Twofish-CBC key=192bit msg=1024B … enc=1.146ms thr=0.85MB/s avalanche=0.499
-  Running Twofish-CBC key=192bit msg=4096B … enc=4.458ms thr=0.88MB/s avalanche=0.496
-  Running Twofish-CBC key=192bit msg=16384B … enc=17.571ms thr=0.89MB/s avalanche=0.503
-  Running Twofish-CBC key=256bit msg=64B … enc=0.096ms thr=0.64MB/s avalanche=0.495
-  Running Twofish-CBC key=256bit msg=256B … enc=0.305ms thr=0.80MB/s avalanche=0.495
-  Running Twofish-CBC key=256bit msg=1024B … enc=1.139ms thr=0.86MB/s avalanche=0.505
-  Running Twofish-CBC key=256bit msg=4096B … enc=4.470ms thr=0.87MB/s avalanche=0.500
-  Running Twofish-CBC key=256bit msg=16384B … enc=17.617ms thr=0.89MB/s avalanche=0.498
-  Running Twofish-CTR key=128bit msg=64B … enc=0.071ms thr=0.86MB/s avalanche=0.500
-  Running Twofish-CTR key=128bit msg=256B … enc=0.234ms thr=1.04MB/s avalanche=0.501
-  Running Twofish-CTR key=128bit msg=1024B … enc=0.904ms thr=1.08MB/s avalanche=0.501
-  Running Twofish-CTR key=128bit msg=4096B … enc=3.502ms thr=1.12MB/s avalanche=0.504
-  Running Twofish-CTR key=128bit msg=16384B … enc=13.999ms thr=1.12MB/s avalanche=0.496
-  Running Twofish-CTR key=192bit msg=64B … enc=0.072ms thr=0.85MB/s avalanche=0.497
-  Running Twofish-CTR key=192bit msg=256B … enc=0.231ms thr=1.06MB/s avalanche=0.498
-  Running Twofish-CTR key=192bit msg=1024B … enc=0.893ms thr=1.09MB/s avalanche=0.497
-  Running Twofish-CTR key=192bit msg=4096B … enc=3.507ms thr=1.11MB/s avalanche=0.497
-  Running Twofish-CTR key=192bit msg=16384B … enc=13.953ms thr=1.12MB/s avalanche=0.494
-  Running Twofish-CTR key=256bit msg=64B … enc=0.072ms thr=0.85MB/s avalanche=0.502
-  Running Twofish-CTR key=256bit msg=256B … enc=0.234ms thr=1.04MB/s avalanche=0.495
-  Running Twofish-CTR key=256bit msg=1024B … enc=0.892ms thr=1.09MB/s avalanche=0.492
-  Running Twofish-CTR key=256bit msg=4096B … enc=3.487ms thr=1.12MB/s avalanche=0.503
-  Running Twofish-CTR key=256bit msg=16384B … enc=13.964ms thr=1.12MB/s avalanche=0.501
-  Running ChaCha20-Stream key=256bit msg=64B … enc=0.028ms thr=2.16MB/s avalanche=0.593
-  Running ChaCha20-Stream key=256bit msg=256B … enc=0.028ms thr=8.80MB/s avalanche=0.595
-  Running ChaCha20-Stream key=256bit msg=1024B … enc=0.035ms thr=27.70MB/s avalanche=0.595
-  Running ChaCha20-Stream key=256bit msg=4096B … enc=0.059ms thr=66.49MB/s avalanche=0.597
-  Running ChaCha20-Stream key=256bit msg=16384B … enc=0.164ms thr=94.99MB/s avalanche=0.593
-
-Results saved to: /home/melissamoya/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results/experiment_20260529_183323.csv
-(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments $
+Voir le fichier : crypto-experiments/data/logs/benchmark_output_experience1.txt
+Résultat CSV créé puis renommé : crypto-experiments/data/results/raspberry-pi_experience1.csv
 ```
 
 ### Conclusion
@@ -568,187 +404,47 @@ Results saved to: /home/melissamoya/INF1430-Comparaison-Chiffrement-Symetrique/c
 - La première exécution complète du benchmark Raspberry Pi s’est déroulée correctement.
 - Le fichier de log `data/logs/benchmark_output_experience1.txt` a été généré avec succès.
 - Un fichier CSV de résultats a été produit puis renommé en `raspberry-pi_experience1.csv`.
-- Les mesures ont été obtenues pour AES, DES, 3DES, Twofish et ChaCha20 selon plusieurs tailles de messages et modes de chiffrement.
 
+---
 
-experimetn 2
+## Étape 8 — Benchmark Raspberry Pi, exécution 2
 
-### Sortie observée
+### Commandes exécutées
 
-```text
-INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
 source .venv/bin/activate
 mkdir -p data/logs
-python scripts/experiment.py > data/logs/benchmark_output_experience3.txt 2>&1
-cat data/logs/benchmark_output_experience3.txt
+python scripts/experiment.py > data/logs/benchmark_output_experience2.txt 2>&1
+cat data/logs/benchmark_output_experience2.txt
 cd data/results
-mv experiment_*.csv raspberry-pi_experience3.csv
+mv experiment_*.csv raspberry-pi_experience2.csv
 cd ../..
-  Running AES-ECB key=128bit msg=64B … enc=0.054ms thr=1.14MB/s avalanche=0.493
-  Running AES-ECB key=128bit msg=256B … enc=0.041ms thr=6.00MB/s avalanche=0.503
-  Running AES-ECB key=128bit msg=1024B … enc=0.049ms thr=19.99MB/s avalanche=0.501
-  Running AES-ECB key=128bit msg=4096B … enc=0.085ms thr=45.97MB/s avalanche=0.498
-  Running AES-ECB key=128bit msg=16384B … enc=0.209ms thr=74.73MB/s avalanche=0.500
-  Running AES-ECB key=192bit msg=64B … enc=0.037ms thr=1.64MB/s avalanche=0.501
-  Running AES-ECB key=192bit msg=256B … enc=0.039ms thr=6.23MB/s avalanche=0.502
-  Running AES-ECB key=192bit msg=1024B … enc=0.050ms thr=19.54MB/s avalanche=0.501
-  Running AES-ECB key=192bit msg=4096B … enc=0.087ms thr=44.89MB/s avalanche=0.501
-  Running AES-ECB key=192bit msg=16384B … enc=0.236ms thr=66.22MB/s avalanche=0.503
-  Running AES-ECB key=256bit msg=64B … enc=0.038ms thr=1.62MB/s avalanche=0.500
-  Running AES-ECB key=256bit msg=256B … enc=0.041ms thr=6.02MB/s avalanche=0.497
-  Running AES-ECB key=256bit msg=1024B … enc=0.052ms thr=18.74MB/s avalanche=0.499
-  Running AES-ECB key=256bit msg=4096B … enc=0.098ms thr=39.87MB/s avalanche=0.502
-  Running AES-ECB key=256bit msg=16384B … enc=0.263ms thr=59.41MB/s avalanche=0.502
-  Running AES-CBC key=128bit msg=64B … enc=0.203ms thr=0.30MB/s avalanche=0.504
-  Running AES-CBC key=128bit msg=256B … enc=0.667ms thr=0.37MB/s avalanche=0.493
-  Running AES-CBC key=128bit msg=1024B … enc=2.526ms thr=0.39MB/s avalanche=0.502
-  Running AES-CBC key=128bit msg=4096B … enc=10.014ms thr=0.39MB/s avalanche=0.496
-  Running AES-CBC key=128bit msg=16384B … enc=39.622ms thr=0.39MB/s avalanche=0.498
-  Running AES-CBC key=192bit msg=64B … enc=0.205ms thr=0.30MB/s avalanche=0.498
-  Running AES-CBC key=192bit msg=256B … enc=0.668ms thr=0.37MB/s avalanche=0.504
-  Running AES-CBC key=192bit msg=1024B … enc=2.600ms thr=0.38MB/s avalanche=0.503
-  Running AES-CBC key=192bit msg=4096B … enc=10.016ms thr=0.39MB/s avalanche=0.502
-  Running AES-CBC key=192bit msg=16384B … enc=39.612ms thr=0.39MB/s avalanche=0.501
-  Running AES-CBC key=256bit msg=64B … enc=0.205ms thr=0.30MB/s avalanche=0.501
-  Running AES-CBC key=256bit msg=256B … enc=0.677ms thr=0.36MB/s avalanche=0.501
-  Running AES-CBC key=256bit msg=1024B … enc=2.571ms thr=0.38MB/s avalanche=0.503
-  Running AES-CBC key=256bit msg=4096B … enc=10.067ms thr=0.39MB/s avalanche=0.498
-  Running AES-CBC key=256bit msg=16384B … enc=40.669ms thr=0.38MB/s avalanche=0.501
-  Running AES-CTR key=128bit msg=64B … enc=0.075ms thr=0.81MB/s avalanche=0.496
-  Running AES-CTR key=128bit msg=256B … enc=0.149ms thr=1.64MB/s avalanche=0.500
-  Running AES-CTR key=128bit msg=1024B … enc=0.467ms thr=2.09MB/s avalanche=0.501
-  Running AES-CTR key=128bit msg=4096B … enc=1.035ms thr=3.77MB/s avalanche=0.502
-  Running AES-CTR key=128bit msg=16384B … enc=3.718ms thr=4.20MB/s avalanche=0.501
-  Running AES-CTR key=192bit msg=64B … enc=0.064ms thr=0.96MB/s avalanche=0.503
-  Running AES-CTR key=192bit msg=256B … enc=0.113ms thr=2.15MB/s avalanche=0.496
-  Running AES-CTR key=192bit msg=1024B … enc=0.264ms thr=3.70MB/s avalanche=0.502
-  Running AES-CTR key=192bit msg=4096B … enc=1.330ms thr=2.94MB/s avalanche=0.498
-  Running AES-CTR key=192bit msg=16384B … enc=4.546ms thr=3.44MB/s avalanche=0.499
-  Running AES-CTR key=256bit msg=64B … enc=0.075ms thr=0.82MB/s avalanche=0.500
-  Running AES-CTR key=256bit msg=256B … enc=0.144ms thr=1.70MB/s avalanche=0.497
-  Running AES-CTR key=256bit msg=1024B … enc=0.437ms thr=2.24MB/s avalanche=0.500
-  Running AES-CTR key=256bit msg=4096B … enc=1.361ms thr=2.87MB/s avalanche=0.504
-  Running AES-CTR key=256bit msg=16384B … enc=4.439ms thr=3.52MB/s avalanche=0.503
-  Running AES-GCM key=128bit msg=64B … enc=0.546ms thr=0.11MB/s avalanche=0.502
-  Running AES-GCM key=128bit msg=256B … enc=0.363ms thr=0.67MB/s avalanche=0.495
-  Running AES-GCM key=128bit msg=1024B … enc=0.413ms thr=2.36MB/s avalanche=0.506
-  Running AES-GCM key=128bit msg=4096B … enc=0.610ms thr=6.41MB/s avalanche=0.500
-  Running AES-GCM key=128bit msg=16384B … enc=1.515ms thr=10.32MB/s avalanche=0.501
-  Running AES-GCM key=192bit msg=64B … enc=0.370ms thr=0.16MB/s avalanche=0.500
-  Running AES-GCM key=192bit msg=256B … enc=0.385ms thr=0.63MB/s avalanche=0.499
-  Running AES-GCM key=192bit msg=1024B … enc=0.437ms thr=2.24MB/s avalanche=0.500
-  Running AES-GCM key=192bit msg=4096B … enc=0.633ms thr=6.17MB/s avalanche=0.494
-  Running AES-GCM key=192bit msg=16384B … enc=1.417ms thr=11.02MB/s avalanche=0.496
-  Running AES-GCM key=256bit msg=64B … enc=0.375ms thr=0.16MB/s avalanche=0.496
-  Running AES-GCM key=256bit msg=256B … enc=0.365ms thr=0.67MB/s avalanche=0.498
-  Running AES-GCM key=256bit msg=1024B … enc=0.661ms thr=1.48MB/s avalanche=0.501
-  Running AES-GCM key=256bit msg=4096B … enc=0.766ms thr=5.10MB/s avalanche=0.504
-  Running AES-GCM key=256bit msg=16384B … enc=1.540ms thr=10.14MB/s avalanche=0.502
-  Running DES-ECB key=64bit msg=64B … enc=0.089ms thr=0.68MB/s avalanche=0.500
-  Running DES-ECB key=64bit msg=256B … enc=0.082ms thr=2.96MB/s avalanche=0.502
-  Running DES-ECB key=64bit msg=1024B … enc=0.109ms thr=8.99MB/s avalanche=0.506
-  Running DES-ECB key=64bit msg=4096B … enc=0.223ms thr=17.51MB/s avalanche=0.508
-  Running DES-ECB key=64bit msg=16384B … enc=0.855ms thr=18.27MB/s avalanche=0.502
-  Running DES-CBC key=64bit msg=64B … enc=0.668ms thr=0.09MB/s avalanche=0.505
-  Running DES-CBC key=64bit msg=256B … enc=2.149ms thr=0.11MB/s avalanche=0.498
-  Running DES-CBC key=64bit msg=1024B … enc=8.420ms thr=0.12MB/s avalanche=0.508
-  Running DES-CBC key=64bit msg=4096B … enc=33.237ms thr=0.12MB/s avalanche=0.491
-  Running DES-CBC key=64bit msg=16384B … enc=128.612ms thr=0.12MB/s avalanche=0.508
-  Running DES-CTR key=64bit msg=64B … enc=0.107ms thr=0.57MB/s avalanche=0.501
-  Running DES-CTR key=64bit msg=256B … enc=0.204ms thr=1.19MB/s avalanche=0.509
-  Running DES-CTR key=64bit msg=1024B … enc=0.566ms thr=1.73MB/s avalanche=0.495
-  Running DES-CTR key=64bit msg=4096B … enc=1.704ms thr=2.29MB/s avalanche=0.498
-  Running DES-CTR key=64bit msg=16384B … enc=5.799ms thr=2.69MB/s avalanche=0.497
-  Running 3DES-ECB key=128bit msg=64B … enc=0.200ms thr=0.30MB/s avalanche=0.501
-  Running 3DES-ECB key=128bit msg=256B … enc=0.216ms thr=1.13MB/s avalanche=0.495
-  Running 3DES-ECB key=128bit msg=1024B … enc=0.446ms thr=2.19MB/s avalanche=0.499
-  Running 3DES-ECB key=128bit msg=4096B … enc=0.782ms thr=5.00MB/s avalanche=0.503
-  Running 3DES-ECB key=128bit msg=16384B … enc=2.080ms thr=7.51MB/s avalanche=0.500
-  Running 3DES-ECB key=192bit msg=64B … enc=0.239ms thr=0.26MB/s avalanche=0.500
-  Running 3DES-ECB key=192bit msg=256B … enc=0.300ms thr=0.81MB/s avalanche=0.498
-  Running 3DES-ECB key=192bit msg=1024B … enc=0.429ms thr=2.28MB/s avalanche=0.498
-  Running 3DES-ECB key=192bit msg=4096B … enc=0.833ms thr=4.69MB/s avalanche=0.509
-  Running 3DES-ECB key=192bit msg=16384B … enc=2.081ms thr=7.51MB/s avalanche=0.494
-  Running 3DES-CBC key=128bit msg=64B … enc=0.183ms thr=0.33MB/s avalanche=0.499
-  Running 3DES-CBC key=128bit msg=256B … enc=0.707ms thr=0.35MB/s avalanche=0.498
-  Running 3DES-CBC key=128bit msg=1024B … enc=2.477ms thr=0.39MB/s avalanche=0.495
-  Running 3DES-CBC key=128bit msg=4096B … enc=8.988ms thr=0.43MB/s avalanche=0.502
-  Running 3DES-CBC key=128bit msg=16384B … enc=34.731ms thr=0.45MB/s avalanche=0.504
-  Running 3DES-CBC key=192bit msg=64B … enc=0.182ms thr=0.34MB/s avalanche=0.497
-  Running 3DES-CBC key=192bit msg=256B … enc=0.633ms thr=0.39MB/s avalanche=0.488
-  Running 3DES-CBC key=192bit msg=1024B … enc=2.322ms thr=0.42MB/s avalanche=0.508
-  Running 3DES-CBC key=192bit msg=4096B … enc=8.853ms thr=0.44MB/s avalanche=0.505
-  Running 3DES-CBC key=192bit msg=16384B … enc=34.701ms thr=0.45MB/s avalanche=0.502
-  Running 3DES-CTR key=128bit msg=64B … enc=0.320ms thr=0.19MB/s avalanche=0.496
-  Running 3DES-CTR key=128bit msg=256B … enc=0.433ms thr=0.56MB/s avalanche=0.499
-  Running 3DES-CTR key=128bit msg=1024B … enc=0.780ms thr=1.25MB/s avalanche=0.508
-  Running 3DES-CTR key=128bit msg=4096B … enc=2.205ms thr=1.77MB/s avalanche=0.505
-  Running 3DES-CTR key=128bit msg=16384B … enc=6.700ms thr=2.33MB/s avalanche=0.502
-  Running 3DES-CTR key=192bit msg=64B … enc=0.295ms thr=0.21MB/s avalanche=0.504
-  Running 3DES-CTR key=192bit msg=256B … enc=0.471ms thr=0.52MB/s avalanche=0.496
-  Running 3DES-CTR key=192bit msg=1024B … enc=0.905ms thr=1.08MB/s avalanche=0.503
-  Running 3DES-CTR key=192bit msg=4096B … enc=2.121ms thr=1.84MB/s avalanche=0.497
-  Running 3DES-CTR key=192bit msg=16384B … enc=6.788ms thr=2.30MB/s avalanche=0.496
-  Running Twofish-ECB key=128bit msg=64B … enc=0.075ms thr=0.81MB/s avalanche=0.499
-  Running Twofish-ECB key=128bit msg=256B … enc=0.232ms thr=1.05MB/s avalanche=0.497
-  Running Twofish-ECB key=128bit msg=1024B … enc=0.882ms thr=1.11MB/s avalanche=0.500
-  Running Twofish-ECB key=128bit msg=4096B … enc=3.243ms thr=1.20MB/s avalanche=0.499
-  Running Twofish-ECB key=128bit msg=16384B … enc=12.510ms thr=1.25MB/s avalanche=0.498
-  Running Twofish-ECB key=192bit msg=64B … enc=0.072ms thr=0.85MB/s avalanche=0.497
-  Running Twofish-ECB key=192bit msg=256B … enc=0.247ms thr=0.99MB/s avalanche=0.501
-  Running Twofish-ECB key=192bit msg=1024B … enc=0.958ms thr=1.02MB/s avalanche=0.496
-  Running Twofish-ECB key=192bit msg=4096B … enc=3.372ms thr=1.16MB/s avalanche=0.503
-  Running Twofish-ECB key=192bit msg=16384B … enc=16.010ms thr=0.98MB/s avalanche=0.501
-  Running Twofish-ECB key=256bit msg=64B … enc=0.068ms thr=0.90MB/s avalanche=0.507
-  Running Twofish-ECB key=256bit msg=256B … enc=0.209ms thr=1.17MB/s avalanche=0.497
-  Running Twofish-ECB key=256bit msg=1024B … enc=0.836ms thr=1.17MB/s avalanche=0.500
-  Running Twofish-ECB key=256bit msg=4096B … enc=3.124ms thr=1.25MB/s avalanche=0.499
-  Running Twofish-ECB key=256bit msg=16384B … enc=12.112ms thr=1.29MB/s avalanche=0.498
-  Running Twofish-CBC key=128bit msg=64B … enc=0.109ms thr=0.56MB/s avalanche=0.503
-  Running Twofish-CBC key=128bit msg=256B … enc=0.363ms thr=0.67MB/s avalanche=0.494
-  Running Twofish-CBC key=128bit msg=1024B … enc=1.352ms thr=0.72MB/s avalanche=0.505
-  Running Twofish-CBC key=128bit msg=4096B … enc=5.034ms thr=0.78MB/s avalanche=0.496
-  Running Twofish-CBC key=128bit msg=16384B … enc=19.690ms thr=0.79MB/s avalanche=0.501
-  Running Twofish-CBC key=192bit msg=64B … enc=0.117ms thr=0.52MB/s avalanche=0.504
-  Running Twofish-CBC key=192bit msg=256B … enc=0.369ms thr=0.66MB/s avalanche=0.499
-  Running Twofish-CBC key=192bit msg=1024B … enc=1.387ms thr=0.70MB/s avalanche=0.494
-  Running Twofish-CBC key=192bit msg=4096B … enc=5.088ms thr=0.77MB/s avalanche=0.494
-  Running Twofish-CBC key=192bit msg=16384B … enc=19.760ms thr=0.79MB/s avalanche=0.504
-  Running Twofish-CBC key=256bit msg=64B … enc=0.111ms thr=0.55MB/s avalanche=0.501
-  Running Twofish-CBC key=256bit msg=256B … enc=0.364ms thr=0.67MB/s avalanche=0.499
-  Running Twofish-CBC key=256bit msg=1024B … enc=1.364ms thr=0.72MB/s avalanche=0.506
-  Running Twofish-CBC key=256bit msg=4096B … enc=5.144ms thr=0.76MB/s avalanche=0.498
-  Running Twofish-CBC key=256bit msg=16384B … enc=20.838ms thr=0.75MB/s avalanche=0.498
-  Running Twofish-CTR key=128bit msg=64B … enc=0.084ms thr=0.72MB/s avalanche=0.503
-  Running Twofish-CTR key=128bit msg=256B … enc=0.306ms thr=0.80MB/s avalanche=0.497
-  Running Twofish-CTR key=128bit msg=1024B … enc=1.236ms thr=0.79MB/s avalanche=0.495
-  Running Twofish-CTR key=128bit msg=4096B … enc=4.263ms thr=0.92MB/s avalanche=0.499
-  Running Twofish-CTR key=128bit msg=16384B … enc=16.483ms thr=0.95MB/s avalanche=0.499
-  Running Twofish-CTR key=192bit msg=64B … enc=0.084ms thr=0.72MB/s avalanche=0.499
-  Running Twofish-CTR key=192bit msg=256B … enc=0.318ms thr=0.77MB/s avalanche=0.501
-  Running Twofish-CTR key=192bit msg=1024B … enc=1.239ms thr=0.79MB/s avalanche=0.503
-  Running Twofish-CTR key=192bit msg=4096B … enc=4.339ms thr=0.90MB/s avalanche=0.497
-  Running Twofish-CTR key=192bit msg=16384B … enc=16.224ms thr=0.96MB/s avalanche=0.495
-  Running Twofish-CTR key=256bit msg=64B … enc=0.091ms thr=0.67MB/s avalanche=0.500
-  Running Twofish-CTR key=256bit msg=256B … enc=0.323ms thr=0.76MB/s avalanche=0.499
-  Running Twofish-CTR key=256bit msg=1024B … enc=1.258ms thr=0.78MB/s avalanche=0.506
-  Running Twofish-CTR key=256bit msg=4096B … enc=4.299ms thr=0.91MB/s avalanche=0.502
-  Running Twofish-CTR key=256bit msg=16384B … enc=16.204ms thr=0.96MB/s avalanche=0.495
-  Running ChaCha20-Stream key=256bit msg=64B … enc=0.035ms thr=1.73MB/s avalanche=0.597
-  Running ChaCha20-Stream key=256bit msg=256B … enc=0.036ms thr=6.76MB/s avalanche=0.594
-  Running ChaCha20-Stream key=256bit msg=1024B … enc=0.045ms thr=21.86MB/s avalanche=0.594
-  Running ChaCha20-Stream key=256bit msg=4096B … enc=0.067ms thr=58.12MB/s avalanche=0.593
-  Running ChaCha20-Stream key=256bit msg=16384B … enc=0.255ms thr=61.27MB/s avalanche=0.594
-
-Results saved to: /home/melissamoya/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results/experiment_20260529_184108.csv
-
 ```
 
-experient 3
 ### Sortie observée
 
 ```text
-(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments $ cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+Voir le fichier : crypto-experiments/data/logs/benchmark_output_experience2.txt
+Résultat CSV créé puis renommé : crypto-experiments/data/results/raspberry-pi_experience2.csv
+```
+
+### Conclusion
+
+Étape validée.
+
+- La deuxième exécution complète du benchmark Raspberry Pi s’est déroulée correctement.
+- Le fichier de log `data/logs/benchmark_output_experience2.txt` a été généré avec succès.
+- Un fichier CSV de résultats a été produit puis renommé en `raspberry-pi_experience2.csv`.
+
+---
+
+## Étape 9 — Benchmark Raspberry Pi, exécution 3
+
+### Commandes exécutées
+
+```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
 source .venv/bin/activate
 mkdir -p data/logs
 python scripts/experiment.py > data/logs/benchmark_output_experience3.txt 2>&1
@@ -756,162 +452,115 @@ cat data/logs/benchmark_output_experience3.txt
 cd data/results
 mv experiment_*.csv raspberry-pi_experience3.csv
 cd ../..
-  Running AES-ECB key=128bit msg=64B … enc=0.054ms thr=1.14MB/s avalanche=0.493
-  Running AES-ECB key=128bit msg=256B … enc=0.041ms thr=6.00MB/s avalanche=0.503
-  Running AES-ECB key=128bit msg=1024B … enc=0.049ms thr=19.99MB/s avalanche=0.501
-  Running AES-ECB key=128bit msg=4096B … enc=0.085ms thr=45.97MB/s avalanche=0.498
-  Running AES-ECB key=128bit msg=16384B … enc=0.209ms thr=74.73MB/s avalanche=0.500
-  Running AES-ECB key=192bit msg=64B … enc=0.037ms thr=1.64MB/s avalanche=0.501
-  Running AES-ECB key=192bit msg=256B … enc=0.039ms thr=6.23MB/s avalanche=0.502
-  Running AES-ECB key=192bit msg=1024B … enc=0.050ms thr=19.54MB/s avalanche=0.501
-  Running AES-ECB key=192bit msg=4096B … enc=0.087ms thr=44.89MB/s avalanche=0.501
-  Running AES-ECB key=192bit msg=16384B … enc=0.236ms thr=66.22MB/s avalanche=0.503
-  Running AES-ECB key=256bit msg=64B … enc=0.038ms thr=1.62MB/s avalanche=0.500
-  Running AES-ECB key=256bit msg=256B … enc=0.041ms thr=6.02MB/s avalanche=0.497
-  Running AES-ECB key=256bit msg=1024B … enc=0.052ms thr=18.74MB/s avalanche=0.499
-  Running AES-ECB key=256bit msg=4096B … enc=0.098ms thr=39.87MB/s avalanche=0.502
-  Running AES-ECB key=256bit msg=16384B … enc=0.263ms thr=59.41MB/s avalanche=0.502
-  Running AES-CBC key=128bit msg=64B … enc=0.203ms thr=0.30MB/s avalanche=0.504
-  Running AES-CBC key=128bit msg=256B … enc=0.667ms thr=0.37MB/s avalanche=0.493
-  Running AES-CBC key=128bit msg=1024B … enc=2.526ms thr=0.39MB/s avalanche=0.502
-  Running AES-CBC key=128bit msg=4096B … enc=10.014ms thr=0.39MB/s avalanche=0.496
-  Running AES-CBC key=128bit msg=16384B … enc=39.622ms thr=0.39MB/s avalanche=0.498
-  Running AES-CBC key=192bit msg=64B … enc=0.205ms thr=0.30MB/s avalanche=0.498
-  Running AES-CBC key=192bit msg=256B … enc=0.668ms thr=0.37MB/s avalanche=0.504
-  Running AES-CBC key=192bit msg=1024B … enc=2.600ms thr=0.38MB/s avalanche=0.503
-  Running AES-CBC key=192bit msg=4096B … enc=10.016ms thr=0.39MB/s avalanche=0.502
-  Running AES-CBC key=192bit msg=16384B … enc=39.612ms thr=0.39MB/s avalanche=0.501
-  Running AES-CBC key=256bit msg=64B … enc=0.205ms thr=0.30MB/s avalanche=0.501
-  Running AES-CBC key=256bit msg=256B … enc=0.677ms thr=0.36MB/s avalanche=0.501
-  Running AES-CBC key=256bit msg=1024B … enc=2.571ms thr=0.38MB/s avalanche=0.503
-  Running AES-CBC key=256bit msg=4096B … enc=10.067ms thr=0.39MB/s avalanche=0.498
-  Running AES-CBC key=256bit msg=16384B … enc=40.669ms thr=0.38MB/s avalanche=0.501
-  Running AES-CTR key=128bit msg=64B … enc=0.075ms thr=0.81MB/s avalanche=0.496
-  Running AES-CTR key=128bit msg=256B … enc=0.149ms thr=1.64MB/s avalanche=0.500
-  Running AES-CTR key=128bit msg=1024B … enc=0.467ms thr=2.09MB/s avalanche=0.501
-  Running AES-CTR key=128bit msg=4096B … enc=1.035ms thr=3.77MB/s avalanche=0.502
-  Running AES-CTR key=128bit msg=16384B … enc=3.718ms thr=4.20MB/s avalanche=0.501
-  Running AES-CTR key=192bit msg=64B … enc=0.064ms thr=0.96MB/s avalanche=0.503
-  Running AES-CTR key=192bit msg=256B … enc=0.113ms thr=2.15MB/s avalanche=0.496
-  Running AES-CTR key=192bit msg=1024B … enc=0.264ms thr=3.70MB/s avalanche=0.502
-  Running AES-CTR key=192bit msg=4096B … enc=1.330ms thr=2.94MB/s avalanche=0.498
-  Running AES-CTR key=192bit msg=16384B … enc=4.546ms thr=3.44MB/s avalanche=0.499
-  Running AES-CTR key=256bit msg=64B … enc=0.075ms thr=0.82MB/s avalanche=0.500
-  Running AES-CTR key=256bit msg=256B … enc=0.144ms thr=1.70MB/s avalanche=0.497
-  Running AES-CTR key=256bit msg=1024B … enc=0.437ms thr=2.24MB/s avalanche=0.500
-  Running AES-CTR key=256bit msg=4096B … enc=1.361ms thr=2.87MB/s avalanche=0.504
-  Running AES-CTR key=256bit msg=16384B … enc=4.439ms thr=3.52MB/s avalanche=0.503
-  Running AES-GCM key=128bit msg=64B … enc=0.546ms thr=0.11MB/s avalanche=0.502
-  Running AES-GCM key=128bit msg=256B … enc=0.363ms thr=0.67MB/s avalanche=0.495
-  Running AES-GCM key=128bit msg=1024B … enc=0.413ms thr=2.36MB/s avalanche=0.506
-  Running AES-GCM key=128bit msg=4096B … enc=0.610ms thr=6.41MB/s avalanche=0.500
-  Running AES-GCM key=128bit msg=16384B … enc=1.515ms thr=10.32MB/s avalanche=0.501
-  Running AES-GCM key=192bit msg=64B … enc=0.370ms thr=0.16MB/s avalanche=0.500
-  Running AES-GCM key=192bit msg=256B … enc=0.385ms thr=0.63MB/s avalanche=0.499
-  Running AES-GCM key=192bit msg=1024B … enc=0.437ms thr=2.24MB/s avalanche=0.500
-  Running AES-GCM key=192bit msg=4096B … enc=0.633ms thr=6.17MB/s avalanche=0.494
-  Running AES-GCM key=192bit msg=16384B … enc=1.417ms thr=11.02MB/s avalanche=0.496
-  Running AES-GCM key=256bit msg=64B … enc=0.375ms thr=0.16MB/s avalanche=0.496
-  Running AES-GCM key=256bit msg=256B … enc=0.365ms thr=0.67MB/s avalanche=0.498
-  Running AES-GCM key=256bit msg=1024B … enc=0.661ms thr=1.48MB/s avalanche=0.501
-  Running AES-GCM key=256bit msg=4096B … enc=0.766ms thr=5.10MB/s avalanche=0.504
-  Running AES-GCM key=256bit msg=16384B … enc=1.540ms thr=10.14MB/s avalanche=0.502
-  Running DES-ECB key=64bit msg=64B … enc=0.089ms thr=0.68MB/s avalanche=0.500
-  Running DES-ECB key=64bit msg=256B … enc=0.082ms thr=2.96MB/s avalanche=0.502
-  Running DES-ECB key=64bit msg=1024B … enc=0.109ms thr=8.99MB/s avalanche=0.506
-  Running DES-ECB key=64bit msg=4096B … enc=0.223ms thr=17.51MB/s avalanche=0.508
-  Running DES-ECB key=64bit msg=16384B … enc=0.855ms thr=18.27MB/s avalanche=0.502
-  Running DES-CBC key=64bit msg=64B … enc=0.668ms thr=0.09MB/s avalanche=0.505
-  Running DES-CBC key=64bit msg=256B … enc=2.149ms thr=0.11MB/s avalanche=0.498
-  Running DES-CBC key=64bit msg=1024B … enc=8.420ms thr=0.12MB/s avalanche=0.508
-  Running DES-CBC key=64bit msg=4096B … enc=33.237ms thr=0.12MB/s avalanche=0.491
-  Running DES-CBC key=64bit msg=16384B … enc=128.612ms thr=0.12MB/s avalanche=0.508
-  Running DES-CTR key=64bit msg=64B … enc=0.107ms thr=0.57MB/s avalanche=0.501
-  Running DES-CTR key=64bit msg=256B … enc=0.204ms thr=1.19MB/s avalanche=0.509
-  Running DES-CTR key=64bit msg=1024B … enc=0.566ms thr=1.73MB/s avalanche=0.495
-  Running DES-CTR key=64bit msg=4096B … enc=1.704ms thr=2.29MB/s avalanche=0.498
-  Running DES-CTR key=64bit msg=16384B … enc=5.799ms thr=2.69MB/s avalanche=0.497
-  Running 3DES-ECB key=128bit msg=64B … enc=0.200ms thr=0.30MB/s avalanche=0.501
-  Running 3DES-ECB key=128bit msg=256B … enc=0.216ms thr=1.13MB/s avalanche=0.495
-  Running 3DES-ECB key=128bit msg=1024B … enc=0.446ms thr=2.19MB/s avalanche=0.499
-  Running 3DES-ECB key=128bit msg=4096B … enc=0.782ms thr=5.00MB/s avalanche=0.503
-  Running 3DES-ECB key=128bit msg=16384B … enc=2.080ms thr=7.51MB/s avalanche=0.500
-  Running 3DES-ECB key=192bit msg=64B … enc=0.239ms thr=0.26MB/s avalanche=0.500
-  Running 3DES-ECB key=192bit msg=256B … enc=0.300ms thr=0.81MB/s avalanche=0.498
-  Running 3DES-ECB key=192bit msg=1024B … enc=0.429ms thr=2.28MB/s avalanche=0.498
-  Running 3DES-ECB key=192bit msg=4096B … enc=0.833ms thr=4.69MB/s avalanche=0.509
-  Running 3DES-ECB key=192bit msg=16384B … enc=2.081ms thr=7.51MB/s avalanche=0.494
-  Running 3DES-CBC key=128bit msg=64B … enc=0.183ms thr=0.33MB/s avalanche=0.499
-  Running 3DES-CBC key=128bit msg=256B … enc=0.707ms thr=0.35MB/s avalanche=0.498
-  Running 3DES-CBC key=128bit msg=1024B … enc=2.477ms thr=0.39MB/s avalanche=0.495
-  Running 3DES-CBC key=128bit msg=4096B … enc=8.988ms thr=0.43MB/s avalanche=0.502
-  Running 3DES-CBC key=128bit msg=16384B … enc=34.731ms thr=0.45MB/s avalanche=0.504
-  Running 3DES-CBC key=192bit msg=64B … enc=0.182ms thr=0.34MB/s avalanche=0.497
-  Running 3DES-CBC key=192bit msg=256B … enc=0.633ms thr=0.39MB/s avalanche=0.488
-  Running 3DES-CBC key=192bit msg=1024B … enc=2.322ms thr=0.42MB/s avalanche=0.508
-  Running 3DES-CBC key=192bit msg=4096B … enc=8.853ms thr=0.44MB/s avalanche=0.505
-  Running 3DES-CBC key=192bit msg=16384B … enc=34.701ms thr=0.45MB/s avalanche=0.502
-  Running 3DES-CTR key=128bit msg=64B … enc=0.320ms thr=0.19MB/s avalanche=0.496
-  Running 3DES-CTR key=128bit msg=256B … enc=0.433ms thr=0.56MB/s avalanche=0.499
-  Running 3DES-CTR key=128bit msg=1024B … enc=0.780ms thr=1.25MB/s avalanche=0.508
-  Running 3DES-CTR key=128bit msg=4096B … enc=2.205ms thr=1.77MB/s avalanche=0.505
-  Running 3DES-CTR key=128bit msg=16384B … enc=6.700ms thr=2.33MB/s avalanche=0.502
-  Running 3DES-CTR key=192bit msg=64B … enc=0.295ms thr=0.21MB/s avalanche=0.504
-  Running 3DES-CTR key=192bit msg=256B … enc=0.471ms thr=0.52MB/s avalanche=0.496
-  Running 3DES-CTR key=192bit msg=1024B … enc=0.905ms thr=1.08MB/s avalanche=0.503
-  Running 3DES-CTR key=192bit msg=4096B … enc=2.121ms thr=1.84MB/s avalanche=0.497
-  Running 3DES-CTR key=192bit msg=16384B … enc=6.788ms thr=2.30MB/s avalanche=0.496
-  Running Twofish-ECB key=128bit msg=64B … enc=0.075ms thr=0.81MB/s avalanche=0.499
-  Running Twofish-ECB key=128bit msg=256B … enc=0.232ms thr=1.05MB/s avalanche=0.497
-  Running Twofish-ECB key=128bit msg=1024B … enc=0.882ms thr=1.11MB/s avalanche=0.500
-  Running Twofish-ECB key=128bit msg=4096B … enc=3.243ms thr=1.20MB/s avalanche=0.499
-  Running Twofish-ECB key=128bit msg=16384B … enc=12.510ms thr=1.25MB/s avalanche=0.498
-  Running Twofish-ECB key=192bit msg=64B … enc=0.072ms thr=0.85MB/s avalanche=0.497
-  Running Twofish-ECB key=192bit msg=256B … enc=0.247ms thr=0.99MB/s avalanche=0.501
-  Running Twofish-ECB key=192bit msg=1024B … enc=0.958ms thr=1.02MB/s avalanche=0.496
-  Running Twofish-ECB key=192bit msg=4096B … enc=3.372ms thr=1.16MB/s avalanche=0.503
-  Running Twofish-ECB key=192bit msg=16384B … enc=16.010ms thr=0.98MB/s avalanche=0.501
-  Running Twofish-ECB key=256bit msg=64B … enc=0.068ms thr=0.90MB/s avalanche=0.507
-  Running Twofish-ECB key=256bit msg=256B … enc=0.209ms thr=1.17MB/s avalanche=0.497
-  Running Twofish-ECB key=256bit msg=1024B … enc=0.836ms thr=1.17MB/s avalanche=0.500
-  Running Twofish-ECB key=256bit msg=4096B … enc=3.124ms thr=1.25MB/s avalanche=0.499
-  Running Twofish-ECB key=256bit msg=16384B … enc=12.112ms thr=1.29MB/s avalanche=0.498
-  Running Twofish-CBC key=128bit msg=64B … enc=0.109ms thr=0.56MB/s avalanche=0.503
-  Running Twofish-CBC key=128bit msg=256B … enc=0.363ms thr=0.67MB/s avalanche=0.494
-  Running Twofish-CBC key=128bit msg=1024B … enc=1.352ms thr=0.72MB/s avalanche=0.505
-  Running Twofish-CBC key=128bit msg=4096B … enc=5.034ms thr=0.78MB/s avalanche=0.496
-  Running Twofish-CBC key=128bit msg=16384B … enc=19.690ms thr=0.79MB/s avalanche=0.501
-  Running Twofish-CBC key=192bit msg=64B … enc=0.117ms thr=0.52MB/s avalanche=0.504
-  Running Twofish-CBC key=192bit msg=256B … enc=0.369ms thr=0.66MB/s avalanche=0.499
-  Running Twofish-CBC key=192bit msg=1024B … enc=1.387ms thr=0.70MB/s avalanche=0.494
-  Running Twofish-CBC key=192bit msg=4096B … enc=5.088ms thr=0.77MB/s avalanche=0.494
-  Running Twofish-CBC key=192bit msg=16384B … enc=19.760ms thr=0.79MB/s avalanche=0.504
-  Running Twofish-CBC key=256bit msg=64B … enc=0.111ms thr=0.55MB/s avalanche=0.501
-  Running Twofish-CBC key=256bit msg=256B … enc=0.364ms thr=0.67MB/s avalanche=0.499
-  Running Twofish-CBC key=256bit msg=1024B … enc=1.364ms thr=0.72MB/s avalanche=0.506
-  Running Twofish-CBC key=256bit msg=4096B … enc=5.144ms thr=0.76MB/s avalanche=0.498
-  Running Twofish-CBC key=256bit msg=16384B … enc=20.838ms thr=0.75MB/s avalanche=0.498
-  Running Twofish-CTR key=128bit msg=64B … enc=0.084ms thr=0.72MB/s avalanche=0.503
-  Running Twofish-CTR key=128bit msg=256B … enc=0.306ms thr=0.80MB/s avalanche=0.497
-  Running Twofish-CTR key=128bit msg=1024B … enc=1.236ms thr=0.79MB/s avalanche=0.495
-  Running Twofish-CTR key=128bit msg=4096B … enc=4.263ms thr=0.92MB/s avalanche=0.499
-  Running Twofish-CTR key=128bit msg=16384B … enc=16.483ms thr=0.95MB/s avalanche=0.499
-  Running Twofish-CTR key=192bit msg=64B … enc=0.084ms thr=0.72MB/s avalanche=0.499
-  Running Twofish-CTR key=192bit msg=256B … enc=0.318ms thr=0.77MB/s avalanche=0.501
-  Running Twofish-CTR key=192bit msg=1024B … enc=1.239ms thr=0.79MB/s avalanche=0.503
-  Running Twofish-CTR key=192bit msg=4096B … enc=4.339ms thr=0.90MB/s avalanche=0.497
-  Running Twofish-CTR key=192bit msg=16384B … enc=16.224ms thr=0.96MB/s avalanche=0.495
-  Running Twofish-CTR key=256bit msg=64B … enc=0.091ms thr=0.67MB/s avalanche=0.500
-  Running Twofish-CTR key=256bit msg=256B … enc=0.323ms thr=0.76MB/s avalanche=0.499
-  Running Twofish-CTR key=256bit msg=1024B … enc=1.258ms thr=0.78MB/s avalanche=0.506
-  Running Twofish-CTR key=256bit msg=4096B … enc=4.299ms thr=0.91MB/s avalanche=0.502
-  Running Twofish-CTR key=256bit msg=16384B … enc=16.204ms thr=0.96MB/s avalanche=0.495
-  Running ChaCha20-Stream key=256bit msg=64B … enc=0.035ms thr=1.73MB/s avalanche=0.597
-  Running ChaCha20-Stream key=256bit msg=256B … enc=0.036ms thr=6.76MB/s avalanche=0.594
-  Running ChaCha20-Stream key=256bit msg=1024B … enc=0.045ms thr=21.86MB/s avalanche=0.594
-  Running ChaCha20-Stream key=256bit msg=4096B … enc=0.067ms thr=58.12MB/s avalanche=0.593
-  Running ChaCha20-Stream key=256bit msg=16384B … enc=0.255ms thr=61.27MB/s avalanche=0.594
+```
 
-Results saved to: /home/melissamoya/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments/data/results/experiment_20260529_184108.csv
+### Sortie observée
 
+```text
+Voir le fichier : crypto-experiments/data/logs/benchmark_output_experience3.txt
+Résultat CSV créé puis renommé : crypto-experiments/data/results/raspberry-pi_experience3.csv
+```
+
+### Conclusion
+
+Étape validée.
+
+- La troisième exécution complète du benchmark Raspberry Pi s’est déroulée correctement.
+- Le fichier de log `data/logs/benchmark_output_experience3.txt` a été généré avec succès.
+- Un fichier CSV de résultats a été produit puis renommé en `raspberry-pi_experience3.csv`.
+
+---
+
+## Étape 10 — Vérification locale des fichiers générés
+
+### Commandes exécutées
+
+```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+ls data/logs
+ls data/results
+```
+
+### Sortie observée
+
+```text
+benchmark_output_experience1.txt  benchmark_output_experience3.txt  kat_results.txt
+benchmark_output_experience2.txt  dependencies_check.txt            pip_install.txt
+laptop-windows-x86_experience1.csv  laptop-windows-x86_experience3.csv  raspberry-pi_experience2.csv
+laptop-windows-x86_experience2.csv  raspberry-pi_experience1.csv        raspberry-pi_experience3.csv
+```
+
+### Conclusion
+
+Étape validée.
+
+- Les fichiers de logs attendus sont présents dans `data/logs`.
+- Les trois fichiers CSV Raspberry Pi attendus sont présents dans `data/results`.
+- Les trois fichiers CSV du laptop sont toujours présents, ce qui permettra la comparaison inter-plateformes.
+
+---
+
+## Étape 11 — Préparation du commit Git
+
+### Commandes exécutées
+
+```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique
+git status
+git add crypto-experiments/data/results crypto-experiments/data/logs
+git commit -m "Add Raspberry Pi benchmark runs and logs"
+git push
+git pull
+```
+
+### Sortie observée
+
+```text
+Le premier `git commit` a échoué car l’identité Git n’était pas configurée (`Author identity unknown`).
+Le premier `git push` a aussi été rejeté car le dépôt distant contenait des changements plus récents (`main -> main (fetch first)`).
+Un `git pull` a ensuite été exécuté avec succès, ce qui a mis à jour le dépôt local avec les nouveaux fichiers de documentation.
+Après le `git pull`, les fichiers Raspberry Pi étaient toujours correctement indexés pour le prochain commit.
+```
+
+### Conclusion
+
+Étape partiellement validée.
+
+- Les fichiers Raspberry Pi à committer ont bien été identifiés et ajoutés à l’index Git.
+- Le push direct n’a pas encore abouti à cette étape.
+- Deux actions restent nécessaires avant le commit final :
+  1. configurer `git config user.name` et `git config user.email`
+  2. relancer `git commit`, puis `git push`
+
+---
+
+## Résumé de validation
+
+La procédure Raspberry Pi est validée jusqu’à la génération complète des résultats et à leur préparation dans le dépôt Git local.
+
+### Éléments validés
+
+- Installation et disponibilité des prérequis
+- Authentification SSH vers GitHub
+- Clonage du dépôt via SSH
+- Création de l’environnement virtuel
+- Installation des dépendances
+- Correctif `twofish` pour Python 3.13
+- Vérification des dépendances
+- Validation complète des KAT
+- Trois exécutions complètes du benchmark Raspberry Pi
+- Génération des logs dans `crypto-experiments/data/logs/`
+- Génération des CSV dans `crypto-experiments/data/results/`
+- Préparation du dépôt Git local avant commit
+
+### Points restants
+
+Pour terminer complètement la procédure de publication sur GitHub depuis le Raspberry Pi, il reste à exécuter :
+
+```bash
+git config --global user.name "Melissa Moya"
+git config --global user.email "melissa.moya@ssc-spc.gc.ca"
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique
+git commit -m "Add Raspberry Pi benchmark runs and logs"
+git push
 ```
