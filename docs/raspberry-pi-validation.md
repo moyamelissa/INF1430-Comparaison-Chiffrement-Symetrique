@@ -61,13 +61,59 @@ Summary:
 
 ## Étape 1 — Configuration SSH
 
-### Commandes à exécuter
+### Commandes exécutées
 
 ```bash
 ssh-keygen -t ed25519 -C "melissa.moya@ssc-spc.gc.ca"
-cat ~/.ssh/id_ed25519.pub
+git remote set-url origin git@github.com:moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique.git
+```
+
+### Sortie observée
+
+```text
+(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique $ ssh-keygen -t ed25519 -C "melissa.moya@ssc-spc.gc.ca"
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/melissamoya/.ssh/id_ed25519): /home/melissamoya/.ssh/id_ed25519
+Enter passphrase for "/home/melissamoya/.ssh/id_ed25519" (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/melissamoya/.ssh/id_ed25519
+Your public key has been saved in /home/melissamoya/.ssh/id_ed25519.pub
+The key fingerprint is:
+SHA256:IjkNLfNoDsJuyV6O7Zel3e2E4gCbiIAOkyXpPMi7yMc melissa.moya@ssc-spc.gc.ca
+The key's randomart image is:
++--[ED25519 256]--+
+|                 |
+| .   .           |
+|o . + .          |
+|B+   O           |
+|O*..* + S        |
+|Bo=++o o  .      |
+|.O.+..=.....     |
+|= *E +o.....     |
+|.=o+.  .  ..     |
++----[SHA256]-----+
+(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique $ git remote set-url origin git@github.com:moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique.git
+```
+
+### Conclusion
+
+Étape partiellement validée.
+
+- Une nouvelle clé SSH `ed25519` a été générée.
+- La clé privée a été enregistrée dans `/home/melissamoya/.ssh/id_ed25519`.
+- La clé publique a été enregistrée dans `/home/melissamoya/.ssh/id_ed25519.pub`.
+- L’URL du dépôt `origin` a été basculée vers le format SSH.
+- La vérification finale de l’authentification GitHub reste à confirmer avec `ssh -T git@github.com`.
+
+### Prochaine commande à exécuter
+
+```bash
 ssh -T git@github.com
 ```
+
+---
+
+## Étape 2 — Clonage du dépôt
 
 ### Sortie observée
 
