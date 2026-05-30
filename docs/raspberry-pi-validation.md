@@ -119,9 +119,52 @@ Hi moyamelissa! You've successfully authenticated, but GitHub does not provide s
 ### Sortie observée
 
 ```text
-À compléter
+Étape non rejouée pendant cette validation, car le dépôt était déjà présent localement.
 ```
 
 ### Conclusion
 
-À compléter.
+Étape non rejouée.
+
+- Le dépôt `INF1430-Comparaison-Chiffrement-Symetrique` était déjà cloné sur le Raspberry Pi.
+- Les étapes suivantes ont donc été exécutées directement dans le dépôt existant.
+
+---
+
+## Étape 3 — Création de l’environnement virtuel et installation des dépendances
+
+### Commandes exécutées
+
+```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+python3 -m venv .venv
+source .venv/bin/activate
+mkdir -p data/logs
+pip install pycryptodome twofish > data/logs/pip_install.txt 2>&1
+cat data/logs/pip_install.txt
+```
+
+### Sortie observée
+
+```text
+(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique $ cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+python3 -m venv .venv
+source .venv/bin/activate
+mkdir -p data/logs
+pip install pycryptodome twofish > data/logs/pip_install.txt 2>&1
+cat data/logs/pip_install.txt
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Requirement already satisfied: pycryptodome in ./.venv/lib/python3.13/site-packages (3.23.0)
+Requirement already satisfied: twofish in ./.venv/lib/python3.13/site-packages (0.3.0)
+(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments $
+```
+
+### Conclusion
+
+Étape validée.
+
+- Les commandes ont été exécutées dans le bon dossier : `crypto-experiments`.
+- L’environnement virtuel `.venv` est présent et activé.
+- Le dossier `data/logs` existe.
+- Le fichier `data/logs/pip_install.txt` a bien été créé.
+- Les dépendances `pycryptodome` et `twofish` sont déjà installées dans l’environnement virtuel.
