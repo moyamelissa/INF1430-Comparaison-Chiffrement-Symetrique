@@ -51,6 +51,10 @@ Lorsque le terminal demande le chemin de sauvegarde, appuyer sur **Entrée** pou
 /home/melissamoya/.ssh/id_ed25519
 ```
 
+Lorsque le terminal demande une phrase secrète, saisir une phrase secrète si souhaité, ou appuyer sur **Entrée** pour laisser le champ vide.
+
+> **Note** : si une clé existe déjà dans `/home/melissamoya/.ssh/id_ed25519`, ne pas l’écraser sans raison. Dans ce cas, utiliser la clé existante et poursuivre avec les étapes suivantes.
+
 ### 1.2 — Afficher la clé publique
 
 Exécuter la commande suivante :
@@ -71,7 +75,17 @@ Dans GitHub :
 - coller la clé publique ;
 - enregistrer.
 
-### 1.4 — Tester la connexion SSH à GitHub
+### 1.4 — Basculer le dépôt local vers l’URL SSH
+
+Exécuter la commande suivante depuis le dépôt local :
+
+```bash
+git remote set-url origin git@github.com:moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique.git
+```
+
+Cette commande ne produit généralement aucune sortie si elle réussit.
+
+### 1.5 — Tester la connexion SSH à GitHub
 
 Exécuter la commande suivante :
 
@@ -345,6 +359,7 @@ sudo apt install python3 python3-pip python3-venv git -y
 # 1. Configurer SSH
 ssh-keygen -t ed25519 -C "melissa.moya@ssc-spc.gc.ca"
 cat ~/.ssh/id_ed25519.pub
+git remote set-url origin git@github.com:moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique.git
 ssh -T git@github.com
 
 # 2. Cloner le dépôt
