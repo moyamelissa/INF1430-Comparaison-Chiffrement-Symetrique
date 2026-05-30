@@ -500,43 +500,59 @@ laptop-windows-x86_experience2.csv  raspberry-pi_experience1.csv        raspberr
 
 ---
 
-## Étape 11 — Préparation du commit Git
+## Étape 11 — Publication des résultats sur GitHub
 
 ### Commandes exécutées
 
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique
-git status
-git add crypto-experiments/data/results crypto-experiments/data/logs
+git config --global user.name "Melissa Moya"
+git config --global user.email "melissa.moya@ssc-spc.gc.ca"
 git commit -m "Add Raspberry Pi benchmark runs and logs"
+git pull --rebase origin main
 git push
-git pull
+git push
 ```
 
 ### Sortie observée
 
 ```text
-Le premier `git commit` a échoué car l’identité Git n’était pas configurée (`Author identity unknown`).
-Le premier `git push` a aussi été rejeté car le dépôt distant contenait des changements plus récents (`main -> main (fetch first)`).
-Un `git pull` a ensuite été exécuté avec succès, ce qui a mis à jour le dépôt local avec les nouveaux fichiers de documentation.
-Après le `git pull`, les fichiers Raspberry Pi étaient toujours correctement indexés pour le prochain commit.
+[main 929d4e4] Add Raspberry Pi benchmark runs and logs
+ 9 files changed, 1026 insertions(+)
+ create mode 100644 crypto-experiments/data/logs/benchmark_output_experience1.txt
+ create mode 100644 crypto-experiments/data/logs/benchmark_output_experience2.txt
+ create mode 100644 crypto-experiments/data/logs/benchmark_output_experience3.txt
+ create mode 100644 crypto-experiments/data/logs/dependencies_check.txt
+ create mode 100644 crypto-experiments/data/logs/kat_results.txt
+ create mode 100644 crypto-experiments/data/logs/pip_install.txt
+ create mode 100644 crypto-experiments/data/results/raspberry-pi_experience1.csv
+ create mode 100644 crypto-experiments/data/results/raspberry-pi_experience2.csv
+ create mode 100644 crypto-experiments/data/results/raspberry-pi_experience3.csv
+From github.com:moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique
+ * branch            main       -> FETCH_HEAD
+   8b3fe4f..39a5bf6  main       -> origin/main
+Successfully rebased and updated refs/heads/main.
+To github.com:moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique.git
+   39a5bf6..5ffc0b9  main -> main
+Everything up-to-date
 ```
 
 ### Conclusion
 
-Étape partiellement validée.
+Étape validée.
 
-- Les fichiers Raspberry Pi à committer ont bien été identifiés et ajoutés à l’index Git.
-- Le push direct n’a pas encore abouti à cette étape.
-- Deux actions restent nécessaires avant le commit final :
-  1. configurer `git config user.name` et `git config user.email`
-  2. relancer `git commit`, puis `git push`
+- L’identité Git a été configurée correctement avec `user.name` et `user.email`.
+- Le commit local des résultats Raspberry Pi a été créé avec succès.
+- Le dépôt local a été remis à jour avec `git pull --rebase origin main`.
+- Le push vers GitHub a réussi.
+- Le second `git push` confirme que le dépôt distant est synchronisé (`Everything up-to-date`).
+- Les fichiers de logs et de résultats Raspberry Pi sont maintenant publiés sur GitHub.
 
 ---
 
 ## Résumé de validation
 
-La procédure Raspberry Pi est validée jusqu’à la génération complète des résultats et à leur préparation dans le dépôt Git local.
+La procédure Raspberry Pi est entièrement validée jusqu’à la génération complète des résultats et à leur publication sur GitHub.
 
 ### Éléments validés
 
@@ -551,16 +567,24 @@ La procédure Raspberry Pi est validée jusqu’à la génération complète des
 - Trois exécutions complètes du benchmark Raspberry Pi
 - Génération des logs dans `crypto-experiments/data/logs/`
 - Génération des CSV dans `crypto-experiments/data/results/`
-- Préparation du dépôt Git local avant commit
+- Vérification locale des fichiers générés
+- Configuration de l’identité Git
+- Commit des résultats Raspberry Pi
+- Rebase sur la branche distante
+- Publication finale sur GitHub
 
-### Points restants
+### Fichiers finaux attendus
 
-Pour terminer complètement la procédure de publication sur GitHub depuis le Raspberry Pi, il reste à exécuter :
+Les fichiers suivants sont présents dans le dépôt :
 
-```bash
-git config --global user.name "Melissa Moya"
-git config --global user.email "melissa.moya@ssc-spc.gc.ca"
-cd ~/INF1430-Comparaison-Chiffrement-Symetrique
-git commit -m "Add Raspberry Pi benchmark runs and logs"
-git push
+```text
+crypto-experiments/data/logs/benchmark_output_experience1.txt
+crypto-experiments/data/logs/benchmark_output_experience2.txt
+crypto-experiments/data/logs/benchmark_output_experience3.txt
+crypto-experiments/data/logs/dependencies_check.txt
+crypto-experiments/data/logs/kat_results.txt
+crypto-experiments/data/logs/pip_install.txt
+crypto-experiments/data/results/raspberry-pi_experience1.csv
+crypto-experiments/data/results/raspberry-pi_experience2.csv
+crypto-experiments/data/results/raspberry-pi_experience3.csv
 ```
