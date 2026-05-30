@@ -255,3 +255,120 @@ Dependencies OK
 - Les modules `Crypto` et `twofish` peuvent être importés correctement.
 - Le correctif appliqué à `twofish.py` fonctionne.
 - Le fichier `data/logs/dependencies_check.txt` a été généré avec succès.
+
+---
+
+## Étape 6 — Validation des KAT
+
+### Commandes exécutées
+
+```bash
+cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+source .venv/bin/activate
+mkdir -p data/logs
+python scripts/run_kat.py > data/logs/kat_results.txt 2>&1
+cat data/logs/kat_results.txt
+```
+
+### Sortie observée
+
+```text
+(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments $ cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
+source .venv/bin/activate
+mkdir -p data/logs
+python scripts/run_kat.py > data/logs/kat_results.txt 2>&1
+cat data/logs/kat_results.txt
+
+───────────────────────────────────────────────────────
+  AES  (FIPS 197)
+───────────────────────────────────────────────────────
+  [PASS] FIPS197 App-B AES-128 encrypt
+  [PASS] FIPS197 App-B AES-128 encrypt (decrypt round-trip)
+  [PASS] FIPS197 App-A.1 AES-128 zero-key zero-plain
+  [PASS] FIPS197 App-A.1 AES-128 zero-key zero-plain (decrypt round-trip)
+  [PASS] FIPS197 App-C.2 AES-192 encrypt
+  [PASS] FIPS197 App-C.2 AES-192 encrypt (decrypt round-trip)
+  [PASS] FIPS197 App-C.3 AES-256 encrypt
+  [PASS] FIPS197 App-C.3 AES-256 encrypt (decrypt round-trip)
+  ✓ All tests passed.
+
+───────────────────────────────────────────────────────
+  DES  (SP 800-17)
+───────────────────────────────────────────────────────
+  [PASS] SP800-17 Table1 P=8000000000000000
+  [PASS] SP800-17 Table1 P=8000000000000000 (decrypt round-trip)
+  [PASS] SP800-17 Table1 P=4000000000000000
+  [PASS] SP800-17 Table1 P=4000000000000000 (decrypt round-trip)
+  [PASS] SP800-17 Table1 P=2000000000000000
+  [PASS] SP800-17 Table1 P=2000000000000000 (decrypt round-trip)
+  [PASS] SP800-17 Table1 P=1000000000000000
+  [PASS] SP800-17 Table1 P=1000000000000000 (decrypt round-trip)
+  [PASS] SP800-17 Table1 P=0800000000000000
+  [PASS] SP800-17 Table1 P=0800000000000000 (decrypt round-trip)
+  [PASS] SP800-17 Table1 P=0400000000000000
+  [PASS] SP800-17 Table1 P=0400000000000000 (decrypt round-trip)
+  [PASS] SP800-17 Table1 P=0200000000000000
+  [PASS] SP800-17 Table1 P=0200000000000000 (decrypt round-trip)
+  [PASS] SP800-17 Table1 P=0100000000000000
+  [PASS] SP800-17 Table1 P=0100000000000000 (decrypt round-trip)
+  [PASS] SP800-17 Table1 P=0000000000000001
+  [PASS] SP800-17 Table1 P=0000000000000001 (decrypt round-trip)
+  ✓ All tests passed.
+
+───────────────────────────────────────────────────────
+  3DES (SP 800-67)
+───────────────────────────────────────────────────────
+  [PASS] 3DES-2key TDEA K1≠K2 plain=0x00..00
+  [PASS] 3DES-2key TDEA K1≠K2 plain=0x00..00 (decrypt round-trip)
+  [PASS] 3DES-3key TDEA K1≠K2≠K3 plain=0x00..00
+  [PASS] 3DES-3key TDEA K1≠K2≠K3 plain=0x00..00 (decrypt round-trip)
+  ✓ All tests passed.
+
+───────────────────────────────────────────────────────
+  Modes ECB/CBC/CTR (SP 800-38A)
+───────────────────────────────────────────────────────
+  [PASS] SP800-38A F.1.1 ECB-AES128 Encrypt
+  [PASS] SP800-38A F.1.2 ECB-AES128 Decrypt round-trip
+  [PASS] SP800-38A F.2.1 CBC-AES128 Encrypt
+  [PASS] SP800-38A F.2.2 CBC-AES128 Decrypt round-trip
+  [PASS] CTR-AES128 keystream block-0 spot-check (counter=0)
+  [PASS] CTR-AES128 encrypt→decrypt round-trip (4 blocks)
+  ✓ All tests passed.
+
+───────────────────────────────────────────────────────
+  AES-GCM (SP 800-38D)
+───────────────────────────────────────────────────────
+  [PASS] SP800-38D TC3 AES-128-GCM encrypt
+  [PASS] SP800-38D TC3 AES-128-GCM decrypt/verify round-trip
+  [PASS] SP800-38D TC3 AES-128-GCM tamper detection
+  [PASS] SP800-38D TC4 AES-128-GCM with AAD encrypt
+  [PASS] SP800-38D TC4 AES-128-GCM with AAD decrypt/verify round-trip
+  [PASS] SP800-38D TC4 AES-128-GCM with AAD tamper detection
+  ✓ All tests passed.
+
+───────────────────────────────────────────────────────
+  ChaCha20 (RFC 8439)
+───────────────────────────────────────────────────────
+    PASS  RFC 8439 §2.4.2 — vecteur de chiffrement ChaCha20 (compteur=1)
+    PASS  RFC 8439 aller-retour wrapper — 64 B
+    PASS  RFC 8439 aller-retour wrapper — 256 B
+    PASS  RFC 8439 aller-retour wrapper — 113 B (odd)
+    PASS  ChaCha20 falsification — l'octet inversé produit un texte clair différent
+    PASS  ChaCha20 rejette une clé de 16 octets (doit être 32 octets)
+  ✓ All tests passed.
+
+═══════════════════════════════════════════════════════
+  ALL KAT SUITES PASSED
+═══════════════════════════════════════════════════════
+
+(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments $
+```
+
+### Conclusion
+
+Étape validée.
+
+- Le script `scripts/run_kat.py` s’exécute correctement sur le Raspberry Pi.
+- Toutes les suites de tests KAT affichent `PASS`.
+- Le fichier `data/logs/kat_results.txt` a été généré avec succès.
+- Les implémentations et modes testés sont fonctionnels sur l’architecture ARM.
