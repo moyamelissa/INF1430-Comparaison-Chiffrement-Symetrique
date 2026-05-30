@@ -66,6 +66,8 @@ Summary:
 ```bash
 ssh-keygen -t ed25519 -C "melissa.moya@ssc-spc.gc.ca"
 git remote set-url origin git@github.com:moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique.git
+cat ~/.ssh/id_ed25519.pub
+ssh -T git@github.com
 ```
 
 ### Sortie observée
@@ -93,23 +95,22 @@ The key's randomart image is:
 |.=o+.  .  ..     |
 +----[SHA256]-----+
 (.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique $ git remote set-url origin git@github.com:moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique.git
+(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique $ cat ~/.ssh/id_ed25519.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOv+Xwjux7E48OLmClk8d0K+VcDlPdv9gQN+AL4cQHbM melissa.moya@ssc-spc.gc.ca
+(.venv) melissamoya@raspberrypi:~/INF1430-Comparaison-Chiffrement-Symetrique $ ssh -T git@github.com
+Hi moyamelissa! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
 ### Conclusion
 
-Étape partiellement validée.
+Étape validée.
 
 - Une nouvelle clé SSH `ed25519` a été générée.
 - La clé privée a été enregistrée dans `/home/melissamoya/.ssh/id_ed25519`.
 - La clé publique a été enregistrée dans `/home/melissamoya/.ssh/id_ed25519.pub`.
 - L’URL du dépôt `origin` a été basculée vers le format SSH.
-- La vérification finale de l’authentification GitHub reste à confirmer avec `ssh -T git@github.com`.
-
-### Prochaine commande à exécuter
-
-```bash
-ssh -T git@github.com
-```
+- La clé publique est lisible depuis le système.
+- L’authentification SSH vers GitHub fonctionne correctement.
 
 ---
 
