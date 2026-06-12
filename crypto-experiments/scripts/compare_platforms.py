@@ -44,20 +44,47 @@ RESULTS_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "results")
 OUT_DIR     = os.path.join(os.path.dirname(__file__), "..", "data", "charts", "comparison")
 os.makedirs(OUT_DIR, exist_ok=True)
 
-DPI   = 150
-FIG_W = 10
+DPI   = 180
+FIG_W = 11
+
+# ---------------------------------------------------------------------------
+# Dark modern theme
+# ---------------------------------------------------------------------------
+BG_COLOR    = "#0A0E1A"   # deep navy black
+PANEL_COLOR = "#0F1524"   # panel background
+GRID_COLOR  = "#1C2438"   # subtle grid lines
+TEXT_COLOR  = "#C9D4F0"   # cool blue-white text
+
+plt.rcParams.update({
+    "figure.facecolor":  BG_COLOR,
+    "axes.facecolor":    PANEL_COLOR,
+    "axes.edgecolor":    GRID_COLOR,
+    "axes.labelcolor":   TEXT_COLOR,
+    "axes.titlecolor":   TEXT_COLOR,
+    "xtick.color":       TEXT_COLOR,
+    "ytick.color":       TEXT_COLOR,
+    "text.color":        TEXT_COLOR,
+    "grid.color":        GRID_COLOR,
+    "grid.linestyle":    "--",
+    "grid.alpha":        0.8,
+    "legend.facecolor":  "#111827",
+    "legend.edgecolor":  "#1C2438",
+    "legend.labelcolor": TEXT_COLOR,
+    "font.family":       "DejaVu Sans",
+    "axes.titlepad":     14,
+})
 
 ALGO_COLORS = {
-    "AES":      "#2196F3",
-    "DES":      "#F44336",
-    "3DES":     "#FF9800",
-    "Twofish":  "#4CAF50",
-    "ChaCha20": "#9C27B0",
+    "AES":      "#3B82F6",   # vivid blue
+    "DES":      "#EC4899",   # hot pink
+    "3DES":     "#A855F7",   # purple
+    "Twofish":  "#10B981",   # emerald green
+    "ChaCha20": "#06B6D4",   # cyan
 }
 
 PLATFORM_STYLE = {
-    "x86":  {"hatch": "",   "alpha": 1.0, "label": "Laptop x86 (Windows)"},
-    "pi":   {"hatch": "//", "alpha": 0.8, "label": "Raspberry Pi (ARM)"},
+    "x86":  {"hatch": "",   "alpha": 0.82, "label": "Laptop x86 (Windows)"},
+    "pi":   {"hatch": "//", "alpha": 0.45, "label": "Raspberry Pi (ARM)"},
 }
 
 # ---------------------------------------------------------------------------
@@ -138,8 +165,9 @@ def cmp1_throughput_all():
     )]
 
     x = np.arange(len(algo_order))
-    w = 0.35
-    fig, ax = plt.subplots(figsize=(FIG_W, 5))
+    w = 0.32
+    fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
+    fig.patch.set_facecolor(BG_COLOR)
 
     x86_vals, pi_vals, colors = [], [], []
     for algo in algo_order:
@@ -150,22 +178,34 @@ def cmp1_throughput_all():
         pi_vals.append( rpi["throughput_enc"] if rpi else 0)
         colors.append(ALGO_COLORS.get(algo, "#888"))
 
-    ax.bar(x - w/2, x86_vals, w, label="Laptop x86 (Windows)", color=colors,
-           edgecolor="white", alpha=1.0)
-    ax.bar(x + w/2, pi_vals,  w, label="Raspberry Pi (ARM)",   color=colors,
-           edgecolor="white", alpha=0.6, hatch="//")
+    bars_x86 = ax.bar(x - w/2, x86_vals, w, label="Laptop x86 (Windows)",
+                      color=colors, edgecolor=BG_COLOR, linewidth=0.8,
+                      alpha=PLATFORM_STYLE["x86"]["alpha"])
+    ax.bar(x + w/2, pi_vals, w, label="Raspberry Pi (ARM)",
+           color=colors, edgecolor=BG_COLOR, linewidth=0.8,
+           alpha=PLATFORM_STYLE["pi"]["alpha"], hatch="//")
+
+    for bar, val in zip(bars_x86, x86_vals):
+        if val > 0:
+            ax.text(bar.get_x() + bar.get_width() / 2, val + max(x86_vals) * 0.01,
+                    f"{val:.0f}", ha="center", va="bottom",
+                    fontsize=8, color=TEXT_COLOR, fontweight="bold")
 
     ax.set_xticks(x)
-    ax.set_xticklabels(algo_order)
+    ax.set_xticklabels(algo_order, fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Comparaison 1 — Débit de chiffrement : laptop x86 vs Raspberry Pi\n"
-        f"(mode ECB, {target_size} octets, meilleure clé par algorithme)",
+        "Comparaison 1 — Débit de chiffrement : Laptop x86 vs Raspberry Pi\n"
+        f"(mode ECB · {target_size} octets · meilleure clé par algorithme)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
-    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
+    ax.yaxis.grid(True)
     ax.set_axisbelow(True)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_edgecolor(GRID_COLOR)
+    ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
     savefig("cmp1_throughput_all.png")
 
@@ -190,25 +230,33 @@ def cmp2_speedup_ratio():
             algos.append(algo)
             colors.append(ALGO_COLORS.get(algo, "#888"))
 
-    fig, ax = plt.subplots(figsize=(8, 4.5))
-    bars = ax.bar(algos, ratios, color=colors, edgecolor="white", width=0.5)
-    ax.axhline(1.0, color="black", linestyle="--", linewidth=1.2,
+    fig, ax = plt.subplots(figsize=(9, 5))
+    fig.patch.set_facecolor(BG_COLOR)
+    bars = ax.bar(algos, ratios, color=colors, edgecolor=BG_COLOR,
+                  linewidth=0.8, width=0.5,
+                  alpha=PLATFORM_STYLE["x86"]["alpha"])
+    ax.axhline(1.0, color="#475569", linestyle="--", linewidth=1.4,
                label="Ratio = 1 (performances égales)")
 
-    for bar, r in zip(bars, ratios):
-        ax.text(bar.get_x() + bar.get_width() / 2, r + 0.05,
-                f"{r:.1f}×", ha="center", va="bottom", fontsize=10, fontweight="bold")
+    for bar, r, c in zip(bars, ratios, colors):
+        ax.text(bar.get_x() + bar.get_width() / 2, r + 0.06,
+                f"{r:.2f}×", ha="center", va="bottom",
+                fontsize=10, fontweight="bold", color=c)
 
     ax.set_ylabel("Rapport de débit x86 / Pi (×)", fontsize=11)
     ax.set_title(
         "Comparaison 2 — Rapport de performance x86 vs Raspberry Pi\n"
-        "(mode ECB, 4 096 octets — valeur > 1 signifie x86 plus rapide)",
+        "(mode ECB · 4 096 octets · valeur > 1 = x86 plus rapide)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
     ax.set_ylim(bottom=0)
-    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
+    ax.yaxis.grid(True)
     ax.set_axisbelow(True)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_edgecolor(GRID_COLOR)
+    ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
     savefig("cmp2_speedup_ratio.png")
 
@@ -220,7 +268,8 @@ def cmp3_throughput_vs_size():
     best_key = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
     msg_sizes = sorted({r["message_size_bytes"] for r in x86_rows if r["mode"] == "ECB"})
 
-    fig, ax = plt.subplots(figsize=(FIG_W, 5))
+    fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
+    fig.patch.set_facecolor(BG_COLOR)
     for algo, kb in best_key.items():
         color = ALGO_COLORS.get(algo, "#888")
         # x86 — trait plein
@@ -232,8 +281,9 @@ def cmp3_throughput_vs_size():
         if x86_pts:
             ax.plot([r["message_size_bytes"] for r in x86_pts],
                     [r["throughput_enc"] for r in x86_pts],
-                    marker="o", color=color, linewidth=2,
-                    label=f"{algo} x86", linestyle="-")
+                    marker="o", color=color, linewidth=2.2,
+                    label=f"{algo} x86", linestyle="-",
+                    alpha=0.95, markersize=5)
         # Pi — trait pointillé
         pi_pts = sorted(
             [r for r in pi_rows if r["algorithm"] == algo and r["mode"] == "ECB"
@@ -243,8 +293,9 @@ def cmp3_throughput_vs_size():
         if pi_pts:
             ax.plot([r["message_size_bytes"] for r in pi_pts],
                     [r["throughput_enc"] for r in pi_pts],
-                    marker="s", color=color, linewidth=2,
-                    label=f"{algo} Pi", linestyle="--")
+                    marker="s", color=color, linewidth=2.2,
+                    label=f"{algo} Pi", linestyle="--",
+                    alpha=0.50, markersize=5)
 
     ax.set_xscale("log", base=2)
     ax.set_xticks(msg_sizes)
@@ -253,12 +304,16 @@ def cmp3_throughput_vs_size():
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
         "Comparaison 3 — Débit selon la taille du message (mode ECB)\n"
-        "Trait plein = x86 · Trait pointillé = Raspberry Pi",
+        "Trait plein = x86  ·  Trait pointillé = Raspberry Pi",
         fontsize=11,
     )
     ax.legend(fontsize=7, ncol=2)
-    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
+    ax.yaxis.grid(True)
     ax.set_axisbelow(True)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_edgecolor(GRID_COLOR)
+    ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
     savefig("cmp3_throughput_vs_size.png")
 
@@ -279,25 +334,32 @@ def cmp4_avalanche():
     w      = 0.35
     colors = [ALGO_COLORS.get(a, "#888") for a in algos]
 
-    fig, ax = plt.subplots(figsize=(9, 4.5))
+    fig, ax = plt.subplots(figsize=(9, 5))
+    fig.patch.set_facecolor(BG_COLOR)
     ax.bar(x - w/2, [x86_means[a] for a in algos], w,
-           label="x86", color=colors, edgecolor="white", alpha=1.0)
+           label="x86", color=colors, edgecolor=BG_COLOR,
+           linewidth=0.8, alpha=PLATFORM_STYLE["x86"]["alpha"])
     ax.bar(x + w/2, [pi_means[a]  for a in algos], w,
-           label="Pi",  color=colors, edgecolor="white", alpha=0.6, hatch="//")
-    ax.axhline(0.5, color="black", linestyle="--", linewidth=1.2,
+           label="Pi",  color=colors, edgecolor=BG_COLOR,
+           linewidth=0.8, alpha=PLATFORM_STYLE["pi"]["alpha"], hatch="//")
+    ax.axhline(0.5, color="#64748B", linestyle="--", linewidth=1.4,
                label="Valeur idéale (0,50)")
     ax.set_xticks(x)
-    ax.set_xticklabels(algos)
-    ax.set_ylim(0.44, 0.56)
+    ax.set_xticklabels(algos, fontsize=11)
+    ax.set_ylim(0.42, 0.64)
     ax.set_ylabel("Score d'avalanche", fontsize=11)
     ax.set_title(
         "Comparaison 4 — Effet d'avalanche : x86 vs Raspberry Pi\n"
-        "(les scores doivent être identiques — l'avalanche est une propriété mathématique)",
+        "(propriété mathématique — les scores doivent être indépendants de la plateforme)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
-    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
+    ax.yaxis.grid(True)
     ax.set_axisbelow(True)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_edgecolor(GRID_COLOR)
+    ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
     savefig("cmp4_avalanche.png")
 
@@ -314,20 +376,22 @@ def cmp5_chacha20():
         print("  (cmp5 ignoré — aucune donnée ChaCha20)")
         return
 
-    fig, ax = plt.subplots(figsize=(8, 4.5))
-    for rows, label, ls, marker in [
-        (x86_rows, "ChaCha20 — x86", "-",  "o"),
-        (pi_rows,  "ChaCha20 — Pi",  "--", "s"),
+    cc_color = ALGO_COLORS["ChaCha20"]
+    fig, ax = plt.subplots(figsize=(9, 5))
+    fig.patch.set_facecolor(BG_COLOR)
+    for data_rows, label, ls, marker, alpha in [
+        (x86_rows, "ChaCha20 — Laptop x86", "-",  "o", 0.95),
+        (pi_rows,  "ChaCha20 — Raspberry Pi", "--", "s", 0.50),
     ]:
         pts = sorted(
-            [r for r in rows if r["algorithm"] == "ChaCha20"],
+            [r for r in data_rows if r["algorithm"] == "ChaCha20"],
             key=lambda r: r["message_size_bytes"]
         )
         if pts:
             ax.plot([r["message_size_bytes"] for r in pts],
                     [r["throughput_enc"] for r in pts],
-                    marker=marker, linewidth=2, linestyle=ls,
-                    color="#9C27B0", label=label)
+                    marker=marker, linewidth=2.2, linestyle=ls,
+                    color=cc_color, label=label, alpha=alpha, markersize=6)
 
     ax.set_xscale("log", base=2)
     ax.set_xticks(msg_sizes)
@@ -335,13 +399,17 @@ def cmp5_chacha20():
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Comparaison 5 — ChaCha20 : x86 vs Raspberry Pi\n"
-        "(aucune accélération matérielle sur les deux plateformes)",
+        "Comparaison 5 — ChaCha20 : Laptop x86 vs Raspberry Pi\n"
+        "(aucune accélération matérielle sur les deux plateformes — ARX logiciel pur)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
-    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
+    ax.yaxis.grid(True)
     ax.set_axisbelow(True)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_edgecolor(GRID_COLOR)
+    ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
     savefig("cmp5_chacha20.png")
 

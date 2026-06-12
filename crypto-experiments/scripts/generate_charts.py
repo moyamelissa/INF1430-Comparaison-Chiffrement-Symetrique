@@ -63,21 +63,60 @@ with open(CSV_PATH, newline="", encoding="utf-8") as f:
 # ---------------------------------------------------------------------------
 # Palette — couleurs cohérentes par algorithme
 # ---------------------------------------------------------------------------
+BG_COLOR    = "#0A0E1A"
+PANEL_COLOR = "#0F1524"
+GRID_COLOR  = "#1C2438"
+TEXT_COLOR  = "#C9D4F0"
+
+plt.rcParams.update({
+    "figure.facecolor":  BG_COLOR,
+    "axes.facecolor":    PANEL_COLOR,
+    "axes.edgecolor":    GRID_COLOR,
+    "axes.labelcolor":   TEXT_COLOR,
+    "axes.titlecolor":   TEXT_COLOR,
+    "xtick.color":       TEXT_COLOR,
+    "ytick.color":       TEXT_COLOR,
+    "text.color":        TEXT_COLOR,
+    "grid.color":        GRID_COLOR,
+    "grid.linestyle":    "--",
+    "grid.alpha":        0.8,
+    "legend.facecolor":  "#111827",
+    "legend.edgecolor":  "#1C2438",
+    "legend.labelcolor": TEXT_COLOR,
+    "font.family":       "DejaVu Sans",
+    "axes.titlepad":     12,
+})
+
 ALGO_COLORS = {
-    "AES":      "#2196F3",  # blue
-    "DES":      "#F44336",  # red
-    "3DES":     "#FF9800",  # orange
-    "Twofish":  "#4CAF50",  # green
-    "ChaCha20": "#9C27B0",  # purple
+    "AES":      "#3B82F6",   # vivid blue
+    "DES":      "#EC4899",   # hot pink
+    "3DES":     "#A855F7",   # purple
+    "Twofish":  "#10B981",   # emerald green
+    "ChaCha20": "#06B6D4",   # cyan
+}
+MODE_COLORS = {
+    "ECB": "#3B82F6",   # blue
+    "CBC": "#EC4899",   # pink
+    "CTR": "#10B981",   # green
+    "GCM": "#F59E0B",   # amber
 }
 MODE_HATCH = {"ECB": "", "CBC": "//", "CTR": "xx", "GCM": ".."}
 
-DPI = 150
-FIG_W = 10  # inches
+DPI   = 180
+FIG_W = 11
+
+def _style_ax(ax):
+    """Apply consistent dark style to an axes."""
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_edgecolor(GRID_COLOR)
+    ax.spines["bottom"].set_edgecolor(GRID_COLOR)
+    ax.set_axisbelow(True)
+    ax.yaxis.grid(True)
 
 def savefig(name: str):
     path = os.path.join(CHARTS_DIR, name)
-    plt.savefig(path, dpi=DPI, bbox_inches="tight")
+    plt.savefig(path, dpi=DPI, bbox_inches="tight", facecolor=BG_COLOR)
     plt.close()
     print(f"  Saved: {path}")
 
@@ -97,7 +136,8 @@ def fig1_throughput_4096():
         groups[r["algorithm"]].append((label, r["throughput_enc_mbps"]))
 
     algo_order = ["AES", "DES", "3DES", "Twofish"]
-    fig, ax = plt.subplots(figsize=(FIG_W, 5))
+    fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
+    fig.patch.set_facecolor(BG_COLOR)
 
     x_pos = 0
     tick_positions, tick_labels = [], []
@@ -109,12 +149,14 @@ def fig1_throughput_4096():
         items = groups[algo]
         start = x_pos
         for label, mbps in items:
-            ax.bar(x_pos, mbps, color=ALGO_COLORS[algo], edgecolor="white", width=0.7)
+            ax.bar(x_pos, mbps, color=ALGO_COLORS[algo],
+                   edgecolor=BG_COLOR, linewidth=0.8, width=0.7,
+                   alpha=0.82)
             tick_positions.append(x_pos)
             tick_labels.append(label)
             x_pos += 1
         group_centers[algo] = (start + x_pos - 1) / 2
-        x_pos += 0.8  # gap between groups
+        x_pos += 0.8
 
     ax.set_xticks(tick_positions)
     ax.set_xticklabels(tick_labels, fontsize=7)
@@ -125,18 +167,16 @@ def fig1_throughput_4096():
         fontsize=11,
     )
 
-    # Étiquettes de groupe dessinées en dessous
     for algo, cx in group_centers.items():
         ax.text(cx, -ax.get_ylim()[1] * 0.12, algo,
                 ha="center", fontsize=9, fontweight="bold", color=ALGO_COLORS[algo])
 
     legend_patches = [
-        mpatches.Patch(color=c, label=a) for a, c in ALGO_COLORS.items()
+        mpatches.Patch(color=ALGO_COLORS[a], label=a) for a in algo_order if a in groups
     ]
     ax.legend(handles=legend_patches, loc="upper right", fontsize=9)
     ax.set_ylim(bottom=0)
-    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
-    ax.set_axisbelow(True)
+    _style_ax(ax)
     plt.tight_layout()
     savefig("fig1_throughput_4096B.png")
 
@@ -153,7 +193,8 @@ def fig2_throughput_vs_size():
     best_key = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
 
     msg_sizes = sorted({r["message_size_bytes"] for r in ecb_data})
-    fig, ax = plt.subplots(figsize=(FIG_W, 5))
+    fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
+    fig.patch.set_facecolor(BG_COLOR)
 
     for algo, key_bits in best_key.items():
         subset = sorted(
@@ -166,7 +207,7 @@ def fig2_throughput_vs_size():
         sizes = [r["message_size_bytes"] for r in subset]
         mbps  = [r["throughput_enc_mbps"] for r in subset]
         ax.plot(sizes, mbps, marker="o", label=f"{algo}-{key_bits}b",
-                color=ALGO_COLORS[algo], linewidth=2)
+                color=ALGO_COLORS[algo], linewidth=2.2, markersize=5, alpha=0.92)
 
     ax.set_xscale("log", base=2)
     ax.set_xticks(msg_sizes)
@@ -179,8 +220,7 @@ def fig2_throughput_vs_size():
         fontsize=11,
     )
     ax.legend(fontsize=9)
-    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
-    ax.set_axisbelow(True)
+    _style_ax(ax)
     plt.tight_layout()
     savefig("fig2_throughput_vs_msgsize.png")
 
@@ -192,10 +232,10 @@ def fig2_throughput_vs_size():
 def fig3_aes_mode_comparison():
     aes128 = [r for r in rows if r["algorithm"] == "AES" and r["key_size_bits"] == 128]
     modes  = ["ECB", "CBC", "CTR", "GCM"]
-    mode_colors = {"ECB": "#1565C0", "CBC": "#42A5F5", "CTR": "#66BB6A", "GCM": "#FFA726"}
     msg_sizes = sorted({r["message_size_bytes"] for r in aes128})
 
-    fig, ax = plt.subplots(figsize=(FIG_W, 5))
+    fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
+    fig.patch.set_facecolor(BG_COLOR)
     for mode in modes:
         subset = sorted(
             [r for r in aes128 if r["mode"] == mode],
@@ -206,7 +246,7 @@ def fig3_aes_mode_comparison():
         sizes = [r["message_size_bytes"] for r in subset]
         mbps  = [r["throughput_enc_mbps"] for r in subset]
         ax.plot(sizes, mbps, marker="o", label=mode,
-                color=mode_colors[mode], linewidth=2)
+                color=MODE_COLORS[mode], linewidth=2.2, markersize=5, alpha=0.92)
 
     ax.set_xscale("log", base=2)
     ax.set_xticks(msg_sizes)
@@ -219,8 +259,7 @@ def fig3_aes_mode_comparison():
         fontsize=11,
     )
     ax.legend(title="Mode", fontsize=9)
-    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
-    ax.set_axisbelow(True)
+    _style_ax(ax)
     plt.tight_layout()
     savefig("fig3_aes_mode_comparison.png")
 
@@ -240,12 +279,15 @@ def fig4_avalanche():
     algos  = [a for a in algo_order if a in algo_scores]
     colors = [ALGO_COLORS[a] for a in algos]
 
-    fig, ax = plt.subplots(figsize=(7, 4.5))
+    fig, ax = plt.subplots(figsize=(8, 5))
+    fig.patch.set_facecolor(BG_COLOR)
     bars = ax.bar(algos, means, yerr=stdevs, color=colors, capsize=6,
-                  edgecolor="white", width=0.5, error_kw={"linewidth": 1.5})
-    ax.axhline(0.5, color="black", linestyle="--", linewidth=1.2,
+                  edgecolor=BG_COLOR, linewidth=0.8, width=0.5,
+                  alpha=0.82,
+                  error_kw={"linewidth": 1.5, "ecolor": TEXT_COLOR})
+    ax.axhline(0.5, color="#475569", linestyle="--", linewidth=1.4,
                label="Valeur idéale (0,50)")
-    ax.set_ylim(0.45, 0.55)
+    ax.set_ylim(0.45, 0.565)
     ax.set_ylabel("Score d'effet d'avalanche (proportion de bits modifiés)", fontsize=10)
     ax.set_title(
         "Figure 4 — Effet d'avalanche par algorithme\n"
@@ -253,14 +295,12 @@ def fig4_avalanche():
         fontsize=11,
     )
     ax.legend(fontsize=9)
-    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
-    ax.set_axisbelow(True)
 
-    # Annotation des valeurs moyennes
-    for bar, mean in zip(bars, means):
-        ax.text(bar.get_x() + bar.get_width() / 2, mean + 0.001,
-                f"{mean:.4f}", ha="center", va="bottom", fontsize=9)
+    for bar, mean, std, color in zip(bars, means, stdevs, colors):
+        ax.text(bar.get_x() + bar.get_width() / 2, mean + std + 0.003,
+                f"{mean:.4f}", ha="center", va="bottom", fontsize=9, color=color)
 
+    _style_ax(ax)
     plt.tight_layout()
     savefig("fig4_avalanche.png")
 
@@ -282,17 +322,20 @@ def fig4b_key_avalanche():
     means_key = [np.mean(algo_scores_key[a]) for a in algo_order]
 
     x = np.arange(len(algo_order))
-    w = 0.35
-    fig, ax = plt.subplots(figsize=(9, 4.5))
+    w = 0.32
+    fig, ax = plt.subplots(figsize=(9, 5))
+    fig.patch.set_facecolor(BG_COLOR)
     bars_pt  = ax.bar(x - w/2, means_pt,  w, label="Avalanche (texte clair)",
-                      color=[ALGO_COLORS[a] + "AA" for a in algo_order], edgecolor="white")
+                      color=[ALGO_COLORS[a] for a in algo_order],
+                      edgecolor=BG_COLOR, linewidth=0.8, alpha=0.50)
     bars_key = ax.bar(x + w/2, means_key, w, label="Avalanche (clé)",
-                      color=[ALGO_COLORS[a] for a in algo_order], edgecolor="white")
-    ax.axhline(0.5, color="black", linestyle="--", linewidth=1.2,
+                      color=[ALGO_COLORS[a] for a in algo_order],
+                      edgecolor=BG_COLOR, linewidth=0.8, alpha=0.88)
+    ax.axhline(0.5, color="#475569", linestyle="--", linewidth=1.4,
                label="Valeur idéale (0,50)")
     ax.set_xticks(x)
-    ax.set_xticklabels(algo_order)
-    ax.set_ylim(0.40, 0.60)
+    ax.set_xticklabels(algo_order, fontsize=11)
+    ax.set_ylim(0.40, 0.65)
     ax.set_ylabel("Score d'avalanche", fontsize=11)
     ax.set_title(
         "Figure 4b — Comparaison de l'effet d'avalanche : flip texte clair vs flip clé\n"
@@ -300,14 +343,13 @@ def fig4b_key_avalanche():
         fontsize=11,
     )
     ax.legend(fontsize=9)
-    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
-    ax.set_axisbelow(True)
-    for bar, m in zip(bars_pt, means_pt):
+    for bar, m, c in zip(bars_pt, means_pt, [ALGO_COLORS[a] for a in algo_order]):
         ax.text(bar.get_x() + bar.get_width()/2, m + 0.001,
-                f"{m:.3f}", ha="center", va="bottom", fontsize=8)
-    for bar, m in zip(bars_key, means_key):
+                f"{m:.3f}", ha="center", va="bottom", fontsize=8, color=c)
+    for bar, m, c in zip(bars_key, means_key, [ALGO_COLORS[a] for a in algo_order]):
         ax.text(bar.get_x() + bar.get_width()/2, m + 0.001,
-                f"{m:.3f}", ha="center", va="bottom", fontsize=8)
+                f"{m:.3f}", ha="center", va="bottom", fontsize=8, color=c)
+    _style_ax(ax)
     plt.tight_layout()
     savefig("fig4b_key_avalanche.png")
 
@@ -330,12 +372,13 @@ def fig5_enc_vs_dec():
         colors.append(ALGO_COLORS[r["algorithm"]])
 
     x = np.arange(len(labels))
-    w = 0.35
-    fig, ax = plt.subplots(figsize=(FIG_W, 5))
-    bars_enc = ax.bar(x - w/2, enc_vals, w, label="Chiffrement",
-                      color=[c + "CC" for c in colors], edgecolor="white")
-    bars_dec = ax.bar(x + w/2, dec_vals, w, label="Déchiffrement",
-                      color=colors, edgecolor="white")
+    w = 0.32
+    fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
+    fig.patch.set_facecolor(BG_COLOR)
+    ax.bar(x - w/2, enc_vals, w, label="Chiffrement",
+           color=colors, edgecolor=BG_COLOR, linewidth=0.8, alpha=0.50)
+    ax.bar(x + w/2, dec_vals, w, label="Déchiffrement",
+           color=colors, edgecolor=BG_COLOR, linewidth=0.8, alpha=0.88)
 
     ax.set_xticks(x)
     ax.set_xticklabels(labels, fontsize=8)
@@ -346,8 +389,7 @@ def fig5_enc_vs_dec():
         fontsize=11,
     )
     ax.legend(fontsize=9)
-    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
-    ax.set_axisbelow(True)
+    _style_ax(ax)
     plt.tight_layout()
     savefig("fig5_enc_vs_dec_ecb.png")
 
@@ -366,14 +408,16 @@ def fig6_key_size_impact():
     w = 0.18
     offsets = np.linspace(-(len(modes)-1)/2 * w, (len(modes)-1)/2 * w, len(modes))
 
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots(figsize=(9, 5.5))
+    fig.patch.set_facecolor(BG_COLOR)
     for offset, mode in zip(offsets, modes):
         vals = []
         for kb in key_bits:
             match = [r for r in data if r["mode"] == mode and r["key_size_bits"] == kb]
             vals.append(match[0]["throughput_enc_mbps"] if match else 0)
         ax.bar(x + offset, vals, w, label=mode,
-               color=mode_colors.get(mode, "#888"), edgecolor="white")
+               color=MODE_COLORS.get(mode, "#888"),
+               edgecolor=BG_COLOR, linewidth=0.8, alpha=0.82)
 
     ax.set_xticks(x)
     ax.set_xticklabels([f"{k} bits" for k in key_bits])
@@ -385,8 +429,7 @@ def fig6_key_size_impact():
         fontsize=11,
     )
     ax.legend(title="Mode", fontsize=9)
-    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
-    ax.set_axisbelow(True)
+    _style_ax(ax)
     plt.tight_layout()
     savefig("fig6_aes_key_size.png")
 
