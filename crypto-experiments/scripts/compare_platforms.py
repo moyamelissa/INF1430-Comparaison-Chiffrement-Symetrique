@@ -22,6 +22,7 @@ Figures produites
     cmp3_throughput_vs_size.png — Courbe : les deux plateformes, ECB meilleure clé
     cmp4_avalanche.png          — Scores d'avalanche : les deux plateformes (doivent correspondre)
     cmp5_chacha20.png           — Performance ChaCha20 : x86 vs Pi
+    cmp6_ci95_stability.png     — Stabilité des mesures : CI95 x86 vs Pi
 """
 
 import os
@@ -85,6 +86,16 @@ ALGO_COLORS = {
 PLATFORM_STYLE = {
     "x86":  {"hatch": "",   "alpha": 0.82, "label": "Laptop x86 (Windows)"},
     "pi":   {"hatch": "//", "alpha": 0.45, "label": "Raspberry Pi (ARM)"},
+}
+
+# Best mode per algo for cross-platform comparison
+# ChaCha20 has no ECB — use Stream instead
+BEST_MODE = {
+    "AES":      "ECB",
+    "DES":      "ECB",
+    "3DES":     "ECB",
+    "Twofish":  "ECB",
+    "ChaCha20": "Stream",
 }
 
 # ---------------------------------------------------------------------------
@@ -415,6 +426,66 @@ def cmp5_chacha20():
 
 
 # ===========================================================================
+# cmp6 — Stabilité des mesures : CI95 x86 vs Pi (ECB, 4096 o, meilleure clé)
+# Montre lequel des deux environnements est le plus déterministe.
+# ===========================================================================
+def cmp6_ci95_stability():
+    target_size = 4096
+    best_key = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
+    algo_order = [a for a in best_key if any(r["algorithm"] == a for r in x86_rows)]
+
+    x = np.arange(len(algo_order))
+    w = 0.32
+    fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
+    fig.patch.set_facecolor(BG_COLOR)
+
+    x86_ci, pi_ci, colors = [], [], []
+    for algo in algo_order:
+        mode = BEST_MODE[algo]
+        kb   = best_key[algo]
+        r86  = _lookup(x86_rows, algo, mode, kb, target_size)
+        rpi  = _lookup(pi_rows,  algo, mode, kb, target_size)
+        x86_ci.append(r86["ci95_enc"] if r86 else 0)
+        pi_ci.append( rpi["ci95_enc"] if rpi else 0)
+        colors.append(ALGO_COLORS.get(algo, "#888"))
+
+    bars_x86 = ax.bar(x - w/2, x86_ci, w,
+                      label="Laptop x86 (Windows)",
+                      color=colors, edgecolor=BG_COLOR, linewidth=0.8,
+                      alpha=PLATFORM_STYLE["x86"]["alpha"])
+    ax.bar(x + w/2, pi_ci, w,
+           label="Raspberry Pi (ARM)",
+           color=colors, edgecolor=BG_COLOR, linewidth=0.8,
+           alpha=PLATFORM_STYLE["pi"]["alpha"], hatch="//")
+
+    # Value labels on x86 bars
+    for bar, val in zip(bars_x86, x86_ci):
+        if val > 0:
+            ax.text(bar.get_x() + bar.get_width() / 2,
+                    val + max(x86_ci) * 0.012,
+                    f"{val:.2f}", ha="center", va="bottom",
+                    fontsize=8, color=TEXT_COLOR, fontweight="bold")
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(algo_order, fontsize=11)
+    ax.set_ylabel("IC à 95 % du débit de chiffrement (MB/s)", fontsize=11)
+    ax.set_title(
+        "Comparaison 6 — Stabilité des mesures : IC95 · Laptop x86 vs Raspberry Pi\n"
+        "(ECB · 4 096 octets · meilleure clé  |  valeur faible = mesures stables)",
+        fontsize=11,
+    )
+    ax.legend(fontsize=9)
+    ax.yaxis.grid(True)
+    ax.set_axisbelow(True)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_edgecolor(GRID_COLOR)
+    ax.spines["bottom"].set_edgecolor(GRID_COLOR)
+    plt.tight_layout()
+    savefig("cmp6_ci95_stability.png")
+
+
+# ===========================================================================
 # Exécution de toutes les figures
 # ===========================================================================
 if __name__ == "__main__":
@@ -424,4 +495,5 @@ if __name__ == "__main__":
     cmp3_throughput_vs_size()
     cmp4_avalanche()
     cmp5_chacha20()
+    cmp6_ci95_stability()
     print(f"\nDone. Charts saved to: {os.path.abspath(OUT_DIR)}")
