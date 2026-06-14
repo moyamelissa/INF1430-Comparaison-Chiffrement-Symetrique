@@ -225,15 +225,15 @@ def cmp1_throughput_all():
 # ===========================================================================
 def cmp2_speedup_ratio():
     target_size = 4096
-    target_mode = "ECB"
     best_key = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
-    algo_order = [a for a in best_key if any(r["algorithm"] == a for r in x86_rows)]
+    algo_order = list(best_key.keys())
 
     ratios, algos, colors = [], [], []
     for algo in algo_order:
-        kb  = best_key[algo]
-        r86 = _lookup(x86_rows, algo, target_mode, kb, target_size)
-        rpi = _lookup(pi_rows,  algo, target_mode, kb, target_size)
+        kb   = best_key[algo]
+        mode = BEST_MODE[algo]
+        r86 = _lookup(x86_rows, algo, mode, kb, target_size)
+        rpi = _lookup(pi_rows,  algo, mode, kb, target_size)
         if r86 and rpi and rpi["throughput_enc"] > 0:
             ratios.append(r86["throughput_enc"] / rpi["throughput_enc"])
             algos.append(algo)
@@ -255,7 +255,7 @@ def cmp2_speedup_ratio():
     ax.set_ylabel("Rapport de débit x86 / Pi (×)", fontsize=11)
     ax.set_title(
         "Comparaison 2 — Rapport de performance x86 vs Raspberry Pi\n"
-        "(mode ECB · 4 096 octets · valeur > 1 = x86 plus rapide)",
+        "(ECB sauf ChaCha20 · 4 096 octets · valeur > 1 = x86 plus rapide)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
