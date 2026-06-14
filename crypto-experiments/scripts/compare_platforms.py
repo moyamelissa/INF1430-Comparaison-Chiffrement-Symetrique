@@ -169,11 +169,8 @@ def savefig(name: str):
 # ===========================================================================
 def cmp1_throughput_all():
     target_size = 4096
-    target_mode = "ECB"
     best_key = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
-    algo_order = [a for a in best_key if any(
-        r["algorithm"] == a and r["mode"] == target_mode for r in x86_rows
-    )]
+    algo_order = list(best_key.keys())
 
     x = np.arange(len(algo_order))
     w = 0.32
@@ -182,9 +179,10 @@ def cmp1_throughput_all():
 
     x86_vals, pi_vals, colors = [], [], []
     for algo in algo_order:
-        kb  = best_key[algo]
-        r86 = _lookup(x86_rows, algo, target_mode, kb, target_size)
-        rpi = _lookup(pi_rows,  algo, target_mode, kb, target_size)
+        kb   = best_key[algo]
+        mode = BEST_MODE[algo]
+        r86 = _lookup(x86_rows, algo, mode, kb, target_size)
+        rpi = _lookup(pi_rows,  algo, mode, kb, target_size)
         x86_vals.append(r86["throughput_enc"] if r86 else 0)
         pi_vals.append( rpi["throughput_enc"] if rpi else 0)
         colors.append(ALGO_COLORS.get(algo, "#888"))
@@ -207,7 +205,7 @@ def cmp1_throughput_all():
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
         "Comparaison 1 — Débit de chiffrement : Laptop x86 vs Raspberry Pi\n"
-        f"(mode ECB · {target_size} octets · meilleure clé par algorithme)",
+        f"(ECB sauf ChaCha20 · {target_size} octets · meilleure clé par algorithme)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
