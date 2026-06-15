@@ -451,6 +451,7 @@ def algo_profile(algo_name):
     
     modes_available = sorted({r["mode"] for r in data_4096})
     key_bits_list = sorted({r["key_size_bits"] for r in data_4096})
+    algo_color = ALGO_COLORS.get(algo_name, "#888")
     
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
     fig.patch.set_facecolor(BG_COLOR)
@@ -466,9 +467,11 @@ def algo_profile(algo_name):
         for kb in key_bits_list:
             match = [r for r in data_4096 if r["mode"] == mode and r["key_size_bits"] == kb]
             vals.append(match[0]["throughput_enc_mbps"] if match else 0)
+        # Vary alpha by mode for visual distinction
+        alpha_val = 0.5 + (modes_available.index(mode) * 0.1)
         ax1.bar(x + offset, vals, w, label=mode,
-               color=MODE_COLORS.get(mode, "#888"),
-               edgecolor=BG_COLOR, linewidth=0.8, alpha=0.82)
+               color=algo_color,
+               edgecolor=BG_COLOR, linewidth=0.8, alpha=alpha_val)
     
     ax1.set_xticks(x)
     ax1.set_xticklabels([f"{k} bits" for k in key_bits_list])
@@ -484,9 +487,10 @@ def algo_profile(algo_name):
         for kb in key_bits_list:
             match = [r for r in data_4096 if r["mode"] == mode and r["key_size_bits"] == kb]
             vals.append(match[0]["avalanche_score"] if match else 0)
+        alpha_val = 0.5 + (modes_available.index(mode) * 0.1)
         ax2.bar(x + offset, vals, w, label=mode,
-               color=MODE_COLORS.get(mode, "#888"),
-               edgecolor=BG_COLOR, linewidth=0.8, alpha=0.82)
+               color=algo_color,
+               edgecolor=BG_COLOR, linewidth=0.8, alpha=alpha_val)
     
     ax2.axhline(0.5, color="#475569", linestyle="--", linewidth=1.2, alpha=0.7)
     ax2.set_xticks(x)
