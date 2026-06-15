@@ -85,7 +85,9 @@ plt.rcParams.update({
     "legend.labelcolor": TEXT_COLOR,
     "font.family":       "DejaVu Sans",
     "axes.titlepad":     12,
+    "hatch.linewidth":   1.0,
 })
+matplotlib.rcParams["hatch.color"] = (1.0, 1.0, 1.0, 0.35)  # semi-transparent white
 
 ALGO_COLORS = {
     "AES":      "#3B82F6",   # vivid blue
@@ -95,12 +97,12 @@ ALGO_COLORS = {
     "ChaCha20": "#06B6D4",   # cyan
 }
 MODE_COLORS = {
-    "ECB": "#3B82F6",   # blue
-    "CBC": "#EC4899",   # pink
-    "CTR": "#10B981",   # green
-    "GCM": "#F59E0B",   # amber
+    "ECB": "#00A8E8",   # saturated blue
+    "CBC": "#00C853",   # saturated green
+    "CTR": "#8E44AD",   # saturated purple
+    "GCM": "#FF9500",   # saturated orange
 }
-MODE_HATCH = {"ECB": "", "CBC": "//", "CTR": "xx", "GCM": ".."}
+MODE_HATCH = {"ECB": "", "CBC": "/", "CTR": "x", "GCM": "."}
 
 DPI   = 180
 FIG_W = 11
@@ -302,7 +304,7 @@ def fig4_avalanche():
 
     _style_ax(ax)
     plt.tight_layout()
-    savefig("fig4_avalanche.png")
+    savefig("02-avalanche-effect/avalanche-par-algorithme.png")
 
 
 # ===========================================================================
@@ -351,7 +353,7 @@ def fig4b_key_avalanche():
                 f"{m:.3f}", ha="center", va="bottom", fontsize=8, color=c)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("fig4b_key_avalanche.png")
+    savefig("02-avalanche-effect/avalanche-texte-vs-cle.png")
 
 
 # ===========================================================================
@@ -391,7 +393,7 @@ def fig5_enc_vs_dec():
     ax.legend(fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("fig5_enc_vs_dec_ecb.png")
+    savefig("03-encryption-modes/chiffrement-vs-dechiffrement-ecb.png")
 
 
 # ===========================================================================
@@ -431,7 +433,7 @@ def fig6_key_size_impact():
     ax.legend(title="Mode", fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("fig6_aes_key_size.png")
+    savefig("03-encryption-modes/aes-impact-taille-cle.png")
 
 
 # ===========================================================================
@@ -443,36 +445,86 @@ def algo_profile(algo_name):
     algo_data = [r for r in rows if r["algorithm"] == algo_name]
     if not algo_data:
         return
-    
-    # Filtre : message de 4096 octets
+
+    algo_color = ALGO_COLORS.get(algo_name, "#888")
+
+    # --- Stream ciphers (ChaCha20) : pas de modes bloc, afficher débit vs taille ---
+    modes_in_data = {r["mode"] for r in algo_data}
+    if modes_in_data == {"Stream"} or len(modes_in_data) == 1 and "Stream" in modes_in_data:
+        msg_sizes = sorted({r["message_size_bytes"] for r in algo_data})
+        enc_vals = []
+        dec_vals = []
+        for s in msg_sizes:
+            match = [r for r in algo_data if r["message_size_bytes"] == s]
+            enc_vals.append(np.mean([r["throughput_enc_mbps"] for r in match]))
+            dec_vals.append(np.mean([r["throughput_dec_mbps"] for r in match]))
+
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+        fig.patch.set_facecolor(BG_COLOR)
+
+        x = np.arange(len(msg_sizes))
+        w = 0.35
+        ax1.bar(x - w/2, enc_vals, w, label="Chiffrement", color=algo_color, alpha=0.85, edgecolor=BG_COLOR)
+        ax1.bar(x + w/2, dec_vals, w, label="Déchiffrement", color=algo_color, alpha=0.50, edgecolor=BG_COLOR)
+        ax1.set_xticks(x)
+        ax1.set_xticklabels([f"{s:,}" for s in msg_sizes])
+        ax1.set_xlabel("Taille du message (octets)", fontsize=10)
+        ax1.set_ylabel("Débit (MB/s)", fontsize=10)
+        ax1.set_title(f"Profil {algo_name} — Débit chiffrement vs déchiffrement par taille de message",
+                      fontsize=11, fontweight="bold")
+        ax1.legend(fontsize=9)
+        _style_ax(ax1)
+
+        # Avalanche scores by message size
+        aval_vals = [np.mean([r["avalanche_score"] for r in algo_data if r["message_size_bytes"] == s])
+                     for s in msg_sizes]
+        ax2.bar(x, aval_vals, 0.5, color=algo_color, alpha=0.75, edgecolor=BG_COLOR)
+        ax2.axhline(0.5, color="#475569", linestyle="--", linewidth=1.2, alpha=0.7)
+        ax2.set_xticks(x)
+        ax2.set_xticklabels([f"{s:,}" for s in msg_sizes])
+        ax2.set_xlabel("Taille du message (octets)", fontsize=10)
+        ax2.set_ylabel("Score d'avalanche", fontsize=10)
+        ax2.set_ylim(0.45, 0.65)
+        ax2.set_title("Score d'effet d'avalanche par taille de message", fontsize=10)
+        _style_ax(ax2)
+
+        plt.tight_layout()
+        savefig(f"06-algorithm-profiles/{algo_name.lower()}-profile.png")
+        return
+
+    # --- Block ciphers : débit et avalanche par mode et taille de clé (4096 o) ---
     data_4096 = [r for r in algo_data if r["message_size_bytes"] == 4096]
     if not data_4096:
         return
-    
+
     modes_available = sorted({r["mode"] for r in data_4096})
     key_bits_list = sorted({r["key_size_bits"] for r in data_4096})
-    algo_color = ALGO_COLORS.get(algo_name, "#888")
-    
+
+    import matplotlib.colors as mcolors
+    base_rgb = mcolors.to_rgb(algo_color)
+    n = len(modes_available)
+    alphas = np.linspace(0.35, 0.95, n)
+    shade_colors = [(*base_rgb, a) for a in alphas]
+    mode_shade = {mode: shade_colors[i] for i, mode in enumerate(modes_available)}
+
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
     fig.patch.set_facecolor(BG_COLOR)
-    
-    # ===== Ligne 1 : Débit (MB/s) par mode et taille de clé
+
     x = np.arange(len(key_bits_list))
     w = 0.18
-    offsets = np.linspace(-(len(modes_available)-1)/2 * w, 
+    offsets = np.linspace(-(len(modes_available)-1)/2 * w,
                           (len(modes_available)-1)/2 * w, len(modes_available))
-    
+
     for offset, mode in zip(offsets, modes_available):
         vals = []
         for kb in key_bits_list:
             match = [r for r in data_4096 if r["mode"] == mode and r["key_size_bits"] == kb]
             vals.append(match[0]["throughput_enc_mbps"] if match else 0)
-        # Vary alpha by mode for visual distinction
-        alpha_val = 0.5 + (modes_available.index(mode) * 0.1)
         ax1.bar(x + offset, vals, w, label=mode,
-               color=algo_color,
-               edgecolor=BG_COLOR, linewidth=0.8, alpha=alpha_val)
-    
+               color=mode_shade[mode],
+               edgecolor="none", linewidth=0,
+               hatch=MODE_HATCH.get(mode, ""))
+
     ax1.set_xticks(x)
     ax1.set_xticklabels([f"{k} bits" for k in key_bits_list])
     ax1.set_ylabel("Débit de chiffrement (MB/s)", fontsize=10)
@@ -480,18 +532,17 @@ def algo_profile(algo_name):
                   fontsize=11, fontweight="bold")
     ax1.legend(title="Mode", fontsize=8, ncol=4)
     _style_ax(ax1)
-    
-    # ===== Ligne 2 : Score d'avalanche par mode et taille de clé
+
     for offset, mode in zip(offsets, modes_available):
         vals = []
         for kb in key_bits_list:
             match = [r for r in data_4096 if r["mode"] == mode and r["key_size_bits"] == kb]
             vals.append(match[0]["avalanche_score"] if match else 0)
-        alpha_val = 0.5 + (modes_available.index(mode) * 0.1)
         ax2.bar(x + offset, vals, w, label=mode,
-               color=algo_color,
-               edgecolor=BG_COLOR, linewidth=0.8, alpha=alpha_val)
-    
+               color=mode_shade[mode],
+               edgecolor="none", linewidth=0,
+               hatch=MODE_HATCH.get(mode, ""))
+
     ax2.axhline(0.5, color="#475569", linestyle="--", linewidth=1.2, alpha=0.7)
     ax2.set_xticks(x)
     ax2.set_xticklabels([f"{k} bits" for k in key_bits_list])
@@ -500,10 +551,9 @@ def algo_profile(algo_name):
     ax2.set_ylim(0.45, 0.55)
     ax2.set_title("Score d'effet d'avalanche par mode et taille de clé", fontsize=10)
     _style_ax(ax2)
-    
+
     plt.tight_layout()
-    filename = f"06-algorithm-profiles/{algo_name.lower()}-profile.png"
-    savefig(filename)
+    savefig(f"06-algorithm-profiles/{algo_name.lower()}-profile.png")
 
 
 # ===========================================================================
