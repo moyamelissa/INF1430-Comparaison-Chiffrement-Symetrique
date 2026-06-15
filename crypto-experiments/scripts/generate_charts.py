@@ -671,7 +671,7 @@ def fig9_synthesis_heatmap():
 
     fig, ax = plt.subplots(figsize=(8, 5))
     fig.patch.set_facecolor(BG_COLOR)
-    im = ax.imshow(data, cmap="YlGn", aspect="auto", vmin=0, vmax=1)
+    im = ax.imshow(data, cmap="plasma", aspect="auto", vmin=0, vmax=1)
     ax.set_xticks(range(len(metrics)))
     ax.set_xticklabels(metrics, fontsize=11, color=TEXT_COLOR)
     ax.set_yticks(range(len(algo_order)))
@@ -680,8 +680,9 @@ def fig9_synthesis_heatmap():
     for i in range(len(algo_order)):
         for j in range(len(metrics)):
             val = data[i, j]
+            # plasma: dark at low values, bright yellow at high — white text on dark, black on bright
             ax.text(j, i, f"{val:.2f}", ha="center", va="center",
-                    fontsize=11, color="black" if val > 0.55 else TEXT_COLOR, fontweight="bold")
+                    fontsize=11, color="white" if val < 0.7 else "black", fontweight="bold")
     cbar = plt.colorbar(im, ax=ax)
     cbar.ax.tick_params(colors=TEXT_COLOR, labelsize=8)
     cbar.ax.yaxis.label.set_color(TEXT_COLOR)
