@@ -219,7 +219,7 @@ def cmp1_throughput_all():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("cmp1_throughput_all.png")
+    savefig("01-throughput/comparison-throughput-all.png")
 
 
 # ===========================================================================
@@ -270,7 +270,7 @@ def cmp2_speedup_ratio():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("cmp2_speedup_ratio.png")
+    savefig("01-throughput/comparison-speedup-ratio.png")
 
 
 # ===========================================================================
@@ -327,7 +327,7 @@ def cmp3_throughput_vs_size():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("cmp3_throughput_vs_size.png")
+    savefig("01-throughput/comparison-throughput-vs-size.png")
 
 
 # ===========================================================================
@@ -373,7 +373,7 @@ def cmp4_avalanche():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("cmp4_avalanche.png")
+    savefig("02-avalanche-effect/comparison-avalanche.png")
 
 
 # ===========================================================================
@@ -423,7 +423,7 @@ def cmp5_chacha20():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("cmp5_chacha20.png")
+    savefig("05-algorithm-comparison/chacha20-comparison.png")
 
 
 # ===========================================================================
@@ -483,7 +483,129 @@ def cmp6_ci95_stability():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("cmp6_ci95_stability.png")
+    savefig("05-algorithm-comparison/ci95-stability.png")
+
+
+# ===========================================================================
+# cmp7 — Radar synthèse : tous algos sur 4 axes normalisés
+# Débit x86 · Débit Pi · Avalanche · Portabilité (ratio Pi/x86)
+# ===========================================================================
+def cmp7_radar():
+    algo_order = ["AES", "ChaCha20", "DES", "3DES", "Twofish"]
+    best_key  = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
+    target    = 16384  # largest message for peak throughput
+
+    x86_thr, pi_thr, aval_scores = {}, {}, {}
+    for algo in algo_order:
+        mode = BEST_MODE[algo]
+        kb   = best_key[algo]
+        r86  = _lookup(x86_rows, algo, mode, kb, target)
+        rpi  = _lookup(pi_rows,  algo, mode, kb, target)
+        x86_thr[algo] = r86["throughput_enc"] if r86 else 0
+        pi_thr[algo]  = rpi["throughput_enc"] if rpi else 0
+        avals = [r["avalanche"] for r in x86_rows if r["algorithm"] == algo]
+        aval_scores[algo] = np.mean(avals) if avals else 0.5
+
+    # Portability: Pi/x86 ratio (higher = more portable)
+    portability = {a: (pi_thr[a] / x86_thr[a]) if x86_thr[a] > 0 else 0 for a in algo_order}
+
+    # Normalize each axis 0→1
+    def norm(d):
+        mx = max(d.values()) or 1
+        return {k: v / mx for k, v in d.items()}
+
+    n_x86  = norm(x86_thr)
+    n_pi   = norm(pi_thr)
+    n_aval = {a: 1 - abs(aval_scores[a] - 0.5) * 10 for a in algo_order}
+    n_port = norm(portability)
+
+    categories = ["Débit x86", "Débit Pi (ARM)", "Avalanche\n(qualité)", "Portabilité\n(Pi/x86)"]
+    N      = len(categories)
+    angles = np.linspace(0, 2 * np.pi, N, endpoint=False).tolist()
+    angles += angles[:1]
+
+    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+    fig.patch.set_facecolor(BG_COLOR)
+    ax.set_facecolor(PANEL_COLOR)
+    ax.spines["polar"].set_color(GRID_COLOR)
+    ax.grid(color=GRID_COLOR, linestyle="--", alpha=0.5)
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(categories, size=10, color=TEXT_COLOR)
+    ax.set_ylim(0, 1)
+    ax.set_yticks([0.25, 0.5, 0.75, 1.0])
+    ax.set_yticklabels(["25%", "50%", "75%", "100%"], size=7, color=TEXT_COLOR)
+    ax.tick_params(colors=TEXT_COLOR)
+
+    for algo in algo_order:
+        vals = [n_x86[algo], n_pi[algo], n_aval[algo], n_port[algo]]
+        vals += vals[:1]
+        color = ALGO_COLORS.get(algo, "#888")
+        ax.plot(angles, vals, linewidth=2, color=color, label=algo, alpha=0.9)
+        ax.fill(angles, vals, alpha=0.08, color=color)
+
+    ax.set_title(
+        "Synthèse — Comparaison multi-critères (scores normalisés)\n"
+        "Débit · Portabilité · Qualité d'avalanche",
+        fontsize=11, color=TEXT_COLOR, pad=25,
+    )
+    ax.legend(loc="upper right", bbox_to_anchor=(1.35, 1.15), fontsize=9)
+    plt.tight_layout()
+    savefig("07-synthesis/radar-synthese.png")
+
+
+# ===========================================================================
+# cmp8 — Scalabilité tous algos : x86 (—) et Pi (- -) sur les mêmes axes
+# ===========================================================================
+def cmp8_scalability_all_algos():
+    best_key  = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
+    algo_order = ["AES", "ChaCha20", "DES", "3DES", "Twofish"]
+    msg_sizes = sorted({r["message_size_bytes"] for r in x86_rows})
+
+    fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
+    fig.patch.set_facecolor(BG_COLOR)
+
+    for algo in algo_order:
+        mode  = BEST_MODE[algo]
+        kb    = best_key[algo]
+        color = ALGO_COLORS.get(algo, "#888")
+
+        pts_x86 = sorted(
+            [r for r in x86_rows if r["algorithm"] == algo and r["mode"] == mode and r["key_size_bits"] == kb],
+            key=lambda r: r["message_size_bytes"])
+        if pts_x86:
+            ax.plot([r["message_size_bytes"] for r in pts_x86],
+                    [r["throughput_enc"] for r in pts_x86],
+                    marker="o", linewidth=2, linestyle="-", color=color,
+                    label=f"{algo} x86", alpha=0.9, markersize=4)
+
+        pts_pi = sorted(
+            [r for r in pi_rows if r["algorithm"] == algo and r["mode"] == mode and r["key_size_bits"] == kb],
+            key=lambda r: r["message_size_bytes"])
+        if pts_pi:
+            ax.plot([r["message_size_bytes"] for r in pts_pi],
+                    [r["throughput_enc"] for r in pts_pi],
+                    marker="s", linewidth=2, linestyle="--", color=color,
+                    label=f"{algo} Pi", alpha=0.45, markersize=4)
+
+    ax.set_xscale("log", base=2)
+    ax.set_xticks(msg_sizes)
+    ax.set_xticklabels([f"{s:,}" for s in msg_sizes])
+    ax.set_xlabel("Taille du message (octets)", fontsize=11)
+    ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
+    ax.set_title(
+        "Scalabilité — Débit vs taille de message : x86 (—) vs Pi (- -)\n"
+        "(mode ECB/Stream, meilleure clé par algorithme)",
+        fontsize=11,
+    )
+    ax.legend(fontsize=7, ncol=5)
+    ax.yaxis.grid(True)
+    ax.set_axisbelow(True)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_edgecolor(GRID_COLOR)
+    ax.spines["bottom"].set_edgecolor(GRID_COLOR)
+    plt.tight_layout()
+    savefig("01-throughput/scalability-all-algos.png")
 
 
 # ===========================================================================
@@ -491,10 +613,14 @@ def cmp6_ci95_stability():
 # ===========================================================================
 if __name__ == "__main__":
     print("\nGénération des graphiques de comparaison...")
+    for subdir in ["01-throughput", "02-avalanche-effect", "05-algorithm-comparison", "07-synthesis"]:
+        os.makedirs(os.path.join(OUT_DIR, subdir), exist_ok=True)
     cmp1_throughput_all()
     cmp2_speedup_ratio()
     cmp3_throughput_vs_size()
     cmp4_avalanche()
     cmp5_chacha20()
     cmp6_ci95_stability()
+    cmp7_radar()
+    cmp8_scalability_all_algos()
     print(f"\nDone. Charts saved to: {os.path.abspath(OUT_DIR)}")
