@@ -178,7 +178,7 @@ def fig1_throughput_4096():
     ax.set_ylim(bottom=0)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("fig1_throughput_4096B.png")
+    savefig("01-throughput/throughput-4096B.png")
 
 
 # ===========================================================================
@@ -222,7 +222,7 @@ def fig2_throughput_vs_size():
     ax.legend(fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("fig2_throughput_vs_msgsize.png")
+    savefig("01-throughput/throughput-vs-msgsize.png")
 
 
 # ===========================================================================
@@ -261,7 +261,7 @@ def fig3_aes_mode_comparison():
     ax.legend(title="Mode", fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("fig3_aes_mode_comparison.png")
+    savefig("03-encryption-modes/aes-mode-comparison.png")
 
 
 # ===========================================================================
@@ -435,10 +435,82 @@ def fig6_key_size_impact():
 
 
 # ===========================================================================
+# Profils par algorithme — Vue synthétique de chaque algo
+# Affiche débit et effet d'avalanche sur 2 lignes
+# ===========================================================================
+def algo_profile(algo_name):
+    """Crée une vue synthétique d'un algorithme : débit vs modes + avalanche."""
+    algo_data = [r for r in rows if r["algorithm"] == algo_name]
+    if not algo_data:
+        return
+    
+    # Filtre : message de 4096 octets
+    data_4096 = [r for r in algo_data if r["message_size_bytes"] == 4096]
+    if not data_4096:
+        return
+    
+    modes_available = sorted({r["mode"] for r in data_4096})
+    key_bits_list = sorted({r["key_size_bits"] for r in data_4096})
+    
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+    fig.patch.set_facecolor(BG_COLOR)
+    
+    # ===== Ligne 1 : Débit (MB/s) par mode et taille de clé
+    x = np.arange(len(key_bits_list))
+    w = 0.18
+    offsets = np.linspace(-(len(modes_available)-1)/2 * w, 
+                          (len(modes_available)-1)/2 * w, len(modes_available))
+    
+    for offset, mode in zip(offsets, modes_available):
+        vals = []
+        for kb in key_bits_list:
+            match = [r for r in data_4096 if r["mode"] == mode and r["key_size_bits"] == kb]
+            vals.append(match[0]["throughput_enc_mbps"] if match else 0)
+        ax1.bar(x + offset, vals, w, label=mode,
+               color=MODE_COLORS.get(mode, "#888"),
+               edgecolor=BG_COLOR, linewidth=0.8, alpha=0.82)
+    
+    ax1.set_xticks(x)
+    ax1.set_xticklabels([f"{k} bits" for k in key_bits_list])
+    ax1.set_ylabel("Débit de chiffrement (MB/s)", fontsize=10)
+    ax1.set_title(f"Profil {algo_name} — Débit par mode et taille de clé (4 096 octets)",
+                  fontsize=11, fontweight="bold")
+    ax1.legend(title="Mode", fontsize=8, ncol=4)
+    _style_ax(ax1)
+    
+    # ===== Ligne 2 : Score d'avalanche par mode et taille de clé
+    for offset, mode in zip(offsets, modes_available):
+        vals = []
+        for kb in key_bits_list:
+            match = [r for r in data_4096 if r["mode"] == mode and r["key_size_bits"] == kb]
+            vals.append(match[0]["avalanche_score"] if match else 0)
+        ax2.bar(x + offset, vals, w, label=mode,
+               color=MODE_COLORS.get(mode, "#888"),
+               edgecolor=BG_COLOR, linewidth=0.8, alpha=0.82)
+    
+    ax2.axhline(0.5, color="#475569", linestyle="--", linewidth=1.2, alpha=0.7)
+    ax2.set_xticks(x)
+    ax2.set_xticklabels([f"{k} bits" for k in key_bits_list])
+    ax2.set_xlabel("Taille de clé", fontsize=10)
+    ax2.set_ylabel("Score d'avalanche", fontsize=10)
+    ax2.set_ylim(0.45, 0.55)
+    ax2.set_title("Score d'effet d'avalanche par mode et taille de clé", fontsize=10)
+    _style_ax(ax2)
+    
+    plt.tight_layout()
+    filename = f"06-algorithm-profiles/{algo_name.lower()}-profile.png"
+    savefig(filename)
+
+
+# ===========================================================================
 # Exécution de toutes les figures
 # ===========================================================================
 if __name__ == "__main__":
     print("Generating charts...")
+    # Create subdirectories if they don't exist
+    for subdir in ["01-throughput", "02-avalanche-effect", "03-encryption-modes", "06-algorithm-profiles"]:
+        os.makedirs(os.path.join(CHARTS_DIR, subdir), exist_ok=True)
+    
     fig1_throughput_4096()
     fig2_throughput_vs_size()
     fig3_aes_mode_comparison()
@@ -446,4 +518,10 @@ if __name__ == "__main__":
     fig4b_key_avalanche()
     fig5_enc_vs_dec()
     fig6_key_size_impact()
+    
+    # Generate per-algorithm profile charts
+    algorithms = ["AES", "DES", "3DES", "Twofish", "ChaCha20"]
+    for algo in algorithms:
+        algo_profile(algo)
+    
     print(f"\nDone. Charts saved to: {os.path.abspath(CHARTS_DIR)}")

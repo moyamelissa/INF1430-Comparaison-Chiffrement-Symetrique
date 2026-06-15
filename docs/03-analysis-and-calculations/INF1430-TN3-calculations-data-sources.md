@@ -53,7 +53,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 **Calcul ratio Twofish vs AES :**
 > 162,78 ÷ 2,82 = **57,7×** → arrondi **57×**
 
-**Graphique** : [cmp1_throughput_all.png](../crypto-experiments/data/charts/comparison/cmp1_throughput_all.png)
+**Graphique** : [comparison-throughput-all.png](../crypto-experiments/data/charts/01-throughput/comparison-throughput-all.png)
 
 ---
 
@@ -69,7 +69,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 | Twofish | 2,82 | 1,25 | **2,26×** | Twofish ECB 256bit 4096B |
 | ChaCha20 | 93,90 | 58,12 | **1,61×** | ChaCha20 Stream 256bit 4096B |
 
-**Graphique** : [cmp2_speedup_ratio.png](../crypto-experiments/data/charts/comparison/cmp2_speedup_ratio.png)
+**Graphique** : [comparison-speedup-ratio.png](../crypto-experiments/data/charts/01-throughput/comparison-speedup-ratio.png)
 
 ---
 
@@ -87,7 +87,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 **Calcul ratio ECB/CBC :**
 > 162,78 ÷ 0,73 = **223×**
 
-**Graphique** : [fig3_aes_mode_comparison.png](../crypto-experiments/data/charts/fig3_aes_mode_comparison.png)
+**Graphique** : [aes-mode-comparison.png](../crypto-experiments/data/charts/03-encryption-modes/aes-mode-comparison.png)
 
 ---
 
@@ -101,7 +101,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 | Débit AES-GCM Pi | GCM 128bit 4096B | — | **6,41 MB/s** | [raspberry-pi_experience3.csv](../crypto-experiments/data/results/raspberry-pi_experience3.csv) |
 | Avantage ChaCha20/AES-GCM sur Pi | — | — | — | 58,12 ÷ 6,41 = **9,07×** → arrondi **9,1×** |
 
-**Graphique** : [cmp5_chacha20.png](../crypto-experiments/data/charts/comparison/cmp5_chacha20.png)
+**Graphique** : [chacha20-comparison.png](../crypto-experiments/data/charts/05-algorithm-comparison/chacha20-comparison.png)
 
 ---
 
@@ -137,7 +137,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 | DES | 0,4982 | 0,50190 | 0,4982 | 0,500 |
 | ChaCha20 | 0,5948 | 0,5945 | 0,5948 | ⚠️ stream cipher |
 
-**Graphique** : [cmp4_avalanche.png](../crypto-experiments/data/charts/comparison/cmp4_avalanche.png)
+**Graphique** : [comparison-avalanche.png](../crypto-experiments/data/charts/02-avalanche-effect/comparison-avalanche.png)
 
 ---
 
@@ -155,7 +155,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 
 **Note DES :** 64 clés "faibles" documentées depuis les années 1990 — NIST SP 800-67.
 
-**Graphique** : [fig4b_key_avalanche.png](../crypto-experiments/data/charts/fig4b_key_avalanche.png)
+**Graphique** : [key-avalanche-detailed.png](../crypto-experiments/data/charts/02-avalanche-effect/key-avalanche-detailed.png)
 
 ---
 
@@ -174,7 +174,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 **Calcul ratio AES x86/Pi :**
 > 11,280 ÷ 2,060 = **5,47×** → arrondi **5,5×**
 
-**Graphique** : [cmp6_ci95_stability.png](../crypto-experiments/data/charts/comparison/cmp6_ci95_stability.png)
+**Graphique** : [ci95-stability.png](../crypto-experiments/data/charts/05-algorithm-comparison/ci95-stability.png)
 
 ---
 
@@ -184,9 +184,9 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 
 | Fichier | Description |
 |---------|-------------|
-| [ecb_demo_original.bmp](../crypto-experiments/data/charts/ecb_demo_original.bmp) | Image originale (régions uniformes visibles) |
-| [ecb_demo_ecb.bmp](../crypto-experiments/data/charts/ecb_demo_ecb.bmp) | Image chiffrée AES-ECB (patterns préservés) |
-| [ecb_demo_cbc.bmp](../crypto-experiments/data/charts/ecb_demo_cbc.bmp) | Image chiffrée AES-CBC (bruit uniforme) |
+| [original-image.bmp](../crypto-experiments/data/charts/04-ecb-visual-demo/original-image.bmp) | Image originale (régions uniformes visibles) |
+| [ecb-encrypted.bmp](../crypto-experiments/data/charts/04-ecb-visual-demo/ecb-encrypted.bmp) | Image chiffrée AES-ECB (patterns préservés) |
+| [cbc-encrypted.bmp](../crypto-experiments/data/charts/04-ecb-visual-demo/cbc-encrypted.bmp) | Image chiffrée AES-CBC (bruit uniforme) |
 
 **Référence théorique** : Penguin ECB — démonstration classique de la faiblesse du mode ECB, documentée dans Stallings *Cryptography and Network Security* et NIST SP 800-38A.
 

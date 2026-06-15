@@ -42,8 +42,11 @@ import numpy as np
 # Configuration
 # ---------------------------------------------------------------------------
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "results")
-OUT_DIR     = os.path.join(os.path.dirname(__file__), "..", "data", "charts", "comparison")
+OUT_DIR     = os.path.join(os.path.dirname(__file__), "..", "data", "charts")
 os.makedirs(OUT_DIR, exist_ok=True)
+# Create subdirectories for organized output
+for subdir in ["01-throughput", "02-avalanche-effect", "05-algorithm-comparison"]:
+    os.makedirs(os.path.join(OUT_DIR, subdir), exist_ok=True)
 
 DPI   = 180
 FIG_W = 11
