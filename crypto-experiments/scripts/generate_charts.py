@@ -61,12 +61,12 @@ with open(CSV_PATH, newline="", encoding="utf-8") as f:
         })
 
 # ---------------------------------------------------------------------------
-# Palette — couleurs cohérentes par algorithme
+# Palette — couleurs cohérentes par algorithme (cyberpunk neon)
 # ---------------------------------------------------------------------------
-BG_COLOR    = "#0A0E1A"
-PANEL_COLOR = "#0F1524"
-GRID_COLOR  = "#1C2438"
-TEXT_COLOR  = "#C9D4F0"
+BG_COLOR    = "#0D0221"    # deep dark navy/purple
+PANEL_COLOR = "#0F0A1F"    # slightly lighter dark purple
+GRID_COLOR  = "#1a0a3f"    # neon-lit grid
+TEXT_COLOR  = "#E8D4FF"    # soft lavender
 
 plt.rcParams.update({
     "figure.facecolor":  BG_COLOR,
@@ -79,26 +79,26 @@ plt.rcParams.update({
     "text.color":        TEXT_COLOR,
     "grid.color":        GRID_COLOR,
     "grid.linestyle":    "--",
-    "grid.alpha":        0.8,
-    "legend.facecolor":  "#111827",
-    "legend.edgecolor":  "#1C2438",
+    "grid.alpha":        0.3,
+    "legend.facecolor":  "#0a0015",
+    "legend.edgecolor":  "#1a0a3f",
     "legend.labelcolor": TEXT_COLOR,
     "font.family":       "DejaVu Sans",
     "axes.titlepad":     12,
 })
 
 ALGO_COLORS = {
-    "AES":      "#3B82F6",   # vivid blue
-    "DES":      "#EC4899",   # hot pink
-    "3DES":     "#A855F7",   # purple
-    "Twofish":  "#10B981",   # emerald green
-    "ChaCha20": "#06B6D4",   # cyan
+    "AES":      "#00D9FF",   # neon cyan
+    "DES":      "#FF006E",   # hot magenta
+    "3DES":     "#B700FF",   # electric purple
+    "Twofish":  "#39FF14",   # neon lime
+    "ChaCha20": "#FF10F0",   # neon pink
 }
 MODE_COLORS = {
-    "ECB": "#3B82F6",   # blue
-    "CBC": "#EC4899",   # pink
-    "CTR": "#10B981",   # green
-    "GCM": "#F59E0B",   # amber
+    "ECB": "#00D9FF",   # neon cyan
+    "CBC": "#FF006E",   # hot magenta
+    "CTR": "#39FF14",   # neon lime
+    "GCM": "#FFB700",   # neon orange
 }
 MODE_HATCH = {"ECB": "", "CBC": "//", "CTR": "xx", "GCM": ".."}
 
@@ -207,7 +207,7 @@ def fig2_throughput_vs_size():
         sizes = [r["message_size_bytes"] for r in subset]
         mbps  = [r["throughput_enc_mbps"] for r in subset]
         ax.plot(sizes, mbps, marker="o", label=f"{algo}-{key_bits}b",
-                color=ALGO_COLORS[algo], linewidth=2.2, markersize=5, alpha=0.92)
+                color=ALGO_COLORS[algo], linewidth=2.2, markersize=5, alpha=0.85)
 
     ax.set_xscale("log", base=2)
     ax.set_xticks(msg_sizes)
@@ -246,7 +246,7 @@ def fig3_aes_mode_comparison():
         sizes = [r["message_size_bytes"] for r in subset]
         mbps  = [r["throughput_enc_mbps"] for r in subset]
         ax.plot(sizes, mbps, marker="o", label=mode,
-                color=MODE_COLORS[mode], linewidth=2.2, markersize=5, alpha=0.92)
+                color=MODE_COLORS[mode], linewidth=2.2, markersize=5, alpha=0.85)
 
     ax.set_xscale("log", base=2)
     ax.set_xticks(msg_sizes)
@@ -283,7 +283,7 @@ def fig4_avalanche():
     fig.patch.set_facecolor(BG_COLOR)
     bars = ax.bar(algos, means, yerr=stdevs, color=colors, capsize=6,
                   edgecolor=BG_COLOR, linewidth=0.8, width=0.5,
-                  alpha=0.82,
+                  alpha=0.7,
                   error_kw={"linewidth": 1.5, "ecolor": TEXT_COLOR})
     ax.axhline(0.5, color="#475569", linestyle="--", linewidth=1.4,
                label="Valeur idéale (0,50)")
@@ -376,9 +376,9 @@ def fig5_enc_vs_dec():
     fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
     fig.patch.set_facecolor(BG_COLOR)
     ax.bar(x - w/2, enc_vals, w, label="Chiffrement",
-           color=colors, edgecolor=BG_COLOR, linewidth=0.8, alpha=0.50)
+           color=colors, edgecolor=BG_COLOR, linewidth=0.8, alpha=0.4)
     ax.bar(x + w/2, dec_vals, w, label="Déchiffrement",
-           color=colors, edgecolor=BG_COLOR, linewidth=0.8, alpha=0.88)
+           color=colors, edgecolor=BG_COLOR, linewidth=0.8, alpha=0.78)
 
     ax.set_xticks(x)
     ax.set_xticklabels(labels, fontsize=8)
@@ -417,7 +417,7 @@ def fig6_key_size_impact():
             vals.append(match[0]["throughput_enc_mbps"] if match else 0)
         ax.bar(x + offset, vals, w, label=mode,
                color=MODE_COLORS.get(mode, "#888"),
-               edgecolor=BG_COLOR, linewidth=0.8, alpha=0.82)
+               edgecolor=BG_COLOR, linewidth=0.8, alpha=0.7)
 
     ax.set_xticks(x)
     ax.set_xticklabels([f"{k} bits" for k in key_bits])
@@ -468,7 +468,7 @@ def algo_profile(algo_name):
             vals.append(match[0]["throughput_enc_mbps"] if match else 0)
         ax1.bar(x + offset, vals, w, label=mode,
                color=MODE_COLORS.get(mode, "#888"),
-               edgecolor=BG_COLOR, linewidth=0.8, alpha=0.82)
+               edgecolor=BG_COLOR, linewidth=0.8, alpha=0.7)
     
     ax1.set_xticks(x)
     ax1.set_xticklabels([f"{k} bits" for k in key_bits_list])
@@ -486,9 +486,9 @@ def algo_profile(algo_name):
             vals.append(match[0]["avalanche_score"] if match else 0)
         ax2.bar(x + offset, vals, w, label=mode,
                color=MODE_COLORS.get(mode, "#888"),
-               edgecolor=BG_COLOR, linewidth=0.8, alpha=0.82)
+               edgecolor=BG_COLOR, linewidth=0.8, alpha=0.7)
     
-    ax2.axhline(0.5, color="#475569", linestyle="--", linewidth=1.2, alpha=0.7)
+    ax2.axhline(0.5, color="#888888", linestyle="--", linewidth=1.2, alpha=0.3)
     ax2.set_xticks(x)
     ax2.set_xticklabels([f"{k} bits" for k in key_bits_list])
     ax2.set_xlabel("Taille de clé", fontsize=10)
