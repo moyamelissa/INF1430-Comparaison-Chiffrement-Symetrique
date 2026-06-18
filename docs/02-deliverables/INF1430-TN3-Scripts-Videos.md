@@ -15,14 +15,14 @@ Avant de lancer les commandes Python en video, ouvrir un terminal dans le dossie
 Ouvrir le depot GitHub du projet.
 
 **Texte a dire :**
-Dans cette première vidéo, je vous présente le dépôt GitHub du projet INF1430, qui porte sur l'implémentation et la comparaison des algorithmes de chiffrement symétrique.
+Dans cette premiere video, je vous presente le depot GitHub du projet INF1430. On va faire un survol bref du README, section par section, puis passer a la structure du code.
 
 #### Etape 2
 **Action ecran :**
-Montrer la racine et survoler le README. (Note tournage: Survoler sans entrer dans les details du README lui-meme.)
+Montrer la racine, ouvrir le README et defiler rapidement les sections principales (Presentation, Algorithmes et modes, Architecture, Structure du depot, Installation, Utilisation, Resultats, References).
 
 **Texte a dire :**
-Ici, on voit la racine du depot. Le README decrit la structure des dossiers, les dependances et les commandes d execution.
+Ici, on voit d abord une description breve du projet. Ensuite, on presente les algorithmes utilises ainsi que les modes d operation. Par apres, on voit l architecture, qui aide a bien naviguer dans le depot GitHub, avec chaque dossier et un commentaire qui decrit ce qu il contient. Finalement, on retrouve les sections installation, utilisation, resultats et references, avec les liens vers les fichiers de resultats laptop versus Raspberry Pi et les graphiques generes a partir de ces donnees.
 
 #### Etape 3
 **Action ecran :**
@@ -54,10 +54,10 @@ Dans le dossier application, la classe ExperimentController orchestre les essais
 
 #### Etape 7
 **Action ecran :**
-Ouvrir le dossier scripts et montrer les fichiers. (Note tournage: Montrer tous les .py listés, pointer les deux scripts d analyse pour les distinguer visuellement.)
+Ouvrir le dossier scripts et montrer les fichiers. (Note tournage: Montrer tous les .py listés, puis pointer les trois scripts d analyse: analyse_rounds_avalanche.py, ecb_visual_vulnerability.py et compare_platforms.py.)
 
 **Texte a dire :**
-Dans scripts, on trouve les points d entree du systeme: experiment.py pour les benchmarks de performance, run_kat.py pour la validation cryptographique par vecteurs NIST, generate_charts.py pour produire les figures, et deux scripts d analyse specifiques, ecb_visual_vulnerability.py et compare_platforms.py.
+Dans scripts, on trouve les points d entree du systeme: experiment.py pour les benchmarks de performance, run_kat.py pour la validation cryptographique par vecteurs NIST, generate_charts.py pour produire les figures, et trois scripts d analyse specifiques, analyse_rounds_avalanche.py, ecb_visual_vulnerability.py et compare_platforms.py.
 
 #### Etape 8
 **Action ecran :**

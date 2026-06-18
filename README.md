@@ -64,30 +64,6 @@ Le projet suit une architecture en couches afin de séparer clairement les respo
 | Domaine | `EncryptionEngine`, `CipherPrimitive`, `OperationMode` | Abstractions cryptographiques et interface uniforme chiffrement/déchiffrement |
 | Exécution | `scripts/*.py` | Points d'entrée CLI pour benchmark, validation KAT, analyse et visualisation |
 
-### Vue synthétique
-
-```
-Application         ExperimentController   — orchestration des expériences et mesures
-     │
-Domain              EncryptionEngine       — interface uniforme encrypt/decrypt
-     │                   │
-     │              CipherPrimitive        — abstraction de chaque algorithme (AES, DES, 3DES, Twofish, ChaCha20)
-     │              OperationMode          — abstraction de chaque mode (ECB, CBC, CTR, GCM, StreamMode)
-     │
-Scripts             experiment.py          — benchmark principal
-                    run_kat.py             — validation KAT
-                    generate_charts.py     — génération des figures
-                    analyse_rounds_avalanche.py
-                    compare_platforms.py
-                    ecb_visual_vulnerability.py
-```
-
-### Principes de conception
-
-- Extensibilité: ajout d'un algorithme ou d'un mode via une classe concrète sans modifier les couches supérieures.
-- Séparation des responsabilités: cryptographie, orchestration expérimentale et persistance des résultats restent découplées.
-- Reproductibilité: chaque campagne produit des sorties CSV structurées avec métadonnées de configuration.
-
 ---
 
 ## Structure du dépôt
@@ -195,19 +171,14 @@ python scripts/compare_platforms.py
 Les données expérimentales brutes sont stockées dans `crypto-experiments/data/results/`.  
 Les graphiques de comparaison sont générés dans `crypto-experiments/data/charts/`.
 
-Plateformes testées à ce jour :
+Jeux de résultats actuellement versionnés :
 
-| Identifiant          | Système | Architecture |
-|----------------------|---------|--------------|
-| `laptop-windows-x86` | Windows | x86-64       |
-
----
-
-## Statut du projet
-
-Ce dépôt contient l'implémentation expérimentale, les scripts de validation KAT, les jeux de résultats et les outils de génération de figures.
-
-Les livrables académiques (TN1, TN2, TN3, TN4) et leur suivi détaillé sont documentés dans le dossier `docs/`.
+- `laptop-windows-x86_experience1.csv`
+- `laptop-windows-x86_experience2.csv`
+- `laptop-windows-x86_experience3.csv`
+- `raspberry-pi_experience1.csv`
+- `raspberry-pi_experience2.csv`
+- `raspberry-pi_experience3.csv`
 
 ---
 
