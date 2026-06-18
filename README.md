@@ -13,8 +13,7 @@
 5. [Installation](#installation)
 6. [Utilisation](#utilisation)
 7. [Résultats](#résultats)
-8. [Statut du projet](#statut-du-projet)
-9. [Références](#références)
+8. [Références](#références)
 
 ---
 
@@ -48,7 +47,7 @@ Le projet suit une démarche de **génie logiciel** : conception orientée objet
 | CBC    | Chiffrement par blocs | IV aléatoire, chaînage des blocs        |
 | CTR    | Chiffrement par blocs | Parallélisable, nonce requis            |
 | GCM    | Chiffrement par blocs | Authentifié (AEAD), nonce requis        |
-| Stream | Flux (ChaCha20)       | Chiffrement de flux natif               |
+| StreamMode | Flux (ChaCha20)   | Passe-travers pour chiffrement de flux natif |
 
 ---
 
@@ -64,6 +63,18 @@ Le projet suit une architecture en couches afin de séparer clairement les respo
 | Domaine | `EncryptionEngine`, `CipherPrimitive`, `OperationMode` | Abstractions cryptographiques et interface uniforme chiffrement/déchiffrement |
 | Exécution | `scripts/*.py` | Points d'entrée CLI pour benchmark, validation KAT, analyse et visualisation |
 
+### Description textuelle de l'architecture
+
+Le flux d'exécution suit une chaîne simple et explicite :
+
+1. Les scripts (`scripts/*.py`) configurent et déclenchent les campagnes (benchmark, KAT, analyses).
+2. `ExperimentController` orchestre les scénarios expérimentaux et les répétitions.
+3. `EncryptionEngine` applique une interface uniforme pour chiffrer/déchiffrer indépendamment de l'algorithme choisi.
+4. Les primitives (`CipherPrimitive`) et les modes (`OperationMode` et `StreamMode`) encapsulent la logique cryptographique.
+5. Les sorties sont persistées en CSV (`data/results`) puis exploitées pour la visualisation (`data/charts`).
+
+Cette organisation permet d'ajouter un algorithme, un mode ou une analyse avec un impact minimal sur le reste du code.
+
 ---
 
 ## Structure du dépôt
@@ -78,7 +89,7 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 │   │   ├── cipher/                     # DES, 3DES, AES, Twofish, ChaCha20
 │   │   ├── engine/
 │   │   │   └── EncryptionEngine.py     # Interface unifiée
-│   │   └── mode/                       # ECB, CBC, CTR, GCM, Stream
+│   │   └── mode/                       # ECB, CBC, CTR, GCM, StreamMode
 │   ├── scripts/
 │   │   ├── experiment.py               # Point d'entrée principal
 │   │   ├── run_kat.py                  # Known Answer Tests
@@ -97,8 +108,12 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 │       ├── results/                    # Données CSV brutes par plateforme
 │       └── charts/                     # Graphiques générés
 ├── docs/
-│   ├── guide-completion-TN.md
-│   └── guide-raspberry-pi.md
+│   ├── 01-project-instructions/
+│   ├── 02-deliverables/
+│   ├── 03-analysis-and-calculations/
+│   ├── 04-raspberrypi-guides/
+│   ├── 05-feedback/
+│   └── 99-archive/
 └── README.md
 ```
 

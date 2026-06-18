@@ -22,7 +22,7 @@ Dans cette premiere video, je vous presente le depot GitHub du projet INF1430. O
 Montrer la racine, ouvrir le README et defiler rapidement les sections principales (Presentation, Algorithmes et modes, Architecture, Structure du depot, Installation, Utilisation, Resultats, References).
 
 **Texte a dire :**
-Ici, on voit d abord une description breve du projet. Ensuite, on presente les algorithmes utilises ainsi que les modes d operation. Par apres, on voit l architecture, qui aide a bien naviguer dans le depot GitHub, avec chaque dossier et un commentaire qui decrit ce qu il contient. Finalement, on retrouve les sections installation, utilisation, resultats et references, avec les liens vers les fichiers de resultats laptop versus Raspberry Pi et les graphiques generes a partir de ces donnees.
+Le README s ouvre sur une description du projet, avec son objectif et son contexte academique. Ensuite, on retrouve le perimetre technique: les algorithmes et les modes d operation etudies. La section Architecture nous sert de guide de navigation dans le depot, en expliquant clairement le role de chaque couche et de chaque dossier. Puis, les sections Installation et Utilisation donnent les commandes pour reproduire les experiences. La section Resultats pointe vers les fichiers CSV par plateforme, laptop Windows x86 et Raspberry Pi, ainsi que vers les graphiques generes a partir de ces donnees. Le document se termine avec les references bibliographiques.
 
 #### Etape 3
 **Action ecran :**
