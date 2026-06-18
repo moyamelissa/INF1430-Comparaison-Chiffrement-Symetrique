@@ -11,8 +11,7 @@ Avant de lancer les commandes Python en video, ouvrir un terminal dans le dossie
 ### Sequence naturelle a suivre (actions + narration)
 
 1. Action ecran: Ouvrir le depot GitHub du projet.
-	Texte a dire: Dans cette premiere video, je presente la structure du systeme qui produit nos mesures comparatives entre x86 et ARM. On commence par le depot GitHub du projet.
-	Note tournage: Montre la page d accueil du repo avec le README visible.
+	Texte a dire: Dans cette première vidéo, je vous présente le dépôt GitHub du projet INF1430, qui porte sur l'implémentation et la comparaison des algorithmes de chiffrement symétrique.
 
 2. Action ecran: Montrer la racine et survoler le README.
 	Texte a dire: Ici, on voit la racine du depot. Le README decrit la structure des dossiers, les dependances et les commandes d execution.
