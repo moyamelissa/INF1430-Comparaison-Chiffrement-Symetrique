@@ -11,40 +11,52 @@ Avant de lancer les commandes Python en video, ouvrir un terminal dans le dossie
 ### Sequence naturelle a suivre (actions + narration)
 
 1. Action ecran: Ouvrir le depot GitHub du projet.
-	Texte a dire: On commence par le depot GitHub du projet.
+	Texte a dire: Dans cette premiere video, je presente la structure du systeme qui produit nos mesures comparatives entre x86 et ARM. On commence par le depot GitHub du projet.
+	Note tournage: Montre la page d accueil du repo avec le README visible.
 
 2. Action ecran: Montrer la racine et survoler le README.
-	Texte a dire: Ici, on voit la racine. Le README decrit la structure, les dependances et les commandes d execution.
+	Texte a dire: Ici, on voit la racine du depot. Le README decrit la structure des dossiers, les dependances et les commandes d execution.
+	Note tournage: Survoler sans entrer dans les details du README lui-meme.
 
 3. Action ecran: Ouvrir le dossier crypto-experiments.
 	Texte a dire: On entre dans crypto-experiments, qui contient le coeur du systeme experimental.
+	Note tournage: Montrer l arborescence complete une fois expandue.
 
-4. Action ecran: Ouvrir domain/cipher.
-	Texte a dire: Dans domain/cipher, on retrouve les primitives de chiffrement implementees: AES, DES, 3DES, Twofish et ChaCha20. Chaque primitive suit une abstraction commune pour garder une interface uniforme.
+4. Action ecran: Ouvrir domain/cipher et montrer les fichiers.
+	Texte a dire: Dans domain/cipher, on retrouve les primitives de chiffrement implementees: AES, DES, 3DES, Twofish et ChaCha20. Chacune herite de CipherPrimitive, qui definit l interface abstraite commune et garantit l uniformite des operations de chiffrement et de dechiffrement a travers tout le systeme.
+	Note tournage: Montrer les fichiers .py listés, pointer rapidement CipherPrimitive.py.
 
-5. Action ecran: Ouvrir domain/mode.
-	Texte a dire: Dans domain/mode, on retrouve les modes d operation: ECB, CBC, CTR, GCM et StreamMode. Cette separation primitive/mode permet de tester plusieurs combinaisons de facon propre.
+5. Action ecran: Ouvrir domain/mode et montrer les fichiers.
+	Texte a dire: Dans domain/mode, on retrouve les modes d operation: ECB, CBC, CTR et GCM pour les algorithmes par blocs, puis StreamMode, qui est un passe-travers concu specifiquement pour les chiffrements par flux comme ChaCha20. Cette separation entre les primitives et les modes permet de composer librement les combinaisons sans modifier le code des algorithmes.
+	Note tournage: Montrer les fichiers .py listés, pointer StreamMode pour clarifier son role special.
 
-6. Action ecran: Ouvrir application puis ExperimentController.
-	Texte a dire: Dans application, la classe ExperimentController orchestre les essais: elle enchaine les combinaisons, lance les mesures et centralise les resultats.
+6. Action ecran: Ouvrir le dossier application et montrer ExperimentController.py.
+	Texte a dire: Dans le dossier application, la classe ExperimentController orchestre les essais: elle enchaine les combinaisons algorithme-mode, declenche les mesures et centralise les resultats, sans jamais toucher a la logique cryptographique elle-meme.
+	Note tournage: Ouvrir ExperimentController.py en mode lecture pour montrer sa place centrale.
 
-7. Action ecran: Ouvrir scripts.
-	Texte a dire: Dans scripts, on trouve les points d entree: experiment.py pour les benchmarks, run_kat.py pour la validation cryptographique, et generate_charts.py pour produire les graphiques.
+7. Action ecran: Ouvrir le dossier scripts et montrer les fichiers.
+	Texte a dire: Dans scripts, on trouve les points d entree du systeme: experiment.py pour les benchmarks de performance, run_kat.py pour la validation cryptographique par vecteurs NIST, generate_charts.py pour produire les figures, et deux scripts d analyse specifiques, ecb_visual_vulnerability.py et compare_platforms.py.
+	Note tournage: Montrer tous les .py listés, pointer les deux scripts d analyse pour les distinguer visuellement.
 
 8. Action ecran: Basculer vers Visual Studio Code et ouvrir le terminal integre.
 	Texte a dire: On passe maintenant dans Visual Studio Code pour executer une experience en direct.
+	Note tournage: Terminal deja ouvert dans crypto-experiments/.
 
-9. Action ecran: Taper puis executer la commande python scripts/experiment.py.
-	Texte a dire: Je lance la commande python scripts/experiment.py.
+9. Action ecran: Taper puis executer la commande python scripts/experiment.py depuis le dossier crypto-experiments.
+	Texte a dire: Je lance la commande python scripts/experiment.py. Je suis positionne dans le dossier crypto-experiments, donc la commande fonctionne directement.
+	Note tournage: Utiliser le vrai chiffre: cent repetitions par configuration (depuis REPETITIONS = 100 dans experiment.py).
 
 10. Action ecran: Laisser defiler le terminal et montrer la fin de l execution.
-	 Texte a dire: Le systeme parcourt les algorithmes, les modes et les tailles de donnees, puis repete les mesures selon le protocole experimental.
+	 Texte a dire: Le systeme parcourt l ensemble de la matrice experimentale, algorithmes, modes, tailles de cle et tailles de donnees, et repete chaque mesure selon le protocole. On voit les lignes defiler au fur et a mesure des cent repetitions par configuration.
+	 Note tournage: Laisser tourner assez longtemps pour que plusieurs iterations s affichent visiblement.
 
-11. Action ecran: Ouvrir le CSV genere dans data/results.
-	 Texte a dire: A la fin, un fichier CSV est genere dans data/results. Ce fichier contient les mesures brutes, comme le temps, le debit, la configuration et la plateforme. C est cette base qui sert a l analyse comparative TN3.
+11. Action ecran: Ouvrir le CSV genere dans data/results (ex: experiment_20260618_143020.csv).
+	 Texte a dire: A la fin de l execution, un fichier CSV horodatage est genere dans data/results. Il contient une ligne par configuration mesuree, avec toutes les metriques collectees: temps de chiffrement et de dechiffrement, debit, effet d avalanche et identifiants de configuration. C est ce fichier brut qui servira de base a l analyse comparative de TN3.
+	 Note tournage: Montrer le fichier reel dans data/results/ avec le nom horodatage visible. Ne pas ouvrir le CSV completement, juste le montrer dans l explorateur de fichiers.
 
 12. Action ecran: Rester sur le CSV ou revenir a la structure du projet.
-	 Texte a dire: Dans la prochaine video, on detaille justement le protocole de mesure et la justification des repetitions.
+	 Texte a dire: Dans la prochaine video, on detaille justement le protocole de mesure et la justification des cent repetitions par configuration.
+	 Note tournage: Transition douce vers video 2 qui expliquera le pourquoi du protocole.
 
 ---
 
