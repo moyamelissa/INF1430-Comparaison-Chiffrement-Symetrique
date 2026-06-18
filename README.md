@@ -13,7 +13,7 @@
 5. [Installation](#installation)
 6. [Utilisation](#utilisation)
 7. [Résultats](#résultats)
-8. [État d'avancement](#état-davancement)
+8. [Statut du projet](#statut-du-projet)
 9. [Références](#références)
 
 ---
@@ -54,28 +54,39 @@ Le projet suit une démarche de **génie logiciel** : conception orientée objet
 
 ## Architecture du projet
 
-Le code est organisé selon une architecture en couches qui sépare les responsabilités :
+Le projet suit une architecture en couches afin de séparer clairement les responsabilités fonctionnelles et faciliter l'extension du système.
+
+### Couches logicielles
+
+| Couche | Composants principaux | Rôle |
+|--------|-----------------------|------|
+| Application | `ExperimentController` | Orchestration des expériences, collecte et centralisation des mesures |
+| Domaine | `EncryptionEngine`, `CipherPrimitive`, `OperationMode` | Abstractions cryptographiques et interface uniforme chiffrement/déchiffrement |
+| Exécution | `scripts/*.py` | Points d'entrée CLI pour benchmark, validation KAT, analyse et visualisation |
+
+### Vue synthétique
 
 ```
-Application layer   ExperimentController   — orchestration des expériences, mesures, calcul d'avalanche
+Application         ExperimentController   — orchestration des expériences et mesures
      │
-Domain layer        EncryptionEngine       — interface uniforme encrypt/decrypt
+Domain              EncryptionEngine       — interface uniforme encrypt/decrypt
      │                   │
-     │              CipherPrimitive        — abstraction de chaque algorithme (AES, DES, …)
-     │              OperationMode          — abstraction de chaque mode (ECB, CBC, CTR, GCM, Stream)
+     │              CipherPrimitive        — abstraction de chaque algorithme (AES, DES, 3DES, Twofish, ChaCha20)
+     │              OperationMode          — abstraction de chaque mode (ECB, CBC, CTR, GCM, StreamMode)
      │
-Scripts             experiment.py          — point d'entrée CLI
+Scripts             experiment.py          — benchmark principal
                     run_kat.py             — validation KAT
-                    generate_charts.py     — génération des graphiques
+                    generate_charts.py     — génération des figures
                     analyse_rounds_avalanche.py
                     compare_platforms.py
                     ecb_visual_vulnerability.py
 ```
 
-**Principes appliqués :**
-- **Ouvert/Fermé** — ajouter un algorithme ou un mode ne nécessite qu'une nouvelle classe concrète.
-- **Séparation des responsabilités** — la mesure du temps, la cryptographie et la persistance des résultats sont des couches distinctes.
-- **Reproductibilité** — chaque expérience est paramétrée et exportée en CSV avec ses métadonnées (plateforme, horodatage, répétitions).
+### Principes de conception
+
+- Extensibilité: ajout d'un algorithme ou d'un mode via une classe concrète sans modifier les couches supérieures.
+- Séparation des responsabilités: cryptographie, orchestration expérimentale et persistance des résultats restent découplées.
+- Reproductibilité: chaque campagne produit des sorties CSV structurées avec métadonnées de configuration.
 
 ---
 
@@ -192,14 +203,11 @@ Plateformes testées à ce jour :
 
 ---
 
-## État d'avancement
+## Statut du projet
 
-| Livrable | Description                           | Statut       |
-|----------|---------------------------------------|--------------|
-| TN1      | Plan de projet                        | ✅ Complété  |
-| TN2      | Modélisation et conception logicielle | ✅ Complété  |
-| TN3      | Implémentation et expérimentation     | ✅ Complété  |
-| TN4      | Analyse et rapport final              | 🔄 En cours  |
+Ce dépôt contient l'implémentation expérimentale, les scripts de validation KAT, les jeux de résultats et les outils de génération de figures.
+
+Les livrables académiques (TN1, TN2, TN3, TN4) et leur suivi détaillé sont documentés dans le dossier `docs/`.
 
 ---
 
