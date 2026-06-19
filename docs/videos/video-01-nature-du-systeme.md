@@ -120,6 +120,8 @@ Si la longueur est invalide, il lève immédiatement une `ValueError`.
 #### Segment 4 - Lignes 47 à 52, block_size et key_size
 **(Surligne lignes 46 à 48 - block_size)** `block_size` retourne une taille fixe de 16 octets.
 **(Surligne lignes 50 à 52 - key_size)** `key_size` retourne la taille réelle de la clé de l'instance.
+Pourquoi 16 en permanence: la norme AES impose un bloc fixe de 128 bits, soit 16 octets.
+La taille de clé peut varier (16, 24, 32), mais pas la taille de bloc.
 Ces deux propriétés donnent au moteur les informations minimales pour travailler,
 sans dépendre d'une primitive spécifique.
 
