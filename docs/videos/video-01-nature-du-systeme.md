@@ -506,15 +506,22 @@ Je lance la commande python scripts/experiment.py.
 Je suis positionne dans le dossier crypto-experiments,
 donc la commande fonctionne directement.
 
-### Laisser defiler le terminal
+### Laisser défiler le terminal — version accélérée
 ---
-Le système parcourt l'ensemble de la matrice experimentale,
+Le système parcourt l'ensemble de la matrice expérimentale,
 chaque combinaison d'algorithme, de mode, de taille de clé et de taille de message,
 et répète chaque mesure cent fois.
+L'exécution complète prend plusieurs minutes, donc la suite est accélérée.
 On voit chaque ligne s'afficher en direct dans le terminal,
-avec le temps de chiffrement moyen,
-le debit obtenu
-et le score d'avalanche calcule pour cette configuration.
+avec le temps de chiffrement moyen, le débit obtenu
+et le score d'avalanche calculé pour chaque configuration.
+
+> **Note de tournage** : garder les 10 à 15 premières secondes en temps réel,
+> idéalement sur une configuration AES rapide pour que ça bouge bien à l'écran,
+> puis accélérer à 4× jusqu'à la fin.
+> Éviter de couper pile sur les runs 3DES — c'est la portion la plus lente
+> et ça pourrait paraître étrange en accéléré si la progression semble figée
+> plus longtemps que les autres.
 
 ### Ouvrir le CSV généré
 ---
