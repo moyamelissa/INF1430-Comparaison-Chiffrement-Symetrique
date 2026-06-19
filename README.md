@@ -1,29 +1,48 @@
-# INF1430 — Comparaison expérimentale des algorithmes de chiffrement symétrique
+﻿# INF1430 — Comparaison expérimentale des algorithmes de chiffrement symétrique
 
-> Projet académique — Université TÉLUQ · Cours INF1430 – Projet de fin d'études
+![INF1430](https://img.shields.io/badge/Cours-INF1430-0A66C2)
+![Université TÉLUQ](https://img.shields.io/badge/Université-T%C3%89LUQ-005A9C)
+![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)
+![Cryptographie](https://img.shields.io/badge/Cryptographie-Sym%C3%A9trique-1F7A8C)
+![Plateformes](https://img.shields.io/badge/Plateformes-Windows%20x86%20%7C%20Raspberry%20Pi%20ARM-5C6BC0)
+![Validation](https://img.shields.io/badge/Validation-KAT%20NIST%20int%C3%A9gr%C3%A9s-2E7D32)
+
+> Projet académique — Université TÉLUQ · INF1430
 
 ---
 
 ## Table des matières
 
 1. [Présentation](#présentation)
-2. [Algorithmes et modes étudiés](#algorithmes-et-modes-étudiés)
-3. [Architecture du projet](#architecture-du-projet)
-4. [Structure du dépôt](#structure-du-dépôt)
-5. [Installation](#installation)
-6. [Utilisation](#utilisation)
-7. [Résultats](#résultats)
-8. [Références](#références)
+2. [Objectifs techniques](#objectifs-techniques)
+3. [Algorithmes et modes étudiés](#algorithmes-et-modes-étudiés)
+4. [Architecture du projet](#architecture-du-projet)
+5. [Structure du dépôt](#structure-du-dépôt)
+6. [Installation](#installation)
+7. [Exécution rapide](#exécution-rapide)
+8. [Validation et tests](#validation-et-tests)
+9. [Résultats expérimentaux](#résultats-expérimentaux)
+10. [Reproductibilité](#reproductibilité)
+11. [Références](#références)
 
 ---
 
 ## Présentation
 
-Ce projet étudie et compare empiriquement plusieurs algorithmes de **chiffrement symétrique** sous différents angles : performances temporelles, débit de chiffrement/déchiffrement, et diffusion des données (effet d'avalanche).
+Ce projet compare empiriquement plusieurs algorithmes de chiffrement symétrique selon trois axes :
 
-L'objectif est d'établir un lien rigoureux entre les **choix de conception cryptographique** — algorithme, mode d'opération, taille de clé — et leurs **effets mesurables en pratique**, en fonction de la plateforme matérielle cible.
+- performances (temps d'exécution et débit),
+- robustesse (effet d'avalanche),
+- comportement multi-plateforme (x86 vs ARM).
 
-Le projet suit une démarche de **génie logiciel** : conception orientée objet, séparation des responsabilités, expérimentation reproductible et validation par tests de vecteurs connus (KAT — *Known Answer Tests*).
+L'approche est orientée génie logiciel : architecture modulaire, scripts d'exécution dédiés, validation cryptographique via KAT (Known Answer Tests) et export des résultats en CSV.
+
+## Objectifs techniques
+
+- Mesurer le coût réel des algorithmes et modes dans un contexte expérimental contrôlé.
+- Comparer les résultats entre plateformes matérielles différentes.
+- Valider la conformité des implémentations à l'aide de vecteurs de test standards (NIST/RFC).
+- Produire des artefacts exploitables pour l'analyse : CSV et graphiques.
 
 ---
 
@@ -31,49 +50,51 @@ Le projet suit une démarche de **génie logiciel** : conception orientée objet
 
 ### Algorithmes de chiffrement
 
-| Algorithme | Type       | Tailles de clé supportées |
-|------------|------------|---------------------------|
-| DES        | Bloc       | 56 bits                   |
-| 3DES       | Bloc       | 112 / 168 bits            |
-| AES        | Bloc       | 128 / 192 / 256 bits      |
-| Twofish    | Bloc       | 128 / 192 / 256 bits      |
-| ChaCha20   | Flux       | 256 bits                  |
+| Algorithme | Type | Tailles de clé supportées |
+|---|---|---|
+| DES | Bloc | 56 bits |
+| 3DES | Bloc | 112 / 168 bits |
+| AES | Bloc | 128 / 192 / 256 bits |
+| Twofish | Bloc | 128 / 192 / 256 bits |
+| ChaCha20 | Flux | 256 bits |
 
 ### Modes d'opération
 
-| Mode   | Applicabilité         | Caractéristiques                        |
-|--------|-----------------------|-----------------------------------------|
-| ECB    | Chiffrement par blocs | Sans IV — illustre la vulnérabilité ECB |
-| CBC    | Chiffrement par blocs | IV aléatoire, chaînage des blocs        |
-| CTR    | Chiffrement par blocs | Parallélisable, nonce requis            |
-| GCM    | Chiffrement par blocs | Authentifié (AEAD), nonce requis        |
-| StreamMode | Flux (ChaCha20)   | Passe-travers pour chiffrement de flux natif |
+| Mode | Applicabilité | Caractéristiques |
+|---|---|---|
+| ECB | Chiffrement par blocs | Sans IV, utilisé ici à des fins pédagogiques (vulnérable) |
+| CBC | Chiffrement par blocs | Chaînage des blocs, IV requis |
+| CTR | Chiffrement par blocs | Parallélisable, nonce requis |
+| GCM | Chiffrement par blocs | AEAD (confidentialité + intégrité), nonce requis |
+| StreamMode | Flux (ChaCha20) | Passe-travers pour chiffrement de flux |
 
 ---
 
 ## Architecture du projet
 
-Le projet suit une architecture en couches afin de séparer clairement les responsabilités fonctionnelles et faciliter l'extension du système.
+Le système suit une architecture en couches afin de maintenir une séparation claire des responsabilités et de faciliter l'extension.
 
 ### Couches logicielles
 
 | Couche | Composants principaux | Rôle |
-|--------|-----------------------|------|
-| Application | `ExperimentController` | Orchestration des expériences, collecte et centralisation des mesures |
-| Domaine | `EncryptionEngine`, `CipherPrimitive`, `OperationMode` | Abstractions cryptographiques et interface uniforme chiffrement/déchiffrement |
-| Exécution | `scripts/*.py` | Points d'entrée CLI pour benchmark, validation KAT, analyse et visualisation |
+|---|---|---|
+| Application | `ExperimentController` | Orchestration des campagnes d'expériences et centralisation des mesures |
+| Domaine | `EncryptionEngine`, `CipherPrimitive`, `OperationMode`, `StreamMode` | Abstractions cryptographiques et interface uniforme chiffrement/déchiffrement |
+| Exécution | `scripts/*.py` | Lancement benchmark, validation KAT, génération de graphiques, analyses |
 
-### Description textuelle de l'architecture
+### Flux d'exécution (version texte)
 
-Le flux d'exécution suit une chaîne simple et explicite :
+1. Un script (`scripts/*.py`) configure et lance une campagne.
+2. `ExperimentController` itère sur les combinaisons algorithme/mode/taille et les répétitions.
+3. `EncryptionEngine` délègue à la primitive et au mode appropriés.
+4. Les mesures sont consolidées puis exportées vers `data/results/*.csv`.
+5. Les scripts d'analyse exploitent ces fichiers pour produire les graphiques dans `data/charts/`.
 
-1. Les scripts (`scripts/*.py`) configurent et déclenchent les campagnes (benchmark, KAT, analyses).
-2. `ExperimentController` orchestre les scénarios expérimentaux et les répétitions.
-3. `EncryptionEngine` applique une interface uniforme pour chiffrer/déchiffrer indépendamment de l'algorithme choisi.
-4. Les primitives (`CipherPrimitive`) et les modes (`OperationMode` et `StreamMode`) encapsulent la logique cryptographique.
-5. Les sorties sont persistées en CSV (`data/results`) puis exploitées pour la visualisation (`data/charts`).
+### Pourquoi cette architecture
 
-Cette organisation permet d'ajouter un algorithme, un mode ou une analyse avec un impact minimal sur le reste du code.
+- Extensibilité : ajout d'un algorithme ou d'un mode sans modifier les couches supérieures.
+- Maintenabilité : responsabilités isolées par couche.
+- Reproductibilité : même scripts, mêmes paramètres, mêmes formats de sortie.
 
 ---
 
@@ -84,19 +105,19 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 ├── crypto-experiments/
 │   ├── requirements.txt
 │   ├── application/
-│   │   └── ExperimentController.py     # Orchestration et mesure
+│   │   └── ExperimentController.py
 │   ├── domain/
-│   │   ├── cipher/                     # DES, 3DES, AES, Twofish, ChaCha20
+│   │   ├── cipher/                     # AES, DES, 3DES, Twofish, ChaCha20
 │   │   ├── engine/
-│   │   │   └── EncryptionEngine.py     # Interface unifiée
+│   │   │   └── EncryptionEngine.py
 │   │   └── mode/                       # ECB, CBC, CTR, GCM, StreamMode
 │   ├── scripts/
-│   │   ├── experiment.py               # Point d'entrée principal
-│   │   ├── run_kat.py                  # Known Answer Tests
-│   │   ├── generate_charts.py          # Visualisation des résultats
-│   │   ├── analyse_rounds_avalanche.py # Analyse de l'effet d'avalanche
-│   │   ├── compare_platforms.py        # Comparaison multi-plateformes
-│   │   └── ecb_visual_vulnerability.py # Démonstration visuelle ECB
+│   │   ├── experiment.py
+│   │   ├── run_kat.py
+│   │   ├── generate_charts.py
+│   │   ├── analyse_rounds_avalanche.py
+│   │   ├── compare_platforms.py
+│   │   └── ecb_visual_vulnerability.py
 │   ├── validation/
 │   │   ├── kat_aes.py
 │   │   ├── kat_des.py
@@ -105,8 +126,8 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 │   │   ├── kat_gcm.py
 │   │   └── kat_modes.py
 │   └── data/
-│       ├── results/                    # Données CSV brutes par plateforme
-│       └── charts/                     # Graphiques générés
+│       ├── results/
+│       └── charts/
 ├── docs/
 │   ├── 01-project-instructions/
 │   ├── 02-deliverables/
@@ -133,58 +154,71 @@ cd crypto-experiments
 pip install -r requirements.txt
 ```
 
-> **Dépendances :** `pycryptodome >= 3.20`, `twofish >= 0.3`
+Dépendances principales :
+
+- `pycryptodome >= 3.20`
+- `twofish >= 0.3`
 
 ---
 
-## Utilisation
+## Exécution rapide
 
-Toutes les commandes s'exécutent depuis le répertoire `crypto-experiments/`.
+Toutes les commandes ci-dessous s'exécutent depuis `crypto-experiments/`.
 
-### Lancer une expérience de benchmarking
+### 1) Lancer le benchmark principal
 
 ```bash
 python scripts/experiment.py
 ```
 
-Les résultats sont exportés dans `data/results/` au format CSV, avec le nom de la plateforme en préfixe (ex. `laptop-windows-x86_experience1.csv`).
-
-### Valider les primitives cryptographiques (KAT)
+### 2) Valider les implémentations (KAT)
 
 ```bash
 python scripts/run_kat.py
 ```
 
-### Générer les graphiques de comparaison
+### 3) Générer les graphiques
 
 ```bash
 python scripts/generate_charts.py
 ```
 
-### Analyser l'effet d'avalanche
+### 4) Analyses complémentaires
 
 ```bash
 python scripts/analyse_rounds_avalanche.py
-```
-
-### Démonstration de la vulnérabilité ECB
-
-```bash
 python scripts/ecb_visual_vulnerability.py
-```
-
-### Comparer les résultats entre plateformes
-
-```bash
 python scripts/compare_platforms.py
 ```
 
 ---
 
-## Résultats
+## Validation et tests
 
-Les données expérimentales brutes sont stockées dans `crypto-experiments/data/results/`.  
-Les graphiques de comparaison sont générés dans `crypto-experiments/data/charts/`.
+Le projet inclut une suite de validation fonctionnelle basée sur des vecteurs standards.
+
+### Validation KAT disponible
+
+- AES : `validation/kat_aes.py`
+- DES : `validation/kat_des.py`
+- 3DES : `validation/kat_3des.py`
+- ChaCha20 : `validation/kat_chacha20.py`
+- GCM : `validation/kat_gcm.py`
+- Modes (ECB/CBC/CTR) : `validation/kat_modes.py`
+
+Exécution globale :
+
+```bash
+python scripts/run_kat.py
+```
+
+Objectif : garantir que les résultats de performance sont produits par des implémentations conformes.
+
+---
+
+## Résultats expérimentaux
+
+Les données brutes sont stockées dans `crypto-experiments/data/results/`.
 
 Jeux de résultats actuellement versionnés :
 
@@ -195,13 +229,34 @@ Jeux de résultats actuellement versionnés :
 - `raspberry-pi_experience2.csv`
 - `raspberry-pi_experience3.csv`
 
+Les graphiques sont générés dans `crypto-experiments/data/charts/` (incluant `data/charts/comparison/`).
+
+---
+
+## Reproductibilité
+
+Pour reproduire une campagne complète :
+
+1. Installer les dépendances.
+2. Exécuter `scripts/run_kat.py`.
+3. Exécuter `scripts/experiment.py`.
+4. Générer les figures avec `scripts/generate_charts.py`.
+
+Bonnes pratiques recommandées :
+
+- conserver le même environnement Python entre exécutions,
+- documenter la plateforme (CPU/OS),
+- conserver les CSV bruts avant toute post-analyse.
+
 ---
 
 ## Références
 
 - Paar, C., & Pelzl, J. *Understanding Cryptography: A Textbook for Students and Practitioners*. Springer, 2010.
 - Stallings, W. *Cryptography and Network Security: Principles and Practice*. Pearson, 2017.
-- NIST FIPS 197 — *Advanced Encryption Standard (AES)*. 2001.
-- NIST SP 800-38A — *Recommendation for Block Cipher Modes of Operation*. 2001.
-- Bernstein, D. J. *ChaCha, a variant of Salsa20*. 2008.
-- Schneier, B. et al. *Twofish: A 128-Bit Block Cipher*. 1998.
+- NIST FIPS 197 — *Advanced Encryption Standard (AES)*, 2001.
+- NIST SP 800-38A — *Recommendation for Block Cipher Modes of Operation*, 2001.
+- NIST SP 800-38D — *Galois/Counter Mode (GCM) and GMAC*, 2007.
+- NIST SP 800-67 — *Recommendation for the Triple Data Encryption Algorithm (TDEA)*, 2017.
+- RFC 8439 — *ChaCha20 and Poly1305 for IETF Protocols*, 2018.
+- Schneier, B. et al. *Twofish: A 128-Bit Block Cipher*, 1998.
