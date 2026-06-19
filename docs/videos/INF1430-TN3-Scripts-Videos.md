@@ -6,6 +6,23 @@ Centraliser les scripts de narration pour chaque video de la presentation TN3.
 ## Preflight technique
 Avant de lancer les commandes Python en video, ouvrir un terminal dans le dossier crypto-experiments pour que les commandes python scripts/... fonctionnent directement.
 
+## Vue d'ensemble des videos
+
+| Video | Objectif | Fichiers ou dossiers a expliquer |
+| --- | --- | --- |
+| 1 | Nature du systeme, architecture et execution en direct | Racine du depot, README, domain/cipher (CipherPrimitive, AES), domain/mode (OperationMode, ECB), domain/engine (EncryptionEngine), application/ExperimentController.py, survol de scripts/, execution de experiment.py, CSV genere |
+| 2 | Protocole experimental, justification des 100 repetitions | application/ExperimentController.py (boucle, chronometrage), scripts/experiment.py (configuration declarative), execution en direct, structure du CSV |
+| 3 | Validation KAT, conformite cryptographique | validation/ (kat_aes.py, kat_des.py, kat_3des.py, kat_modes.py, kat_gcm.py, kat_chacha20.py), scripts/run_kat.py, execution en direct |
+| 4 | Resultats de performance, impact d'AES-NI | scripts/generate_charts.py, execution, graphiques debit par algorithme/mode, debit selon taille de message |
+| 5 | Robustesse cryptographique, effet d'avalanche | scripts/analyse_rounds_avalanche.py, execution, graphiques scores d'avalanche, rounds vs avalanche, sensibilite aux cles, stabilite IC95 |
+| 6 | Synthese et recommandations | scripts/ecb_visual_vulnerability.py, execution, slide de recommandations contextuelles, transition TN3 vers TN4 |
+| 7 | ChaCha20, equite entre plateformes | Graphiques data/charts/comparison/ (cmp5_chacha20, cmp2_speedup_ratio) |
+| 8 | DES, 3DES, Twofish, pourquoi ils ont perdu | Slide dediee, graphique cmp1_throughput_all.png |
+| 9 | ECB, le mode rapide mais dangereux | scripts/ecb_visual_vulnerability.py, execution, fig8_ecb_vulnerability.png |
+| 10 | Effet d'avalanche, sante cryptographique | fig4_avalanche.png, fig7_rounds_avalanche.png, fig4b_key_avalanche.png |
+| 11 | Sensibilite aux cles et stabilite IC95 | Slide sensibilite aux cles, fig4b_key_avalanche.png, graphique stabilite IC95 |
+| 12 | Synthese finale, quel algorithme choisir en 2026 | Slide recommandations contextuelles, transition TN3/TN4, conclusion |
+
 ## Video 1 - Nature du systeme
 
 ### Sequence par etape
