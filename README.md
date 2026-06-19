@@ -1,11 +1,10 @@
 ﻿# INF1430 — Comparaison expérimentale des algorithmes de chiffrement symétrique
 
-![INF1430](https://img.shields.io/badge/Cours-INF1430-0A66C2)
-![Université TÉLUQ](https://img.shields.io/badge/Université-T%C3%89LUQ-005A9C)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)
 ![Cryptographie](https://img.shields.io/badge/Cryptographie-Sym%C3%A9trique-1F7A8C)
 ![Plateformes](https://img.shields.io/badge/Plateformes-Windows%20x86%20%7C%20Raspberry%20Pi%20ARM-5C6BC0)
 ![Validation](https://img.shields.io/badge/Validation-KAT%20NIST%20int%C3%A9gr%C3%A9s-2E7D32)
+![Tests KAT](https://img.shields.io/badge/Tests%20KAT-100%25%20pass%C3%A9s-2E7D32)
 
 > Projet académique — Université TÉLUQ · INF1430
 
