@@ -1,4 +1,5 @@
-import importlib
+import sys
+import types
 
 import pytest
 
@@ -19,12 +20,17 @@ def test_aes_roundtrip_and_validation():
         AES(b"short")
 
     aes = AES(bytes(range(16)))
+    assert aes.block_size == 16
+    assert aes.key_size == 16
     block = bytes(range(16))
     encrypted = aes.encrypt_block(block)
     assert aes.decrypt_block(encrypted) == block
+    assert aes.decrypt_blocks(aes.encrypt_blocks(block * 2)) == block * 2
 
     with pytest.raises(ValueError):
         aes.encrypt_block(b"tiny")
+    with pytest.raises(ValueError):
+        aes.decrypt_block(b"tiny")
 
 
 def test_des_roundtrip_and_validation():
@@ -32,10 +38,15 @@ def test_des_roundtrip_and_validation():
         DES(b"tiny")
 
     des = DES(b"12345678")
+    assert des.block_size == 8
+    assert des.key_size == 8
     block = b"ABCDEFGH"
     encrypted = des.encrypt_block(block)
     assert des.decrypt_block(encrypted) == block
+    assert des.decrypt_blocks(des.encrypt_blocks(block * 2)) == block * 2
 
+    with pytest.raises(ValueError):
+        des.encrypt_block(b"bad")
     with pytest.raises(ValueError):
         des.decrypt_block(b"bad")
 
@@ -46,37 +57,52 @@ def test_3des_roundtrip_and_validation():
 
     key_16 = bytes.fromhex("0123456789ABCDEFFEDCBA9876543210")
     tdes = TripleDES(key_16)
+    assert tdes.block_size == 8
+    assert tdes.key_size in (16, 24)
     block = b"ABCDEFGH"
     encrypted = tdes.encrypt_block(block)
     assert tdes.decrypt_block(encrypted) == block
+    assert tdes.decrypt_blocks(tdes.encrypt_blocks(block * 2)) == block * 2
 
     with pytest.raises(ValueError):
         tdes.encrypt_block(b"x")
+    with pytest.raises(ValueError):
+        tdes.decrypt_block(b"x")
 
 
-def test_twofish_roundtrip_and_validation():
+def test_twofish_roundtrip_and_validation(monkeypatch):
     with pytest.raises(ValueError):
         Twofish(b"short")
 
+    fake_module = types.ModuleType("twofish")
+
+    class FakeTwofish:
+        def __init__(self, key: bytes):
+            self.key = key
+
+        def encrypt(self, block: bytes) -> bytes:
+            return bytes((b ^ 0xAA) for b in block)
+
+        def decrypt(self, block: bytes) -> bytes:
+            return bytes((b ^ 0xAA) for b in block)
+
+    fake_module.Twofish = FakeTwofish
+    monkeypatch.setitem(sys.modules, "twofish", fake_module)
+
     tf = Twofish(bytes(range(16)))
+    assert tf.block_size == 16
+    assert tf.key_size == 16
     block = bytes(reversed(range(16)))
     encrypted = tf.encrypt_block(block)
     assert tf.decrypt_block(encrypted) == block
 
     with pytest.raises(ValueError):
+        tf.encrypt_block(b"x")
+    with pytest.raises(ValueError):
         tf.decrypt_block(b"x")
 
 
 def test_twofish_import_error_path(monkeypatch):
-    real_import_module = importlib.import_module
-
-    def fake_import(name, package=None):
-        if name == "twofish":
-            raise ImportError("forced")
-        return real_import_module(name, package)
-
-    monkeypatch.setattr(importlib, "import_module", fake_import)
-
     import builtins
 
     real_import = builtins.__import__
@@ -96,9 +122,12 @@ def test_chacha20_roundtrip_and_validation():
         ChaCha20(b"short")
 
     chacha = ChaCha20(bytes(range(32)))
+    assert chacha.block_size == 64
+    assert chacha.key_size == 32
     plaintext = b"hello stream cipher"
     ciphertext = chacha.encrypt_block(plaintext)
     assert chacha.decrypt_block(ciphertext) == plaintext
+    assert chacha.decrypt_blocks(chacha.encrypt_blocks(plaintext)) == plaintext
 
     with pytest.raises(ValueError):
         chacha.decrypt_block(b"tiny")
@@ -165,6 +194,9 @@ def test_gcm_mode_positive_and_negative():
 
     encrypted = gcm.encrypt(plaintext, nonce=nonce, aad=aad)
     assert gcm.decrypt(encrypted, aad=aad) == plaintext
+
+    encrypted_auto_nonce = gcm.encrypt(plaintext, aad=aad)
+    assert gcm.decrypt(encrypted_auto_nonce, aad=aad) == plaintext
 
     tampered = bytearray(encrypted)
     tampered[-1] ^= 0x01
