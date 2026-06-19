@@ -96,61 +96,43 @@ On le verra juste après dans AES.py.
 
 ### Fichier AES.py
 
-#### Segment 1 - Lignes 1 à 10, docstring du fichier
-On voit ici une implémentation concrète de l'algorithme AES selon la norme FIPS 197.
-Le docstring precise les tailles de clé supportees, 128, 192 ou 256 bits,
-et confirme qu'on utilise PyCryptodome en mode ECB brut pour traiter un seul bloc à la fois.
-La logique de chaînage reste entièrement à l'extérieur, dans la couche mode.
+#### Segment 1 - Vue générale de AES.py
+AES.py implémente la primitive AES concrète utilisée dans le projet.
+Son rôle est de gérer le chiffrement et le déchiffrement par blocs de 16 octets, avec validation des tailles de clé.
+Le but est de fournir une implémentation standard compatible avec l'interface CipherPrimitive,
+pour que le moteur puisse l'utiliser de façon uniforme avec les différents modes d'opération.
 
 #### Segment 2 - Ligne 19, class AES(CipherPrimitive)
-Ici, AES hérite directement de CipherPrimitive.
-Cet héritage n'est pas seulement structurel, il impose un contrat,
-parce que CipherPrimitive est une classe abstraite avec des méthodes decorees par abstractmethod.
-Python refuse d'instancier AES tant que les quatre méthodes obligatoires,
-block_size, key_size, encrypt_block et decrypt_block,
-ne sont pas toutes implémentées.
+**(Surligne ligne 19 - class AES(CipherPrimitive))** Ici, AES hérite directement de CipherPrimitive.
+Cet héritage impose un contrat d'interface:
+la classe doit fournir les méthodes et propriétés attendues par le reste du système.
 C'est ce qui garantit la substituabilité:
-n'importe quelle primitive peut remplacer une autre dans le système
-sans casser le contrat defini par la classe de base.
+n'importe quelle primitive peut remplacer une autre dans le moteur,
+sans logique spéciale et sans casser le contrat de la classe de base.
 
 #### Segment 3 - Lignes 16 à 44, _VALID_KEY_SIZES, __init__ et validation de la clé
-Avant la classe, on définit _VALID_KEY_SIZES,
-un ensemble qui contient les tailles de clé acceptees pour AES, soit 16, 24 ou 32 octets.
-Le constructeur consulte cette constante immédiatement pour valider la clé recue.
-Si la longueur ne correspond a aucune des tailles supportees,
-on leve une exception ValueError tout de suite, à la création de l'objet,
-plutôt que de laisser une clé invalide se propager silencieusement jusqu'au moment du chiffrement.
+**(Surligne ligne 16 - _VALID_KEY_SIZES)** Ici, on fixe les seules tailles de clé acceptées pour AES: 16, 24 ou 32 octets.
+**(Surligne lignes 24 à 40 - __init__ + validation)** Le constructeur valide la clé dès la création de l'objet.
+Si la longueur est invalide, il lève immédiatement une `ValueError`.
+Ça évite de propager une mauvaise clé plus loin dans le moteur.
 
 #### Segment 4 - Lignes 47 à 52, block_size et key_size
-Ici, on voit les deux propriétés abstraites de CipherPrimitive enfin implémentées avec des valeurs concrètes.
-block_size retourne toujours 16 octets, la valeur fixe definie par la norme AES.
-key_size retourne la longueur reelle de la clé fournie à la construction,
-ce qui permet de distinguer une instance AES-128 d'une instance AES-256
-sans avoir besoin d'une propriété separee pour chaque variante.
-C'est exactement ces deux valeurs que le moteur de chiffrement consulte
-pour savoir comment decouper les donnees,
-sans jamais avoir besoin de savoir que c'est spécifiquement AES en dessous.
+**(Surligne lignes 46 à 48 - block_size)** `block_size` retourne une taille fixe de 16 octets.
+**(Surligne lignes 50 à 52 - key_size)** `key_size` retourne la taille réelle de la clé de l'instance.
+Ces deux propriétés donnent au moteur les informations minimales pour travailler,
+sans dépendre d'une primitive spécifique.
 
 #### Segment 5 - Lignes 54 à 69, encrypt_block et decrypt_block
-Ces deux méthodes respectent exactement le contrat defini dans CipherPrimitive:
-un bloc en entrée, un bloc en sortie.
-A l'intérieur, on valide d'abord que le bloc fait exactement 16 octets,
-puis on cree un objet cipher avec PyCryptodome en mode ECB
-et on lui delegue le chiffrement ou le dechiffrement.
-Le fichier ne contient aucune logique de rondes,
-de substitution ou de permutation propre a AES.
-Tout ce calcul cryptographique est encapsule dans PyCryptodome,
-une bibliothèque reconnue et auditee,
-plutôt que reimplémenté à la main.
+**(Surligne lignes 54 à 60 - encrypt_block)** `encrypt_block` valide d'abord la taille du bloc, puis délègue le chiffrement à PyCryptodome.
+**(Surligne lignes 62 à 68 - decrypt_block)** `decrypt_block` applique exactement la même logique pour le déchiffrement.
+Le point clé: cette classe applique le contrat d'interface,
+et délègue l'algorithme AES à une bibliothèque crypto robuste.
 
 #### Segment 6 - Lignes 70 à 77, encrypt_blocks et decrypt_blocks
-Et voici exactement l'optimisation qu'on annoncait dans CipherPrimitive.
-La méthode par défaut de la classe abstraite boucle bloc par bloc,
-ce qui coute cher en surcharge Python à chaque iteration.
-Ici, AES surcharge complètement cette méthode avec un seul appel a PyCryptodome
-qui traite toutes les donnees d'un coup.
-C'est en grande partie ce gain qui explique pourquoi AES affiche un debit nettement plus eleve
-que les autres algorithmes dans nos résultats.
+**(Surligne lignes 70 à 72 - encrypt_blocks)** Ici, AES ajoute un chemin rapide: plusieurs blocs sont traités en un seul appel.
+**(Surligne lignes 74 à 76 - decrypt_blocks)** Même optimisation côté déchiffrement.
+Cette surcharge évite la boucle Python bloc par bloc,
+et améliore nettement le débit observé en benchmark.
 
 ## DOSSIER MODE
 
