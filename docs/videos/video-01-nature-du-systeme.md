@@ -89,6 +89,7 @@ C’est la couche mode qui prend en charge tout le reste.
 
 **(Surligne lignes 68 à 72 - bs, validation, ValueError)** Le code commence par vérifier que la longueur des données est un multiple de block_size.
 **(Surligne lignes 73 à 75 - for + encrypt_block)** Ensuite, il chiffre bloc par bloc en appelant encrypt_block dans une boucle Python.
+**(Surligne lignes 76)** Puis, il retourne le résultat final sous forme de bytes.
 
 C’est fonctionnel, mais pas optimal: on paie le coût de la boucle à chaque bloc.
 C’est exactement pour ça que les sous-classes peuvent surcharger cette méthode avec un appel groupé à la bibliothèque crypto sous-jacente.
