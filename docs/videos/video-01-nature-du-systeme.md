@@ -51,44 +51,48 @@ C'est ce qui garantit une interface uniforme à travers tout le système.
 
 ### Fichier CipherPrimitive.py
 
-#### Segment 1 - Lignes 1 à 8, docstring du fichier
-On voit ici le docstring qui décrit la responsabilité de cette classe.
+#### Segment 1 - Lignes 1 à 9, docstring du fichier
+On voit ici le docstring du fichier, qui décrit la responsabilité globale de CipherPrimitive.
 La ligne clé est celle-ci: les primitives ne savent rien du chaînage, des vecteurs d'initialisation ou des nonces.
 C'est la séparation des responsabilités en une phrase.
 
 #### Segment 2 - Ligne 11 import ABC/abstractmethod, ligne 14 class CipherPrimitive(ABC)
-On importe ABC et abstractmethod du module abc de Python.
-Ces deux éléments ensemble forment un contrat garanti par le langage.
-Chaque algorithme qui hérite de CipherPrimitive est obligé d'implémenter les memes méthodes,
-ce qui permet au reste du système de travailler avec n'importe quelle primitive sans jamais savoir laquelle c'est concrètement.
-C'est ce qui rend le système extensible et neutre.
+**(Surligne ligne 11)** On importe ABC et abstractmethod depuis le module abc de Python.
+Ces deux éléments forment un contrat imposé par le langage.
+**(Surligne ligne 14)** Chaque algorithme qui hérite de CipherPrimitive est obligé d’implémenter les mêmes méthodes,
+ce qui permet au reste du système de fonctionner avec n’importe quelle primitive sans savoir laquelle est utilisée concrètement.
+C’est ce qui rend le système extensible et neutre. 
+
 
 #### Segment 3 - Lignes 17 à 25, block_size et key_size
-block_size et key_size sont des propriétés abstraites,
-ce qui force chaque algorithme a déclarer ses propres valeurs.
-Par exemple, AES travaille sur des blocs de 16 octets avec des clés de 128, 192 ou 256 bits,
-tandis que DES travaille sur des blocs de 8 octets avec une clé de 56 bits effectifs.
-Sans ces deux propriétés exposees de façon uniforme,
-le moteur de chiffrement ne pourrait pas savoir comment decouper les donnees ni valider les clés,
-peu importe quel algorithme est utilise en dessous.
+**(Surligne lignes 19 à 20 - block_size)** block_size est une propriété abstraite: chaque algorithme doit déclarer la taille de ses blocs.
+**(Surligne lignes 24 à 25 - key_size)** key_size est aussi une propriété abstraite: chaque algorithme doit déclarer la taille de clé réellement utilisée par l’instance.
+
+**(Surligne les deux propriétés ensemble)** Ce contrat force chaque primitive à exposer les mêmes informations minimales, peu importe l’algorithme.
+Par exemple, AES travaille avec des blocs de 16 octets et des clés de 128, 192 ou 256 bits, alors que DES travaille avec des blocs de 8 octets et une clé effective de 56 bits.
 
 #### Segment 4 - Lignes 28 à 57, encrypt_block et decrypt_block
-encrypt_block et decrypt_block sont les deux méthodes abstraites centrales de cette classe.
-Chacune reçoit exactement un bloc d'octets et retourne exactement un bloc d'octets.
-Ce qui est important, c'est ce qu'elles ne font pas:
-elles ne gerent pas le chaînage, les vecteurs d'initialisation ou les nonces.
-Ce n'est pas un oubli, c'est un choix délibéré.
-En isolant la primitive à une seule responsabilité,
-on peut brancher n'importe quel mode d'opération par-dessus sans jamais modifiér le code de l'algorithme.
-C'est la couche mode qui prend en charge tout le reste.
+**(Surligne ligne 28 - def encrypt_block(...))** encrypt_block fait partie du contrat abstrait central de la primitive.
+**(Surligne ligne 44 - def decrypt_block(...))** decrypt_block complète ce contrat avec l’opération inverse.
+
+**(Surligne les docstrings des deux méthodes)** Chaque méthode prend exactement un bloc d’octets en entrée et retourne exactement un bloc d’octets en sortie.
+Ce qui est important, c’est ce qu’elles ne font pas: elles ne gèrent ni le chaînage, ni les vecteurs d’initialisation, ni les nonces.
+
+**(Surligne les deux signatures ensemble)** Ce n’est pas un oubli, c’est un choix de conception délibéré.
+En isolant la primitive à une seule responsabilité, on peut brancher n’importe quel mode d’opération par-dessus sans modifier le code de l’algorithme.
+C’est la couche mode qui prend en charge tout le reste.
+
 
 #### Segment 5 - Lignes 59 à 75, encrypt_blocks et boucle par défaut
-encrypt_blocks est une méthode concrète, pas abstraite.
-Par défaut, elle traite les donnees en appelant encrypt_block bloc par bloc dans une boucle.
-C'est fonctionnel mais pas optimal, parce qu'on paie le surcoût de la boucle Python à chaque bloc.
-C'est pourquoi le docstring invite explicitement les sous-classes a surcharger cette méthode
-avec un appel groupe directement a leur bibliothèque sous-jacente.
-On va voir ça tout de suite dans AES.py, ou cette optimisation est concrètement implémenté.
+**(Surligne ligne 59 - def encrypt_blocks(...))** encrypt_blocks est une méthode concrète, pas abstraite.
+**(Surligne le docstring de 60 à 67)** Le docstring explique que cette version est un comportement par défaut, et qu’une sous-classe peut la surcharger pour optimiser le traitement.
+
+**(Surligne lignes 68 à 72 - bs, validation, ValueError)** Le code commence par vérifier que la longueur des données est un multiple de block_size.
+**(Surligne lignes 73 à 75 - for + encrypt_block)** Ensuite, il chiffre bloc par bloc en appelant encrypt_block dans une boucle Python.
+
+C’est fonctionnel, mais pas optimal: on paie le coût de la boucle à chaque bloc.
+C’est exactement pour ça que les sous-classes peuvent surcharger cette méthode avec un appel groupé à la bibliothèque crypto sous-jacente.
+On le verra juste après dans AES.py.
 
 ### Fichier AES.py
 
@@ -536,6 +540,5 @@ scores d'avalanche
 et intervalles de confiance.
 C'est ce fichier brut qui servira de base
 a l'analyse comparative des prochaines vidéos.
-
 
 
