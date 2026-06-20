@@ -15,6 +15,8 @@ Cette video integre aussi les anciens focus dedies a l effet d avalanche et a IC
 - Avant chaque indication de type **(SURLIGNER ...)**, faire une micro-pause.
 - Expliquer d abord la metrique, puis la tendance du graphe.
 - Garder des phrases courtes pendant les surlignages.
+- Vitesse cible: 125 a 140 mots par minute.
+- Pour chaque metrique: definition, lecture, prudence d interpretation.
 
 ### Introduction
 Dans cette video, on demontre que la performance ne suffit pas a juger un algorithme.
@@ -22,6 +24,16 @@ On regarde la qualite de diffusion cryptographique,
 avec l effet d avalanche,
 la sensibilite aux cles,
 et la stabilite des mesures.
+(RESPIRER)
+
+### Repere de rythme (minute par minute)
+- 0:00 a 0:40 : cadrage robustesse.
+- 0:40 a 2:20 : principe Hamming et avalanche.
+- 2:20 a 4:20 : execution du script.
+- 4:20 a 7:00 : lecture des scores par algorithme.
+- 7:00 a 8:30 : nuance ChaCha20.
+- 8:30 a 10:30 : rounds, key avalanche, IC95.
+- 10:30 a 11:00 : conclusion.
 
 ### Sequence par etape
 
@@ -46,6 +58,7 @@ on inverse un seul bit,
 puis on rechiffre.
 Ensuite, on mesure combien de bits changent en sortie.
 La cible ideale est proche de 0,5.
+(RESPIRER)
 (PAUSE) (SURLIGNER: **flip one bit**) (SURLIGNER: **Hamming distance**) (SURLIGNER: **score ~ 0.5**)
 
 #### Etape 3
@@ -79,6 +92,7 @@ ChaCha20 est un chiffrement de flux,
 donc la lecture du score doit etre faite avec prudence.
 Ce n est pas une preuve de faiblesse,
 c est une question d adequation entre metrique et type d algorithme.
+(RESPIRER)
 (PAUSE) (SURLIGNER: **ChaCha20** ) (SURLIGNER: **stream cipher** ) (SURLIGNER: **interpretation prudente**)
 
 #### Etape 6
@@ -113,6 +127,7 @@ Ici, on demontre la stabilite statistique des mesures.
 L intervalle de confiance IC95 permet de voir la variance experimentale.
 Cette stabilite depend aussi de la plateforme,
 pas uniquement de l algorithme.
+(RESPIRER)
 (PAUSE) (SURLIGNER: **IC95**) (SURLIGNER: **variance**)
 
 #### Etape 9

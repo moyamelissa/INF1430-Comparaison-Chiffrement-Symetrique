@@ -15,11 +15,21 @@ Cette video integre aussi les anciens focus ECB dangereux et synthese finale 202
 ### Conventions de lecture (voix + ecran)
 - Expliquer d abord le risque, puis la recommandation.
 - Pendant une image comparative, commenter la difference visuelle avant la theorie.
+- Vitesse cible: 125 a 140 mots par minute.
+- Pour chaque recommandation: contexte, choix, justification.
 
 ### Introduction
 Dans cette video, on passe de l analyse a la decision.
 L objectif est de donner des recommandations claires,
 basees sur les mesures et la securite.
+(RESPIRER)
+
+### Repere de rythme (minute par minute)
+- 0:00 a 0:35 : cadrage decisionnel.
+- 0:35 a 2:20 : demo ECB vs CBC.
+- 2:20 a 4:30 : recommandations par contexte.
+- 4:30 a 5:30 : exclusions claires.
+- 5:30 a 6:30 : conclusion TN3 vers TN4.
 
 ### Sequence par etape
 
@@ -53,6 +63,7 @@ les motifs restent visibles.
 Avec CBC,
 les motifs sont casses.
 Conclusion immediate: la vitesse seule ne suffit pas pour choisir un mode.
+(RESPIRER)
 (PAUSE) (SURLIGNER: **image ECB** ) (SURLIGNER: **image CBC**)
 
 #### Etape 4
@@ -65,6 +76,7 @@ Pour serveur et cloud,
 AES-256-GCM est le choix standard.
 Pour ARM sans acceleration AES,
 ChaCha20-Poly1305 est souvent plus equilibre.
+(RESPIRER)
 (PAUSE) (SURLIGNER: **AES-256-GCM** ) (SURLIGNER: **ChaCha20-Poly1305**)
 
 #### Etape 5
@@ -89,4 +101,5 @@ Conclusion de la video 6:
 on a transforme les mesures en recommandations actionnables.
 Le TN3 fournit une base complete,
 et le TN4 approfondira la discussion formelle et la comparaison a la litterature.
+(RESPIRER)
 

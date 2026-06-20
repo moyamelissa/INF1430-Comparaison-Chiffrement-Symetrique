@@ -15,11 +15,22 @@ Montrer que la methode de mesure est valide, comparable entre plateformes et rep
 - Avant chaque indication de type **(SURLIGNER ...)**, faire une micro-pause.
 - Garder une idee principale par phrase.
 - Pendant un surlignage, privilegier des phrases courtes.
+- Vitesse cible: 130 a 145 mots par minute.
+- Pendant les transitions, annoncer d abord la preuve attendue.
 
 ### Introduction
 Dans cette video, on demontre pourquoi le protocole experimental est solide scientifiquement.
 L objectif est simple: prouver que la methode est comparable, reproductible et exploitable pour l analyse.
 On va voir la logique du protocole, puis verifier son execution reelle et sa sortie CSV.
+(RESPIRER)
+
+### Repere de rythme (minute par minute)
+- 0:00 a 0:45 : cadrage du protocole et enjeu scientifique.
+- 0:45 a 2:45 : plateformes et comparabilite.
+- 2:45 a 5:45 : logique ExperimentController + repetitions.
+- 5:45 a 8:30 : chronometrage et parametrage experiment.py.
+- 8:30 a 10:30 : execution terminal.
+- 10:30 a 12:00 : lecture du CSV et conclusion.
 
 ### Sequence par etape
 
@@ -77,6 +88,7 @@ Le minuteur encadre uniquement le chiffrement et le dechiffrement.
 Il exclut l initialisation,
 la preparation des structures,
 et l ecriture CSV.
+(RESPIRER)
 (PAUSE) (SURLIGNER: **time.perf_counter()**) (SURLIGNER: **encrypt(...)**) (SURLIGNER: **decrypt(...)**)
 
 #### Etape 6
@@ -111,6 +123,7 @@ Ouvrir le terminal integre et executer la commande python scripts/experiment.py.
 Ici, on demontre l execution reelle du protocole.
 Je lance la commande python scripts/experiment.py depuis le dossier crypto-experiments.
 Le script parcourt automatiquement toute la matrice declaree.
+(RESPIRER)
 (PAUSE) (SURLIGNER: **python scripts/experiment.py**)
 
 #### Etape 9
@@ -148,6 +161,7 @@ les debits,
 les scores d avalanche,
 et les intervalles de confiance.
 Ces colonnes permettent de comparer objectivement les algorithmes.
+(RESPIRER)
 (PAUSE) (SURLIGNER: **algorithm**) (SURLIGNER: **mode**) (SURLIGNER: **message_size_bytes**) (SURLIGNER: **throughput_encrypt_mbps**) (SURLIGNER: **avalanche_score**) (SURLIGNER: **ci95_encrypt_mbps**)
 
 #### Etape 12
@@ -160,3 +174,4 @@ on a justifie le protocole,
 valide la logique de mesure,
 et montre une sortie exploitable pour la comparaison.
 Dans la prochaine video, on verrouille la justesse cryptographique avec les tests KAT.
+(RESPIRER)

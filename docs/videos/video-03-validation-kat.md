@@ -15,12 +15,23 @@ Prouver que les implementations cryptographiques sont conformes avant toute inte
 - Avant chaque indication de type **(SURLIGNER ...)**, faire une micro-pause.
 - Garder une idee principale par phrase.
 - Pendant un surlignage, utiliser des phrases courtes et precises.
+- Vitesse cible: 130 a 145 mots par minute.
+- Dire d abord la regle de validation, puis le resultat observe.
 
 ### Introduction
 Dans cette video, on demontre la justesse cryptographique du systeme.
 Avant de comparer les debits, il faut verifier que les sorties chiffrees sont correctes.
 On utilise pour ca des Known Answer Tests, les KAT,
 avec des vecteurs de reference issus des standards.
+(RESPIRER)
+
+### Repere de rythme (minute par minute)
+- 0:00 a 0:40 : enjeu KAT avant performance.
+- 0:40 a 3:20 : structure du dossier validation.
+- 3:20 a 6:20 : exemple concret dans kat_aes.py.
+- 6:20 a 8:30 : orchestration run_kat.py.
+- 8:30 a 10:30 : execution terminal.
+- 10:30 a 11:30 : statut global et transition.
 
 ### Sequence par etape
 
@@ -46,6 +57,7 @@ une cle connue,
 et un resultat attendu.
 Ensuite, on compare la sortie de notre implementation avec la valeur de reference.
 Si ca matche, le comportement est conforme.
+(RESPIRER)
 
 #### Etape 3
 **Action ecran :**
@@ -128,6 +140,7 @@ les modes,
 GCM,
 puis ChaCha20.
 Cette sequence confirme que la couverture est complete.
+(RESPIRER)
 (PAUSE) (SURLIGNER: **AES** ) (SURLIGNER: **DES and 3DES** ) (SURLIGNER: **modes** ) (SURLIGNER: **GCM** ) (SURLIGNER: **ChaCha20**)
 
 #### Etape 10
@@ -139,6 +152,7 @@ Ici, on demontre la condition de confiance minimale.
 Quand tous les KAT passent,
 on peut affirmer que les implementations sont conformes aux references.
 Les mesures de performance reposent alors sur une base correcte.
+(RESPIRER)
 (PAUSE) (SURLIGNER: **statut global succes**)
 
 #### Etape 11

@@ -16,12 +16,23 @@ Cette video integre aussi les anciens focus ChaCha20 (inter-plateformes) et DES/
 - Avant chaque indication de type **(SURLIGNER ...)**, faire une micro-pause.
 - Garder une idee principale par phrase.
 - Pendant un graphique, commenter d abord la tendance, puis la cause.
+- Vitesse cible: 125 a 140 mots par minute sur les graphiques.
+- Sur chaque figure: observation, interpretation, implication.
 
 ### Introduction
 Dans cette video, on demontre ce que donnent les mesures de performance en pratique.
 Les KAT et le protocole ayant ete valides,
 on peut maintenant interpreter les debits avec confiance.
 Le focus principal est l effet de AES-NI sur les ecarts observes.
+(RESPIRER)
+
+### Repere de rythme (minute par minute)
+- 0:00 a 0:40 : cadrage performance et validite des donnees.
+- 0:40 a 2:30 : generation des graphes.
+- 2:30 a 5:45 : lecture debit par algorithme et mode.
+- 5:45 a 7:30 : focus DES, 3DES, Twofish.
+- 7:30 a 9:30 : debit selon taille de message.
+- 9:30 a 10:30 : focus AES-NI et transition.
 
 ### Sequence par etape
 
@@ -45,6 +56,7 @@ Ici, on demontre la chaine de transformation des donnees.
 On passe d un tableau de mesures a des graphes lisibles.
 C est essentiel,
 car l interpretation finale depend de cette etape de synthese visuelle.
+(RESPIRER)
 (PAUSE) (SURLIGNER: **data/results/**) (SURLIGNER: **data/charts/**)
 
 #### Etape 3
@@ -79,6 +91,7 @@ GCM est plus couteux que ECB,
 car il ajoute la couche d authentification.
 La lecture correcte est donc: plus de securite integree,
 avec un surcout de performance attendu.
+(RESPIRER)
 (PAUSE) (SURLIGNER: **debit AES**) (SURLIGNER: **ECB**) (SURLIGNER: **GCM**)
 
 #### Etape 6
@@ -117,6 +130,7 @@ Sur les grandes tailles,
 l acceleration materielle de AES sur x86 se voit clairement.
 C est ce facteur qui explique une partie majeure de l ecart avec Raspberry Pi,
 ou cette acceleration n est pas presente.
+(RESPIRER)
 (PAUSE) (SURLIGNER: **zone grandes tailles**) (SURLIGNER: **ecart x86 vs Pi**) (SURLIGNER: **AES-NI**)
 
 #### Etape 9
