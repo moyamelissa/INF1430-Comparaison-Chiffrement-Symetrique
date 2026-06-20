@@ -120,22 +120,24 @@ Si la longueur est invalide, il lève immédiatement une `ValueError`.
 #### Segment 4 - Lignes 47 à 52, block_size et key_size
 **(Surligne lignes 46 à 48 - block_size)** `block_size` retourne une taille fixe de 16 octets.
 **(Surligne lignes 50 à 52 - key_size)** `key_size` retourne la taille réelle de la clé de l'instance.
-Pourquoi 16 en permanence: la norme AES impose un bloc fixe de 128 bits, soit 16 octets.
+Pourquoi 16 en permanence? La norme AES impose un bloc fixe de 128 bits, soit 16 octets.
 La taille de clé peut varier (16, 24, 32), mais pas la taille de bloc.
 Ces deux propriétés donnent au moteur les informations minimales pour travailler,
 sans dépendre d'une primitive spécifique.
 
 #### Segment 5 - Lignes 54 à 69, encrypt_block et decrypt_block
-**(Surligne lignes 54 à 60 - encrypt_block)** `encrypt_block` valide d'abord la taille du bloc, puis délègue le chiffrement à PyCryptodome.
-**(Surligne lignes 62 à 68 - decrypt_block)** `decrypt_block` applique exactement la même logique pour le déchiffrement.
-Le point clé: cette classe applique le contrat d'interface,
-et délègue l'algorithme AES à une bibliothèque crypto robuste.
+**(Surligne lignes 54 à 60 - encrypt_block)** `encrypt_block` valide d'abord que le bloc fait exactement 16 octets, puis délègue le chiffrement à la bibliothèque PyCryptodome via l'objet AES importé.
+**(Surligne lignes 62 à 68 - decrypt_block)** `decrypt_block` applique la même validation et délègue le déchiffrement de la même façon.
+Le point clé: cette classe respecte le contrat d'interface de `CipherPrimitive`
+et n'implémente pas elle-même les rondes internes d'AES.
 
 #### Segment 6 - Lignes 70 à 77, encrypt_blocks et decrypt_blocks
-**(Surligne lignes 70 à 72 - encrypt_blocks)** Ici, AES ajoute un chemin rapide: plusieurs blocs sont traités en un seul appel.
-**(Surligne lignes 74 à 76 - decrypt_blocks)** Même optimisation côté déchiffrement.
-Cette surcharge évite la boucle Python bloc par bloc,
-et améliore nettement le débit observé en benchmark.
+**(Surligne ligne 70 - def encrypt_blocks(...))** À partir d'ici, on voit clairement l'intention d'optimisation: AES surcharge la méthode de base.
+**(Surligne ligne 72 - return _AES.new(...).encrypt(data))** Au lieu de boucler bloc par bloc en Python, toute la donnée est chiffrée en un seul appel groupé à PyCryptodome.
+**(Surligne ligne 74 - def decrypt_blocks(...))** Ensuite, le même choix est reproduit côté déchiffrement.
+**(Surligne ligne 76 - return _AES.new(...).decrypt(data))** Là aussi, un seul appel traite l'ensemble des blocs.
+Concrètement, on remplace la boucle de la classe abstraite par un traitement groupé,
+ce qui diminue le surcoût d'orchestration et explique le meilleur débit observé en benchmark.
 
 ## DOSSIER MODE
 
@@ -148,269 +150,246 @@ exactement comme on l'a fait avec CipherPrimitive.
 
 ### Fichier mode/OperationMode.py
 
-#### Segment 1 - Lignes 1 à 9, docstring du fichier
-Le docstring etablit le meme principe que dans CipherPrimitive, mais inverse.
-CipherPrimitive disait que les primitives ne savent rien des modes.
-Ici, c'est l'inverse: la couche mode ne sait rien de quel algorithme elle encapsule.
-Elle appelle uniquement encrypt_block et decrypt_block,
+#### Segment 1 - Rôle et concept de OperationMode
+OperationMode est l'abstraction pour tous les modes d'opération de chiffrement par blocs.
+Son rôle est simple mais fondamental: prendre une primitive de chiffrement par blocs,
+comme AES qui ne traite que des blocs de 16 octets,
+et la transformer en un service qui peut chiffrer des messages de n'importe quelle longueur.
+Chaque mode — ECB, CBC, CTR, GCM — décide comment découper les données,
+gérer le rembourrage si nécessaire, et enchaîner les blocs ensemble.
+Mais ici, c'est la beauté architecturale: OperationMode ne sait rien du type exact de primitive qu'il encapsule.
+Il appelle uniquement encrypt_block et decrypt_block via l'interface commune,
 peu importe si c'est AES, DES ou Twofish en dessous.
-Cette double ignorance entre les deux couches garantit
-qu'on peut combiner n'importe quel algorithme avec n'importe quel mode
-sans écrire de code spécifique pour chaque combinaison.
+Cette séparation des responsabilités garantit qu'on peut combiner n'importe quel algorithme
+avec n'importe quel mode sans écrire de code spécifique pour chaque paire.
+On va voir comment ce contrat est imposé dans les segments suivants.
 
-#### Segment 2 - Ligne 16, class OperationMode(ABC)
-OperationMode hérite de ABC, qui vient du module abc de Python,
-et qui empeche la classe d'etre instanciee directement.
-C'est le meme mecanisme exact qu'on a vu dans CipherPrimitive.
-Les deux classes utilisent ABC et abstractmethod pour forcer leurs sous-classes
-a implémenter certaines méthodes.
-CipherPrimitive le faisait pour encrypt_block et decrypt_block,
+#### Segment 2 - Lignes 11 et 16, import ABC et class OperationMode(ABC)
+**(Surligne ligne 11 - from abc import ABC, abstractmethod)** Comme dans CipherPrimitive, on importe ABC et abstractmethod.
+**(Surligne ligne 16 - class OperationMode(ABC))** La classe OperationMode hérite d'ABC, ce qui empêche d'instancier directement cette classe abstraite.
+C'est exactement le même mécanisme de contrat qu'on vient de voir.
+CipherPrimitive utilisait cela pour forcer encrypt_block et decrypt_block,
 et OperationMode le fait maintenant pour encrypt et decrypt.
-Ça force chaque mode concret, ECB, CBC, CTR, GCM ou StreamMode,
-à implémenter ces méthodes abstraites,
+Le résultat: chaque mode concret, ECB, CBC, CTR, GCM ou StreamMode,
+doit obligatoirement implémenter ces deux méthodes abstraites,
 sinon Python refuse de l'instancier.
-C'est ce qui montre que le meme patron de conception est applique
-de façon cohérente à travers toute l'architecture du système.
+Ce pattern de conception cohérent garantit que tous les modes respectent le même contrat.
 
 #### Segment 3 - Lignes 19 à 30, __init__ et propriété primitive
-Voici la différence structurelle la plus importante avec CipherPrimitive.
-Le constructeur reçoit une instance de CipherPrimitive en parametre
-et la stocke dans self._primitive.
-Ce n'est pas de l'héritage, c'est une relation objet par référence:
-un mode ne devient jamais un AES,
-il reçoit un AES deja construit et travaille avec lui à travers l'interface commune.
-La propriété primitive expose ensuite cet objet en lecture seule.
-Dans l'implementation actuelle,
-les sous-classes comme ECB ou CBC utilisent directement self._primitive
-pour appeler encrypt_block et decrypt_block,
-ce qui reste cohérent avec ce contrat.
+**(Surligne lignes 19-26 - __init__ et self._primitive)** Ici commence la composition: le constructeur reçoit une primitive déjà instanciée et la stocke dans self._primitive.
+C'est différent de l'héritage de CipherPrimitive. Un mode n'est pas une primitive, il la contient.
+**(Surligne lignes 28-29 - @property primitive)** La propriété primitive expose cette référence en lecture seule, rendant l'association immutable après construction.
+Cette composition permet l'injection de dépendance: on peut passer n'importe quelle primitive concrète — AES, DES, Twofish — 
+et le mode travaille uniquement via l'interface CipherPrimitive, sans connaître l'implémentation réelle.
+C'est ce qui rend le système flexible au runtime: chaque mode peut fonctionner avec n'importe quel algorithme
+sans modification de code, simplement en changeant la primitive injectée au moment de la construction.
 
-#### Segment 4 - Lignes 33 à 68, encrypt et decrypt
-Ces deux méthodes abstraites definissent le contrat que chaque mode concret doit respecter.
-La différence majeure avec encrypt_block dans CipherPrimitive,
-c'est que plaintext et ciphertext ici sont de longueur arbitraire,
-pas limites à un seul bloc.
-C'est la responsabilité du mode de decouper les donnees en blocs,
-gerer le rembourrage si necessaire,
-et appliquer sa strategie de chaînage spécifique.
-On voit aussi le parametre kwargs dans la signature,
-qui permet à chaque mode d'accepter des parametres qui lui sont propres,
-comme un vecteur d'initialisation pour CBC,
-ou un nonce pour CTR ou GCM,
-sans forcer tous les modes a exposer les memes parametres inutiles.
+#### Segment 4 - Lignes 32 à 70, encrypt et decrypt abstraits
+**(Surligne ligne 32 - @abstractmethod)** Les deux méthodes abstraites encrypt et decrypt forment le contrat fondamental que chaque mode doit honorer.
+**(Surligne lignes 33-35 - def encrypt(self, plaintext: bytes, **kwargs) -> bytes)** La signature est cruciale ici, plaintext est de type bytes, sans aucune contrainte de longueur.
+C'est l'inverse complet d'encrypt_block, qui exigeait exactement un bloc.
+Un mode devient en quelque sorte le traducteur entre deux mondes, le monde du chiffrement par blocs rigide,
+et le monde applicatif où on veut chiffrer des messages de taille quelconque.
+**(Surligne lignes 50-52 - @abstractmethod decrypt)** Le même contrat s'applique au déchiffrement.
+**(Surligne ligne 51 - def decrypt(self, ciphertext: bytes, **kwargs) -> bytes)** Et si on compare cette signature à celle d'encrypt qu'on vient de voir,
+les deux acceptent un paramètre kwargs en plus du texte principal, ce que Python appelle des arguments nommés variables.
+C'est exactement ce qui permet la flexibilité entre les modes, CBC exige un vecteur d'initialisation,
+CTR et GCM exigent un nonce, mais ECB n'a besoin de rien du tout.
+Plutôt que de créer une signature différente pour chaque mode,
+cette signature commune accepte n'importe quel paramètre supplémentaire, que le mode concret peut utiliser ou simplement ignorer.
+ECB ignore tranquillement un IV si on lui en passe un par erreur, tandis que CBC l'exige obligatoirement.
+C'est une flexibilité par contrat, chaque mode implémente lui-même la validation des paramètres dont il a besoin.
 
 ### Fichier mode/ECB.py
 Maintenant qu'on a vu le contrat abstrait dans OperationMode,
-on va l'illustrer concrètement avec ECB.py.
-On choisit ce mode en premier parce que c'est le plus simple a comprendre:
-chaque bloc est chiffre independamment sans aucun parametre additionnel.
-C'est aussi le mode qui va nous servir plus tard dans le projet
-pour démontrer une vulnérabilité cryptographique reelle,
-donc c'est pertinent de bien comprendre et expliquer son fonctionnement des maintenant.
+on passe à sa première implémentation concrète avec ECB.py.
+ECB est volontairement simple, et c'est exactement pour ça qu'il est pédagogique:
+il montre clairement comment un mode encapsule une primitive,
+mais il montre aussi pourquoi un mode peut être correct en code
+et rester faible en sécurité cryptographique.
 
-#### Segment 1 - Lignes 1 à 10, docstring du fichier
-Le docstring commence par un avertissement explicite.
-ECB est cryptographiquement faible parce que des blocs de texte clair identiques
-produisent des blocs chiffres identiques,
-ce qui revele des motifs dans les donnees.
-Il est inclus dans le projet uniquement a des fins de comparaison académique.
-On voit aussi que le rembourrage PKCS7 est applique pour accepter des messages de n'importe quelle longueur.
-C'est essentiel parce qu'un chiffrement par blocs comme AES ne peut traiter
-que des blocs de taille fixe,
-alors que les messages reels font rarement une longueur multiple de cette taille.
+#### Segment 1 - Lignes 1 à 11, docstring du fichier
+Pour commencer, regardons ce que le fichier annonce avant même le code.
+**(Surligne lignes 5-8 - avertissement de sécurité ECB)** Le fichier annonce immédiatement le point central: ECB est cryptographiquement faible.
+Pourquoi? Parce que deux blocs clairs identiques donnent deux blocs chiffrés identiques,
+ce qui préserve des motifs observables dans les données.
+**(Surligne ligne 10 - PKCS#7)** Le docstring précise aussi que PKCS#7 est appliqué,
+car la primitive sous-jacente chiffre uniquement des blocs de taille fixe.
+En clair, ECB est ici un mode de référence pour comparer,
+pas une recommandation de déploiement.
 
 #### Segment 2 - Lignes 17 à 25, _pkcs7_pad et _pkcs7_unpad
-Ces deux fonctions implémentent le rembourrage PKCS7.
-Le principe est simple:
-on calcule combien d'octets manquent pour compléter le dernier bloc,
-et on ajoute exactement cette valeur répétée comme octets de remplissage.
-Au dechiffrement, _pkcs7_unpad lit le dernier octet
-pour savoir combien d'octets retirer.
-C'est une implementation minimale,
-elle ne valide pas que le rembourrage est cohérent avant de le retirer,
-ce qui suffit pour notre contexte de benchmarking
-mais ne serait pas suffisant dans un système de production expose a des attaques.
+Maintenant, on passe aux deux petites fonctions utilitaires qui gèrent le rembourrage.
+**(Surligne lignes 17-19 - fonction _pkcs7_pad)** Ici, on applique le rembourrage PKCS#7 en deux étapes très simples:
+on calcule d'abord combien d'octets il manque pour compléter le bloc, puis on ajoute exactement ce nombre d'octets de remplissage.
+Chaque octet ajouté porte cette même valeur, ce qui permet de retirer le padding de façon déterministe au déchiffrement.
+**(Surligne lignes 22-24 - _pkcs7_unpad)** Au retrait, la version actuelle lit le dernier octet et coupe directement.
+Techniquement, c'est suffisant pour un environnement contrôlé de benchmark.
+Mais point de réflexion important: en production,
+on validerait aussi la cohérence de tous les octets de padding avant suppression
+pour réduire la surface d'attaques liées aux erreurs de padding.
 
-#### Segment 3 - Lignes 27 à 35, class ECB(OperationMode) et constructeur
-ECB hérite directement d'OperationMode,
-exactement le meme mecanisme qu'on a vu entre AES et CipherPrimitive.
-Le constructeur ne fait qu'appeler super().__init__(primitive).
-Il n'ajoute aucun etat supplementaire,
-parce qu'ECB n'a besoin d'aucun parametre additionnel
-comme un vecteur d'initialisation ou un nonce.
-C'est le mode le plus simple:
-chaque bloc est chiffre independamment.
+#### Segment 3 - Lignes 27 à 35, déclaration de la classe ECB et constructeur
+Ensuite, regardons la structure de la classe elle-même.
+**(Surligne ligne 27 - déclaration de la classe ECB)** Ici, ECB applique directement le contrat défini dans OperationMode.
+**(Surligne lignes 34-35 - constructeur)** Le constructeur reçoit la primitive et la transmet simplement à la classe de base,
+sans ajouter d'état interne.
+Ce point est important: contrairement à CBC, CTR ou GCM,
+ECB n'utilise ni vecteur d'initialisation ni nonce.
+C'est justement cette absence de chaînage entre les blocs
+qui rend le mode très simple, mais aussi vulnérable à l'analyse de motifs.
 
 #### Segment 4 - Lignes 37 à 54, encrypt
-Voici l'implémentation concrète du contrat défini dans OperationMode.
-On recupere le block_size de la primitive associee,
-on applique le rembourrage PKCS7,
-puis ECB delegue le traitement bloc par bloc à la primitive via encrypt_blocks.
-Selon la primitive utilisee,
-cette méthode peut etre l'implementation par défaut avec une boucle
-ou une version optimisée comme celle qu'on a vue dans AES.py.
-Aucun IV n'est necessaire ici,
-ce qui est precisement la faiblesse du mode:
-chaque bloc identique en clair produit toujours le meme bloc chiffre.
+Maintenant qu'on a vu la structure de la classe, regardons le flux concret du chiffrement, étape par étape.
+**(Surligne ligne 51 - bs = self._primitive.block_size)** D'abord, ECB récupère la taille de bloc depuis la primitive.
+**(Surligne ligne 52 - padded = _pkcs7_pad(plaintext, bs))** Ensuite, il applique le rembourrage pour aligner le message sur cette taille.
+**(Surligne ligne 53 - return self._primitive.encrypt_blocks(padded))** Enfin, il confie le chiffrement complet à la primitive.
+Autrement dit, ECB ne chiffre pas lui-même: il orchestre les étapes et délègue l'opération cryptographique.
+Et c'est précisément là sa faiblesse: sans mélange entre blocs,
+deux blocs clairs identiques donnent deux blocs chiffrés identiques, donc les motifs restent visibles.
 
-#### Segment 5 - Lignes 55 à 70, decrypt
-Le déchiffrement valide d'abord que la longueur du texte chiffre
-est un multiple du block_size, sinon une exception est levée.
-Ensuite on delegue a decrypt_blocks de la primitive
-et on retire le rembourrage avec _pkcs7_unpad.
-Cette implementation va etre directement réutilisée plus tard dans le projet
-pour démontrer visuellement la vulnérabilité d'ECB sur une image structuree,
-comparee au mode CBC qui dissimule les motifs.
+#### Segment 5 - Lignes 55 à 74, decrypt
+Pour terminer, on regarde le chemin inverse, donc le déchiffrement.
+**(Surligne lignes 69-73 - validation de longueur + ValueError)** Avant de déchiffrer,
+le code refuse tout texte chiffré dont la taille n'est pas un multiple exact de la taille de bloc.
+C'est une vérification de robustesse minimale pour éviter un traitement incohérent.
+**(Surligne ligne 74 - decrypt_blocks puis _pkcs7_unpad)** Le flux inverse est clair:
+déchiffrement des blocs, puis retrait du padding.
+Cette section est importante pour la suite de la vidéo,
+car c'est exactement ce comportement qui sera comparé à CBC
+lors de la démonstration visuelle de la fuite de motifs en ECB.
 
 ## DOSSIER ENGINE
 
 ### Fichier domain/engine/EncryptionEngine.py
-Maintenant qu'on a vu les primitives et les modes separement,
-on regarde comment ils se rejoignent.
-EncryptionEngine.py compose une primitive, par exemple AES,
+Maintenant qu'on a vu les primitives et les modes séparément,
+on regarde l'endroit où ils sont réellement assemblés.
+EncryptionEngine.py est la pièce d'intégration du domaine:
+il prend une primitive, par exemple AES,
 et un mode, par exemple CBC,
-pour former un service de chiffrement complet.
+pour exposer une interface de chiffrement unique et cohérente.
 
-#### Segment 1 - Lignes 1 à 9, docstring du fichier
-EncryptionEngine est l'objet central du domaine.
-La couche application, à travers ExperimentController,
-interagit directement avec lui pour executer chaque chiffrement.
-C'est un choix de conception délibéré:
-il ne sait rien du chronometrage,
-des fichiers CSV ou de la configuration des expériences.
-Ces responsabilités appartiennent strictement aux couches supérieures.
+#### Segment 1 - Lignes 1 à 10, docstring du fichier
+Pour commencer, regardons ce que le fichier annonce comme responsabilité.
+**(Surligne lignes 2-4 - description du rôle du moteur)** Le moteur combine explicitement primitive et mode pour fournir un service complet.
+**(Surligne lignes 6-9 - séparation des responsabilités)** Le point architectural clé est posé dès le docstring:
+EncryptionEngine est central pour le domaine,
+mais il ne gère ni le chronométrage, ni les CSV, ni la configuration des expériences.
+Cette séparation garde une frontière claire entre logique cryptographique
+et orchestration applicative.
 
 #### Segment 2 - Lignes 29 à 38, constructeur
-Le constructeur reçoit une primitive et un mode deja construits,
-et applique une validation critique.
-Il vérifie que mode.primitive est exactement le meme objet
-que la primitive passee separement,
-sinon il leve une exception.
-C'est cette vérification qui garantit la cohérence entre le mode et la primitive.
-On ne peut pas accidentellement assembler un mode configure avec une primitive
-et le combiner avec une primitive différente dans le moteur.
+Ensuite, on regarde la validation la plus critique de ce fichier.
+**(Surligne ligne 29 - signature du constructeur)** Le moteur reçoit une primitive et un mode déjà construits.
+**(Surligne lignes 30-35 - vérification d'identité + ValueError)** Le code impose que `mode.primitive` soit exactement le même objet que `primitive`.
+Ce n'est pas un simple détail: cette contrainte évite les assemblages incohérents,
+par exemple un mode initialisé avec une primitive différente de celle du moteur.
+**(Surligne lignes 36-37 - stockage interne)** Une fois validé, le couple est figé dans l'instance.
 
-#### Segment 3 - Lignes 44 à 49, propriétés primitive et mode
-Les propriétés primitive et mode exposent en lecture seule
-la primitive et le mode internes de l'objet,
-exactement le meme patron qu'avec primitive dans OperationMode.
-Ça permet d'inspecter la configuration d'un moteur déjà construit,
-par exemple pour savoir quel algorithme et quel mode sont actifs,
-sans jamais pouvoir la modifier après sa création.
+#### Segment 3 - Lignes 43 à 49, propriétés primitive et mode
+Maintenant, on voit comment cette configuration est exposée proprement.
+**(Surligne lignes 43-45 - propriété primitive)** La primitive est accessible en lecture seule.
+**(Surligne lignes 47-49 - propriété mode)** Le mode l'est aussi, avec le même principe.
+Concrètement, ça permet d'inspecter un moteur déjà construit,
+sans pouvoir modifier sa configuration interne après initialisation.
 
-#### Segment 4 - Lignes 51 à 67, encrypt et decrypt
-Les méthodes encrypt et decrypt se contentent de deleguer directement au mode configure,
-en transmettant tous les arguments nommés reçus comme le IV ou le nonce.
-EncryptionEngine n'implémente aucune logique cryptographique lui-meme.
-Il agit comme une facade,
-un point d'entrée unifie vers la combinaison primitive et mode.
-C'est exactement cette interface uniforme qu'utilise ExperimentController
-pour executer chaque configuration experimentale,
-sans jamais avoir besoin de savoir quel algorithme ou quel mode est actif en dessous.
+#### Segment 4 - Lignes 51 à 66, encrypt et decrypt
+Pour terminer, regardons le flux opérationnel du moteur.
+**(Surligne lignes 51-58 - méthode encrypt)** `encrypt` délègue directement au mode,
+en propageant les paramètres nommés utiles, comme le vecteur d'initialisation, le nonce ou l'AAD.
+**(Surligne lignes 60-66 - méthode decrypt)** `decrypt` applique exactement le même principe dans l'autre sens.
+La conséquence est essentielle pour l'architecture:
+EncryptionEngine n'implémente pas la crypto lui-même,
+il sert de façade unifiée au-dessus du couple primitive + mode.
+C'est précisément cette interface stable qu'ExperimentController utilise
+pour exécuter les expériences sans dépendre d'un algorithme précis.
 
 ## DOSSIER APPLICATION
 
 ### Fichier application/ExperimentController.py
-ExperimentController.py est la classe qui orchestre toute la campagne de mesures.
-C'est elle qui configure les parametres d'une expérience,
-declenche le chronometrage des opérations de chiffrement et de dechiffrement,
-calcule l'effet d'avalanche,
-et retourne un résultat structuré.
-Cette classe ne sait pas quel algorithme ou quel mode est actif en dessous:
-elle travaille uniquement à travers l'interface d'EncryptionEngine.
-La persistance vers un fichier CSV n'est pas non plus sa responsabilité:
-ca appartient au script appelant, experiment.py.
+Après le moteur, on passe à la couche d'orchestration des mesures.
+ExperimentController.py ne fait pas de cryptographie de bas niveau.
+il pilote le protocole expérimental,
+mesure proprement les performances,
+calcule les indicateurs d'avalanche,
+et retourne un résultat prêt à analyser.
+Point architectural important:
+la classe reste découplée des implémentations concrètes,
+car elle ne dialogue qu'avec l'interface de EncryptionEngine.
+Et la persistance CSV reste volontairement hors de cette couche,
+dans le script appelant.
 
 #### Segment 1 - Lignes 29 à 46, dataclass ExperimentResult
-ExperimentResult est une dataclass Python qui sert de conteneur pour une mesure complète.
-Une dataclass génère automatiquement le constructeur et la representation de l'objet
-a partir des attributs déclarées,
-ce qui evite d'écrire du code repetitif.
-On voit ici toutes les metriques collectees pour chaque configuration testee:
-algorithme, mode, taille de clé, taille du message, nombre de répétitions,
-temps moyens de chiffrement et de dechiffrement,
-debit dans les deux sens,
-score d'avalanche du texte,
-score d'avalanche de la clé,
-et intervalles de confiance a 95% pour le debit.
-C'est cette richesse de metriques qui permet une analyse statistique rigoureuse,
-plutôt qu'une simple comparaison de chiffres bruts.
+On commence par la structure de sortie, qui conditionne toute l'analyse.
+**(Surligne ligne 29 - décorateur dataclass)** Le choix dataclass formalise un conteneur de mesure clair et typé.
+**(Surligne lignes 33-37 - paramètres d'identification de l'essai)** On capture le contexte expérimental: algorithme, mode, taille de clé, taille du message, nombre de répétitions.
+**(Surligne lignes 38-45 - métriques de performance et robustesse)** On stocke ensuite les grandeurs utiles à l'interprétation: temps moyens, débits, avalanche texte, avalanche clé, et intervalles de confiance à 95 %.
+Cette séparation entre contexte et métriques est très saine:
+elle rend les résultats lisibles, exportables et comparables sans ambiguïté.
 
 #### Segment 2 - Ligne 63, constructeur d'ExperimentController
-Le constructeur est volontairement simple.
-Il reçoit un moteur de chiffrement deja entièrement configure,
-donc une primitive et un mode deja assemblés,
-plus deux étiquettes lisibles pour le nom de l'algorithme et du mode.
-Ces étiquettes servent uniquement a identifier les lignes de résultats.
-Elles n'influencent jamais le comportement du chiffrement lui-meme.
+Ensuite, regardons l'initialisation de la classe.
+**(Surligne ligne 63 - signature du constructeur)** Le contrôleur reçoit un moteur déjà configuré, plus deux libellés d'identification.
+**(Surligne lignes 69-71 - stockage interne)** Ces valeurs sont conservées comme état minimal de l'orchestrateur.
+Le point clé, c'est la séparation rôle/fonction:
+les deux noms servent uniquement à étiqueter les résultats,
+pas à piloter le chiffrement lui-même.
 
 #### Segment 3 - Lignes 108 à 110, chronométrage du chiffrement dans run_performance
-Voici le cœur du protocole de mesure.
-On généré d'abord un texte en clair aleatoire fixe,
-qui sera réutilisé pour toutes les répétitions afin de garantir la comparabilite entre les essais.
-Ensuite, on boucle sur le nombre de répétitions,
-et à chaque iteration on demarre le chronometre juste avant l'appel a encrypt,
-puis on l'arrete immédiatement apres.
-C'est precisement ce qu'on appelle un chronometrage neutre:
-time.perf_counter encapsule uniquement l'appel cryptographique,
-pas l'allocation memoire ni d'autres surcoûts du système.
-C'est ce qui garantit que la mesure reflete la performance reelle de l'algorithme
-et non des artefacts de l'environnement Python.
+Ici, on entre dans le cœur méthodologique des mesures.
+**(Surligne ligne 102 - génération d'un plaintext fixe)** Le message aléatoire est créé une seule fois pour assurer la comparabilité entre répétitions.
+**(Surligne lignes 108-110 - fenêtre de mesure encrypt)** Le chronométrage encadre strictement l'appel à encrypt via time.perf_counter.
+C'est une bonne pratique expérimentale:
+on mesure le coût cryptographique utile,
+et on limite l'influence des surcoûts périphériques de l'environnement d'exécution.
 
 #### Segment 4 - Lignes 117 à 119, chronométrage du déchiffrement
-Le meme principe est applique au dechiffrement,
-mais on utilise systematiquement le dernier texte chiffre généré durant la phase de chiffrement,
-plutôt que d'en générer un nouveau à chaque répétition.
-Ça garantit que chaque itération de déchiffrement opère sur des données
-représentatives de ce que produirait l'algorithme.
+Le même protocole est ensuite reproduit côté déchiffrement.
+**(Surligne ligne 114 - last_ct issu du chiffrement précédent)** Le test s'appuie sur un ciphertext réellement produit par la phase de chiffrement.
+**(Surligne lignes 117-119 - fenêtre de mesure decrypt)** Le minuteur encadre uniquement decrypt, comme pour encrypt.
+Résultat:
+les deux mesures restent symétriques dans la méthode,
+et donc plus fiables pour comparer les coûts aller/retour.
 
 #### Segment 5 - Ligne 127, calcul de l'intervalle de confiance a 95%
-Le calcul de l'intervalle de confiance a 95% est l'élément le plus rigoureux de ce fichier.
-La fonction interne _ci95_mbps calcule la variance des temps mesures,
-puis convertit cet ecart-type temporel en ecart-type de debit,
-parce que le debit n'est pas une fonction lineaire du temps.
-On applique ensuite la formule standard de l'intervalle de confiance,
-ou la valeur critique vaut 1.96 pour un echantillon d'au moins 30 répétitions,
-ou 2.045 pour un echantillon plus petit,
-en utilisant une approximation de Student.
-Ce calcul permet de quantifier la marge d'incertitude statistique autour de chaque mesure de debit.
+Ici, on est dans la partie statistique la plus importante du fichier.
+**(Surligne ligne 127 - début du calcul d'incertitude)** Le contrôleur calcule une marge d'erreur autour du débit mesuré.
+**(Surligne lignes 131-132 - dispersion des temps)** D'abord, il mesure à quel point les temps varient d'une répétition à l'autre.
+**(Surligne lignes 133-136 - conversion en incertitude de débit)** Ensuite, il transforme cette variation en marge d'incertitude, avec un seuil à 95 %.
+En clair:
+on ne regarde pas seulement une moyenne,
+on regarde une moyenne accompagnée de son niveau de confiance.
 
 #### Segment 6 - Lignes 142 à 159, assemblage du résultat final
-Toutes les valeurs calculees sont assemblées dans un objet ExperimentResult.
-On voit que avalanche_score et key_avalanche_score sont calcules
-en appelant directement les deux méthodes dédiées,
-measure_avalanche et measure_key_avalanche.
-Le debit est calcule en divisant la taille du message convertie en megaoctets
-par le temps moyen,
-avec une protection contre la division par zero
-si jamais le temps mesure etait nul.
+Ici, tout est rassemblé dans un seul résultat.
+**(Surligne lignes 142-156 - création du résultat final)** On retrouve dans le même bloc l'identité du test, les performances, les scores d'avalanche et l'intervalle de confiance.
+**(Surligne lignes 150-151 - calcul du débit avec protection)** Le débit est calculé à partir du temps moyen, avec une sécurité pour éviter la division par zéro.
+**(Surligne lignes 152-153 - calcul des deux scores d'avalanche)** Le score côté texte et le score côté clé sont ajoutés au même moment.
+En résumé:
+on sort une mesure complète,
+directement exploitable pour l'analyse.
 
-#### Segment 7 - Lignes 162 à 212, measure_avalanche
-Cette méthode mesure l'effet d'avalanche de la primitive,
-independamment du mode utilise.
-Le principe:
-on génère un bloc aléatoire,
-on le chiffre pour obtenir un texte chiffre de référence,
-puis on inverse exactement un seul bit dans le bloc original.
-On chiffre ce bloc modifié,
-et on compare les deux textes chiffres bit par bit avec la distance de Hamming.
-Le calcul est fait avec le XOR puis un comptage des bits différents.
-On répète cette expérience 200 fois et on moyenne le résultat.
-Un score ideal est 0.5,
-ce qui signifie qu'en moyenne la moitie des bits de sortie changent
-quand on modifie un seul bit en entrée.
+#### Segment 7 - Lignes 162 à 212, avalanche sur le texte
+Cette méthode mesure l'effet d'avalanche quand on modifie le message d'entrée.
+**(Surligne ligne 162 - méthode répétée 200 fois)** Le test est répété 200 fois pour rendre le résultat plus stable.
+**(Surligne lignes 193-194 - bloc aléatoire puis chiffrement de référence)** On commence par créer une sortie de référence.
+**(Surligne lignes 197-200 - inversion d'un seul bit)** Ensuite, on change exactement un bit dans l'entrée.
+**(Surligne lignes 205-209 - comparaison bit à bit)** On compare les deux sorties pour compter combien de bits ont changé.
+**(Surligne ligne 211 - moyenne finale)** On calcule ensuite la moyenne de tous les essais.
+La cible théorique est autour de 0,5:
+changer un seul bit en entrée devrait modifier environ la moitié des bits en sortie.
 
-#### Segment 8 - Lignes 213 à 270, measure_key_avalanche
-measure_key_avalanche applique le meme principe statistique,
-mais en inversant un bit de la clé plutôt que du texte en clair,
-tout en gardant le meme bloc a chiffrer.
-Cette méthode repond directement au retour du professeur sur le TN1.
-Un detail technique important:
-certaines clés modifiées peuvent etre degénérées,
-par exemple en 3DES ou K1 peut devenir egal a K2 apres inversion d'un bit.
-Le code intercepte alors l'exception
-et assigne une valeur ideale de 0.5
-plutôt que de faire planter toute la campagne de mesure.
+#### Segment 8 - Lignes 213 à 270, avalanche sur la clé
+Dans ce dernier segment, on présente la mesure d'avalanche côté clé.
+L'idée est simple: on garde le même message, et on modifie uniquement la clé.
+**(Surligne ligne 213 - méthode répétée 200 fois)** Le principe statistique reste le même, avec plusieurs essais.
+**(Surligne lignes 252-255 - inversion d'un bit dans la clé)** On crée une clé légèrement modifiée en changeant un seul bit.
+**(Surligne ligne 260 - nouvelle primitive avec la clé modifiée)** Puis on compare le chiffrement avec la clé d'origine et avec la clé modifiée.
+**(Surligne lignes 261-263 - gestion des cas invalides)** Si la clé modifiée pose problème, le code continue au lieu de faire échouer toute la campagne.
+**(Surligne lignes 267-271 - comparaison bit à bit)** On mesure encore la différence de sortie, puis on moyenne sur tous les essais.
+Ce bloc est important en pratique:
+il permet d'évaluer la sensibilité à la clé,
+tout en gardant une exécution robuste.
 
 ## DOSSIER SCRIPTS
 
@@ -427,83 +406,86 @@ On revient en detail sur chacun de ces scripts dans les prochaines vidéos.
 Pour l'instant, on se concentre sur experiment.py.
 
 ### Fichier scripts/experiment.py
+Dans cette section, on présente le script principal qui lance toute la campagne de mesures.
+On va suivre son déroulement logique:
+la définition des paramètres,
+puis l'exécution des tests,
+et enfin l'écriture des résultats dans le CSV.
 
 #### Segment 1 - Lignes 1 à 17, docstring
-Le docstring resume exactement ce que fait ce fichier.
-Il itere sur toutes les combinaisons definies dans EXPERIMENT_MATRIX,
-execute les mesures via ExperimentController,
-et écrit les résultats dans un CSV horodaté.
-La dernière phrase est importante:
-aucune logique cryptographique ne se trouve ici.
-Ce fichier ne fait que cabler les couches domaine et application
-et gerer les entrées-sorties.
+Pour commencer, on présente le rôle global du script.
+**(Surligne lignes 11-14 - rôle global du script)** Le docstring dit clairement que ce fichier parcourt la matrice d'expériences, lance les mesures et écrit un CSV horodaté.
+**(Surligne lignes 16-17 - séparation des responsabilités)** Point essentiel pour l'architecture: aucune logique cryptographique n'est implémentée ici.
+Ce script sert surtout de point d'entrée,
+entre les couches métier et les entrées-sorties.
 
 #### Segment 2 - Lignes 51 à 70, REPETITIONS et EXPERIMENT_MATRIX
-Voici la matrice experimentale complète,
-déclarée comme une simple liste de tuples.
-Chaque ligne associe un algorithme, sa classe primitive,
-un mode, sa classe,
-et les tailles de clé valides pour cette combinaison.
-On voit par exemple qu'AES est teste avec GCM en plus d'ECB, CBC et CTR,
-parce que GCM n'a de sens qu'avec AES dans notre etude.
-ChaCha20 utilise StreamMode avec une seule taille de clé de 32 octets,
-puisque c'est la seule taille supportee.
-Cette structure déclarative permet d'ajouter un nouvel algorithme
-ou une nouvelle combinaison sans toucher au reste du système.
+Dans ce segment, on lit la configuration des tests.
+**(Surligne ligne 51 - REPETITIONS)** Ici, le script fixe 100 répétitions par test.
+**(Surligne lignes 53-70 - EXPERIMENT_MATRIX)** Ici, on voit la liste complète des combinaisons.
+**(Surligne ligne 58 - entrée AES-GCM)** Exemple: AES est testé en mode GCM.
+**(Surligne ligne 69 - entrée ChaCha20-StreamMode)** Et ici, ChaCha20 passe par StreamMode avec une clé de 32 octets.
+Conclusion simple:
+si on veut ajouter un scénario,
+on modifie la matrice,
+pas la logique du script.
 
 #### Segment 3 - Ligne 72, MESSAGE_SIZES
-Les tailles de message testees vont de 64 octets jusqu'a 16384 octets,
-ce qui couvre à la fois les petits messages ou les couts fixes dominent,
-et les gros volumes ou le debit reel de l'algorithme se revele.
+À ce stade, on précise les tailles de message utilisées.
+**(Surligne ligne 72 - MESSAGE_SIZES)** Le script teste de 64 à 16384 octets.
+Ça couvre à la fois les petits messages,
+où les coûts fixes pèsent plus lourd,
+et les gros messages,
+où le débit réel se voit mieux.
 
 #### Segment 4 - Lignes 102 à 107, vérification préalable de la clé
-Avant de lancer les mesures,
-le code essaie d'instancier la primitive avec une clé de test.
-Si ça echoue, par exemple une taille de clé invalide pour cet algorithme,
-le code passe directement à la combinaison algorithme-mode suivante,
-en sautant les tailles de message pour cette taille de clé spécifique,
-plutôt que de faire planter toute la campagne de benchmarking.
+Avant d'entrer dans la boucle de mesure,
+le script fait une vérification rapide de la clé.
+**(Surligne lignes 103-105 - instanciation de vérification)** Il essaie d'instancier la primitive avec une clé de test.
+**(Surligne lignes 106-107 - gestion d'échec)** Si cette étape échoue,
+le cas est ignoré proprement,
+et la campagne continue sans interruption.
+Cette garde évite qu'une erreur locale
+fasse échouer tout le benchmark.
 
 #### Segment 5 - Lignes 110 à 135, boucle principale d'exécution
-C'est ici que tout s'assemble.
+Ici, on est dans la boucle principale.
 Pour chaque taille de message,
-on génère une nouvelle clé,
-on construit la primitive, le mode,
-puis le moteur de chiffrement,
-et on les passe a ExperimentController.
-On appelle ensuite run_performance avec la taille de message
-et le nombre de répétitions fixe a 100 via REPETITIONS.
-Chaque résultat est accumule dans une liste,
-et la progression s'affiche en direct dans le terminal
-avec le temps de chiffrement, le debit et le score d'avalanche.
+le script prépare toute la chaîne de traitement.
+**(Surligne lignes 111-116 - construction de la chaîne d'exécution)** Il crée la primitive, le mode, le moteur, puis le contrôleur.
+**(Surligne lignes 124-127 - appel run_performance)** Ensuite, il lance la mesure avec la taille courante et le nombre de répétitions.
+**(Surligne ligne 128 - accumulation des résultats)** Le résultat est ajouté à la liste finale.
+**(Surligne lignes 129-133 - sortie terminal)** Et le terminal affiche immédiatement les indicateurs clés: temps de chiffrement, débit, avalanche.
 
 #### Segment 6 - Lignes 143 à 149, écriture du CSV
-Une fois toutes les configurations testees,
-les résultats sont écrits dans un fichier CSV horodaté.
-asdict transforme chaque objet ExperimentResult en dictionnaire,
-et csv.DictWriter écrit une ligne par résultat
-avec les memes noms de colonnes que les attributs de la dataclass.
-C'est ce fichier qu'on va ouvrir juste apres l'exécution.
+Pour terminer, on passe à l'export.
+Une fois la campagne finie,
+le script écrit tout dans un CSV horodaté.
+**(Surligne ligne 143 - définition des colonnes)** D'abord, il récupère la liste des colonnes.
+**(Surligne lignes 145-146 - initialisation du writer + en-tête)** Ensuite, il crée l'écrivain CSV et écrit l'en-tête.
+**(Surligne lignes 147-148 - écriture des lignes)** Puis il écrit les résultats, ligne par ligne.
+C'est ce fichier final
+qu'on ouvre juste après l'exécution.
 
 ### Basculer vers VS Code et ouvrir le terminal integre
 ---
-On passe maintenant dans Visual Studio Code pour executer une expérience en direct.
+On passe maintenant dans Visual Studio Code pour lancer l'expérience en direct.
 
 ### Taper et executer python scripts/experiment.py
 ---
-Je lance la commande python scripts/experiment.py.
-Je suis positionne dans le dossier crypto-experiments,
-donc la commande fonctionne directement.
+Je lance la commande `python scripts/experiment.py`.
+Je suis déjà dans le bon dossier,
+donc elle s'exécute directement.
 
 ### Laisser défiler le terminal — version accélérée
 ---
-Le système parcourt l'ensemble de la matrice expérimentale,
-chaque combinaison d'algorithme, de mode, de taille de clé et de taille de message,
-et répète chaque mesure cent fois.
+Le script parcourt maintenant toute la matrice d'expériences.
+Chaque combinaison d'algorithme, de mode, de taille de clé et de taille de message est testée.
+Chaque mesure est répétée cent fois.
 L'exécution complète prend plusieurs minutes, donc la suite est accélérée.
-On voit chaque ligne s'afficher en direct dans le terminal,
-avec le temps de chiffrement moyen, le débit obtenu
-et le score d'avalanche calculé pour chaque configuration.
+On voit les résultats défiler dans le terminal,
+avec le temps moyen, le débit,
+et le score d'avalanche pour chaque configuration.
 
 > **Note de tournage** : garder les 10 à 15 premières secondes en temps réel,
 > idéalement sur une configuration AES rapide pour que ça bouge bien à l'écran,
@@ -514,16 +496,16 @@ et le score d'avalanche calculé pour chaque configuration.
 
 ### Ouvrir le CSV généré
 ---
-A la fin de l'exécution,
+À la fin de l'exécution,
 le terminal confirme l'emplacement du fichier généré.
-Un CSV horodaté est cree dans data/results,
-avec une ligne par configuration mesuree
-et toutes les metriques collectees:
-temps de chiffrement et de dechiffrement,
-debit,
-scores d'avalanche
+Un CSV horodaté est créé dans data/results.
+Il contient une ligne par configuration,
+avec tous les indicateurs mesurés:
+temps de chiffrement et de déchiffrement,
+débit,
+scores d'avalanche,
 et intervalles de confiance.
-C'est ce fichier brut qui servira de base
-a l'analyse comparative des prochaines vidéos.
+C'est ce fichier brut
+qui servira de base à l'analyse comparative des prochaines vidéos.
 
 
