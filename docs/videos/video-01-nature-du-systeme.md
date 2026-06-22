@@ -13,33 +13,6 @@ Présenter l'organisation du dépôt, l'architecture en couches, puis lancer une
 
 ## Script
 
-### Conventions de lecture (voix + ecran)
-- Avant chaque indication de type **(Surligne ...)**, faire une micro-pause d environ une demi-seconde.
-- Garder un rythme "une idee principale par phrase" pendant l affichage du code.
-- Quand une phrase contient plusieurs termes techniques, articuler d abord l idee, puis seulement les noms exacts.
-- Ouvrir chaque nouvelle partie avec une phrase de preuve: "ici, on demontre ...".
-- En fin de partie, conclure en une phrase courte: "ce que ca prouve pour la suite".
-- Vitesse cible: 130 a 145 mots par minute sur les parties explicatives.
-- Pendant un surlignage, privilegier des phrases de 7 a 12 mots.
-
-### Introduction
-Dans cette introduction, on demontre le fil conducteur complet de la video.
-Dans cette video, je montre une architecture cryptographique complete.
-Puis je prouve en direct qu elle produit des mesures exploitables.
-(RESPIRER)
-On va d abord voir comment le code est structure, ou se trouvent les primitives, les modes, l orchestration et les scripts.
-Puis on termine en lancant une experience reelle, pour verifier la reproductibilite et la qualite des donnees exportees.
-Point cle pour la suite: les analyses TN3 reposent sur une base technique visible et verifiable.
-
-### Repere de rythme (minute par minute)
-- 0:00 a 0:45 : cadrage du projet et objectif de preuve.
-- 0:45 a 2:30 : lecture de l architecture globale du depot.
-- 2:30 a 7:30 : demonstration guidee des couches crypto (cipher, mode, engine).
-- 7:30 a 10:30 : orchestration des mesures dans ExperimentController.
-- 10:30 a 12:30 : script experiment.py et logique de campagne.
-- 12:30 a 14:00 : execution terminal et lecture des indicateurs.
-- 14:00 a 15:00 : ouverture du CSV et cloture avec message de preuve.
-
 ### Racine du dépôt
 Ici, on situe les elements de contexte et le coeur technique.
 On voit ici la racine du dépôt avec trois dossiers et le README.
