@@ -44,6 +44,9 @@ Comme le protocole, le code et les paramètres de campagne restent constants sur
 **Où sommes-nous :**
 GitHub repo, fichiers application/ExperimentController.py et scripts/experiment.py.
 
+**Mini intro à dire :**
+Dans cette étape, on avance en deux temps. D'abord, on présente `ExperimentController.py`, qui calcule et structure chaque mesure. Ensuite, on passe à `scripts/experiment.py`, qui enchaîne toutes les configurations et exporte les résultats en CSV.
+
 **Action écran :**
 Ouvrir le repo et naviguer à travers les deux fichiers pour suivre la chaîne complète.
 
@@ -61,7 +64,7 @@ Voici la classe ExperimentResult. Son rôle, c'est de définir le format standar
 
 **Class Name: ExperimentController** (application/ExperimentController.py, lignes 49 à 71)
 
-Passons à ExperimentController. Son rôle, c'est de centraliser toute la logique de mesure au même endroit, plutôt que de la disperser dans plusieurs fichiers. En d'autres termes, c'est l'orchestrateur, le chef d'orchestre qui pilote le flux complet de mesure. La méthode __init__, qu'on voit aux lignes 63 à 71, reçoit le moteur de chiffrement configuré et les étiquettes algorithm et mode. Une fois initialisée, ExperimentController pilote l'exécution complète: elle appelle run_performance, qu'on va voir tout de suite, pour effectuer les mesures pour cette configuration spécifique, puis elle assemble les résultats dans un objet ExperimentResult. Et pourquoi c'est crucial? Parce que ExperimentController crée les instances de ExperimentResult qu'on a vu précédemment. C'est elle qui les remplit avec les données de mesure. Sans ExperimentController, on aurait pas de mesures, et donc pas d'objets ExperimentResult à exporter.
+Passons à ExperimentController. Son rôle, c'est de centraliser toute la logique de mesure au même endroit, plutôt que de la disperser dans plusieurs fichiers. En d'autres termes, c'est le chef d'orchestre qui pilote le flux complet de mesure. La méthode __init__, qu'on voit aux lignes 63 à 71, reçoit le moteur de chiffrement configuré et les étiquettes algorithm et mode. Une fois initialisée, ExperimentController pilote l'exécution complète: elle appelle run_performance, qu'on va voir tout de suite, pour effectuer les mesures pour cette configuration spécifique, puis elle assemble les résultats dans un objet ExperimentResult. Et pourquoi c'est crucial? Parce que ExperimentController crée les instances de ExperimentResult qu'on a vu précédemment. C'est elle qui les remplit avec les données de mesure. Sans ExperimentController, on aurait pas de mesures, et donc pas d'objets ExperimentResult à exporter.
 
 ---
 
@@ -91,6 +94,8 @@ En pratique, 100 répétitions donne des mesures stables, comparables entre plat
 
 Et ce coefficient proche de 2, il veut dire quoi? C'est le facteur de sécurité du niveau de confiance à 95%. Plus précisément, il vaut environ 1,96 quand on a assez de mesures. Concrètement, on prend l'incertitude de base, puis on la multiplie par ce facteur pour obtenir une plage qui couvre la vraie valeur dans environ 95% des cas. Le résultat, c'est une plage de confiance claire et fiable.
 
+> Pour tous les détails: formule complète, exemple numérique chiffré et tableau comparatif des répétitions, voir [docs/03-analysis-and-calculations/INF1430-IC95-calcul-detail.md](../03-analysis-and-calculations/INF1430-IC95-calcul-detail.md)
+
 Enfin, aux lignes 142 à 156, la fonction retourne un objet ExperimentResult complètement rempli avec tous ces chiffres. 
 
 Et qui appelle run_performance? C'est le script `experiment.py`, via `main()`, qui l'appelle sur une instance de `ExperimentController` pour chaque configuration. L'important, c'est que run_performance calcule tous les indicateurs: les temps, les débits, les intervalles de confiance. Et elle retourne un ExperimentResult prêt pour le CSV.
@@ -103,20 +108,17 @@ Transition: jusqu'ici, dans `application/ExperimentController.py`, on a vu comme
 
 **Configuration de campagne + fonction main()** (scripts/experiment.py, lignes 51 à 127)
 
-Ici, on n'explique pas une classe. On explique un bloc de configuration, puis la fonction `main()` qui applique cette configuration.
+Ici, on explique deux choses qui travaillent ensemble: un bloc de constantes qui déclarent quoi tester, puis la fonction `main()` qui exécute automatiquement tout ça.
 
-Le rôle de ce bloc est simple: définir précisément quoi tester, puis exécuter automatiquement toutes les combinaisons avec des boucles. Cette approche garantit que le protocole est reproductible sur toutes les plateformes.
+Pense à une liste d'épicerie organisée. Tu décides à l'avance quels produits acheter, en quelle quantité, et dans quel ordre. Ensuite, tu envoies quelqu'un faire les courses avec cette liste exacte. Eh bien, c'est exactement ce que fait ce bloc: les constantes sont la liste, et `main()` est la personne qui fait les courses.
 
-Les repères importants sont:
-- Ligne 51: `REPETITIONS = 100`.
-- Lignes 53 à 70: `EXPERIMENT_MATRIX`.
-- Ligne 72: `MESSAGE_SIZES`.
-- Ligne 97: début de `main()`.
-- Lignes 100 à 110: boucles sur algorithme/mode, taille de clé, puis taille de message.
-- Ligne 116: création de `ExperimentController`.
-- Lignes 124 à 127: appel de `controller.run_performance(..., repetitions=REPETITIONS)`.
+Voici comment. À la ligne 51, on déclare `REPETITIONS = 100`, c'est le nombre de fois que chaque configuration sera mesurée. Aux lignes 53 à 70, on a `EXPERIMENT_MATRIX`, qui liste tous les algorithmes et modes à tester. À la ligne 72, on a `MESSAGE_SIZES`, qui définit les 5 tailles de message à utiliser.
 
-Chaîne d'actions: pour chaque combinaison, `main()` crée un `ExperimentController`, lance `run_performance`, récupère un `ExperimentResult`, l'ajoute à `results`, puis le bloc CSV l'exporte. Résultat: une matrice complète de mesures, avec chaque algorithme, chaque mode et chaque taille de message, répétés 100 fois.
+Ensuite, à la ligne 97, la fonction `main()` démarre. Aux lignes 100 à 110, trois boucles imbriquées parcourent toutes les combinaisons possibles: d'abord l'algorithme et le mode, ensuite la taille de clé, enfin la taille de message. À la ligne 116, pour chaque combinaison, on crée une instance de `ExperimentController`. Aux lignes 124 à 127, on appelle `controller.run_performance()` en passant `repetitions=REPETITIONS`.
+
+Pourquoi c'est important? Parce que cette organisation garantit que le protocole est identique sur toutes les plateformes. On ne change rien entre le portable et le Raspberry Pi. Ce sont les mêmes constantes, les mêmes boucles, les mêmes appels. Les seuls écarts viennent du matériel.
+
+Et le résultat? Une matrice complète de mesures: chaque algorithme, chaque mode, chaque taille de clé, chaque taille de message, répété 100 fois. Chaque appel retourne un objet `ExperimentResult`, qui est ajouté à la liste `results` et ensuite exporté en CSV.
 
 ---
 
@@ -124,9 +126,17 @@ Chaîne d'actions: pour chaque combinaison, `main()` crée un `ExperimentControl
 
 **CSV Export Logic** (scripts/experiment.py, lignes 143 à 150)
 
-Enfin, l'export en CSV. Son rôle, c'est de convertir tous les objets ExperimentResult en lignes CSV et de les écrire dans un fichier de résultats. En d'autres termes, c'est le dernier maillon de la chaîne: les résultats sont finalisés et sauvegardés de manière structurée. Voici le processus: à la ligne 143, on extrait les noms de colonnes directement de la structure ExperimentResult avec la fonction asdict. Pourquoi faire ça? Parce que ça garantit que les colonnes du CSV correspondent exactement aux champs de la classe ExperimentResult. À la ligne 146, writer.writeheader() écrit l'en-tête du CSV avec ces noms de colonnes. Aux lignes 147 à 148, pour chaque objet ExperimentResult dans notre liste de résultats, on le convertit en dictionnaire avec asdict et on l'écrit ligne par ligne dans le fichier. À la ligne 150, le programme affiche le chemin du fichier CSV généré.
+C'est le dernier maillon de la chaîne. Son rôle, c'est de prendre tous les objets `ExperimentResult` accumulés et de les écrire dans un fichier CSV structuré.
 
-Et si on recule pour voir la chaîne d'actions complète de A à Z? D'abord, ExperimentResult définit la structure: c'est le moule qui spécifie quels champs on va mesurer. Ensuite, les constantes et boucles déclarent la campagne: quels algorithmes, quels modes, quelles tailles de message tester et combien de fois. ExperimentController orchestre les mesures: elle crée une instance pour chaque configuration. run_performance calcule les indicateurs bruts et remplit l'objet ExperimentResult. Tous les objets ExperimentResult sont stockés dans une liste. Enfin, l'export CSV converti chaque objet en dictionnaire et l'écrit ligne par ligne. Et le résultat final? Un fichier CSV qui reflète exactement la structure définie par ExperimentResult, ce qui rend les résultats traçables, vérifiables et exploitables pour les graphiques et les conclusions.
+Pense à un comptable qui reçoit tous les rapports de l'équipe, les met en forme dans un tableau standardisé, et sauvegarde le fichier final. C'est exactement ce que fait ce bloc.
+
+Voici comment. À la ligne 143, on extrait les noms de colonnes directement depuis la structure de `ExperimentResult`, avec la fonction `asdict`. Pourquoi? Parce que ça garantit que les colonnes du CSV correspondent exactement aux champs définis dans la classe. On ne risque pas d'oublier une colonne ou d'en ajouter une mauvaise.
+
+À la ligne 146, `writer.writeheader()` écrit l'en-tête du fichier CSV avec ces noms de colonnes. Aux lignes 147 à 148, pour chaque objet `ExperimentResult`, on le convertit en dictionnaire avec `asdict` et on l'écrit ligne par ligne dans le fichier. À la ligne 150, le programme affiche dans le terminal le chemin du fichier CSV généré.
+
+Pourquoi ce design est solide? Parce que les colonnes du CSV sont couplées directement à la classe `ExperimentResult`. Si on ajoute un champ à la classe, il apparaît automatiquement dans le CSV. Rien à synchroniser manuellement.
+
+Et si on recule pour voir la chaîne complète de A à Z? `ExperimentResult` définit la structure. Les constantes et boucles déclarent la campagne. `ExperimentController` orchestre les mesures. `run_performance` calcule et remplit chaque `ExperimentResult`. Tous les objets sont stockés dans une liste. Et ce bloc les convertit et les écrit ligne par ligne dans le CSV. Le résultat final, c'est un fichier traçable, vérifiable, et directement exploitable pour les graphiques et les conclusions.
 
 ---
 
