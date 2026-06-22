@@ -1,177 +1,152 @@
-﻿# Video 2 - Protocole experimental
+# Vidéo 2 - Protocole expérimental
 
 ## Objectif
-Montrer que la methode de mesure est valide, comparable entre plateformes et reproductible.
+Démontrer que la méthode de mesure est valide, comparable entre plateformes et reproductible.
 
-## Portee
+Cette vidéo complète la vidéo 1.
+La vidéo 1 prouve l’architecture et l’exécution de bout en bout.
+Ici, on prouve la rigueur méthodologique.
+
+## Portée
 - application/ExperimentController.py
 - scripts/experiment.py
-- Execution terminal en direct
+- Exécution terminale (extrait court)
 - Structure du CSV dans data/results
 
 ## Script
 
-### Conventions de lecture (voix + ecran)
-- Avant chaque indication de type **(SURLIGNER ...)**, faire une micro-pause.
-- Garder une idee principale par phrase.
-- Pendant un surlignage, privilegier des phrases courtes.
-- Vitesse cible: 130 a 145 mots par minute.
-- Pendant les transitions, annoncer d abord la preuve attendue.
-
 ### Introduction
-Dans cette video, on demontre pourquoi le protocole experimental est solide scientifiquement.
-L objectif est simple: prouver que la methode est comparable, reproductible et exploitable pour l analyse.
-On va voir la logique du protocole, puis verifier son execution reelle et sa sortie CSV.
+Dans cette vidéo, je montre pourquoi nos résultats sont scientifiquement défendables.
+On ne refait pas la visite du dépôt: elle est déjà faite en vidéo 1.
+Ici, on vérifie trois points: comparabilité, reproductibilité et qualité des données exportées.
 (RESPIRER)
 
-### Repere de rythme (minute par minute)
-- 0:00 a 0:45 : cadrage du protocole et enjeu scientifique.
-- 0:45 a 2:45 : plateformes et comparabilite.
-- 2:45 a 5:45 : logique ExperimentController + repetitions.
-- 5:45 a 8:30 : chronometrage et parametrage experiment.py.
-- 8:30 a 10:30 : execution terminal.
-- 10:30 a 12:00 : lecture du CSV et conclusion.
+### Repère de rythme (minute par minute)
+- 0:00 à 0:40 : cadrage et différence avec la vidéo 1.
+- 0:40 à 2:00 : plateformes comparées et principe de comparaison contrôlée.
+- 2:00 à 4:20 : orchestration dans ExperimentController.
+- 4:20 à 6:00 : paramétrage déclaratif dans experiment.py.
+- 6:00 à 8:30 : lecture du CSV et conclusion.
 
-### Sequence par etape
+### Étape 1 - Cadrage de la preuve
+**Action écran :**
+Afficher la slide du protocole expérimental.
 
-#### Etape 1
-**Action ecran :**
-Afficher la slide du protocole experimental (plateformes, algorithmes, repetitions).
+**Texte à dire :**
+Dans cette étape, on fixe la preuve attendue.
+Notre objectif n’est pas de montrer que “ça tourne”, mais que la méthode est fiable.
+La slide montre explicitement trois paramètres: 5 algorithmes, 5 paliers de taille et 100 répétitions.
+(PAUSE) (SURLIGNER: **5 algorithmes**) (SURLIGNER: **5 paliers**) (SURLIGNER: **100 répétitions**)
 
-**Texte a dire :**
-Dans cette etape, on demontre le cadre general de la methode.
-Le protocole repose sur trois axes: les plateformes comparees, les algorithmes testes, et les repetitions.
-(PAUSE) (SURLIGNER: **plateformes**) (SURLIGNER: **algorithmes**) (SURLIGNER: **repetitions**)
+### Étape 2 - Comparaison entre plateformes
+**Action écran :**
+Rester sur la slide et pointer les deux environnements.
 
-#### Etape 2
-**Action ecran :**
-Rester sur la slide et pointer les deux plateformes.
+**Texte à dire :**
+Ici, on démontre une comparaison contrôlée.
+On compare les deux colonnes de la slide: Ordinateur portable x86 et Raspberry Pi.
+Le détail visible confirme le contexte matériel et logiciel: CPU, OS, AES-NI, RAM et contexte d’exécution.
+Le code est identique; seule la plateforme change.
+C’est précisément ce qui rend la comparaison crédible.
+(PAUSE) (SURLIGNER: **Ordinateur Portable x86**) (SURLIGNER: **Raspberry Pi**) (SURLIGNER: **AES-NI: Oui / Non**)
 
-**Texte a dire :**
-Ici, on demontre une comparaison controlee entre materiels.
-On compare AES, DES, 3DES, Twofish et ChaCha20 sur deux environnements:
-un portable Windows avec AES-NI,
-et un Raspberry Pi ARM sans AES-NI.
-Le code reste identique, seule la plateforme change.
-(PAUSE) (SURLIGNER: **Windows x86 avec AES-NI**) (SURLIGNER: **Raspberry Pi ARM sans AES-NI**)
+### Étape 3 - Orchestration des mesures
+**Action écran :**
+Ouvrir application/ExperimentController.py et montrer la classe de résultat puis la méthode principale.
 
-#### Etape 3
-**Action ecran :**
-Ouvrir application/ExperimentController.py dans VS Code.
-
-**Texte a dire :**
-Dans cette etape, on demontre ou la methode de mesure est orchestree.
-ExperimentController centralise le protocole experimental.
-Il se concentre sur la mesure,
-pas sur les graphiques,
-et pas sur l export final.
+**Texte à dire :**
+Dans cette étape, on montre où la mesure est réellement orchestrée.
+La classe ExperimentController centralise le protocole expérimental.
+La méthode run_performance encadre les calculs de temps et les indicateurs retournés.
+Ce point est important: on isole la logique de mesure de la logique de visualisation.
 (PAUSE) (SURLIGNER: **class ExperimentController**) (SURLIGNER: **def run_performance(...)**)
 
-#### Etape 4
-**Action ecran :**
-Montrer la boucle des configurations et les repetitions.
+**Repères code précis :**
+- Fichier: crypto-experiments/application/ExperimentController.py
+- SURLIGNER lignes 30 à 45: class ExperimentResult
+- SURLIGNER ligne 49: class ExperimentController
+- SURLIGNER lignes 77 à 81: signature run_performance(...)
 
-**Texte a dire :**
-Ici, on demontre la discipline statistique du protocole.
-Chaque configuration est repetee 100 fois.
-Cette repetition reduit le bruit de mesure et stabilise les estimations,
-notamment pour l intervalle de confiance a 95 %.
-(PAUSE) (SURLIGNER: *REPETITIONS = 100*)
+**Pourquoi c'est une preuve solide :**
+- Tu montres la séparation claire entre modèle de résultat et orchestration.
+- Tu prouves que la campagne est pilotée par une méthode unique et auditable.
 
-#### Etape 5
-**Action ecran :**
-Montrer la partie chronometrage.
+### Étape 4 - Chronométrage et robustesse statistique
+**Action écran :**
+Montrer les zones de chronométrage dans run_performance.
 
-**Texte a dire :**
-Dans cette etape, on demontre que le chronometrage isole bien le cout cryptographique utile.
-Le minuteur encadre uniquement le chiffrement et le dechiffrement.
-Il exclut l initialisation,
-la preparation des structures,
-et l ecriture CSV.
-(RESPIRER)
-(PAUSE) (SURLIGNER: **time.perf_counter()**) (SURLIGNER: **encrypt(...)**) (SURLIGNER: **decrypt(...)**)
+**Texte à dire :**
+Ici, on démontre que le chronométrage est propre.
+Le minuteur entoure uniquement le chiffrement et le déchiffrement,
+pas l’initialisation et pas l’export des résultats.
+Ensuite, le protocole répète les mesures pour réduire le bruit,
+et construit un intervalle de confiance à 95 %.
+(PAUSE) (SURLIGNER: **time.perf_counter()**) (SURLIGNER: **encrypt(...)**) (SURLIGNER: **decrypt(...)**) (SURLIGNER: **ci95_encrypt_mbps**)
 
-#### Etape 6
-**Action ecran :**
-Ouvrir scripts/experiment.py.
+**Repères code précis :**
+- Fichier: crypto-experiments/application/ExperimentController.py
+- SURLIGNER ligne 102: plaintext = os.urandom(message_size_bytes)
+- SURLIGNER lignes 108 à 110: chronométrage encrypt avec perf_counter
+- SURLIGNER lignes 117 à 119: chronométrage decrypt avec perf_counter
+- SURLIGNER lignes 127 à 139: fonction _ci95_mbps
+- SURLIGNER ligne 154: ci95_encrypt_mbps=ci95_enc
 
-**Texte a dire :**
-Ici, on demontre ou la campagne est parametree de facon declarative.
-Dans experiment.py, on retrouve la matrice experimentale,
-les tailles de message,
-et le nombre de repetitions.
-Ce fichier permet de rejouer le protocole facilement.
-(PAUSE) (SURLIGNER: **EXPERIMENT_MATRIX**) (SURLIGNER: **MESSAGE_SIZES**) (SURLIGNER: *REPETITIONS = 100*)
+**Pourquoi c'est une preuve solide :**
+- Tu démontres que le timer encadre l'appel cryptographique, donc la mesure est propre.
+- Tu justifies statistiquement le choix n=100 avec la présence explicite de l'IC 95 %.
 
-#### Etape 7
-**Action ecran :**
-Pointer rapidement les listes de configuration dans le fichier.
+### Étape 5 - Paramétrage déclaratif de la campagne
+**Action écran :**
+Ouvrir scripts/experiment.py et pointer les constantes principales.
 
-**Texte a dire :**
-Dans cette etape, on demontre la maintenabilite du protocole.
-Tout est declaratif.
-Pour ajouter un scenario,
-on ajoute une entree dans la matrice,
-sans rearchitecturer le moteur ni le controleur.
-(PAUSE) (SURLIGNER: **EXPERIMENT_MATRIX = [...]**)
+**Texte à dire :**
+Dans cette étape, on démontre la reproductibilité du protocole.
+La campagne est définie de manière déclarative:
+REPETITIONS, EXPERIMENT_MATRIX et MESSAGE_SIZES.
+Autrement dit, pour rejouer l’expérience, on ne modifie pas l’architecture;
+on relance le même script avec la même matrice.
+(PAUSE) (SURLIGNER: **REPETITIONS = 100**) (SURLIGNER: **EXPERIMENT_MATRIX**) (SURLIGNER: **MESSAGE_SIZES**)
 
-#### Etape 8
-**Action ecran :**
-Ouvrir le terminal integre et executer la commande python scripts/experiment.py.
+**Repères code précis :**
+- Fichier: crypto-experiments/scripts/experiment.py
+- SURLIGNER ligne 51: REPETITIONS = 100
+- SURLIGNER lignes 53 à 69: EXPERIMENT_MATRIX
+- SURLIGNER ligne 72: MESSAGE_SIZES = [64, 256, 1024, 4096, 16384]
+- SURLIGNER ligne 100: boucle sur EXPERIMENT_MATRIX
+- SURLIGNER ligne 110: boucle sur MESSAGE_SIZES
+- SURLIGNER lignes 124 à 127: appel controller.run_performance(..., repetitions=REPETITIONS)
 
-**Texte a dire :**
-Ici, on demontre l execution reelle du protocole.
-Je lance la commande python scripts/experiment.py depuis le dossier crypto-experiments.
-Le script parcourt automatiquement toute la matrice declaree.
-(RESPIRER)
-(PAUSE) (SURLIGNER: **python scripts/experiment.py**)
+**Pourquoi c'est une preuve solide :**
+- Tu montres que les paramètres expérimentaux sont centralisés et rejouables.
+- Tu prouves que toutes les combinaisons passent par la même logique de mesure.
 
-#### Etape 9
-**Action ecran :**
-Laisser tourner quelques secondes et montrer la progression du terminal.
+### Étape 6 - Preuve par les données exportées
+**Action écran :**
+Ouvrir un CSV dans data/results et montrer les colonnes clés.
 
-**Texte a dire :**
-Dans cette etape, on demontre la reproductibilite en conditions reelles.
-Les configurations s enchainent automatiquement,
-sans intervention manuelle.
-Le meme script est execute tel quel sur Raspberry Pi,
-ce qui garantit une comparaison propre entre plateformes.
-(PAUSE) (SURLIGNER: **iteration des configurations**) (SURLIGNER: **mesures successives**)
-
-#### Etape 10
-**Action ecran :**
-Ouvrir un CSV genere dans data/results.
-
-**Texte a dire :**
-Ici, on demontre la sortie brute du protocole.
-Le resultat est un CSV horodate,
-avec une ligne par configuration mesuree.
-C est la base factuelle de toute l analyse TN3.
-(PAUSE) (SURLIGNER: **data/results/**) (SURLIGNER: **experiment_*.csv**)
-
-#### Etape 11
-**Action ecran :**
-Montrer les colonnes principales du CSV.
-
-**Texte a dire :**
-Dans cette etape, on demontre la qualite analytique des donnees.
-On retrouve les identifiants de configuration,
-les temps,
-les debits,
-les scores d avalanche,
-et les intervalles de confiance.
-Ces colonnes permettent de comparer objectivement les algorithmes.
-(RESPIRER)
+**Texte à dire :**
+Dans cette étape, on montre la base factuelle de l’analyse.
+Le CSV contient l’identifiant de configuration, les temps, les débits,
+les métriques d’avalanche et les intervalles de confiance.
+C’est ce jeu de données qui alimente les graphiques et les conclusions TN3.
 (PAUSE) (SURLIGNER: **algorithm**) (SURLIGNER: **mode**) (SURLIGNER: **message_size_bytes**) (SURLIGNER: **throughput_encrypt_mbps**) (SURLIGNER: **avalanche_score**) (SURLIGNER: **ci95_encrypt_mbps**)
 
-#### Etape 12
-**Action ecran :**
-Rester sur le CSV pour la transition vers la prochaine video.
+**Repères code précis :**
+- Fichier: crypto-experiments/scripts/experiment.py
+- SURLIGNER ligne 143: fieldnames = list(asdict(results[0]).keys())
+- SURLIGNER ligne 146: writer.writeheader()
+- SURLIGNER lignes 147 à 148: writer.writerow(asdict(r))
+- SURLIGNER ligne 150: Results saved to: {out_path}
+- Ouvrir ensuite le CSV généré dans crypto-experiments/data/results/
 
-**Texte a dire :**
-Conclusion de la video 2:
-on a justifie le protocole,
-valide la logique de mesure,
-et montre une sortie exploitable pour la comparaison.
-Dans la prochaine video, on verrouille la justesse cryptographique avec les tests KAT.
+**Pourquoi c'est une preuve solide :**
+- Tu fais le lien direct entre structure du dataclass et colonnes CSV.
+- Tu montres que la conclusion repose sur des données brutes exportées, pas sur une interprétation manuelle.
+
+### Conclusion
+Conclusion de la vidéo 2:
+on a justifié la validité de la méthode,
+on a montré sa reproductibilité,
+et on a vérifié que les données exportées sont exploitables.
+Dans la vidéo 3, on verrouille maintenant la justesse cryptographique avec les tests KAT.
 (RESPIRER)
