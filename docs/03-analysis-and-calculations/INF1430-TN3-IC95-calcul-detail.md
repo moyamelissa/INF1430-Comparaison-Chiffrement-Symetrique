@@ -85,7 +85,7 @@ $$P(-1,96 \le Z \le 1,96) = 0,95$$
 
 Autrement dit: pour une distribution normale, 95 % des observations tombent dans l'intervalle $[\bar{x} - 1,96\sigma, \bar{x} + 1,96\sigma]$.
 
-Ce coefficient s'applique quand $n \ge 30$, car à partir de cette valeur, la distribution de la moyenne échantillonnale converge vers une loi normale (théorème central limite). Pour $n < 30$, on utilise la loi de Student avec $t_{0,975, n-1} \approx 2,045$.
+Ce coefficient s'applique quand $n \ge 30$, car à partir de cette valeur, la distribution de la moyenne échantillonnale converge vers une loi normale (théorème central limite). Pour $n < 30$, on utilise la distribution de Student avec $n-1$ degrés de liberté, d'où $t_{crit} = 2,045$ pour $n = 100$.
 
 Dans notre protocole, $n = 100 \ge 30$, donc $t_{crit} = 1,96$ est correct.
 
