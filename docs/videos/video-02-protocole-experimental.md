@@ -21,21 +21,15 @@ On ne refait pas la visite du dépôt: elle est déjà faite en vidéo 1.
 Ici, on vérifie trois points: comparabilité, reproductibilité et qualité des données exportées.
 (RESPIRER)
 
-### Repère de rythme (minute par minute)
-- 0:00 à 0:40 : cadrage et différence avec la vidéo 1.
-- 0:40 à 2:00 : plateformes comparées et principe de comparaison contrôlée.
-- 2:00 à 4:20 : orchestration dans ExperimentController.
-- 4:20 à 6:00 : paramétrage déclaratif dans experiment.py.
-- 6:00 à 8:30 : lecture du CSV et conclusion.
-
 ### Étape 1 - Cadrage de la preuve
 **Action écran :**
 Afficher la slide du protocole expérimental.
 
 **Texte à dire :**
-Dans cette étape, on fixe la preuve attendue.
-Notre objectif n’est pas de montrer que “ça tourne”, mais que la méthode est fiable.
-La slide montre explicitement trois paramètres: 5 algorithmes, 5 paliers de taille et 100 répétitions.
+Dans cette vidéo, on va démontrer que notre protocole expérimental est rigoureux, comparable et reproductible.
+Dans cette première étape, on explicite le cadre méthodologique et les facteurs considérés.
+L’objectif n’est pas seulement de montrer que le système fonctionne, mais de justifier la validité de la méthode.
+La slide montre explicitement trois paramètres clés: 5 algorithmes, 5 paliers de taille et 100 répétitions.
 (PAUSE) (SURLIGNER: **5 algorithmes**) (SURLIGNER: **5 paliers**) (SURLIGNER: **100 répétitions**)
 
 ### Étape 2 - Comparaison entre plateformes
