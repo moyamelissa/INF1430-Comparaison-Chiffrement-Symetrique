@@ -108,35 +108,32 @@ Transition: jusqu'ici, dans `application/ExperimentController.py`, on a vu comme
 
 **Configuration de campagne + fonction main()** (scripts/experiment.py, lignes 51 à 127)
 
-Ici, on explique deux choses qui travaillent ensemble: un bloc de constantes qui déclarent quoi tester, puis la fonction `main()` qui exécute automatiquement tout ça.
+Ici, on explique deux éléments qui travaillent ensemble: un bloc de constantes qui déclarent la campagne de mesure — les algorithmes, les modes, les tailles de clé et les tailles de message — puis la fonction `main()` qui orchestre automatiquement l'exécution de toutes ces configurations.
 
-Pense à une liste d'épicerie organisée. Tu décides à l'avance quels produits acheter, en quelle quantité, et dans quel ordre. Ensuite, tu envoies quelqu'un faire les courses avec cette liste exacte. Eh bien, c'est exactement ce que fait ce bloc: les constantes sont la liste, et `main()` est la personne qui fait les courses.
+Pensons à une liste d'épicerie organisée. On décides à l'avance quels produits acheter, en quelle quantité, et dans quel ordre. Ensuite, on envoies quelqu'un faire les courses avec cette liste exacte. Eh bien, c'est exactement ce que fait ce bloc: les constantes sont la liste, et `main()` est la personne qui fait les courses.
 
-Voici comment. À la ligne 51, on déclare `REPETITIONS = 100`, c'est le nombre de fois que chaque configuration sera mesurée. Aux lignes 53 à 70, on a `EXPERIMENT_MATRIX`, qui liste tous les algorithmes et modes à tester. À la ligne 72, on a `MESSAGE_SIZES`, qui définit les 5 tailles de message à utiliser.
+Voici concretement comment. 
 
-Ensuite, à la ligne 97, la fonction `main()` démarre. Aux lignes 100 à 110, trois boucles imbriquées parcourent toutes les combinaisons possibles: d'abord l'algorithme et le mode, ensuite la taille de clé, enfin la taille de message. À la ligne 116, pour chaque combinaison, on crée une instance de `ExperimentController`. Aux lignes 124 à 127, on appelle `controller.run_performance()` en passant `repetitions=REPETITIONS`.
+À la ligne 51, on déclare `REPETITIONS = 100`, c'est le nombre de fois que chaque configuration sera mesurée. Aux lignes 53 à 70, on a `EXPERIMENT_MATRIX`, qui liste tous les algorithmes et modes à tester. À la ligne 72, on a `MESSAGE_SIZES`, qui définit les 5 tailles de message à utiliser.
+
+Ensuite, à la ligne 97, la fonction `main()` démarre. À la ligne 100, la première boucle for commence: elle itère sur chaque combinaison (algorithme, mode, key_sizes) depuis `EXPERIMENT_MATRIX`. Pour chaque combinaison, la ligne 101 lance la deuxième boucle for, qui itère sur chaque taille de clé. Avant de continuer, le code valide que cette taille de clé fonctionne. Si c'est bon, la troisième boucle for, à la ligne 110, itère sur chaque taille de message. À l'intérieur de cette troisième boucle, à la ligne 116, on crée une instance de `ExperimentController` pour cette combinaison complète (algorithme, mode, clé, message). Aux lignes 124 à 127, on appelle `controller.run_performance()` avec les paramètres `message_size_bytes=msg_size` et `repetitions=REPETITIONS`.
 
 Pourquoi c'est important? Parce que cette organisation garantit que le protocole est identique sur toutes les plateformes. On ne change rien entre le portable et le Raspberry Pi. Ce sont les mêmes constantes, les mêmes boucles, les mêmes appels. Les seuls écarts viennent du matériel.
 
-Et le résultat? Une matrice complète de mesures: chaque algorithme, chaque mode, chaque taille de clé, chaque taille de message, répété 100 fois. Chaque appel retourne un objet `ExperimentResult`, qui est ajouté à la liste `results` et ensuite exporté en CSV.
 
----
+Ensuite, experiment.py passe à l’export CSV.
 
-**Titre de bloc: Traçabilité des résultats CSV**
+(lignes 143 à 150)
 
-**CSV Export Logic** (scripts/experiment.py, lignes 143 à 150)
+Ce bloc de code est la dernière étape du processus. Son rôle, c'est de prendre tous les objets `ExperimentResult` accumulés et de les écrire dans un fichier CSV structuré.
 
-C'est le dernier maillon de la chaîne. Son rôle, c'est de prendre tous les objets `ExperimentResult` accumulés et de les écrire dans un fichier CSV structuré.
+On peut penser à un comptable qui reçoit tous les rapports de l'équipe, les met en forme dans un tableau standardisé, puis sauvegarde le fichier final. C'est exactement ce que fait ce bloc.
 
-Pense à un comptable qui reçoit tous les rapports de l'équipe, les met en forme dans un tableau standardisé, et sauvegarde le fichier final. C'est exactement ce que fait ce bloc.
+Voici comment. La fonction utilitaire `_output_path()` établit à quel endroit et sous quel nom sera généré le fichier CSV. Le fichier sera déposé dans le sous-dossier `results` de notre dossier `data`, et son nom sera composé du préfixe `experiment` suivi d'un horodatage, soit l'année, le mois et le jour. À la ligne 143, on construit la variable `fieldnames` à partir du premier objet `ExperimentResult`. La fonction `asdict()` convertit l'objet en dictionnaire, la méthode `keys()` récupère les noms des champs, et la fonction `list()` les transforme en liste. Cette liste est ensuite passée à `DictWriter`, une classe du module `csv`, qui s'en sert pour structurer le fichier. Aux lignes 146 à 150, la méthode `writeheader()` écrit l'en-tête, puis chaque objet `ExperimentResult` est écrit ligne par ligne dans le fichier. Le programme affiche ensuite le chemin du CSV généré.
 
-Voici comment. À la ligne 143, on extrait les noms de colonnes directement depuis la structure de `ExperimentResult`, avec la fonction `asdict`. Pourquoi? Parce que ça garantit que les colonnes du CSV correspondent exactement aux champs définis dans la classe. On ne risque pas d'oublier une colonne ou d'en ajouter une mauvaise.
+Cette approche est rigoureuse: si on ajoute un champ à `ExperimentResult`, il se retrouve automatiquement dans le CSV. Rien n'a besoin d'être synchronisé manuellement.
 
-À la ligne 146, `writer.writeheader()` écrit l'en-tête du fichier CSV avec ces noms de colonnes. Aux lignes 147 à 148, pour chaque objet `ExperimentResult`, on le convertit en dictionnaire avec `asdict` et on l'écrit ligne par ligne dans le fichier. À la ligne 150, le programme affiche dans le terminal le chemin du fichier CSV généré.
-
-Pourquoi ce design est solide? Parce que les colonnes du CSV sont couplées directement à la classe `ExperimentResult`. Si on ajoute un champ à la classe, il apparaît automatiquement dans le CSV. Rien à synchroniser manuellement.
-
-Et si on recule pour voir la chaîne complète de A à Z? `ExperimentResult` définit la structure. Les constantes et boucles déclarent la campagne. `ExperimentController` orchestre les mesures. `run_performance` calcule et remplit chaque `ExperimentResult`. Tous les objets sont stockés dans une liste. Et ce bloc les convertit et les écrit ligne par ligne dans le CSV. Le résultat final, c'est un fichier traçable, vérifiable, et directement exploitable pour les graphiques et les conclusions.
+ En bref, `ExperimentResult` définit la structure, `ExperimentController` produit chaque mesure, `experiment.py` les rassemble dans `results`, puis le bloc CSV les écrit dans le fichier final.
 
 ---
 
