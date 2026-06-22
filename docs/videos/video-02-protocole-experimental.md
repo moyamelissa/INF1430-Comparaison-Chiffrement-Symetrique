@@ -40,116 +40,95 @@ En résumé, ces variables décrivent les conditions expérimentales qui influen
 Comme le protocole, le code et les paramètres de campagne restent constants sur les deux plateformes, les écarts observés s'interprètent comme un effet du matériel et de l'environnement d'exécution, et non comme une variation de méthode.
 
 
-### Étape 2 - Orchestration des mesures
+### Étape 2 - De la configuration à l'export CSV
 **Où sommes-nous :**
-GitHub repo, puis fichier application/ExperimentController.py.
+GitHub repo, fichiers application/ExperimentController.py et scripts/experiment.py.
 
 **Action écran :**
-Ouvrir le repo, entrer dans application/ExperimentController.py et suivre les blocs ci-dessous.
+Ouvrir le repo et naviguer à travers les deux fichiers pour suivre la chaîne complète.
 
-**Repères code précis :**
-Fichier: crypto-experiments/application/ExperimentController.py
+---
 
 **Titre de bloc: Modèle de résultat normalisé**
 
-**Class Name: ExperimentResult**
-- (Lignes 30 à 46) Rôle: définir le format standard d'une mesure unique.
-- Processus: cette classe regroupe les paramètres de configuration, les métriques de performance, les indicateurs de robustesse et l'incertitude statistique.
-- Pourquoi c'est important: toutes les mesures ont la même forme, donc elles sont comparables et exportables proprement.
+**Class Name: ExperimentResult** (application/ExperimentController.py, lignes 30 à 46)
+
+Voici la classe ExperimentResult. Son rôle, c'est de définir le format standard d'une mesure unique. En d'autres termes, c'est le conteneur qui regroupe tous les éléments importants, soit les paramètres de configuration, les métriques de performance, les indicateurs de robustesse et l'incertitude statistique. Pourquoi c'est crucial? Parce que cette classe sert à créer des objets ExperimentResult, qu'on appelle aussi des instances. Ce sont des copies concrètes créées à partir de cette classe. Chaque objet ExperimentResult représente une mesure réelle. Et qui crée ces objets? C'est ExperimentController qu'on va voir tout de suite. ExperimentController utilise cette classe pour normaliser tous les résultats. Toutes les mesures ont la même forme, ce qui garantit qu'elles sont comparables et exportables correctement.
+
+---
 
 **Titre de bloc: Orchestrateur de campagne**
 
-**Class Name: ExperimentController**
-- (Ligne 49) Rôle: centraliser la logique de mesure au même endroit.
-- (Lignes 64 à 74, __init__) Rôle: recevoir le moteur de chiffrement configuré et les étiquettes algorithm/mode.
-- Processus: cette classe pilote le flux complet de mesure, plutôt que de disperser la logique dans plusieurs fichiers.
+**Class Name: ExperimentController** (application/ExperimentController.py, lignes 49 à 71)
+
+Passons à ExperimentController. Son rôle, c'est de centraliser toute la logique de mesure au même endroit, plutôt que de la disperser dans plusieurs fichiers. En d'autres termes, c'est l'orchestrateur, le chef d'orchestre qui pilote le flux complet de mesure. La méthode __init__, qu'on voit aux lignes 63 à 71, reçoit le moteur de chiffrement configuré et les étiquettes algorithm et mode. Une fois initialisée, ExperimentController pilote l'exécution complète: elle appelle run_performance, qu'on va voir tout de suite, pour effectuer les mesures pour cette configuration spécifique, puis elle assemble les résultats dans un objet ExperimentResult. Et pourquoi c'est crucial? Parce que ExperimentController crée les instances de ExperimentResult qu'on a vu précédemment. C'est elle qui les remplit avec les données de mesure. Sans ExperimentController, on aurait pas de mesures, et donc pas d'objets ExperimentResult à exporter.
+
+---
 
 **Titre de bloc: Pipeline de mesure d'une configuration**
 
-**Function Name: run_performance(...)**
-- (Lignes 77 à 81) Rôle: point d'entrée principal pour exécuter une mesure complète.
-- (Ligne 102) Génère un plaintext de test.
-- (Lignes 108 à 110) Chronomètre le chiffrement.
-- (Lignes 117 à 119) Chronomètre le déchiffrement.
-- (Lignes 127 à 139) Calcule l'IC 95 % pour encadrer la variabilité.
+**Function Name: run_performance(...)** (application/ExperimentController.py, lignes 77 à 156)
 
-**Titre de bloc: Chaîne d'actions jusqu'au CSV**
+C'est run_performance qui fait le cœur du travail. Son rôle, c'est d'exécuter une mesure complète de performance pour une configuration donnée. 
 
-**Def/Return: return ExperimentResult(...)**
-- (Lignes 142 à 154) Rôle: construire l'objet résultat final de la mesure.
-- Chaîne de traitement:
-	1. `run_performance` calcule les indicateurs.
-	2. `ExperimentController` crée un objet `ExperimentResult`.
-	3. Le script appelant convertit cet objet en dictionnaire.
-	4. Les dictionnaires sont écrits ligne par ligne dans le CSV.
-- Résultat: le CSV reflète exactement la structure définie par `ExperimentResult`.
+Pense à un test de vitesse automobile. On mesure le temps d'accélération de 0 à 100 km/h, mais pas juste une fois. On le fait plusieurs fois, on ignore les conditions externes, on chronomètre précisément. Et à la fin, on dit: "la voiture fait entre 7,8 et 8,2 secondes avec 95% de certitude". Eh bien, c'est exactement ce que run_performance fait, mais pour un algorithme de chiffrement.
 
-**Commande :**
-Aucune.
+Voici comment. À la ligne 102, la fonction génère un plaintext aléatoire de test. C'est le message qu'on va chiffrer. Aux lignes 108 à 110, elle chronomètre le chiffrement. Elle utilise `perf_counter`, qui est un outil de haute précision. Contrairement aux chronomètres ordinaires, il mesure le temps réel du processeur. Il ignore les interruptions système. Puis aux lignes 117 à 119, elle chronomètre le déchiffrement exactement de la même façon.
 
-### Étape 3 - Chronométrage et IC 95 %
-**Où sommes-nous :**
-VS Code, même fichier application/ExperimentController.py.
+Ensuite vient le calcul statistique. Aux lignes 127 à 140, elle calcule l'IC à 95%. C'est l'intervalle de confiance. Elle utilise la fonction `_ci95_mbps`. 
 
-**Action écran :**
-Montrer les blocs de chronométrage puis la fonction de calcul d'intervalle de confiance.
+Pourquoi c'est important? Parce que chaque répétition donne un temps légèrement différent. Parfois le CPU fait autre chose. Parfois un processus passe. Parfois le cache est plus chaud.
 
-**Repères code précis :**
-- Fichier: crypto-experiments/application/ExperimentController.py
-- SURLIGNER ligne 102: plaintext = os.urandom(message_size_bytes)
-- SURLIGNER lignes 108 à 110: chronométrage du chiffrement avec perf_counter
-- SURLIGNER lignes 117 à 119: chronométrage du déchiffrement avec perf_counter
-- SURLIGNER lignes 127 à 139: fonction _ci95_mbps
-- SURLIGNER ligne 154: ci95_encrypt_mbps=ci95_enc
+L'intervalle de confiance à 95% encadre cette variabilité. Il dit: "le vrai débit se situe probablement entre A et B mégaoctets par seconde". Et on peut être sûr à 95% de ça.
 
-**Texte à dire :**
-Le chronométrage entoure uniquement l'appel cryptographique, ce qui limite les biais de mesure.
-Le protocole calcule ensuite un IC à 95 %, afin d'encadrer la variabilité observée sur les répétitions.
+Comment on calcule ça? On combine trois éléments. D'abord, la variabilité observée, donc l'écart-type. Ensuite, le nombre de répétitions: plus il est élevé, plus la plage se resserre. Enfin, un coefficient statistique qui dépend du niveau de confiance choisi.
 
-**Commande :**
-Aucune.
+Pourquoi 100 répétitions, c'est un bon choix? Parce que c'est un compromis professionnel entre fiabilité statistique et temps de calcul. Avec trop peu de répétitions, le résultat est instable et sensible au bruit de la machine. Avec trop de répétitions, on gagne peu en précision, mais on paie beaucoup en temps.
 
-### Étape 4 - Paramétrage déclaratif
-**Où sommes-nous :**
-VS Code, fichier scripts/experiment.py.
+La règle simple est la suivante: la précision s'améliore avec la racine carrée du nombre de répétitions. Donc, pour améliorer nettement la précision, il faut beaucoup plus d'essais. Par exemple, passer de 25 à 100 répétitions ne multiplie pas la précision par quatre, mais environ par deux.
 
-**Action écran :**
-Montrer les constantes globales puis les boucles d'itération.
+En pratique, 100 répétitions donne des mesures stables, comparables entre plateformes, et reste raisonnable en durée d'exécution. C'est pour ça que ce choix est méthodologiquement défendable.
 
-**Repères code précis :**
-- Fichier: crypto-experiments/scripts/experiment.py
-- SURLIGNER ligne 51: REPETITIONS = 100
-- SURLIGNER lignes 53 à 69: EXPERIMENT_MATRIX
-- SURLIGNER ligne 72: MESSAGE_SIZES = [64, 256, 1024, 4096, 16384]
-- SURLIGNER ligne 100: boucle sur EXPERIMENT_MATRIX
-- SURLIGNER ligne 110: boucle sur MESSAGE_SIZES
-- SURLIGNER lignes 124 à 127: appel controller.run_performance(..., repetitions=REPETITIONS)
+Et ce coefficient proche de 2, il veut dire quoi? C'est le facteur de sécurité du niveau de confiance à 95%. Plus précisément, il vaut environ 1,96 quand on a assez de mesures. Concrètement, on prend l'incertitude de base, puis on la multiplie par ce facteur pour obtenir une plage qui couvre la vraie valeur dans environ 95% des cas. Le résultat, c'est une plage de confiance claire et fiable.
 
-**Texte à dire :**
-La campagne est définie de manière déclarative via les constantes et la matrice.
-Cette organisation permet de rejouer exactement le même protocole sur une autre plateforme.
+Enfin, aux lignes 142 à 156, la fonction retourne un objet ExperimentResult complètement rempli avec tous ces chiffres. 
 
-**Commande :**
-Aucune.
+Et qui utilise run_performance? C'est ExperimentController qui l'appelle pour chaque configuration. L'important, c'est que run_performance calcule tous les indicateurs: les temps, les débits, les intervalles de confiance. Et elle retourne un ExperimentResult prêt pour le CSV.
 
-### Étape 5 - Traçabilité des résultats CSV
-**Où sommes-nous :**
-VS Code, fichier scripts/experiment.py puis dossier data/results.
+Transition: jusqu'ici, dans `application/ExperimentController.py`, on a vu comment une mesure est calculée et structurée proprement dans un `ExperimentResult`. Maintenant, on passe à `scripts/experiment.py`, qui joue le rôle d'intermédiaire: il enchaîne toutes les configurations, récupère ces `ExperimentResult`, puis les écrit dans le fichier CSV final.
 
-**Action écran :**
-Montrer l'écriture du CSV, puis ouvrir un fichier CSV généré.
+---
 
-**Repères code précis :**
-- Fichier: crypto-experiments/scripts/experiment.py
-- SURLIGNER ligne 143: fieldnames = list(asdict(results[0]).keys())
-- SURLIGNER ligne 146: writer.writeheader()
-- SURLIGNER lignes 147 à 148: writer.writerow(asdict(r))
-- SURLIGNER ligne 150: Results saved to: {out_path}
-- Ouvrir ensuite un fichier dans crypto-experiments/data/results/
+**Titre de bloc: Paramétrage déclaratif**
 
-**Texte à dire :**
-Les colonnes du CSV proviennent directement de la structure de résultat.
-La sortie est donc traçable et exploitable pour les graphiques et les conclusions.
+**Configuration de campagne + fonction main()** (scripts/experiment.py, lignes 51 à 127)
+
+Ici, on n'explique pas une classe. On explique un bloc de configuration, puis la fonction `main()` qui applique cette configuration.
+
+Le rôle de ce bloc est simple: définir précisément quoi tester, puis exécuter automatiquement toutes les combinaisons avec des boucles. Cette approche garantit que le protocole est reproductible sur toutes les plateformes.
+
+Les repères importants sont:
+- Ligne 51: `REPETITIONS = 100`.
+- Lignes 53 à 70: `EXPERIMENT_MATRIX`.
+- Ligne 72: `MESSAGE_SIZES`.
+- Ligne 97: début de `main()`.
+- Lignes 100 à 110: boucles sur algorithme/mode, taille de clé, puis taille de message.
+- Ligne 116: création de `ExperimentController`.
+- Lignes 124 à 127: appel de `controller.run_performance(..., repetitions=REPETITIONS)`.
+
+Chaîne d'actions: pour chaque combinaison, `main()` crée un `ExperimentController`, lance `run_performance`, récupère un `ExperimentResult`, l'ajoute à `results`, puis le bloc CSV l'exporte. Résultat: une matrice complète de mesures, avec chaque algorithme, chaque mode et chaque taille de message, répétés 100 fois.
+
+---
+
+**Titre de bloc: Traçabilité des résultats CSV**
+
+**CSV Export Logic** (scripts/experiment.py, lignes 143 à 150)
+
+Enfin, l'export en CSV. Son rôle, c'est de convertir tous les objets ExperimentResult en lignes CSV et de les écrire dans un fichier de résultats. En d'autres termes, c'est le dernier maillon de la chaîne: les résultats sont finalisés et sauvegardés de manière structurée. Voici le processus: à la ligne 143, on extrait les noms de colonnes directement de la structure ExperimentResult avec la fonction asdict. Pourquoi faire ça? Parce que ça garantit que les colonnes du CSV correspondent exactement aux champs de la classe ExperimentResult. À la ligne 146, writer.writeheader() écrit l'en-tête du CSV avec ces noms de colonnes. Aux lignes 147 à 148, pour chaque objet ExperimentResult dans notre liste de résultats, on le convertit en dictionnaire avec asdict et on l'écrit ligne par ligne dans le fichier. À la ligne 150, le programme affiche le chemin du fichier CSV généré.
+
+Et si on recule pour voir la chaîne d'actions complète de A à Z? D'abord, ExperimentResult définit la structure: c'est le moule qui spécifie quels champs on va mesurer. Ensuite, les constantes et boucles déclarent la campagne: quels algorithmes, quels modes, quelles tailles de message tester et combien de fois. ExperimentController orchestre les mesures: elle crée une instance pour chaque configuration. run_performance calcule les indicateurs bruts et remplit l'objet ExperimentResult. Tous les objets ExperimentResult sont stockés dans une liste. Enfin, l'export CSV converti chaque objet en dictionnaire et l'écrit ligne par ligne. Et le résultat final? Un fichier CSV qui reflète exactement la structure définie par ExperimentResult, ce qui rend les résultats traçables, vérifiables et exploitables pour les graphiques et les conclusions.
+
+---
 
 **Commande (optionnelle, terminal PowerShell) :**
 Get-ChildItem data/results/experiment_*.csv | Sort-Object LastWriteTime -Descending | Select-Object -First 1
