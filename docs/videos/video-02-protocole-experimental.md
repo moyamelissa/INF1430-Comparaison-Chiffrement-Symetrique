@@ -73,7 +73,7 @@ C'est run_performance qui fait le cœur du travail. Son rôle, c'est d'exécuter
 
 Pense à un test de vitesse automobile. On mesure le temps d'accélération de 0 à 100 km/h, mais pas juste une fois. On le fait plusieurs fois, on ignore les conditions externes, on chronomètre précisément. Et à la fin, on dit: "la voiture fait entre 7,8 et 8,2 secondes avec 95% de certitude". Eh bien, c'est exactement ce que run_performance fait, mais pour un algorithme de chiffrement.
 
-Voici comment. À la ligne 102, la fonction génère un plaintext aléatoire de test. C'est le message qu'on va chiffrer. Aux lignes 108 à 110, elle chronomètre le chiffrement. Elle utilise `perf_counter`, qui est un outil de haute précision. Contrairement aux chronomètres ordinaires, il mesure le temps réel du processeur. Il ignore les interruptions système. Puis aux lignes 117 à 119, elle chronomètre le déchiffrement exactement de la même façon.
+Voici comment. À la ligne 102, la fonction génère un plaintext aléatoire de test. C'est le message qu'on va chiffrer. Aux lignes 108 à 110, elle chronomètre le chiffrement. Elle utilise `perf_counter`, qui est un outil de haute précision. Contrairement aux chronomètres ordinaires, il fournit une mesure monotone et stable, adaptée au benchmarking. Puis aux lignes 117 à 119, elle chronomètre le déchiffrement exactement de la même façon.
 
 Ensuite vient le calcul statistique. Aux lignes 127 à 140, elle calcule l'IC à 95%. C'est l'intervalle de confiance. Elle utilise la fonction `_ci95_mbps`. 
 
@@ -81,7 +81,7 @@ Pourquoi c'est important? Parce que chaque répétition donne un temps légèrem
 
 L'intervalle de confiance à 95% encadre cette variabilité. Il dit: "le vrai débit se situe probablement entre A et B mégaoctets par seconde". Et on peut être sûr à 95% de ça.
 
-Comment on calcule ça? On combine trois éléments. D'abord, la variabilité observée, donc l'écart-type. Ensuite, le nombre de répétitions: plus il est élevé, plus la plage se resserre. Enfin, un coefficient statistique qui dépend du niveau de confiance choisi.
+Comment on calcule ça? On combine trois éléments. D'abord, la variabilité observée, donc l'écart-type. Ensuite, le nombre de répétitions: plus il est élevé, plus la plage se resserre. Enfin, un coefficient statistique lié au niveau de confiance fixé à 95% et au nombre de mesures.
 
 Pourquoi 100 répétitions, c'est un bon choix? Parce que c'est un compromis professionnel entre fiabilité statistique et temps de calcul. Avec trop peu de répétitions, le résultat est instable et sensible au bruit de la machine. Avec trop de répétitions, on gagne peu en précision, mais on paie beaucoup en temps.
 
@@ -93,7 +93,7 @@ Et ce coefficient proche de 2, il veut dire quoi? C'est le facteur de sécurité
 
 Enfin, aux lignes 142 à 156, la fonction retourne un objet ExperimentResult complètement rempli avec tous ces chiffres. 
 
-Et qui utilise run_performance? C'est ExperimentController qui l'appelle pour chaque configuration. L'important, c'est que run_performance calcule tous les indicateurs: les temps, les débits, les intervalles de confiance. Et elle retourne un ExperimentResult prêt pour le CSV.
+Et qui appelle run_performance? C'est le script `experiment.py`, via `main()`, qui l'appelle sur une instance de `ExperimentController` pour chaque configuration. L'important, c'est que run_performance calcule tous les indicateurs: les temps, les débits, les intervalles de confiance. Et elle retourne un ExperimentResult prêt pour le CSV.
 
 Transition: jusqu'ici, dans `application/ExperimentController.py`, on a vu comment une mesure est calculée et structurée proprement dans un `ExperimentResult`. Maintenant, on passe à `scripts/experiment.py`, qui joue le rôle d'intermédiaire: il enchaîne toutes les configurations, récupère ces `ExperimentResult`, puis les écrit dans le fichier CSV final.
 
