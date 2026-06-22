@@ -26,7 +26,6 @@ Ici, on vérifie trois points: comparabilité, reproductibilité et qualité des
 Afficher la slide du protocole expérimental.
 
 **Texte à dire :**
-Dans cette vidéo, on va démontrer que notre protocole expérimental est rigoureux, comparable et reproductible.
 Dans cette première étape, on explicite le cadre méthodologique et les facteurs considérés.
 L’objectif n’est pas seulement de montrer que le système fonctionne, mais de justifier la validité de la méthode.
 La slide montre explicitement trois paramètres clés: 5 algorithmes, 5 paliers de taille et 100 répétitions.
