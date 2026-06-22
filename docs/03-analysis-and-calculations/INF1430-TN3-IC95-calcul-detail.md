@@ -10,7 +10,7 @@ L'intervalle de confiance à 95 % (IC 95 %) encadre cette variabilité pour prod
 
 ## Formule utilisée dans `_ci95_mbps` (ExperimentController.py, lignes 127 à 140)
 
-$$IC_{95\%} = t_{crit} \times \frac{\sigma_{debit}}{\sqrt{n}}$$
+$$IC_{95} = t_{crit} \times \frac{\sigma_{debit}}{\sqrt{n}}$$
 
 Où:
 - $n$ = nombre de répétitions (100 dans notre protocole)
@@ -49,11 +49,11 @@ $$\sigma_{debit} \approx \frac{0,00390625 \times 0,00008}{(0,0008)^2} = 0,488$$
 
 **Calcul de l'IC 95 %:**
 
-$$IC_{95\%} = 1,96 \times \frac{0,488}{\sqrt{100}} = 1,96 \times 0,0488 = 0,096 \text{ Mo/s}$$
+$$IC_{95} = 1,96 \times \frac{0,488}{\sqrt{100}} = 1,96 \times 0,0488 = 0,096 \text{ Mo/s}$$
 
 **Résultat final:**
 
-$$\bar{D} \pm IC_{95\%} = 4,88 \pm 0,096 \text{ Mo/s} \Rightarrow [4,78 \, ; \, 4,97] \text{ Mo/s}$$
+$$\bar{D} \pm IC_{95} = 4,88 \pm 0,096 \text{ Mo/s} \Rightarrow [4,78 \, ; \, 4,97] \text{ Mo/s}$$
 
 Cela signifie: on est sûr à 95 % que le vrai débit de chiffrement se situe entre 4,78 et 4,97 Mo/s.
 
