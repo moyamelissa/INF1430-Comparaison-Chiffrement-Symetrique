@@ -10,11 +10,11 @@ L'intervalle de confiance à 95 % (IC 95 %) encadre cette variabilité pour prod
 
 ## Formule utilisée dans `_ci95_mbps` (ExperimentController.py, lignes 127 à 140)
 
-$$IC_{95\%} = t_{crit} \times \frac{\sigma_{débit}}{\sqrt{n}}$$
+$$IC_{95\%} = t_{crit} \times \frac{\sigma_{debit}}{\sqrt{n}}$$
 
 Où:
 - $n$ = nombre de répétitions (100 dans notre protocole)
-- $\sigma_{débit}$ = écart-type du débit estimé (voir conversion ci-dessous)
+- $\sigma_{debit}$ = écart-type du débit estimé (voir conversion ci-dessous)
 - $t_{crit}$ = 1,96 si $n \ge 30$ (approximation normale), sinon 2,045
 
 ### Conversion du temps en débit
@@ -22,7 +22,7 @@ Où:
 Le code mesure les temps en secondes, mais le résultat est exprimé en mégaoctets par seconde (Mo/s).
 La conversion de l'écart-type temporel en écart-type de débit utilise l'approximation:
 
-$$\sigma_{débit} \approx \frac{mb \times \sigma_t}{\bar{t}^2}$$
+$$\sigma_{debit} \approx \frac{mb \times \sigma_t}{\bar{t}^2}$$
 
 Où:
 - $mb$ = taille du message en mégaoctets
@@ -45,7 +45,7 @@ $$\bar{D} = \frac{0,00390625}{0,0008} = 4,88 \text{ Mo/s}$$
 
 **Calcul de l'écart-type du débit:**
 
-$$\sigma_{débit} \approx \frac{0,00390625 \times 0,00008}{(0,0008)^2} = 0,488$$
+$$\sigma_{debit} \approx \frac{0,00390625 \times 0,00008}{(0,0008)^2} = 0,488$$
 
 **Calcul de l'IC 95 %:**
 
