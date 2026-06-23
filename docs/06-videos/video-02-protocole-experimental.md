@@ -1,12 +1,14 @@
 # Vidéo 2 - Protocole expérimental
 
 ## Objectif
-Démontrer que la méthode de mesure est valide, comparable entre plateformes et reproductible.
+Démontrer que la méthode de mesure est valide, comparable entre plateformes et reproductible, après une validation cryptographique KAT.
 
 ## Portée
 - application/ExperimentController.py
 - scripts/experiment.py
 - Structure du CSV dans data/results
+- validation/kat_aes.py, kat_des.py, kat_3des.py, kat_modes.py, kat_gcm.py, kat_chacha20.py
+- scripts/run_kat.py
 
 ## Guide d'enregistrement
 
@@ -40,7 +42,22 @@ En résumé, ces variables décrivent les conditions expérimentales qui influen
 Comme le protocole, le code et les paramètres de campagne restent constants sur les deux plateformes, les écarts observés s'interprètent comme un effet du matériel et de l'environnement d'exécution, et non comme une variation de méthode.
 
 
-### Étape 2 - De la configuration à l'export CSV
+### Étape 2 - Verrou de conformité (essence de la vidéo 3)
+**Où sommes-nous :**
+GitHub repo, dossier validation/ puis scripts/run_kat.py.
+
+**Texte à dire :**
+Avant d'interpréter les débits, on applique un verrou méthodologique: les KAT, les Known Answer Tests.
+Le principe est simple: pour chaque algorithme et mode, on chiffre des entrées connues et on compare la sortie au résultat de référence.
+Si un KAT échoue, on n'interprète pas les performances, car la conformité cryptographique n'est pas garantie.
+Si tous les KAT passent, alors les mesures de débit deviennent interprétables et comparables.
+
+**Action écran :**
+Montrer rapidement le dossier validation/, puis scripts/run_kat.py, et rappeler la commande python scripts/run_kat.py.
+
+Transition: maintenant que la conformité est validée, on peut passer au pipeline de mesure et à l'export CSV.
+
+### Étape 3 - De la configuration à l'export CSV
 **Où sommes-nous :**
 GitHub repo, fichiers application/ExperimentController.py et scripts/experiment.py.
 
@@ -142,4 +159,5 @@ Get-ChildItem data/results/experiment_*.csv | Sort-Object LastWriteTime -Descend
 
 ### Conclusion
 La méthode est comparable entre plateformes, reproductible et statistiquement encadrée.
+Et surtout, elle est précédée d'un contrôle KAT qui valide la conformité cryptographique avant toute lecture des performances.
 Les résultats sont exportés de manière structurée, ce qui soutient l'analyse présentée dans TN3.
