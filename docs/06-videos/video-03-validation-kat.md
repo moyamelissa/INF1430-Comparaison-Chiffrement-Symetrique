@@ -12,7 +12,31 @@ Valider la conformite cryptographique des implementations avant toute interpreta
 ## Guide d'enregistrement
 
 ### Introduction (voix off)
-Dans cette video, on valide la justesse cryptographique avant de parler de performance. La regle de lecture est simple: section de code, narration technique fluide, puis flux de processus pour expliquer qui interagit avec qui. L'objectif est de comprendre le comportement du systeme, pas seulement de lire du code.
+Bienvenue dans cette video consacree a la validation cryptographique. Avant d'analyser les debits, il faut absolument verifier que nos implementations produisent les bons resultats. On va vous montrer comment fonctionne ce systeme de controle KAT. Dans le dossier validation, on a des fichiers de test pour chaque algorithme: AES, DES, 3DES, les modes, GCM et ChaCha20. Chaque fichier valide un composant precis avec des vecteurs de reference officiels NIST. Puis, le script run_kat.py orchestre tout ca en une seule commande. Le lien entre ces fichiers est simple: chaque module retourne un nombre d'echecs, et run_kat agrege ces resultats pour dire pass ou fail. Pourquoi c'est critique? Parce que sans cette validation, on risquerait d'interpreter des mesures de performance sur une base incorrecte. Commençons.
+
+### Section 0
+**Titre :** Vue d'ensemble de la couverture KAT
+
+**Action ecran :**
+Ouvrir le dossier validation/ dans VS Code et montrer les fichiers.
+
+**Arborescence visuelle :**
+```
+validation/
+├── kat_aes.py      (test FIPS 197 AES-128/192/256)
+├── kat_des.py      (test SP 800-17 DES)
+├── kat_3des.py     (test SP 800-67 3DES)
+├── kat_modes.py    (test SP 800-38A ECB/CBC/CTR)
+├── kat_gcm.py      (test SP 800-38D AES-GCM)
+├── kat_chacha20.py (test RFC 8439 ChaCha20)
+└── __init__.py     (package marker)
+```
+
+**Narration fluide :**
+Voici le dossier validation. Chaque fichier correspond a une famille d'algorithmes. AES valide les trois variantes de cle. DES et 3DES valident les standards classiques. Les modes testent ECB, CBC, CTR. GCM valide l'authentification. ChaCha20 valide la famille stream cipher moderne. Cette couverture systematique garantit qu'aucun composant cryptographique n'est oublie.
+
+**Flux du processus :**
+Chaque fichier kat_*.py expose une fonction run(). Quand run_kat.py demarre, il appelle toutes ces fonctions dans l'ordre. Aucune suite ne peut etre ignoree.
 
 ### Section 1
 **Titre :** Point d'entree de la validation globale
