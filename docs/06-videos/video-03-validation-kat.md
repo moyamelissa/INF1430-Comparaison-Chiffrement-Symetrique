@@ -11,32 +11,34 @@ Valider la conformite cryptographique des implementations avant toute interpreta
 
 ## Guide d'enregistrement
 
-### Introduction (voix off)
-Bienvenue dans cette video consacree a la validation cryptographique. Avant d'analyser les debits, il faut absolument verifier que nos implementations produisent les bons resultats. On va vous montrer comment fonctionne ce systeme de controle KAT. Dans le dossier validation, on a des fichiers de test pour chaque algorithme: AES, DES, 3DES, les modes, GCM et ChaCha20. Chaque fichier valide un composant precis avec des vecteurs de reference officiels NIST. Puis, le script run_kat.py orchestre tout ca en une seule commande. Le lien entre ces fichiers est simple: chaque module retourne un nombre d'echecs, et run_kat agrege ces resultats pour dire pass ou fail. Pourquoi c'est critique? Parce que sans cette validation, on risquerait d'interpreter des mesures de performance sur une base incorrecte. Commençons.
+### Section 0 - Introduction 
+Bienvenue dans cette vidéo consacrée à la validation cryptographique. Avant d'analyser les débits, il faut d'abord vérifier que nos implémentations produisent les bons résultats. Dans ce projet, on fait cette vérification avec des tests à réponse connue, autrement dit des tests KAT, pour Known Answer Tests.
 
-### Section 0
-**Titre :** Vue d'ensemble de la couverture KAT
+Concrètement, un test à réponse connue prend des entrées connues, comme une clé et un texte en clair, puis compare le résultat calculé avec un texte chiffré officiel de référence. Si les deux correspondent exactement, le test est réussi. Si la sortie diffère, l'implémentation est considérée non conforme.
 
+C'est pour cette raison que ces tests sont une étape obligatoire avant toute analyse de performance. On va commencer la présentation dans le dossier validation, où chaque fichier teste une famille cryptographique spécifique : AES, DES, 3DES, les modes, GCM et ChaCha20. Ensuite, le script run_kat.py orchestre toutes ces suites en une seule commande, récupère le nombre d'échecs de chaque module, puis produit une décision globale : réussite ou échec. Sans cette étape, on risquerait d'interpréter des mesures de débit sur une base fonctionnelle incorrecte. Donc, commençons.
+
+### Section 1 - Presentation des fichiers
 **Action ecran :**
 Ouvrir le dossier validation/ dans VS Code et montrer les fichiers.
 
 **Arborescence visuelle :**
 ```
 validation/
-├── kat_aes.py      (test FIPS 197 AES-128/192/256)
-├── kat_des.py      (test SP 800-17 DES)
-├── kat_3des.py     (test SP 800-67 3DES)
-├── kat_modes.py    (test SP 800-38A ECB/CBC/CTR)
-├── kat_gcm.py      (test SP 800-38D AES-GCM)
-├── kat_chacha20.py (test RFC 8439 ChaCha20)
-└── __init__.py     (package marker)
+├── kat_aes.py
+├── kat_des.py
+├── kat_3des.py
+├── kat_modes.py
+├── kat_gcm.py
+├── kat_chacha20.py
+└── __init__.py
 ```
 
 **Narration fluide :**
-Voici le dossier validation. Chaque fichier correspond a une famille d'algorithmes. AES valide les trois variantes de cle. DES et 3DES valident les standards classiques. Les modes testent ECB, CBC, CTR. GCM valide l'authentification. ChaCha20 valide la famille stream cipher moderne. Cette couverture systematique garantit qu'aucun composant cryptographique n'est oublie.
+Voici le dossier validation. L'idee n'est pas de detailler chaque fichier tout de suite, mais de montrer la couverture globale. Chaque fichier kat_*.py cible une famille cryptographique precise. Ensemble, ils couvrent les primitives, les modes d'operation et les algorithmes modernes. Cette vue d'ensemble est importante, parce qu'elle montre que la validation est complete avant d'entrer dans un exemple detaille.
 
 **Flux du processus :**
-Chaque fichier kat_*.py expose une fonction run(). Quand run_kat.py demarre, il appelle toutes ces fonctions dans l'ordre. Aucune suite ne peut etre ignoree.
+Chaque fichier kat_*.py expose une fonction run(). Le script run_kat.py agit comme orchestrateur: il appelle ces fonctions l'une apres l'autre, recupere le nombre d'echecs pour chaque suite, puis calcule un statut global. Ensuite seulement, on zoome dans un fichier, ici kat_aes.py, pour expliquer le mecanisme en detail.
 
 ### Section 1
 **Titre :** Point d'entree de la validation globale
