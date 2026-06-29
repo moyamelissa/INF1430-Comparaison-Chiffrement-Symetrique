@@ -1,563 +1,307 @@
 ﻿# Vidéo 1 - Nature du système
 
 ## Objectif
-Présenter l'organisation du dépôt, l'architecture en couches, puis lancer une expérience en direct pour montrer la sortie concrète du système.
+Présenter l'architecture du projet et montrer, par le code, comment les couches interagissent pour produire un résultat expérimental traçable.
 
 ## Portée
-- Racine du dépôt, docs, Resources
-- crypto-experiments et ses couches
+- Racine du dépôt et structure du dossier crypto-experiments
 - domain/cipher, domain/mode, domain/engine
 - application/ExperimentController.py
 - scripts/experiment.py
-- Exécution live et lecture du CSV généré
-
-## Script
-
-### Racine du dépôt
-Ici, on situe les elements de contexte et le coeur technique.
-On voit ici la racine du dépôt avec trois dossiers et le README.
-Le dossier docs regroupe les livrables académiques, les guides et les feedbacks reçus durant le projet.
-Le dossier Resources contient les références bibliographiques et les documents de support.
-Ces deux dossiers sont là pour documenter et encadrer le projet,
-mais l'essentiel du système se trouve dans crypto-experiments, et c'est exactement ce qu'on va explorer maintenant.
-(RESPIRER)
-(PAUSE) (SURLIGNER: **docs/**) (SURLIGNER: **Resources/**) (SURLIGNER: **crypto-experiments/**)
-
-### Dossier crypto-experiments
-Ici, on visualise l architecture en couches du systeme experimental.
-Une fois dans crypto-experiments, on voit l'architecture en couches prendre forme concrètement.
-On a le dossier domain qui contient la logique cryptographique,
-application qui gère l'orchestration,
-scripts qui sont les points d'entrée,
-validation et tests qui assurent la conformité des implementations,
-et data qui stocke les résultats.
-(RESPIRER)
-On commence par explorer le dossier domain, qui est le cœur du système.
-(PAUSE) (SURLIGNER: **domain/**) (SURLIGNER: **application/**) (SURLIGNER: **scripts/**) (SURLIGNER: **validation/**) (SURLIGNER: **tests/**) (SURLIGNER: **data/**)
-
-### Dossier domain
-Ici, on clarifie la separation des responsabilites a l interieur du domaine.
-Dans le dossier domain, on retrouve trois sous-dossiers qui forment le cœur logique du système.
-Le dossier cipher contient les primitives de chiffrement,
-engine contient le moteur qui les assemble,
-et mode contient les modes d'opération.
-On commence par cipher, puis on remonte vers mode et engine.
-(PAUSE) (SURLIGNER: **domain/cipher/**) (SURLIGNER: **domain/mode/**) (SURLIGNER: **domain/engine/**)
-
-## DOSSIER CIPHER
-
-### Dossier domain/cipher
-Ici, on identifie les primitives implementees et le contrat qu elles partagent.
-Dans domain/cipher, on retrouve les cinq primitives de chiffrement implémentées dans le projet,
-soit AES, ChaCha20, DES, TripleDES et Twofish.
-On remarque aussi CipherPrimitive.py, qui est la classe abstraite dont toutes les autres héritent.
-C'est ce qui garantit une interface uniforme à travers tout le système.
-(PAUSE) (SURLIGNER: **AES.py**) (SURLIGNER: **DES.py**) (SURLIGNER: **TripleDES.py**) (SURLIGNER: **Twofish.py**) (SURLIGNER: **ChaCha20.py**) (SURLIGNER: **CipherPrimitive.py**)
-
-### Fichier CipherPrimitive.py
-Dans cette section, on pose le contrat minimal que toute primitive doit respecter.
-
-#### Segment 1 - Lignes 1 à 9, docstring du fichier
-On voit ici le docstring du fichier, qui décrit la responsabilité globale de CipherPrimitive.
-La ligne clé est celle-ci: les primitives ne savent rien du chaînage, des vecteurs d'initialisation ou des nonces.
-C'est la séparation des responsabilités en une phrase.
-
-#### Segment 2 - Ligne 11 import ABC/abstractmethod, ligne 14 class CipherPrimitive(ABC)
-**(Surligne ligne 11)** On importe ABC et abstractmethod depuis le module abc de Python.
-Ces deux éléments forment un contrat imposé par le langage.
-**(Surligne ligne 14)** Chaque algorithme qui hérite de CipherPrimitive est obligé d’implémenter les mêmes méthodes,
-ce qui permet au reste du système de fonctionner avec n’importe quelle primitive sans savoir laquelle est utilisée concrètement.
-C’est ce qui rend le système extensible et neutre. 
-
-
-#### Segment 3 - Lignes 17 à 25, block_size et key_size
-**(Surligne lignes 19 à 20 - block_size)** block_size est une propriété abstraite: chaque algorithme doit déclarer la taille de ses blocs.
-**(Surligne lignes 24 à 25 - key_size)** key_size est aussi une propriété abstraite: chaque algorithme doit déclarer la taille de clé réellement utilisée par l’instance.
-
-**(Surligne les deux propriétés ensemble)** Ce contrat force chaque primitive à exposer les mêmes informations minimales, peu importe l’algorithme.
-Par exemple, AES travaille avec des blocs de 16 octets et des clés de 128, 192 ou 256 bits, alors que DES travaille avec des blocs de 8 octets et une clé effective de 56 bits.
-
-#### Segment 4 - Lignes 28 à 57, encrypt_block et decrypt_block
-**(Surligne ligne 28 - def encrypt_block(...))** encrypt_block fait partie du contrat abstrait central de la primitive.
-**(Surligne ligne 44 - def decrypt_block(...))** decrypt_block complète ce contrat avec l’opération inverse.
-
-**(Surligne les docstrings des deux méthodes)** Chaque méthode prend exactement un bloc d’octets en entrée et retourne exactement un bloc d’octets en sortie.
-Ce qui est important, c’est ce qu’elles ne font pas: elles ne gèrent ni le chaînage, ni les vecteurs d’initialisation, ni les nonces.
-
-**(Surligne les deux signatures ensemble)** Ce n’est pas un oubli, c’est un choix de conception délibéré.
-En isolant la primitive à une seule responsabilité, on peut brancher n’importe quel mode d’opération par-dessus sans modifier le code de l’algorithme.
-C’est la couche mode qui prend en charge tout le reste.
-
-
-#### Segment 5 - Lignes 59 à 75, encrypt_blocks et boucle par défaut
-**(Surligne ligne 59 - def encrypt_blocks(...))** encrypt_blocks est une méthode concrète, pas abstraite.
-**(Surligne le docstring de 60 à 67)** Le docstring explique que cette version est un comportement par défaut, et qu’une sous-classe peut la surcharger pour optimiser le traitement.
-
-**(Surligne lignes 68 à 72 - bs, validation, ValueError)** Le code commence par vérifier que la longueur des données est un multiple de block_size.
-**(Surligne lignes 73 à 75 - for + encrypt_block)** Ensuite, il chiffre bloc par bloc en appelant encrypt_block dans une boucle Python.
-**(Surligne lignes 76)** Puis, il retourne le résultat final sous forme de bytes.
-
-C’est fonctionnel, mais pas optimal: on paie le coût de la boucle à chaque bloc.
-C’est exactement pour ça que les sous-classes peuvent surcharger cette méthode avec un appel groupé à la bibliothèque crypto sous-jacente.
-On le verra juste après dans AES.py.
-
-### Fichier AES.py
-Dans cette section, on montre comment une primitive concrete implemente ce contrat sans casser l architecture.
-
-#### Segment 1 - Vue générale de AES.py
-AES.py implémente la primitive AES concrète utilisée dans le projet.
-Son rôle est de gérer le chiffrement et le déchiffrement par blocs de 16 octets, avec validation des tailles de clé.
-Le but est de fournir une implémentation standard compatible avec l'interface CipherPrimitive,
-pour que le moteur puisse l'utiliser de façon uniforme avec les différents modes d'opération.
-
-#### Segment 2 - Ligne 19, class AES(CipherPrimitive)
-**(Surligne ligne 19 - class AES(CipherPrimitive))** Ici, AES hérite directement de CipherPrimitive.
-Cet héritage impose un contrat d'interface:
-la classe doit fournir les méthodes et propriétés attendues par le reste du système.
-C'est ce qui garantit la substituabilité:
-n'importe quelle primitive peut remplacer une autre dans le moteur,
-sans logique spéciale et sans casser le contrat de la classe de base.
-
-#### Segment 3 - Lignes 16 à 44, _VALID_KEY_SIZES, __init__ et validation de la clé
-**(Surligne ligne 16 - _VALID_KEY_SIZES)** Ici, on fixe les seules tailles de clé acceptées pour AES: 16, 24 ou 32 octets.
-**(Surligne lignes 24 à 40 - __init__ + validation)** Le constructeur valide la clé dès la création de l'objet.
-Si la longueur est invalide, il lève immédiatement une `ValueError`.
-Ça évite de propager une mauvaise clé plus loin dans le moteur.
-
-#### Segment 4 - Lignes 47 à 52, block_size et key_size
-**(Surligne lignes 46 à 48 - block_size)** `block_size` retourne une taille fixe de 16 octets.
-**(Surligne lignes 50 à 52 - key_size)** `key_size` retourne la taille réelle de la clé de l'instance.
-Pourquoi 16 en permanence? La norme AES impose un bloc fixe de 128 bits, soit 16 octets.
-La taille de clé peut varier (16, 24, 32), mais pas la taille de bloc.
-Ces deux propriétés donnent au moteur les informations minimales pour travailler,
-sans dépendre d'une primitive spécifique.
-
-#### Segment 5 - Lignes 54 à 69, encrypt_block et decrypt_block
-**(Surligne lignes 54 à 60 - encrypt_block)** `encrypt_block` valide d'abord que le bloc fait exactement 16 octets, puis délègue le chiffrement à la bibliothèque PyCryptodome via l'objet AES importé.
-**(Surligne lignes 62 à 68 - decrypt_block)** `decrypt_block` applique la même validation et délègue le déchiffrement de la même façon.
-Le point clé: cette classe respecte le contrat d'interface de `CipherPrimitive`
-et n'implémente pas elle-même les rondes internes d'AES.
-
-#### Segment 6 - Lignes 70 à 77, encrypt_blocks et decrypt_blocks
-**(Surligne ligne 70 - def encrypt_blocks(...))** À partir d'ici, on voit clairement l'intention d'optimisation: AES surcharge la méthode de base.
-**(Surligne ligne 72 - return _AES.new(...).encrypt(data))** Au lieu de boucler bloc par bloc en Python, toute la donnée est chiffrée en un seul appel groupé à PyCryptodome.
-**(Surligne ligne 74 - def decrypt_blocks(...))** Ensuite, le même choix est reproduit côté déchiffrement.
-**(Surligne ligne 76 - return _AES.new(...).decrypt(data))** Là aussi, un seul appel traite l'ensemble des blocs.
-Concrètement, on remplace la boucle de la classe abstraite par un traitement groupé,
-ce qui diminue le surcoût d'orchestration et explique le meilleur débit observé en benchmark.
-
-## DOSSIER MODE
-
-Dans cette partie, on voit comment les modes transforment une primitive bloc en service de chiffrement complet.
-Dans domain/mode, on retrouve les modes d'opération du système.
-OperationMode.py est la classe abstraite de base,
-suivie de quatre modes par blocs, ECB, CBC, CTR et GCM,
-et de StreamMode, qui agit comme une couche de transparence pour les chiffrements par flux comme ChaCha20.
-On commence par OperationMode.py pour voir le contrat commun,
-exactement comme on l'a fait avec CipherPrimitive.
-(PAUSE) (SURLIGNER: **OperationMode.py**) (SURLIGNER: **ECB.py**) (SURLIGNER: **CBC.py**) (SURLIGNER: **CTR.py**) (SURLIGNER: **GCM.py**) (SURLIGNER: **StreamMode.py**)
-
-### Fichier mode/OperationMode.py
-Dans cette section, on presente le contrat commun impose a tous les modes d operation.
-
-#### Segment 1 - Rôle et concept de OperationMode
-OperationMode est l'abstraction pour tous les modes d'opération de chiffrement par blocs.
-Son rôle est simple mais fondamental: prendre une primitive de chiffrement par blocs,
-comme AES qui ne traite que des blocs de 16 octets,
-et la transformer en un service qui peut chiffrer des messages de n'importe quelle longueur.
-Chaque mode — ECB, CBC, CTR, GCM — décide comment découper les données,
-gérer le rembourrage si nécessaire, et enchaîner les blocs ensemble.
-Mais ici, c'est la beauté architecturale: OperationMode ne sait rien du type exact de primitive qu'il encapsule.
-Il appelle uniquement encrypt_block et decrypt_block via l'interface commune,
-peu importe si c'est AES, DES ou Twofish en dessous.
-Cette séparation des responsabilités garantit une vraie combinabilité.
-On peut brancher n'importe quel algorithme avec n'importe quel mode,
-sans écrire de code spécifique pour chaque paire.
-On va voir, dans les segments suivants, comment ce contrat est impose.
-
-#### Segment 2 - Lignes 11 et 16, import ABC et class OperationMode(ABC)
-**(Surligne ligne 11 - from abc import ABC, abstractmethod)** Comme dans CipherPrimitive, on importe ABC et abstractmethod.
-**(Surligne ligne 16 - class OperationMode(ABC))** La classe OperationMode hérite d'ABC, ce qui empêche d'instancier directement cette classe abstraite.
-C'est exactement le même mécanisme de contrat qu'on vient de voir.
-CipherPrimitive utilisait cela pour forcer encrypt_block et decrypt_block,
-et OperationMode le fait maintenant pour encrypt et decrypt.
-Le résultat: chaque mode concret, ECB, CBC, CTR, GCM ou StreamMode,
-doit obligatoirement implémenter ces deux méthodes abstraites,
-sinon Python refuse de l'instancier.
-Ce pattern de conception cohérent garantit que tous les modes respectent le même contrat.
-
-#### Segment 3 - Lignes 19 à 30, __init__ et propriété primitive
-**(Surligne lignes 19-26 - __init__ et self._primitive)** Ici commence la composition: le constructeur reçoit une primitive déjà instanciée et la stocke dans self._primitive.
-C'est différent de l'héritage de CipherPrimitive. Un mode n'est pas une primitive, il la contient.
-**(Surligne lignes 28-29 - @property primitive)** La propriété primitive expose cette référence en lecture seule, rendant l'association immutable après construction.
-Cette composition permet l'injection de dépendance.
-On peut passer n'importe quelle primitive concrète, par exemple AES, DES ou Twofish.
-Le mode travaille uniquement via l'interface CipherPrimitive,
-sans connaître l'implémentation réelle.
-C'est ce qui rend le système flexible au runtime.
-Chaque mode peut fonctionner avec n'importe quel algorithme,
-sans modification de code.
-Il suffit de changer la primitive injectée au moment de la construction.
-
-#### Segment 4 - Lignes 32 à 70, encrypt et decrypt abstraits
-**(Surligne ligne 32 - @abstractmethod)** Les deux méthodes abstraites encrypt et decrypt forment le contrat fondamental que chaque mode doit honorer.
-**(Surligne lignes 33-35 - def encrypt(self, plaintext: bytes, **kwargs) -> bytes)** La signature est cruciale ici, plaintext est de type bytes, sans aucune contrainte de longueur.
-C'est l'inverse complet d'encrypt_block, qui exigeait exactement un bloc.
-Un mode devient en quelque sorte le traducteur entre deux mondes, le monde du chiffrement par blocs rigide,
-et le monde applicatif où on veut chiffrer des messages de taille quelconque.
-**(Surligne lignes 50-52 - @abstractmethod decrypt)** Le même contrat s'applique au déchiffrement.
-**(Surligne ligne 51 - def decrypt(self, ciphertext: bytes, **kwargs) -> bytes)** Si on compare cette signature à celle d'encrypt,
-on voit que les deux acceptent un paramètre kwargs en plus du texte principal.
-En Python, ce sont des arguments nommés variables.
-C'est exactement ce qui permet la flexibilité entre les modes, CBC exige un vecteur d'initialisation,
-CTR et GCM exigent un nonce, mais ECB n'a besoin de rien du tout.
-Au lieu de créer une signature différente pour chaque mode,
-on garde une signature commune.
-Elle accepte des paramètres supplémentaires que le mode concret peut utiliser ou ignorer.
-Par exemple, ECB ignore un IV si on lui en passe un par erreur,
-tandis que CBC l'exige obligatoirement.
-C'est une flexibilité par contrat.
-Chaque mode implémente lui-même la validation des paramètres dont il a besoin.
-
-### Fichier mode/ECB.py
-Dans cette section, on explique pourquoi ECB est utile pedagogiquement, mais faible en securite.
-Maintenant qu'on a vu le contrat abstrait dans OperationMode,
-on passe à sa première implémentation concrète avec ECB.py.
-ECB est volontairement simple, et c'est exactement pour ça qu'il est pédagogique:
-il montre clairement comment un mode encapsule une primitive,
-mais il montre aussi pourquoi un mode peut être correct en code
-et rester faible en sécurité cryptographique.
-
-#### Segment 1 - Lignes 1 à 11, docstring du fichier
-Pour commencer, regardons ce que le fichier annonce avant même le code.
-**(Surligne lignes 5-8 - avertissement de sécurité ECB)** Le fichier annonce immédiatement le point central: ECB est cryptographiquement faible.
-Pourquoi? Parce que deux blocs clairs identiques donnent deux blocs chiffrés identiques,
-ce qui préserve des motifs observables dans les données.
-**(Surligne ligne 10 - PKCS#7)** Le docstring précise aussi que PKCS#7 est appliqué,
-car la primitive sous-jacente chiffre uniquement des blocs de taille fixe.
-En clair, ECB est ici un mode de référence pour comparer,
-pas une recommandation de déploiement.
-
-#### Segment 2 - Lignes 17 à 25, _pkcs7_pad et _pkcs7_unpad
-Maintenant, on passe aux deux petites fonctions utilitaires qui gèrent le rembourrage.
-**(Surligne lignes 17-19 - fonction _pkcs7_pad)** Ici, on applique le rembourrage PKCS#7 en deux étapes simples.
-D'abord, on calcule combien d'octets il manque pour compléter le bloc.
-Ensuite, on ajoute exactement ce nombre d'octets de remplissage.
-Chaque octet ajouté porte cette même valeur, ce qui permet de retirer le padding de façon déterministe au déchiffrement.
-**(Surligne lignes 22-24 - _pkcs7_unpad)** Au retrait, la version actuelle lit le dernier octet et coupe directement.
-Techniquement, c'est suffisant pour un environnement contrôlé de benchmark.
-Point de réflexion important: en production,
-on validerait aussi la cohérence de tous les octets de padding avant suppression.
-Le but est de réduire la surface d'attaques liées aux erreurs de padding.
-
-#### Segment 3 - Lignes 27 à 35, déclaration de la classe ECB et constructeur
-Ensuite, regardons la structure de la classe elle-même.
-**(Surligne ligne 27 - déclaration de la classe ECB)** Ici, ECB applique directement le contrat défini dans OperationMode.
-**(Surligne lignes 34-35 - constructeur)** Le constructeur reçoit la primitive et la transmet simplement à la classe de base,
-sans ajouter d'état interne.
-Ce point est important: contrairement à CBC, CTR ou GCM,
-ECB n'utilise ni vecteur d'initialisation ni nonce.
-C'est justement cette absence de chaînage entre les blocs
-qui rend le mode très simple, mais aussi vulnérable à l'analyse de motifs.
-
-#### Segment 4 - Lignes 37 à 54, encrypt
-Maintenant qu'on a vu la structure de la classe, regardons le flux concret du chiffrement, étape par étape.
-**(Surligne ligne 51 - bs = self._primitive.block_size)** D'abord, ECB récupère la taille de bloc depuis la primitive.
-**(Surligne ligne 52 - padded = _pkcs7_pad(plaintext, bs))** Ensuite, il applique le rembourrage pour aligner le message sur cette taille.
-**(Surligne ligne 53 - return self._primitive.encrypt_blocks(padded))** Enfin, il confie le chiffrement complet à la primitive.
-Autrement dit, ECB ne chiffre pas lui-meme.
-Il orchestre les etapes et delegue l'operation cryptographique.
-Et c'est précisément là sa faiblesse: sans mélange entre blocs,
-deux blocs clairs identiques donnent deux blocs chiffrés identiques, donc les motifs restent visibles.
-
-#### Segment 5 - Lignes 55 à 74, decrypt
-Pour terminer, on regarde le chemin inverse, donc le déchiffrement.
-**(Surligne lignes 69-73 - validation de longueur + ValueError)** Avant de déchiffrer,
-le code refuse tout texte chiffré dont la taille n'est pas un multiple exact de la taille de bloc.
-C'est une vérification de robustesse minimale pour éviter un traitement incohérent.
-**(Surligne ligne 74 - decrypt_blocks puis _pkcs7_unpad)** Le flux inverse est clair:
-déchiffrement des blocs, puis retrait du padding.
-Cette section est importante pour la suite de la vidéo,
-car c'est exactement ce comportement qui sera comparé à CBC
-lors de la démonstration visuelle de la fuite de motifs en ECB.
-
-## DOSSIER ENGINE
-
-### Fichier domain/engine/EncryptionEngine.py
-Dans cette section, on illustre le point d assemblage entre primitive et mode.
-Maintenant qu'on a vu les primitives et les modes séparément,
-on regarde l'endroit où ils sont réellement assemblés.
-EncryptionEngine.py est la pièce d'intégration du domaine:
-il prend une primitive, par exemple AES,
-et un mode, par exemple CBC,
-pour exposer une interface de chiffrement unique et cohérente.
-
-#### Segment 1 - Lignes 1 à 10, docstring du fichier
-Pour commencer, regardons ce que le fichier annonce comme responsabilité.
-**(Surligne lignes 2-4 - description du rôle du moteur)** Le moteur combine explicitement primitive et mode pour fournir un service complet.
-**(Surligne lignes 6-9 - séparation des responsabilités)** Le point architectural clé est posé dès le docstring:
-EncryptionEngine est central pour le domaine,
-mais il ne gère ni le chronométrage, ni les CSV, ni la configuration des expériences.
-Cette séparation garde une frontière claire entre logique cryptographique
-et orchestration applicative.
-
-#### Segment 2 - Lignes 29 à 38, constructeur
-Ensuite, on regarde la validation la plus critique de ce fichier.
-**(Surligne ligne 29 - signature du constructeur)** Le moteur reçoit une primitive et un mode déjà construits.
-**(Surligne lignes 30-35 - vérification d'identité + ValueError)** Le code impose que `mode.primitive` soit exactement le même objet que `primitive`.
-Ce n'est pas un simple détail: cette contrainte évite les assemblages incohérents,
-par exemple un mode initialisé avec une primitive différente de celle du moteur.
-**(Surligne lignes 36-37 - stockage interne)** Une fois validé, le couple est figé dans l'instance.
-
-#### Segment 3 - Lignes 43 à 49, propriétés primitive et mode
-Maintenant, on voit comment cette configuration est exposée proprement.
-**(Surligne lignes 43-45 - propriété primitive)** La primitive est accessible en lecture seule.
-**(Surligne lignes 47-49 - propriété mode)** Le mode l'est aussi, avec le même principe.
-Concrètement, ça permet d'inspecter un moteur déjà construit,
-sans pouvoir modifier sa configuration interne après initialisation.
-
-#### Segment 4 - Lignes 51 à 66, encrypt et decrypt
-Pour terminer, regardons le flux opérationnel du moteur.
-**(Surligne lignes 51-58 - méthode encrypt)** `encrypt` délègue directement au mode,
-en propageant les paramètres nommés utiles, comme le vecteur d'initialisation, le nonce ou l'AAD.
-**(Surligne lignes 60-66 - méthode decrypt)** `decrypt` applique exactement le même principe dans l'autre sens.
-La conséquence est essentielle pour l'architecture:
-EncryptionEngine n'implémente pas la crypto lui-même,
-il sert de façade unifiée au-dessus du couple primitive + mode.
-C'est précisément cette interface stable qu'ExperimentController utilise
-pour exécuter les expériences sans dépendre d'un algorithme précis.
-
-## DOSSIER APPLICATION
-
-### Fichier application/ExperimentController.py
-Dans cette section, on detaille comment les mesures sont orchestrees de facon reproductible.
-Après le moteur, on passe à la couche d'orchestration des mesures.
-ExperimentController.py ne fait pas de cryptographie de bas niveau.
-Il pilote le protocole expérimental,
-mesure proprement les performances,
-calcule les indicateurs d'avalanche,
-et retourne un résultat prêt à analyser.
-Point architectural important:
-la classe reste découplée des implémentations concrètes,
-car elle ne dialogue qu'avec l'interface de EncryptionEngine.
-Et la persistance CSV reste volontairement hors de cette couche,
-dans le script appelant.
-
-#### Segment 1 - Lignes 29 à 46, dataclass ExperimentResult
-On commence par la structure de sortie, qui conditionne toute l'analyse.
-**(Surligne ligne 29 - décorateur dataclass)** Le choix dataclass formalise un conteneur de mesure clair et typé.
-**(Surligne lignes 33-37 - paramètres d'identification de l'essai)** On capture le contexte expérimental: algorithme, mode, taille de clé, taille du message, nombre de répétitions.
-**(Surligne lignes 38-45 - métriques de performance et robustesse)** On stocke ensuite les grandeurs utiles à l'interprétation.
-On retrouve les temps moyens, les débits, l'avalanche texte, l'avalanche clé et les intervalles de confiance à 95 %.
-(RESPIRER)
-Cette séparation entre contexte et métriques est très saine:
-elle rend les résultats lisibles, exportables et comparables sans ambiguïté.
-
-#### Segment 2 - Ligne 63, constructeur d'ExperimentController
-Ensuite, regardons l'initialisation de la classe.
-**(Surligne ligne 63 - signature du constructeur)** Le contrôleur reçoit un moteur déjà configuré, plus deux libellés d'identification.
-**(Surligne lignes 69-71 - stockage interne)** Ces valeurs sont conservées comme état minimal de l'orchestrateur.
-Le point clé, c'est la séparation rôle/fonction:
-les deux noms servent uniquement à étiqueter les résultats,
-pas à piloter le chiffrement lui-même.
-
-#### Segment 3 - Lignes 108 à 110, chronométrage du chiffrement dans run_performance
-Ici, on entre dans le cœur méthodologique des mesures.
-**(Surligne ligne 102 - génération d'un plaintext fixe)** Le message aléatoire est créé une seule fois pour assurer la comparabilité entre répétitions.
-**(Surligne lignes 108-110 - fenêtre de mesure encrypt)** Le chronométrage encadre strictement l'appel à encrypt via time.perf_counter.
-C'est une bonne pratique expérimentale:
-on mesure le coût cryptographique utile,
-et on limite l'influence des surcoûts périphériques de l'environnement d'exécution.
-
-#### Segment 4 - Lignes 117 à 119, chronométrage du déchiffrement
-Le même protocole est ensuite reproduit côté déchiffrement.
-**(Surligne ligne 114 - last_ct issu du chiffrement précédent)** Le test s'appuie sur un ciphertext réellement produit par la phase de chiffrement.
-**(Surligne lignes 117-119 - fenêtre de mesure decrypt)** Le minuteur encadre uniquement decrypt, comme pour encrypt.
-Résultat:
-les deux mesures restent symétriques dans la méthode,
-donc plus fiables pour comparer les coûts aller-retour.
-
-#### Segment 5 - Ligne 127, calcul de l'intervalle de confiance a 95%
-Ici, on est dans la partie statistique la plus importante du fichier.
-**(Surligne ligne 127 - début du calcul d'incertitude)** Le contrôleur calcule une marge d'erreur autour du débit mesuré.
-**(Surligne lignes 131-132 - dispersion des temps)** D'abord, il mesure à quel point les temps varient d'une répétition à l'autre.
-**(Surligne lignes 133-136 - conversion en incertitude de débit)** Ensuite, il transforme cette variation en marge d'incertitude, avec un seuil à 95 %.
-En clair:
-on ne regarde pas seulement une moyenne,
-on regarde une moyenne accompagnée de son niveau de confiance.
-
-#### Segment 6 - Lignes 142 à 159, assemblage du résultat final
-Ici, tout est rassemblé dans un seul résultat.
-**(Surligne lignes 142-156 - création du résultat final)** On retrouve dans le même bloc l'identité du test, les performances, les scores d'avalanche et l'intervalle de confiance.
-**(Surligne lignes 150-151 - calcul du débit avec protection)** Le débit est calculé à partir du temps moyen, avec une sécurité pour éviter la division par zéro.
-**(Surligne lignes 152-153 - calcul des deux scores d'avalanche)** Le score côté texte et le score côté clé sont ajoutés au même moment.
-En résumé:
-on sort une mesure complète,
-directement exploitable pour l'analyse.
-
-#### Segment 7 - Lignes 162 à 212, avalanche sur le texte
-Cette méthode mesure l'effet d'avalanche quand on modifie le message d'entrée.
-**(Surligne ligne 162 - méthode répétée 200 fois)** Le test est répété 200 fois pour rendre le résultat plus stable.
-**(Surligne lignes 193-194 - bloc aléatoire puis chiffrement de référence)** On commence par créer une sortie de référence.
-**(Surligne lignes 197-200 - inversion d'un seul bit)** Ensuite, on change exactement un bit dans l'entrée.
-**(Surligne lignes 205-209 - comparaison bit à bit)** On compare les deux sorties pour compter combien de bits ont changé.
-**(Surligne ligne 211 - moyenne finale)** On calcule ensuite la moyenne de tous les essais.
-La cible théorique est autour de 0,5:
-changer un seul bit en entrée devrait modifier environ la moitié des bits en sortie.
-
-#### Segment 8 - Lignes 213 à 270, avalanche sur la clé
-Dans ce dernier segment, on présente la mesure d'avalanche côté clé.
-L'idée est simple: on garde le même message, et on modifie uniquement la clé.
-**(Surligne ligne 213 - méthode répétée 200 fois)** Le principe statistique reste le même, avec plusieurs essais.
-**(Surligne lignes 252-255 - inversion d'un bit dans la clé)** On crée une clé légèrement modifiée en changeant un seul bit.
-**(Surligne ligne 260 - nouvelle primitive avec la clé modifiée)** Puis on compare le chiffrement avec la clé d'origine et avec la clé modifiée.
-**(Surligne lignes 261-263 - gestion des cas invalides)** Si la clé modifiée pose problème, le code continue au lieu de faire échouer toute la campagne.
-**(Surligne lignes 267-271 - comparaison bit à bit)** On mesure encore la différence de sortie, puis on moyenne sur tous les essais.
-Ce bloc est important en pratique:
-il permet d'évaluer la sensibilité à la clé,
-tout en gardant une exécution robuste.
-
-## DOSSIER SCRIPTS
-
-### Survol de scripts/
----
-Dans cette partie, on passe en revue les points d entree du projet et leur role respectif.
-Dans scripts, on trouve les points d'entrée du système.
-experiment.py lance les benchmarks de performance.
-run_kat.py valide la conformité cryptographique des implementations.
-generate_charts.py produit les figures à partir des résultats.
-analyse_rounds_avalanche.py mesure la robustesse cryptographique.
-ecb_visual_vulnerability.py demontre la vulnérabilité du mode ECB.
-compare_platforms.py confronte les résultats entre le laptop et le Raspberry Pi.
-On revient en detail sur chacun de ces scripts dans les prochaines vidéos.
-Pour l'instant, on se concentre sur experiment.py.
-(PAUSE) (SURLIGNER: **scripts/experiment.py**) (SURLIGNER: **scripts/run_kat.py**) (SURLIGNER: **scripts/generate_charts.py**) (SURLIGNER: **scripts/analyse_rounds_avalanche.py**) (SURLIGNER: **scripts/ecb_visual_vulnerability.py**) (SURLIGNER: **scripts/compare_platforms.py**)
-
-### Fichier scripts/experiment.py
-Dans cette section, on suit le pipeline complet de campagne experimentale jusqu au CSV.
-Dans cette section, on présente le script principal qui lance toute la campagne de mesures.
-On va suivre son déroulement logique:
-la définition des paramètres,
-puis l'exécution des tests,
-et enfin l'écriture des résultats dans le CSV.
-
-#### Segment 1 - Lignes 1 à 17, docstring
-Pour commencer, on présente le rôle global du script.
-**(Surligne lignes 11-14 - rôle global du script)** Le docstring dit clairement que ce fichier parcourt la matrice d'expériences, lance les mesures et écrit un CSV horodaté.
-**(Surligne lignes 16-17 - séparation des responsabilités)** Point essentiel pour l'architecture: aucune logique cryptographique n'est implémentée ici.
-Ce script sert surtout de point d'entrée,
-entre les couches métier et les entrées-sorties.
-
-#### Segment 2 - Lignes 51 à 70, REPETITIONS et EXPERIMENT_MATRIX
-Dans ce segment, on lit la configuration des tests.
-**(Surligne ligne 51 - REPETITIONS)** Ici, le script fixe 100 répétitions par test.
-**(Surligne lignes 53-70 - EXPERIMENT_MATRIX)** Ici, on voit la liste complète des combinaisons.
-**(Surligne ligne 58 - entrée AES-GCM)** Exemple: AES est testé en mode GCM.
-**(Surligne ligne 69 - entrée ChaCha20-StreamMode)** Et ici, ChaCha20 passe par StreamMode avec une clé de 32 octets.
-Conclusion simple: pour ajouter un scénario, on modifie la matrice,
-pas la logique du script.
-
-#### Segment 3 - Ligne 72, MESSAGE_SIZES
-À ce stade, on précise les tailles de message utilisées.
-**(Surligne ligne 72 - MESSAGE_SIZES)** Le script teste de 64 à 16384 octets.
-Ça couvre à la fois les petits messages,
-où les coûts fixes pèsent plus lourd,
-et les gros messages,
-où le débit réel se voit mieux.
-
-#### Segment 4 - Lignes 102 à 107, vérification préalable de la clé
-Avant d'entrer dans la boucle de mesure,
-le script fait une vérification rapide de la clé.
-**(Surligne lignes 103-105 - instanciation de vérification)** Il essaie d'instancier la primitive avec une clé de test.
-**(Surligne lignes 106-107 - gestion d'échec)** Si cette étape échoue,
-le cas est ignoré proprement,
-et la campagne continue sans interruption.
-Cette garde évite qu'une erreur locale
-fasse échouer tout le benchmark.
-
-#### Segment 5 - Lignes 110 à 135, boucle principale d'exécution
-Ici, on est dans la boucle principale.
-Pour chaque taille de message,
-le script prépare toute la chaîne de traitement.
-**(Surligne lignes 111-116 - construction de la chaîne d'exécution)** Il crée la primitive, le mode, le moteur, puis le contrôleur.
-**(Surligne lignes 124-127 - appel run_performance)** Ensuite, il lance la mesure avec la taille courante et le nombre de répétitions.
-**(Surligne ligne 128 - accumulation des résultats)** Le résultat est ajouté à la liste finale.
-**(Surligne lignes 129-133 - sortie terminal)** Et le terminal affiche immédiatement les indicateurs clés: temps de chiffrement, débit, avalanche.
-
-#### Segment 6 - Lignes 143 à 149, écriture du CSV
-Pour terminer, on passe à l'export.
-Une fois la campagne finie,
-le script écrit tout dans un CSV horodaté.
-**(Surligne ligne 143 - définition des colonnes)** D'abord, il récupère la liste des colonnes.
-**(Surligne lignes 145-146 - initialisation du writer + en-tête)** Ensuite, il crée l'écrivain CSV et écrit l'en-tête.
-**(Surligne lignes 147-148 - écriture des lignes)** Puis il écrit les résultats, ligne par ligne.
-C'est ce fichier final
-qu'on ouvre juste après l'exécution.
-
-### Basculer vers VS Code et ouvrir le terminal integre
----
-Dans cette etape, on demontre l execution reelle de bout en bout.
-On passe maintenant dans Visual Studio Code pour lancer l'expérience en direct.
-(RESPIRER)
-(PAUSE) (SURLIGNER: **Terminal integre**)
-Transition pour la suite: on quitte le descriptif et on passe a la preuve experimentale observable.
-
-### Taper et executer python scripts/experiment.py
----
-Dans cette etape, on demontre que le protocole s execute tel qu il a ete defini dans le code.
-Je lance la commande python scripts/experiment.py.
-Je suis déjà dans le bon dossier,
-donc elle s'exécute directement.
-(RESPIRER)
-(PAUSE) (SURLIGNER: **python scripts/experiment.py**) (SURLIGNER: *REPETITIONS = 100*)
-Ici, le point important est la coherence methode-code.
-Le parametre de 100 repetitions est bien applique en execution.
-
-### Laisser défiler le terminal — version accélérée
----
-Dans cette etape, on demontre la reproductibilite de la matrice experimentale.
-Le script parcourt maintenant toute la matrice d'expériences.
-Chaque combinaison d'algorithme, de mode, de taille de clé et de taille de message est testée.
-Chaque mesure est répétée cent fois.
-L'exécution complète prend plusieurs minutes, donc la suite est accélérée.
-On voit les résultats défiler dans le terminal,
-avec le temps moyen, le débit,
-et le score d'avalanche pour chaque configuration.
-(PAUSE) (SURLIGNER: **temps moyen** ) (SURLIGNER: **debit** ) (SURLIGNER: **score d avalanche** )
-Pendant ce defilement, je commente surtout trois indicateurs.
-Le temps moyen, le debit et le score d avalanche.
-(RESPIRER)
-Message cle: les resultats sont produits automatiquement, de facon homogene sur toute la matrice.
-
-> **Note de tournage** : garder les 10 à 15 premières secondes en temps réel,
-> idéalement sur une configuration AES rapide pour que ça bouge bien à l'écran,
-> puis accélérer à 4× jusqu'à la fin.
-> Éviter de couper pile sur les runs 3DES — c'est la portion la plus lente
-> et ça pourrait paraître étrange en accéléré si la progression semble figée
-> plus longtemps que les autres.
-
-### Ouvrir le CSV généré
----
-Dans cette etape, on demontre la sortie exploitable qui servira a l analyse TN3.
-À la fin de l'exécution,
-le terminal confirme l'emplacement du fichier généré.
-Un CSV horodaté est créé dans data/results.
-Il contient une ligne par configuration,
-avec tous les indicateurs mesurés:
-temps de chiffrement et de déchiffrement,
-débit,
-scores d'avalanche,
-et intervalles de confiance.
-C'est ce fichier brut
-qui servira de base à l'analyse comparative des prochaines vidéos.
-(PAUSE) (SURLIGNER: **data/results/**) (SURLIGNER: **avg_encrypt_time_s**) (SURLIGNER: **throughput_encrypt_mbps**) (SURLIGNER: **key_avalanche_score**) (SURLIGNER: **ci95_encrypt_mbps**)
-On peut aussi verifier les colonnes d identification de configuration.
-Elles relient chaque mesure a son algorithme, son mode et sa taille de message.
-Conclusion de cette etape: les graphes et conclusions TN3 reposent sur un jeu de donnees traceable de bout en bout.
-(RESPIRER)
-
-### Cloture de la video 1
-En conclusion, on a demontre trois choses: l architecture est modulaire, l execution est reproductible, et la sortie est analytiquement exploitable.
-La video 2 peut donc se concentrer sur la justification methodologique, avec une base experimentale deja solide.
+- Exécution en direct et génération du CSV
 
+## Guide d'enregistrement
 
+### Section 0 - Introduction
+Bonjour et bienvenue dans cette première vidéo, où je présente mon projet sur l'Analyse Comparative des Chiffrements Symétriques. L'objectif est simple, établir une lecture technique claire du système avant toute interprétation des résultats. Nous allons d'abord cadrer la structure globale du dépôt, puis ouvrir le coeur d'exécution dans crypto-experiments, et enfin suivre le chemin complet qui mène des composants logiciels aux sorties expérimentales.
+
+### Section 1 - Vue d'ensemble du dépôt
+**Titre :** Identifier le périmètre technique
+
+**Fichier / zone à montrer :** racine du dépôt puis dossier crypto-experiments/
+
+**Code / arborescence à montrer :**
+```text
+INF1430-Comparaison-Chiffrement-Symetrique/
+├── .github/workflows/
+├── Resources/
+├── crypto-experiments/
+├── docs/
+└── README.md
+```
+
+**Narration fluide :**
+Commençons par la structure de haut niveau du projet. Le fichier README.md sert de point d'entrée technique et présente les objectifs, l'architecture et les procédures d'exécution. Le dossier .github/workflows porte la chaîne d'intégration continue, donc les contrôles automatiques à chaque mise à jour du dépôt. Le dossier Resources regroupe les références techniques et méthodologiques, puis docs formalise le cadre académique avec les consignes, les analyses, le plan de présentation et les scripts vidéo.
+
+On se concentre ensuite sur crypto-experiments, car c'est le noyau d'exécution et la zone centrale du TN3. Le dossier application orchestre les campagnes, domain implémente les abstractions et la logique cryptographique, puis scripts fournit les points d'entrée opérationnels. Le dossier validation vérifie la conformité avec les tests KAT, tandis que tests couvre les contrôles de non-régression. Le dossier data conserve les artefacts produits, soit les tableaux de résultats et les graphiques. Enfin, requirements.txt fixe les dépendances logicielles, pytest.ini définit la configuration de test et coverage.xml documente la couverture mesurée.
+
+**Flux du processus :**
+Pour relier cette vue d'ensemble à la suite, déroulons le chemin de travail. Maintenant que la structure est posée, on passe à l'exploration guidée des fichiers. D'abord, on identifie les points d'entrée dans scripts. Ensuite, on voit comment application orchestre les campagnes expérimentales. Puis, on descend dans domain pour l'exécution cryptographique. Finalement, on ferme la boucle avec validation et tests, puis on confirme la traçabilité des sorties dans data.
+
+### Section 2 - Contrat des primitives cryptographiques
+**Titre :** Contrat, invariants et extensibilité des algorithmes
+
+**Fichier / zone à montrer :** domain/cipher/CipherPrimitive.py
+
+**Intro :**
+Ce fichier pose le contrat de base de toute l'architecture cryptographique. Il ne définit aucun algorithme concret, uniquement les règles que chaque primitive devra respecter. Et c'est ce cadre commun qui rend nos comparaisons valides, car AES, DES, TripleDES et Twofish passent tous par la même interface, dans les mêmes conditions et avec la même surface d'appel.
+
+**Code à montrer :**
+```python
+class CipherPrimitive(ABC):
+    @property
+    @abstractmethod
+    def block_size(self) -> int:
+        ...
+
+    @property
+    @abstractmethod
+    def key_size(self) -> int:
+        ...
+
+    @abstractmethod
+    def encrypt_block(self, block: bytes) -> bytes:
+        ...
+
+    @abstractmethod
+    def decrypt_block(self, block: bytes) -> bytes:
+        ...
+
+    def encrypt_blocks(self, data: bytes) -> bytes:
+        bs = self.block_size
+        if len(data) % bs != 0:
+            raise ValueError(...)
+        ...
+```
+
+**Narration ligne par ligne :**
+
+`class CipherPrimitive(ABC)` — Le mot-clé ABC, pour Abstract Base Class, indique que cette classe ne peut pas être instanciée directement. Elle définit uniquement un contrat que chaque algorithme concret devra honorer.
+
+`@property` et `@abstractmethod` sur `block_size` et `key_size` — Ces deux décorateurs combinés imposent que toute sous-classe expose ces valeurs comme propriétés calculées, pas comme paramètres optionnels. AES retournera 16, DES retournera 8. Ces invariants sont utilisés partout dans le moteur pour allouer les bons buffers et valider les entrées.
+
+`encrypt_block` et `decrypt_block` — Ce sont les deux opérations fondamentales du contrat. Elles travaillent toujours sur exactement un bloc de `block_size` octets. Ni plus ni moins. C'est ce que consomme la couche mode pour construire CBC, CTR ou GCM.
+
+`encrypt_blocks` avec la validation — Cette méthode traite un message complet. Elle commence par vérifier que la longueur est un multiple de `block_size`. Si ce n'est pas le cas, elle lève une `ValueError` immédiatement. Ce garde-fou évite des résultats silencieusement tronqués. Les sous-classes peuvent surcharger cette méthode pour appeler leur bibliothèque native en une seule passe plutôt que bloc par bloc.
+
+**Flux du processus :**
+Avant de passer à l'implémentation concrète, posons une lecture commune du flux. En clair, le processus est le suivant. ExperimentController orchestre l'expérience, EncryptionEngine délègue au mode, puis le mode s'appuie sur le contrat CipherPrimitive. Ce cadre garantit que les primitives restent interchangeables et que les différences observées viennent des algorithmes eux-mêmes, pas du protocole de mesure.
+
+### Section 3 - Exemple concret de primitive (AES)
+**Titre :** Implémentation concrète d'une primitive
+
+**Fichier / zone à montrer :** domain/cipher/AES.py
+
+**Intro :**
+Après le contrat abstrait, on descend maintenant vers une implémentation réelle. Ce fichier montre comment AES prend ce contrat et le transforme en comportement concret. L'intérêt ici n'est pas seulement de voir un algorithme, mais de comprendre comment une primitive réelle s'insère dans notre architecture sans casser l'abstraction commune.
+
+**Code à montrer :**
+```python
+from Crypto.Cipher import AES as _AES
+
+class AES(CipherPrimitive):
+    BLOCK_SIZE = 16
+
+    def __init__(self, key: bytes) -> None:
+        if len(key) not in _VALID_KEY_SIZES:
+            raise ValueError(...)
+        self._key = key
+
+    def encrypt_block(self, block: bytes) -> bytes:
+        cipher = _AES.new(self._key, _AES.MODE_ECB)
+        return cipher.encrypt(block)
+
+    def encrypt_blocks(self, data: bytes) -> bytes:
+        return _AES.new(self._key, _AES.MODE_ECB).encrypt(data)
+```
+
+**Narration ligne par ligne :**
+
+`from Crypto.Cipher import AES as _AES` — Ici, on importe l'implémentation native fournie par PyCryptodome. Le suffixe `_AES` permet de distinguer clairement la bibliothèque sous-jacente de notre classe métier `AES`.
+
+`class AES(CipherPrimitive)` — Cette ligne relie l'implémentation concrète au contrat abstrait. La classe hérite de `CipherPrimitive`, donc elle doit fournir les mêmes propriétés et les mêmes opérations.
+
+`BLOCK_SIZE = 16` — Cette constante fixe la taille de bloc AES à 16 octets, soit 128 bits. C'est la valeur qui alimente tout le reste de la chaîne: validation, découpage, et composition avec les modes.
+
+`__init__` et la validation de `key` — Le constructeur applique une validation stricte de longueur avec `_VALID_KEY_SIZES`, donc 16, 24 ou 32 octets, soit 128, 192 ou 256 bits. Si la clé ne respecte pas ces tailles, il lève immédiatement une `ValueError`. Ce mécanisme fail-fast empêche la création d'une instance AES invalide et garantit que toutes les opérations suivantes partent d'un état cryptographique cohérent.
+
+`encrypt_block` — Cette méthode chiffre un bloc unique. Elle crée un chiffreur PyCryptodome en mode ECB brut, puis chiffre exactement un bloc. Le mode ECB ici n'est pas un choix de sécurité globale, c'est une brique interne qui sert à exécuter un bloc isolé.
+
+`encrypt_blocks` — Cette méthode prend le chemin rapide pour plusieurs blocs. Au lieu de boucler bloc par bloc côté Python, elle délègue le traitement groupé à PyCryptodome. C'est plus proche du comportement réel du moteur et plus représentatif pour la mesure de performance.
+
+**Flux du processus :**
+Pour garder une lecture fluide, résumons le trajet opérationnel. Retenons le chemin d'exécution. ExperimentController demande une opération, EncryptionEngine transmet au mode, puis le mode appelle AES. AES vérifie la taille de la clé, chiffre les blocs avec PyCryptodome et renvoie un résultat conforme au contrat de la couche supérieure.
+
+### Section 4 - Contrat des modes d'opération
+**Titre :** Comment le système gère ECB/CBC/CTR/GCM
+
+**Fichier / zone à montrer :** domain/mode/OperationMode.py
+
+**Intro :**
+Après la primitive, cette section introduit la couche qui transforme un chiffrement de bloc en chiffrement de message. Le mode d'opération définit la logique de chaînage, de compteur ou d'authentification, tout en restant découplé de l'algorithme concret.
+
+**Code à montrer :**
+```python
+class OperationMode(ABC):
+    def __init__(self, primitive: CipherPrimitive) -> None:
+        self._primitive = primitive
+
+    @abstractmethod
+    def encrypt(self, plaintext: bytes, **kwargs) -> bytes:
+        ...
+
+    @abstractmethod
+    def decrypt(self, ciphertext: bytes, **kwargs) -> bytes:
+        ...
+```
+
+**Narration ligne par ligne :**
+
+`class OperationMode(ABC)` — Cette classe abstraite impose un contrat commun à tous les modes. On fixe la même interface, puis chaque mode implémente sa logique interne sans casser la couche supérieure.
+
+`__init__(self, primitive: CipherPrimitive)` — Le constructeur injecte explicitement la primitive. Ce choix matérialise une composition claire, le mode ne chiffre rien seul, il orchestre l'usage d'une primitive déjà validée.
+
+`encrypt(self, plaintext: bytes, **kwargs)` — Cette signature formalise le chiffrement d'un message complet. Les `kwargs` absorbent les paramètres dépendants du mode, comme iv, nonce, counter ou aad.
+
+`decrypt(self, ciphertext: bytes, **kwargs)` — Cette méthode impose la symétrie fonctionnelle du contrat. Chaque mode doit garantir un chemin de déchiffrement cohérent avec son propre schéma de chiffrement.
+
+**Flux du processus :**
+Pour bien connecter cette couche avec la suivante, gardons le mécanisme en tête. Ici, le flux est simple. EncryptionEngine appelle le mode, le mode applique sa logique de transformation de message, puis délègue les opérations élémentaires à la primitive. Ce découplage garantit que l'on peut changer de mode sans réécrire l'algorithme sous-jacent.
+
+### Section 5 - Point d'assemblage du domaine
+**Titre :** Rôle de EncryptionEngine
+
+**Fichier / zone à montrer :** domain/engine/EncryptionEngine.py
+
+**Intro :**
+Cette classe est la façade du domaine cryptographique. Elle centralise la composition primitive plus mode et offre un point d'entrée stable à l'application, sans exposition des détails internes.
+
+**Code à montrer :**
+```python
+class EncryptionEngine:
+    def __init__(self, primitive: CipherPrimitive, mode: OperationMode) -> None:
+        if mode.primitive is not primitive:
+            raise ValueError(...)
+        self._primitive = primitive
+        self._mode = mode
+
+    def encrypt(self, plaintext: bytes, **kwargs) -> bytes:
+        return self._mode.encrypt(plaintext, **kwargs)
+```
+
+**Narration ligne par ligne :**
+
+`class EncryptionEngine` — Cette classe représente la brique d'assemblage qui relie contrat de primitive et contrat de mode dans un service unique.
+
+`__init__(primitive, mode)` — Le constructeur reçoit les deux dépendances explicites et verrouille la composition au moment de l'instanciation.
+
+`if mode.primitive is not primitive` — Cette condition impose un invariant d'identité objet. On n'accepte pas un mode lié à une autre primitive, car cela créerait une incohérence silencieuse.
+
+`raise ValueError(...)` — En cas d'incohérence, l'échec est immédiat. Ce comportement fail-fast protège la validité cryptographique avant toute mesure.
+
+`self._primitive` et `self._mode` — Ces références deviennent la configuration de travail stable du moteur pour toute la durée de l'expérience.
+
+`encrypt(...) -> self._mode.encrypt(...)` — EncryptionEngine ne réimplémente pas la cryptographie. Il délègue strictement au mode, ce qui maintient une séparation de responsabilités nette.
+
+**Flux du processus :**
+À ce stade, on peut formaliser le passage application vers domaine. Au final, le flux est le suivant. L'application crée la primitive, construit le mode avec cette même primitive, puis instancie EncryptionEngine. Ensuite, toute l'exécution passe par cette façade, avec une API stable et indépendante des choix concrets.
+
+### Section 6 - Orchestration des mesures
+**Titre :** Rôle de ExperimentController
+
+**Fichier / zone à montrer :** application/ExperimentController.py
+
+**Intro :**
+Ici, on passe de l'architecture logicielle à la logique scientifique. ExperimentController est la couche qui transforme une exécution cryptographique en mesures exploitables pour la comparaison.
+
+**Code à montrer :**
+```python
+@dataclass
+class ExperimentResult:
+    algorithm: str
+    mode: str
+    message_size_bytes: int
+    throughput_encrypt_mbps: float
+    avalanche_score: float
+    ci95_encrypt_mbps: float
+
+class ExperimentController:
+    def run_performance(self, message_size_bytes: int, repetitions: int) -> ExperimentResult:
+        ...
+```
+
+**Narration ligne par ligne :**
+
+`@dataclass class ExperimentResult` — Cette structure définit un schéma de sortie explicite et typé pour chaque expérience. Elle garantit une trace homogène des résultats sur toutes les configurations.
+
+`algorithm` et `mode` — Ces champs portent le contexte cryptographique exact de la mesure, indispensable pour comparer correctement les résultats.
+
+`message_size_bytes` et `throughput_encrypt_mbps` — Ces champs relient le volume traité à la performance observée, donc la mesure reste interprétable.
+
+`avalanche_score` et `ci95_encrypt_mbps` — On combine robustesse cryptographique et fiabilité statistique dans le même objet, ce qui évite une lecture partielle des performances.
+
+`run_performance(...)` — Cette méthode orchestre le protocole complet, répétitions, chronométrage, agrégation, puis encapsulation finale dans ExperimentResult.
+
+**Flux du processus :**
+Pour passer de la logique logicielle à la logique scientifique, voici le fil de calcul. Concrètement, le flux se déroule ainsi. run_performance appelle le moteur, collecte les séries temporelles, calcule les indicateurs agrégés et retourne un objet structuré prêt pour l'export CSV et l'analyse comparative.
+
+### Section 7 - Point d'entrée expérimental
+**Titre :** Lancement de la matrice de tests
+
+**Fichier / zone à montrer :** scripts/experiment.py
+
+**Intro :**
+Cette section montre le pilote d'exécution global. Le script parcourt toutes les configurations définies et déclenche systématiquement la même procédure de mesure.
+
+**Code à montrer :**
+```python
+REPETITIONS = 100
+MESSAGE_SIZES = [64, 256, 1024, 4096, 16384]
+
+for algo, primitive_cls, mode_label, mode_cls, key_sizes in EXPERIMENT_MATRIX:
+    ...
+    result = controller.run_performance(
+        message_size_bytes=msg_size,
+        repetitions=REPETITIONS,
+    )
+```
+
+**Narration ligne par ligne :**
+
+`REPETITIONS = 100` — Cette constante fixe le nombre d'itérations de mesure par configuration. Elle limite la variance et améliore la stabilité statistique.
+
+`MESSAGE_SIZES = [...]` — Cette liste définit l'échelle des charges testées, du petit message au volume plus conséquent.
+
+`for ... in EXPERIMENT_MATRIX` — Cette boucle matérialise la couverture expérimentale. Chaque tuple encode une combinaison algorithme plus mode plus taille de clé.
+
+`controller.run_performance(...)` — L'appel délègue la mesure à la couche scientifique sans dupliquer la logique. Le script reste un orchestrateur, pas un calculateur.
+
+**Flux du processus :**
+Dans une perspective d'orchestration complète, voici la séquence à retenir. On peut donc résumer le flux comme suit. scripts/experiment.py instancie les objets du domaine, appelle ExperimentController pour chaque configuration, accumule les résultats de manière traçable, puis déclenche l'export CSV final.
+
+### Section 8 - Démonstration en direct
+**Titre :** Exécution et preuve de sortie
+
+**Fichier / zone à montrer :** terminal + data/results/
+
+**Intro :**
+Cette étape valide la chaîne complète dans des conditions réelles d'exécution. Elle sert de preuve opérationnelle que le protocole produit bien des artefacts exploitables.
+
+**Commande à montrer :**
+```powershell
+python scripts/experiment.py
+```
+
+**Narration ligne par ligne :**
+
+`python scripts/experiment.py` — Cette commande lance toute la campagne selon la matrice de tests définie dans le script.
+
+Progression terminal — La sortie console confirme que chaque configuration est exécutée et mesurée, ce qui rend le déroulement vérifiable en direct.
+
+CSV horodaté dans `data/results` — En fin d'exécution, le système persiste un artefact daté qui fige les résultats bruts pour l'analyse ultérieure.
+
+**Flux du processus :**
+Pour conclure la démonstration avec une lecture claire, revenons au fil complet d'exécution. Pour terminer, le flux est très direct. Le terminal lance scripts/experiment.py, qui enchaîne ExperimentController puis EncryptionEngine pour chaque cas d'essai, et la campagne se termine par des résultats persistés en CSV dans data/results.
+
+### Conclusion
+Cette vidéo pose les fondations techniques du projet, architecture modulaire, invariants explicites, chaîne d'exécution cohérente et artefacts traçables. Dans la suite, nous pourrons justifier la méthodologie expérimentale sur une base logicielle déjà vérifiée.

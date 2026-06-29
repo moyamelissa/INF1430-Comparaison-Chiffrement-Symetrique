@@ -232,7 +232,7 @@ cat data/logs/kat_results.txt
 
 ### Vérification attendue
 
-Les 26 tests doivent afficher `PASS` dans le fichier de log.
+Les 48 assertions réparties sur 6 suites doivent afficher `PASS` dans le fichier de log.
 
 ---
 
