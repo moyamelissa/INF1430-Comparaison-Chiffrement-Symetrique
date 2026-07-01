@@ -207,8 +207,7 @@ def cmp1_throughput_all():
     ax.set_xticklabels(algo_order, fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Comparaison 1 — Débit de chiffrement : Laptop x86 vs Raspberry Pi\n"
-        f"(ECB sauf ChaCha20 · {target_size} octets · meilleure clé par algorithme)",
+        "Débit de chiffrement en fonction de l'algorithme (x86 et ARM)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -257,8 +256,7 @@ def cmp2_speedup_ratio():
 
     ax.set_ylabel("Rapport de débit x86 / Pi (×)", fontsize=11)
     ax.set_title(
-        "Comparaison 2 — Rapport de performance x86 vs Raspberry Pi\n"
-        "(ECB sauf ChaCha20 · 4 096 octets · valeur > 1 = x86 plus rapide)",
+        "Ratio de performance en fonction de l'algorithme (x86/ARM)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -315,8 +313,7 @@ def cmp3_throughput_vs_size():
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Comparaison 3 — Débit selon la taille du message (mode ECB)\n"
-        "Trait plein = x86  ·  Trait pointillé = Raspberry Pi",
+        "Débit en fonction de la taille du message (x86 et ARM)",
         fontsize=11,
     )
     ax.legend(fontsize=7, ncol=2)
@@ -361,8 +358,7 @@ def cmp4_avalanche():
     ax.set_ylim(0.42, 0.64)
     ax.set_ylabel("Score d'avalanche", fontsize=11)
     ax.set_title(
-        "Comparaison 4 — Effet d'avalanche : x86 vs Raspberry Pi\n"
-        "(propriété mathématique — les scores doivent être indépendants de la plateforme)",
+        "Score d'avalanche en fonction de l'algorithme (x86 et ARM)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -411,8 +407,7 @@ def cmp5_chacha20():
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Comparaison 5 — ChaCha20 : Laptop x86 vs Raspberry Pi\n"
-        "(aucune accélération matérielle sur les deux plateformes — ARX logiciel pur)",
+        "Débit de ChaCha20 en fonction de la taille du message (x86 et ARM)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -471,8 +466,7 @@ def cmp6_ci95_stability():
     ax.set_xticklabels(algo_order, fontsize=11)
     ax.set_ylabel("IC à 95 % du débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Comparaison 6 — Stabilité des mesures : IC95 · Laptop x86 vs Raspberry Pi\n"
-        "(ECB · 4 096 octets · meilleure clé  |  valeur faible = mesures stables)",
+        "Stabilité des mesures en fonction de la plateforme (IC95)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -544,8 +538,7 @@ def cmp7_radar():
         ax.fill(angles, vals, alpha=0.08, color=color)
 
     ax.set_title(
-        "Comparaison 7 — Synthèse multi-critères (scores normalisés)\n"
-        "Débit · Portabilité · Qualité d'avalanche",
+        "Score global en fonction de l'algorithme (synthèse normalisée)",
         fontsize=11, color=TEXT_COLOR, pad=25,
     )
     ax.legend(loc="upper right", bbox_to_anchor=(1.35, 1.15), fontsize=9)
@@ -593,8 +586,7 @@ def cmp8_scalability_all_algos():
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Scalabilité — Débit vs taille de message : x86 (—) vs Pi (- -)\n"
-        "(mode ECB/Stream, meilleure clé par algorithme)",
+        "Débit en fonction de la taille du message (tous algorithmes)",
         fontsize=11,
     )
     ax.legend(fontsize=7, ncol=5)

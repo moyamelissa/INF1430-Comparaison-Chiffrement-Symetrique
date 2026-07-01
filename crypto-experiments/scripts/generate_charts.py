@@ -178,8 +178,7 @@ def fig1_throughput_4096():
     ax.set_xticklabels(tick_labels, fontsize=7)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Figure 1 — Débit de chiffrement par algorithme et mode\n"
-        f"(message de {target_size} octets, plateforme : laptop Windows x86)",
+        "Débit de chiffrement en fonction de l'algorithme et du mode",
         fontsize=11,
     )
 
@@ -231,8 +230,7 @@ def fig2_throughput_vs_size():
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Figure 2 — Débit de chiffrement selon la taille du message (mode ECB)\n"
-        "(plateforme : laptop Windows x86)",
+        "Débit de chiffrement en fonction de la taille du message",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -270,8 +268,7 @@ def fig3_aes_mode_comparison():
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Figure 3 — Comparaison des modes d'opération (AES-128)\n"
-        "(plateforme : laptop Windows x86)",
+        "Débit AES-128 en fonction du mode d'opération",
         fontsize=11,
     )
     ax.legend(title="Mode", fontsize=9)
@@ -306,8 +303,7 @@ def fig4_avalanche():
     ax.set_ylim(0.45, 0.565)
     ax.set_ylabel("Score d'effet d'avalanche (proportion de bits modifiés)", fontsize=10)
     ax.set_title(
-        "Figure 4 — Effet d'avalanche par algorithme\n"
-        "(moyenne ± écart-type, tous modes et tailles confondus)",
+        "Score d'avalanche en fonction de l'algorithme",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -354,8 +350,7 @@ def fig4b_key_avalanche():
     ax.set_ylim(0.40, 0.65)
     ax.set_ylabel("Score d'avalanche", fontsize=11)
     ax.set_title(
-        "Figure 4b — Comparaison de l'effet d'avalanche : flip texte clair vs flip clé\n"
-        "(tous modes et tailles confondus)",
+        "Score d'avalanche en fonction du type de perturbation",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -400,8 +395,7 @@ def fig5_enc_vs_dec():
     ax.set_xticklabels(labels, fontsize=8)
     ax.set_ylabel("Débit (MB/s)", fontsize=11)
     ax.set_title(
-        f"Figure 5 — Débit de chiffrement vs déchiffrement (mode ECB, {target_size} octets)\n"
-        "(plateforme : laptop Windows x86)",
+        "Débit de chiffrement en fonction de l'opération (ECB)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -439,8 +433,7 @@ def fig6_key_size_impact():
     ax.set_xlabel("Taille de clé AES", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Figure 6 — Impact de la taille de clé sur le débit AES\n"
-        "(message de 4 096 octets, plateforme : laptop Windows x86)",
+        "Débit AES en fonction de la taille de clé",
         fontsize=11,
     )
     ax.legend(title="Mode", fontsize=9)
@@ -483,7 +476,7 @@ def algo_profile(algo_name):
         ax1.set_xticklabels([f"{s:,}" for s in msg_sizes])
         ax1.set_xlabel("Taille du message (octets)", fontsize=10)
         ax1.set_ylabel("Débit (MB/s)", fontsize=10)
-        ax1.set_title(f"Profil {algo_name} — Débit chiffrement vs déchiffrement par taille de message",
+        ax1.set_title(f"Profil {algo_name} — Débit en fonction de la taille du message",
                       fontsize=11, fontweight="bold")
         ax1.legend(fontsize=9)
         _style_ax(ax1)
@@ -498,7 +491,7 @@ def algo_profile(algo_name):
         ax2.set_xlabel("Taille du message (octets)", fontsize=10)
         ax2.set_ylabel("Score d'avalanche", fontsize=10)
         ax2.set_ylim(0.45, 0.65)
-        ax2.set_title("Score d'effet d'avalanche par taille de message", fontsize=10)
+        ax2.set_title(f"Profil {algo_name} — Avalanche en fonction de la taille du message", fontsize=10)
         _style_ax(ax2)
 
         plt.tight_layout()
@@ -541,7 +534,7 @@ def algo_profile(algo_name):
     ax1.set_xticks(x)
     ax1.set_xticklabels([f"{k} bits" for k in key_bits_list])
     ax1.set_ylabel("Débit de chiffrement (MB/s)", fontsize=10)
-    ax1.set_title(f"Profil {algo_name} — Débit par mode et taille de clé (4 096 octets)",
+    ax1.set_title(f"Profil {algo_name} — Débit en fonction du mode et de la taille de clé",
                   fontsize=11, fontweight="bold")
     ax1.legend(title="Mode", fontsize=8, ncol=4)
     _style_ax(ax1)
@@ -562,7 +555,7 @@ def algo_profile(algo_name):
     ax2.set_xlabel("Taille de clé", fontsize=10)
     ax2.set_ylabel("Score d'avalanche", fontsize=10)
     ax2.set_ylim(0.45, 0.55)
-    ax2.set_title("Score d'effet d'avalanche par mode et taille de clé", fontsize=10)
+    ax2.set_title(f"Profil {algo_name} — Avalanche en fonction du mode et de la taille de clé", fontsize=10)
     _style_ax(ax2)
 
     plt.tight_layout()
@@ -598,8 +591,7 @@ def fig7_ecb_vs_gcm():
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Figure 7 — AES-128 : Compromis sécurité / performance selon le mode\n"
-        "(ECB rapide mais cryptographiquement cassé — GCM est le choix correct)",
+        "Débit AES-128 en fonction du mode (sécurité et performance)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -658,8 +650,7 @@ def fig9_synthesis_heatmap():
     cbar.ax.tick_params(colors=TEXT_COLOR, labelsize=8)
     cbar.ax.yaxis.label.set_color(TEXT_COLOR)
     ax.set_title(
-        "Figure 8 — Heatmap synthèse : score normalisé par métrique (1 = meilleur)\n"
-        f"(ECB/Stream · {target} octets · plateforme : laptop Windows x86)",
+        "Score global en fonction de l'algorithme et de la métrique",
         fontsize=11, color=TEXT_COLOR,
     )
     plt.tight_layout()

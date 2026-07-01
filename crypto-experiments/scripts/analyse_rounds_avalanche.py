@@ -307,8 +307,7 @@ if __name__ == "__main__":
     ax.set_xlabel("Nombre de tours (rounds)", fontsize=11)
     ax.set_ylabel("Score d'effet d'avalanche", fontsize=11)
     ax.set_title(
-        "Figure 4c — Convergence de l'effet d'avalanche selon le nombre de tours DES\n"
-        f"({TRIALS} essais par configuration, flip d'un bit en entrée)",
+        "Score d'avalanche en fonction du nombre de tours DES",
         fontsize=11,
     )
     ax.set_xticks(rounds_list)
