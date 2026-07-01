@@ -19,12 +19,14 @@
 3. [Algorithmes et modes étudiés](#algorithmes-et-modes-étudiés)
 4. [Architecture du projet](#architecture-du-projet)
 5. [Structure du dépôt](#structure-du-dépôt)
-6. [Installation](#installation)
-7. [Exécution rapide](#exécution-rapide)
-8. [Validation et tests](#validation-et-tests)
-9. [Résultats expérimentaux](#résultats-expérimentaux)
-10. [Reproductibilité](#reproductibilité)
-11. [Références](#références)
+6. [Plateformes testées](#plateformes-testées)
+7. [Installation](#installation)
+8. [Exécution rapide](#exécution-rapide)
+9. [Validation et tests](#validation-et-tests)
+10. [Résultats clés](#résultats-clés)
+11. [Données brutes](#données-brutes)
+12. [Reproductibilité](#reproductibilité)
+13. [Références](#références)
 
 ---
 
@@ -127,8 +129,14 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 │   │   ├── kat_gcm.py
 │   │   └── kat_modes.py
 │   └── data/
-│       ├── results/
-│       └── charts/
+       ├── results/                     # CSV bruts — x86 et Raspberry Pi
+       └── charts/
+           ├── 01-debit/                # Débits absolus et comparaisons plateformes
+           ├── 02-effet-avalanche/      # Scores d'avalanche par algorithme
+           ├── 03-modes-chiffrement/    # Impact des modes sur AES
+           ├── 04-demo-visuel-ecb/      # Démonstration visuelle vulnérabilité ECB
+           ├── 05-comparaison-algorithmes/  # ChaCha20, IC95 stabilité
+           └── 07-synthese/             # Heatmap et radar multi-critères
 ├── docs/
 │   ├── 01-project-instructions/
 │   ├── 02-deliverables/
@@ -138,6 +146,18 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 │   └── 99-archive/
 └── README.md
 ```
+
+---
+
+## Plateformes testées
+
+| Attribut | Laptop Windows x86 | Raspberry Pi ARM |
+|---|---|---|
+| Processeur | Intel Core (AES-NI activé) | ARM Cortex-A72 (pas d'AES-NI) |
+| Système | Windows 11 | Raspberry Pi OS (Linux) |
+| Python | 3.14 | 3.11+ |
+| Bibliothèque | PyCryptodome | PyCryptodome |
+| Rôle | Plateforme de référence | Plateforme embarquée |
 
 ---
 
@@ -166,19 +186,21 @@ Dépendances principales :
 
 Toutes les commandes ci-dessous s'exécutent depuis `crypto-experiments/`.
 
-### 1) Lancer le benchmark principal
-
-```bash
-python scripts/experiment.py
-```
-
-### 2) Valider les implémentations (KAT)
+### 1) Valider les implémentations (KAT)
 
 ```bash
 python scripts/run_kat.py
 ```
 
-### 3) Générer les graphiques
+### 2) Lancer le benchmark principal
+
+```bash
+python scripts/experiment.py
+```
+
+> Résultats exportés dans `data/results/` au format CSV.
+
+### 3) Générer les graphiques (plateforme unique)
 
 ```bash
 python scripts/generate_charts.py
@@ -189,6 +211,13 @@ python scripts/generate_charts.py
 ```bash
 python scripts/analyse_rounds_avalanche.py
 python scripts/ecb_visual_vulnerability.py
+```
+
+### 5) Comparaison multi-plateformes
+
+> **Prérequis** : deux fichiers CSV doivent être présents dans `data/results/` — un nommé `laptop-windows-x86_*.csv` et un `raspberry-pi_*.csv`. Sans les deux, ce script quitte avec un avertissement.
+
+```bash
 python scripts/compare_platforms.py
 ```
 
@@ -196,16 +225,16 @@ python scripts/compare_platforms.py
 
 ## Validation et tests
 
-Le projet inclut une suite de validation fonctionnelle basée sur des vecteurs standards.
+Le projet inclut une suite de validation fonctionnelle basée sur des vecteurs standards (NIST / RFC).
 
-### Validation KAT disponible
-
-- AES : `validation/kat_aes.py`
-- DES : `validation/kat_des.py`
-- 3DES : `validation/kat_3des.py`
-- ChaCha20 : `validation/kat_chacha20.py`
-- GCM : `validation/kat_gcm.py`
-- Modes (ECB/CBC/CTR) : `validation/kat_modes.py`
+| Suite KAT | Norme | Fichier |
+|---|---|---|
+| AES | FIPS 197 | `validation/kat_aes.py` |
+| DES | NIST SP 800-67 | `validation/kat_des.py` |
+| 3DES | NIST SP 800-67 | `validation/kat_3des.py` |
+| ChaCha20 | RFC 8439 | `validation/kat_chacha20.py` |
+| GCM | NIST SP 800-38D | `validation/kat_gcm.py` |
+| Modes ECB/CBC/CTR | NIST SP 800-38A | `validation/kat_modes.py` |
 
 Exécution globale :
 
@@ -213,41 +242,62 @@ Exécution globale :
 python scripts/run_kat.py
 ```
 
-Objectif : garantir que les résultats de performance sont produits par des implémentations conformes.
+> Objectif : garantir que les résultats de performance sont produits par des implémentations conformes aux standards.
+
+Mesures à 4 096 octets, meilleure clé, ECB (sauf ChaCha20 → Stream), 100 répétitions.
+
+| Algorithme | Débit x86 (MB/s) | Débit ARM (MB/s) | Ratio x86/ARM |
+|---|---|---|---|
+| AES-256 | 162,6 | 39,9 | **4,1×** |
+| ChaCha20-256 | 93,9 | 58,1 | **1,6×** |
+| DES-56 | 34,6 | 17,5 | 2,0× |
+| 3DES-192 | 6,0 | 4,7 | 1,3× |
+| Twofish-256 | 2,8 | 1,3 | 2,3× |
+
+**Observations clés :**
+- AES bénéficie massivement de l'accélération matérielle AES-NI sur x86 (ratio 4,1×).
+- ChaCha20 est l'algorithme le plus portable (ratio 1,6×) — aucune dépendance matérielle.
+- Twofish est l'algorithme le plus lent sur les deux plateformes.
+- DES et 3DES produisent des résultats cohérents avec leur statut déprécié.
 
 ---
 
-## Résultats expérimentaux
+## Données brutes
 
-Les données brutes sont stockées dans `crypto-experiments/data/results/`.
+Les CSV sont versionnés dans `crypto-experiments/data/results/` :
 
-Jeux de résultats actuellement versionnés :
+- `laptop-windows-x86_experience3.csv` — campagne de référence x86
+- `raspberry-pi_experience3.csv` — campagne de référence ARM
 
-- `laptop-windows-x86_experience1.csv`
-- `laptop-windows-x86_experience2.csv`
-- `laptop-windows-x86_experience3.csv`
-- `raspberry-pi_experience1.csv`
-- `raspberry-pi_experience2.csv`
-- `raspberry-pi_experience3.csv`
-
-Les graphiques sont générés dans `crypto-experiments/data/charts/` (incluant `data/charts/comparison/`).
+> Les expériences 1 et 2 sont conservées pour traçabilité historique.
 
 ---
 
 ## Reproductibilité
 
-Pour reproduire une campagne complète :
+Pour reproduire une campagne complète sur une nouvelle machine :
 
-1. Installer les dépendances.
-2. Exécuter `scripts/run_kat.py`.
-3. Exécuter `scripts/experiment.py`.
-4. Générer les figures avec `scripts/generate_charts.py`.
+```bash
+# 1. Installer les dépendances
+cd crypto-experiments
+pip install -r requirements.txt
 
-Bonnes pratiques recommandées :
+# 2. Valider les implémentations
+python scripts/run_kat.py
 
-- conserver le même environnement Python entre exécutions,
-- documenter la plateforme (CPU/OS),
-- conserver les CSV bruts avant toute post-analyse.
+# 3. Lancer le benchmark (génère un nouveau CSV dans data/results/)
+python scripts/experiment.py
+
+# 4. Générer les graphiques
+python scripts/generate_charts.py
+```
+
+Pour la comparaison multi-plateformes, copier les CSV des deux machines dans `data/results/` avant d'exécuter `scripts/compare_platforms.py`.
+
+**Bonnes pratiques :**
+- Fermer toute application en arrière-plan pendant le benchmark.
+- Conserver les CSV bruts avant toute post-analyse.
+- Documenter la plateforme (modèle CPU, fréquence, OS, version Python).
 
 ---
 
