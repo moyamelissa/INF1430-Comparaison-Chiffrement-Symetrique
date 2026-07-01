@@ -63,44 +63,58 @@ with open(CSV_PATH, newline="", encoding="utf-8") as f:
 # ---------------------------------------------------------------------------
 # Palette — couleurs cohérentes par algorithme
 # ---------------------------------------------------------------------------
-BG_COLOR    = "#0A0E1A"
-PANEL_COLOR = "#0F1524"
-GRID_COLOR  = "#1C2438"
-TEXT_COLOR  = "#C9D4F0"
+BG_COLOR    = "#FFFFFF"
+PANEL_COLOR = "#FFFFFF"
+GRID_COLOR  = "#F0F0F0"
+TEXT_COLOR  = "#555555"
 
 plt.rcParams.update({
     "figure.facecolor":  BG_COLOR,
     "axes.facecolor":    PANEL_COLOR,
     "axes.edgecolor":    GRID_COLOR,
     "axes.labelcolor":   TEXT_COLOR,
-    "axes.titlecolor":   TEXT_COLOR,
-    "xtick.color":       TEXT_COLOR,
-    "ytick.color":       TEXT_COLOR,
+    "axes.titlecolor":   "#0A0A0A",
+    "xtick.color":       "#888888",
+    "ytick.color":       "#888888",
     "text.color":        TEXT_COLOR,
     "grid.color":        GRID_COLOR,
     "grid.linestyle":    "--",
     "grid.alpha":        0.8,
-    "legend.facecolor":  "#111827",
-    "legend.edgecolor":  "#1C2438",
+    "legend.facecolor":  "#FFFFFF",
+    "legend.edgecolor":  "#C0C0C0",
     "legend.labelcolor": TEXT_COLOR,
-    "font.family":       "DejaVu Sans",
+    "font.family":       "Arial",
     "axes.titlepad":     12,
     "hatch.linewidth":   1.0,
 })
-matplotlib.rcParams["hatch.color"] = (1.0, 1.0, 1.0, 0.35)  # semi-transparent white
+matplotlib.rcParams["hatch.color"] = (0.0, 0.0, 0.0, 0.25)
 
+# ---------------------------------------------------------------------------
+# Palette officielle INF1430 TN3
+#   Noir principal  : #0A0A0A
+#   Or accent       : #C9A84C   (couleur signature)
+#   Gris texte      : #555555
+#   Gris léger      : #888888
+#   Gris très léger : #C0C0C0
+#   Vert validé     : #3A7A3A   (KAT / recommandé uniquement)
+#
+# Compléments harmonieux pour différenciation graphique :
+#   Rouge danger    : #B03A2E   (déprécié / non sécurisé)
+#   Orange héritage : #D4783A   (legacy, intermédiaire)
+#   Bleu marine     : #1A5E8A   (moderne / stream / standard)
+# ---------------------------------------------------------------------------
 ALGO_COLORS = {
-    "AES":      "#3B82F6",   # vivid blue
-    "DES":      "#EC4899",   # hot pink
-    "3DES":     "#A855F7",   # purple
-    "Twofish":  "#10B981",   # emerald green
-    "ChaCha20": "#06B6D4",   # cyan
+    "AES":      "#0A0A0A",   # noir principal (officiel) — standard dominant
+    "DES":      "#B03A2E",   # rouge danger — déprécié, cassé
+    "3DES":     "#D4783A",   # orange héritage — legacy, intermédiaire
+    "Twofish":  "#C9A84C",   # or accent (officiel) — finaliste AES, premium
+    "ChaCha20": "#1A5E8A",   # bleu marine — stream cipher, catégorie unique
 }
 MODE_COLORS = {
-    "ECB": "#00A8E8",   # saturated blue
-    "CBC": "#00C853",   # saturated green
-    "CTR": "#8E44AD",   # saturated purple
-    "GCM": "#FF9500",   # saturated orange
+    "ECB": "#B03A2E",        # rouge danger — non sécurisé (patterns visibles)
+    "CBC": "#1A5E8A",        # bleu marine — standard sécurisé
+    "CTR": "#3A7A3A",        # vert validé (officiel) — moderne, approuvé
+    "GCM": "#C9A84C",        # or accent (officiel) — authentifié, premium
 }
 MODE_HATCH = {"ECB": "", "CBC": "/", "CTR": "x", "GCM": "."}
 
@@ -108,11 +122,11 @@ DPI   = 180
 FIG_W = 11
 
 def _style_ax(ax):
-    """Apply consistent dark style to an axes."""
+    """Apply consistent light style to an axes."""
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_edgecolor(GRID_COLOR)
-    ax.spines["bottom"].set_edgecolor(GRID_COLOR)
+    ax.spines["left"].set_edgecolor("#C0C0C0")
+    ax.spines["bottom"].set_edgecolor("#C0C0C0")
     ax.set_axisbelow(True)
     ax.yaxis.grid(True)
 
@@ -180,7 +194,7 @@ def fig1_throughput_4096():
     ax.set_ylim(bottom=0)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("01-throughput/throughput-4096B.png")
+    savefig("01-debit/debit-4096o.png")
 
 
 # ===========================================================================
@@ -224,7 +238,7 @@ def fig2_throughput_vs_size():
     ax.legend(fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("01-throughput/throughput-vs-msgsize.png")
+    savefig("01-debit/debit-vs-taille-message.png")
 
 
 # ===========================================================================
@@ -263,7 +277,7 @@ def fig3_aes_mode_comparison():
     ax.legend(title="Mode", fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("03-encryption-modes/aes-mode-comparison.png")
+    savefig("03-modes-chiffrement/aes-comparaison-modes.png")
 
 
 # ===========================================================================
@@ -304,7 +318,7 @@ def fig4_avalanche():
 
     _style_ax(ax)
     plt.tight_layout()
-    savefig("02-avalanche-effect/avalanche-par-algorithme.png")
+    savefig("02-effet-avalanche/avalanche-par-algorithme.png")
 
 
 # ===========================================================================
@@ -353,7 +367,7 @@ def fig4b_key_avalanche():
                 f"{m:.3f}", ha="center", va="bottom", fontsize=8, color=c)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("02-avalanche-effect/avalanche-texte-vs-cle.png")
+    savefig("02-effet-avalanche/avalanche-texte-vs-cle.png")
 
 
 # ===========================================================================
@@ -393,7 +407,7 @@ def fig5_enc_vs_dec():
     ax.legend(fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("03-encryption-modes/chiffrement-vs-dechiffrement-ecb.png")
+    savefig("03-modes-chiffrement/chiffrement-vs-dechiffrement-ecb.png")
 
 
 # ===========================================================================
@@ -405,7 +419,6 @@ def fig6_key_size_impact():
     modes = sorted({r["mode"] for r in data})
     key_bits = sorted({r["key_size_bits"] for r in data})
 
-    mode_colors = {"ECB": "#1565C0", "CBC": "#42A5F5", "CTR": "#66BB6A", "GCM": "#FFA726"}
     x = np.arange(len(key_bits))
     w = 0.18
     offsets = np.linspace(-(len(modes)-1)/2 * w, (len(modes)-1)/2 * w, len(modes))
@@ -433,7 +446,7 @@ def fig6_key_size_impact():
     ax.legend(title="Mode", fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("03-encryption-modes/aes-impact-taille-cle.png")
+    savefig("03-modes-chiffrement/aes-impact-taille-cle.png")
 
 
 # ===========================================================================
@@ -566,10 +579,10 @@ def fig7_ecb_vs_gcm():
     fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
     fig.patch.set_facecolor(BG_COLOR)
     for mode, color, ls, lbl in [
-        ("ECB", "#EC4899", "-",  "ECB — ⚠ Non sécurisé (détecte les patterns)"),
-        ("GCM", "#10B981", "--", "GCM — ✓ Recommandé (authentifié)"),
-        ("CTR", "#A855F7", ":",  "CTR — Authentification externe requise"),
-        ("CBC", "#F59E0B", "-.", "CBC — Sécurisé mais lent en chiffrement"),
+        ("ECB", "#B03A2E", "-",  "ECB — [!] Non sécurisé (détecte les patterns)"),
+        ("GCM", "#3A7A3A", "--", "GCM — [OK] Recommandé (authentifié)"),
+        ("CTR", "#888888", ":",  "CTR — Authentification externe requise"),
+        ("CBC", "#1A5E8A", "-.", "CBC — Sécurisé mais lent en chiffrement"),
     ]:
         subset = sorted([r for r in aes128 if r["mode"] == mode],
                         key=lambda r: r["message_size_bytes"])
@@ -592,53 +605,11 @@ def fig7_ecb_vs_gcm():
     ax.legend(fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("03-encryption-modes/aes-securite-vs-performance.png")
+    savefig("03-modes-chiffrement/aes-securite-vs-performance.png")
 
 
 # ===========================================================================
-# Figure 8 — Latence absolue de chiffrement en µs (4096 o, meilleure clé)
-# ===========================================================================
-def fig8_latency_us():
-    best_key  = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
-    best_mode = {"AES": "ECB", "DES": "ECB", "3DES": "ECB", "Twofish": "ECB", "ChaCha20": "Stream"}
-    target    = 4096
-    # Sorted ascending so fastest appears at top of horizontal bar
-    algo_order = ["AES", "DES", "ChaCha20", "3DES", "Twofish"]
-
-    labels, latencies, colors = [], [], []
-    for algo in algo_order:
-        match = [r for r in rows if r["algorithm"] == algo
-                 and r["mode"] == best_mode[algo]
-                 and r["key_size_bits"] == best_key[algo]
-                 and r["message_size_bytes"] == target]
-        if match:
-            labels.append(algo)
-            latencies.append(match[0]["avg_encrypt_time_s"] * 1e6)
-            colors.append(ALGO_COLORS.get(algo, "#888"))
-
-    # Sort by latency ascending (fastest at bottom of horizontal bar = visually on top)
-    sorted_pairs = sorted(zip(latencies, labels, colors))
-    latencies, labels, colors = zip(*sorted_pairs)
-
-    fig, ax = plt.subplots(figsize=(9, 5))
-    fig.patch.set_facecolor(BG_COLOR)
-    bars = ax.barh(labels, latencies, color=colors, alpha=0.82, edgecolor=BG_COLOR)
-    for bar, val in zip(bars, latencies):
-        ax.text(val + max(latencies) * 0.01, bar.get_y() + bar.get_height() / 2,
-                f"{val:.1f} µs", va="center", fontsize=9, color=TEXT_COLOR, fontweight="bold")
-    ax.set_xlabel("Latence moyenne de chiffrement (µs)", fontsize=11)
-    ax.set_title(
-        f"Figure 8 — Latence absolue de chiffrement — {target} octets, meilleure clé\n"
-        "(temps moyen réel · plateforme : laptop Windows x86)",
-        fontsize=11,
-    )
-    _style_ax(ax)
-    plt.tight_layout()
-    savefig("07-synthesis/latence-chiffrement.png")
-
-
-# ===========================================================================
-# Figure 9 — Heatmap synthèse : algos × métriques (scores normalisés 0→1)
+# Figure 8 — Heatmap synthèse : algos × métriques (scores normalisés 0→1)
 # ===========================================================================
 def fig9_synthesis_heatmap():
     best_key  = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
@@ -687,12 +658,12 @@ def fig9_synthesis_heatmap():
     cbar.ax.tick_params(colors=TEXT_COLOR, labelsize=8)
     cbar.ax.yaxis.label.set_color(TEXT_COLOR)
     ax.set_title(
-        "Figure 9 — Heatmap synthèse : score normalisé par métrique (1 = meilleur)\n"
+        "Figure 8 — Heatmap synthèse : score normalisé par métrique (1 = meilleur)\n"
         f"(ECB/Stream · {target} octets · plateforme : laptop Windows x86)",
         fontsize=11, color=TEXT_COLOR,
     )
     plt.tight_layout()
-    savefig("07-synthesis/heatmap-synthese.png")
+    savefig("07-synthese/heatmap-synthese.png")
 
 
 # ===========================================================================
@@ -700,8 +671,8 @@ def fig9_synthesis_heatmap():
 # ===========================================================================
 if __name__ == "__main__":
     print("Generating charts...")
-    for subdir in ["01-throughput", "02-avalanche-effect", "03-encryption-modes",
-                   "06-algorithm-profiles", "07-synthesis"]:
+    for subdir in ["01-debit", "02-effet-avalanche", "03-modes-chiffrement",
+                   "07-synthese"]:
         os.makedirs(os.path.join(CHARTS_DIR, subdir), exist_ok=True)
 
     fig1_throughput_4096()
@@ -712,12 +683,6 @@ if __name__ == "__main__":
     fig5_enc_vs_dec()
     fig6_key_size_impact()
     fig7_ecb_vs_gcm()
-    fig8_latency_us()
     fig9_synthesis_heatmap()
-
-    # Generate per-algorithm profile charts
-    algorithms = ["AES", "DES", "3DES", "Twofish", "ChaCha20"]
-    for algo in algorithms:
-        algo_profile(algo)
 
     print(f"\nDone. Charts saved to: {os.path.abspath(CHARTS_DIR)}")

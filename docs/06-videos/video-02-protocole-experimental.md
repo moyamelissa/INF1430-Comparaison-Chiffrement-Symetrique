@@ -157,4 +157,6 @@ La flèche "écrit" ferme le pipeline. Une fois toutes les mesures complétées,
 **Note de régie :** pointer CONFIGURE → flèche "instancie" → MESURE → flèche "écrit" → EXPORTE.
 
 **Texte à lire — fermeture :**
-Voilà. Dans cette vidéo, on a établi le cadre de comparaison, validé la conformité de chaque algorithme avec les KAT, et suivi le pipeline complet jusqu'à l'export. Trois couches de rigueur — méthodologique, cryptographique, et statistique — qui fondent la crédibilité de tout ce qu'on va présenter dans les prochaines vidéos. 
+Voilà. Dans cette vidéo, on a établi le cadre de comparaison, validé la conformité de chaque algorithme avec les KAT, et suivi le pipeline complet jusqu'à l'export. Trois couches de rigueur — méthodologique, cryptographique, et statistique — qui fondent la crédibilité de tout ce qu'on va présenter dans les prochaines vidéos.
+
+Merci d'avoir suivi cette deuxième vidéo. On se retrouve dans la prochaine.

@@ -45,45 +45,45 @@ RESULTS_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "results")
 OUT_DIR     = os.path.join(os.path.dirname(__file__), "..", "data", "charts")
 os.makedirs(OUT_DIR, exist_ok=True)
 # Create subdirectories for organized output
-for subdir in ["01-throughput", "02-avalanche-effect", "05-algorithm-comparison"]:
+for subdir in ["01-debit", "02-effet-avalanche", "05-comparaison-algorithmes", "07-synthese"]:
     os.makedirs(os.path.join(OUT_DIR, subdir), exist_ok=True)
 
 DPI   = 180
 FIG_W = 11
 
 # ---------------------------------------------------------------------------
-# Dark modern theme
+# Palette officielle INF1430 TN3
 # ---------------------------------------------------------------------------
-BG_COLOR    = "#0A0E1A"   # deep navy black
-PANEL_COLOR = "#0F1524"   # panel background
-GRID_COLOR  = "#1C2438"   # subtle grid lines
-TEXT_COLOR  = "#C9D4F0"   # cool blue-white text
+BG_COLOR    = "#FFFFFF"   # blanc pur
+PANEL_COLOR = "#FFFFFF"   # fond panel
+GRID_COLOR  = "#F0F0F0"   # grille subtile
+TEXT_COLOR  = "#555555"   # gris texte (officiel)
 
 plt.rcParams.update({
     "figure.facecolor":  BG_COLOR,
     "axes.facecolor":    PANEL_COLOR,
     "axes.edgecolor":    GRID_COLOR,
     "axes.labelcolor":   TEXT_COLOR,
-    "axes.titlecolor":   TEXT_COLOR,
-    "xtick.color":       TEXT_COLOR,
-    "ytick.color":       TEXT_COLOR,
+    "axes.titlecolor":   "#0A0A0A",
+    "xtick.color":       "#888888",
+    "ytick.color":       "#888888",
     "text.color":        TEXT_COLOR,
     "grid.color":        GRID_COLOR,
     "grid.linestyle":    "--",
     "grid.alpha":        0.8,
-    "legend.facecolor":  "#111827",
-    "legend.edgecolor":  "#1C2438",
+    "legend.facecolor":  "#FFFFFF",
+    "legend.edgecolor":  "#C0C0C0",
     "legend.labelcolor": TEXT_COLOR,
-    "font.family":       "DejaVu Sans",
+    "font.family":       "Arial",
     "axes.titlepad":     14,
 })
 
 ALGO_COLORS = {
-    "AES":      "#3B82F6",   # vivid blue
-    "DES":      "#EC4899",   # hot pink
-    "3DES":     "#A855F7",   # purple
-    "Twofish":  "#10B981",   # emerald green
-    "ChaCha20": "#06B6D4",   # cyan
+    "AES":      "#0A0A0A",   # noir principal (officiel) — standard dominant
+    "DES":      "#B03A2E",   # rouge danger — déprécié, cassé
+    "3DES":     "#D4783A",   # orange héritage — legacy, intermédiaire
+    "Twofish":  "#C9A84C",   # or accent (officiel) — finaliste AES
+    "ChaCha20": "#1A5E8A",   # bleu marine — stream cipher, catégorie unique
 }
 
 PLATFORM_STYLE = {
@@ -162,7 +162,7 @@ def _lookup(rows, algo, mode, key_bits, msg_size):
 
 def savefig(name: str):
     path = os.path.join(OUT_DIR, name)
-    plt.savefig(path, dpi=DPI, bbox_inches="tight")
+    plt.savefig(path, dpi=DPI, bbox_inches="tight", facecolor=BG_COLOR)
     plt.close()
     print(f"  Saved: {path}")
 
@@ -219,7 +219,7 @@ def cmp1_throughput_all():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-throughput/comparison-throughput-all.png")
+    savefig("01-debit/comparaison-debit-global.png")
 
 
 # ===========================================================================
@@ -270,7 +270,7 @@ def cmp2_speedup_ratio():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-throughput/comparison-speedup-ratio.png")
+    savefig("01-debit/comparaison-ratio-acceleration.png")
 
 
 # ===========================================================================
@@ -327,7 +327,7 @@ def cmp3_throughput_vs_size():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-throughput/comparison-throughput-vs-size.png")
+    savefig("01-debit/comparaison-debit-vs-taille-message.png")
 
 
 # ===========================================================================
@@ -373,7 +373,7 @@ def cmp4_avalanche():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("02-avalanche-effect/comparison-avalanche.png")
+    savefig("02-effet-avalanche/comparaison-avalanche.png")
 
 
 # ===========================================================================
@@ -423,7 +423,7 @@ def cmp5_chacha20():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("05-algorithm-comparison/chacha20-comparison.png")
+    savefig("05-comparaison-algorithmes/chacha20-comparaison-plateformes.png")
 
 
 # ===========================================================================
@@ -483,7 +483,7 @@ def cmp6_ci95_stability():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("05-algorithm-comparison/ci95-stability.png")
+    savefig("05-comparaison-algorithmes/stabilite-ic95.png")
 
 
 # ===========================================================================
@@ -544,13 +544,13 @@ def cmp7_radar():
         ax.fill(angles, vals, alpha=0.08, color=color)
 
     ax.set_title(
-        "Synthèse — Comparaison multi-critères (scores normalisés)\n"
+        "Comparaison 7 — Synthèse multi-critères (scores normalisés)\n"
         "Débit · Portabilité · Qualité d'avalanche",
         fontsize=11, color=TEXT_COLOR, pad=25,
     )
     ax.legend(loc="upper right", bbox_to_anchor=(1.35, 1.15), fontsize=9)
     plt.tight_layout()
-    savefig("07-synthesis/radar-synthese.png")
+    savefig("07-synthese/radar-synthese.png")
 
 
 # ===========================================================================
@@ -605,7 +605,7 @@ def cmp8_scalability_all_algos():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-throughput/scalability-all-algos.png")
+    savefig("01-debit/scalabilite-tous-algorithmes.png")
 
 
 # ===========================================================================
@@ -613,7 +613,7 @@ def cmp8_scalability_all_algos():
 # ===========================================================================
 if __name__ == "__main__":
     print("\nGénération des graphiques de comparaison...")
-    for subdir in ["01-throughput", "02-avalanche-effect", "05-algorithm-comparison", "07-synthesis"]:
+    for subdir in ["01-debit", "02-effet-avalanche", "05-comparaison-algorithmes", "07-synthese"]:
         os.makedirs(os.path.join(OUT_DIR, subdir), exist_ok=True)
     cmp1_throughput_all()
     cmp2_speedup_ratio()
@@ -622,5 +622,4 @@ if __name__ == "__main__":
     cmp5_chacha20()
     cmp6_ci95_stability()
     cmp7_radar()
-    cmp8_scalability_all_algos()
     print(f"\nDone. Charts saved to: {os.path.abspath(OUT_DIR)}")

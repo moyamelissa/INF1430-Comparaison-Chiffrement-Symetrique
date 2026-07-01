@@ -295,17 +295,19 @@ if __name__ == "__main__":
     os.makedirs(CHARTS_DIR, exist_ok=True)
 
     fig, ax = plt.subplots(figsize=(9, 5))
+    fig.patch.set_facecolor("#FFFFFF")
+    ax.set_facecolor("#FFFFFF")
     ax.plot(rounds_list, scores, marker="o", linewidth=2,
-            color="#1565C0", label="Score d'avalanche (DES)")
-    ax.axhline(0.5, color="black", linestyle="--", linewidth=1.2,
+            color="#B03A2E", label="Score d'avalanche (DES)")  # rouge danger — DES
+    ax.axhline(0.5, color="#0A0A0A", linestyle="--", linewidth=1.2,
                label="Valeur idéale (0,50)")
     ax.fill_between(rounds_list, [0.48]*16, [0.52]*16,
-                    alpha=0.1, color="green", label="Plage ±2 % autour de l'idéal")
+                    alpha=0.12, color="#3A7A3A", label="Plage ±2 % autour de l'idéal")  # vert validé
 
     ax.set_xlabel("Nombre de tours (rounds)", fontsize=11)
     ax.set_ylabel("Score d'effet d'avalanche", fontsize=11)
     ax.set_title(
-        "Figure 7 — Convergence de l'effet d'avalanche selon le nombre de tours DES\n"
+        "Figure 4c — Convergence de l'effet d'avalanche selon le nombre de tours DES\n"
         f"({TRIALS} essais par configuration, flip d'un bit en entrée)",
         fontsize=11,
     )
@@ -316,7 +318,9 @@ if __name__ == "__main__":
     ax.set_axisbelow(True)
     plt.tight_layout()
 
-    out = os.path.join(CHARTS_DIR, "fig7_rounds_avalanche.png")
-    fig.savefig(out, dpi=150, bbox_inches="tight")
+    aval_dir = os.path.join(CHARTS_DIR, "02-effet-avalanche")
+    os.makedirs(aval_dir, exist_ok=True)
+    out = os.path.join(aval_dir, "convergence-avalanche-par-tours.png")
+    fig.savefig(out, dpi=150, bbox_inches="tight", facecolor="#FFFFFF")
     plt.close()
     print(f"\nChart saved: {out}")
