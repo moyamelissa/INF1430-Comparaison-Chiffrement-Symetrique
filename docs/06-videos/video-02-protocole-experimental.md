@@ -1,5 +1,13 @@
 # Vidéo 2 - Protocole expérimental
 
+## Introduction (ouverture caméra)
+**Texte à lire :**
+Cette vidéo porte sur le protocole expérimental — la méthode qui sous-tend toutes nos mesures de performance.
+
+Avant d'interpréter un seul résultat, trois questions doivent avoir une réponse claire. Sur quelles plateformes les mesures ont-elles été faites, et dans quelles conditions? Les algorithmes testés sont-ils conformes aux normes cryptographiques officielles? Et comment passe-t-on de la configuration d'une campagne à un fichier de résultats exploitable?
+
+C'est exactement ce qu'on va couvrir. D'abord le cadre expérimental et la comparaison des plateformes. Ensuite le verrou de conformité avec les tests KAT. Enfin le pipeline de mesure, de la configuration jusqu'à l'export CSV.
+
 ## Objectif
 Démontrer que la méthode de mesure est valide, comparable entre plateformes et reproductible, après une validation cryptographique KAT.
 
@@ -12,152 +20,141 @@ Démontrer que la méthode de mesure est valide, comparable entre plateformes et
 
 ## Guide d'enregistrement
 
-### Étape 1 - Cadrage du protocole et comparaison des plateformes
+### Section 1 - Cadrage du protocole et comparaison des plateformes
 **Où sommes-nous :**
-PowerPoint, diapositive 4 (Protocole expérimental).
+PowerPoint, diapositives 5, 6 et 7.
 
-**Texte à dire :**
-Dans cette vidéo, nous allons montrer pourquoi notre protocole expérimental est méthodologiquement solide. Nous allons démontrer qu'il permet une comparaison valide entre plateformes et qu'il produit des résultats interprétables de manière rigoureuse.
+**Intro (texte à lire) :**
+Dans cette section, on fixe le cadre méthodologique de l'expérience. L'objectif est de montrer que notre comparaison est valide entre plateformes, parce que le protocole est identique et les conditions d'exécution sont explicitement documentées.
 
-Commençons par la diapositive 4 de la présentation PowerPoint.
-Elle présente trois paramètres clés, soit 5 algorithmes, 5 tailles de message testées et 100 répétitions.
+**Sujet (texte à lire) :**
 
-Nous présentons aussi une comparaison contrôlée entre un ordinateur portable x86 et un Raspberry Pi. Le tableau explicite les différences de contexte qui influencent directement la performance.
+**Diapo 5 — Environnement de test x86 vs ARM**
+Pour commencer, regardons ensemble la diapo 5, qui pose le contexte de comparaison.
 
-Regardons maintenant les caractéristiques une par une.
-Pour le processeur, le portable utilise un Intel Core i5-10300H, alors que le Raspberry Pi utilise un ARM Cortex-A72. Ces architectures n'ont pas la même capacité de calcul ni les mêmes optimisations, ce qui peut créer des écarts de débit, même avec le même code.
+On a deux plateformes réelles et très différentes. D'un côté, un laptop en architecture x86, sous Windows 11. De l'autre, un Raspberry Pi 4 en architecture ARM, sous Raspberry Pi OS, donc Linux.
 
-Pour le système d'exploitation, nous comparons Windows 11 et Raspberry Pi OS.
-Raspberry Pi OS est une distribution Linux basée sur Debian. Cette différence de système influence la gestion des processus, des pilotes et de l'ordonnancement, donc le comportement en performance.
+Pourquoi c'est important? Parce que ces deux architectures n'ont pas les mêmes capacités matérielles. Et ça, ça affecte directement les performances qu'on mesure.
 
-Ensuite, la distinction la plus structurante est la présence d'AES-NI sur l'ordinateur portable x86 et son absence sur Raspberry Pi. AES-NI est une extension d'instructions matérielles qui accélère l'exécution de l'algorithme AES. Cette différence s'explique par l'architecture processeur: AES-NI est propre à l'écosystème x86 Intel, alors que le Raspberry Pi repose sur une architecture ARM. Par conséquent, les performances AES peuvent être sensiblement plus élevées sur le portable que sur le Raspberry Pi.
+L'exemple le plus concret, c'est AES. Le laptop dispose d'une extension matérielle appelée AES-NI, qui est intégrée directement dans le processeur. Concrètement, ça veut dire que certaines opérations de chiffrement AES se font au niveau du hardware, et non par le logiciel seul. C'est beaucoup plus rapide. Le Raspberry Pi, lui, n'a pas ce niveau d'accélération. Donc, si AES est nettement plus rapide sur laptop, ce n'est pas un problème de méthode. C'est simplement un effet du matériel, et c'est exactement ce qu'on veut documenter.
 
-Pour la mémoire vive, le portable dispose d'environ 16 Go contre 4 Go sur Raspberry Pi.
-Une mémoire plus élevée réduit en général la pression mémoire et limite les ralentissements liés aux contraintes de ressources lors des campagnes répétées.
+En dehors de ça, d'autres variables de contexte diffèrent aussi: la mémoire disponible, le système d'exploitation, et le niveau de bruit de fond au moment de l'exécution. Ces différences sont réelles, mais elles ne biaisent pas la comparaison. Pourquoi? Parce que le protocole, le code et les paramètres de mesure sont rigoureusement identiques sur les deux plateformes. Les seuls écarts viennent du matériel et de l'environnement d'exécution. Et c'est précisément ce qu'on cherche à observer.
 
-Enfin, le contexte d'exécution est multitâche sur le portable et minimaliste sur Raspberry Pi.
-Multitâche signifie davantage de bruit potentiel de fond, tandis qu'un contexte minimaliste réduit les interférences externes.
+**Diapo 6 — Protocole de mesure**
+Maintenant que le contexte des plateformes est posé, voyons comment les mesures ont été concrètement structurées.
 
-En résumé, ces variables décrivent les conditions expérimentales qui influencent naturellement les résultats.
-Comme le protocole, le code et les paramètres de campagne restent constants sur les deux plateformes, les écarts observés s'interprètent comme un effet du matériel et de l'environnement d'exécution, et non comme une variation de méthode.
+La campagne couvre 31 combinaisons d'algorithme, de mode d'opération et de taille de clé. Pour chacune, on teste 5 tailles de message différentes. Ça donne 155 cas mesurés par plateforme, soit 310 au total entre laptop et Raspberry Pi.
+
+Les 31 combinaisons ne sont pas arbitraires. Elles couvrent l'ensemble des configurations valides de notre matrice expérimentale: chaque algorithme testé uniquement avec les modes qui lui sont compatibles, et chaque taille de clé qui respecte les contraintes de la primitive. Autrement dit, on ne teste pas ce qui n'existe pas cryptographiquement.
+
+Les 5 tailles de message permettent d'observer si le comportement en débit est stable ou s'il varie selon la quantité de données traitées. C'est crucial pour comparer des algorithmes qui ont des comportements très différents selon la taille du bloc.
+
+Et les 100 répétitions par configuration? C'est le cœur de la rigueur statistique. Chaque mesure individuelle est bruitée: le CPU peut être occupé, le cache peut être froid, un processus peut passer en arrière-plan. Avec 100 répétitions, on calcule une moyenne stable et un intervalle de confiance à 95%. Ça signifie qu'on peut affirmer avec 95% de certitude où se situe le vrai débit de l'algorithme dans ces conditions.
+
+Ces trois paramètres — les combinaisons, les tailles de message et le nombre de répétitions — sont déclarés comme constantes dans `scripts/experiment.py`. Ce sont `EXPERIMENT_MATRIX`, `MESSAGE_SIZES` et `REPETITIONS`. Le script les parcourt automatiquement pour exécuter chaque cas de façon identique sur les deux plateformes. C'est ce qui rend les résultats comparables et reproductibles.
+
+**Diapo 7 — Matrice algo x mode x clé**
+Maintenant qu'on a vu le protocole de mesure, passons à la diapo 7, qui montre exactement ce qu'on a testé, soit les cinq algorithmes de la campagne, leurs modes d'opération compatibles, et les tailles de clé associées.
+
+Les cinq algorithmes sont AES, DES, Triple DES, Twofish et ChaCha20. Ce ne sont pas des choix aléatoires. Ils représentent un spectre large de la cryptographie symétrique moderne et historique, avec des générations différentes, des longueurs de bloc différentes, et des niveaux de sécurité très différents.
+
+La légende de la diapo nous dit exactement comment lire cette matrice. Les cases vertes correspondent aux combinaisons testées en mode bloc standard, soit ECB, CBC et CTR. Les cases jaune marquent les cas à paradigme distinct, comme GCM qui ajoute l'authentification, ou les modes par flot comme ChaCha20. Et les cases grises indiquent les combinaisons structurellement incompatibles, c'est-à-dire celles qu'on a volontairement exclues.
+
+Ce qui rend cette matrice rigoureuse, c'est justement que les combinaisons ne sont pas toutes permises, et ce n'est pas arbitraire. ChaCha20, par exemple, est un chiffrement par flot natif. Ça veut dire qu'il opère octet par octet, sans notion de blocs. Il n'a donc pas besoin d'un mode d'opération comme ECB ou CBC, qui existent précisément pour gérer le découpage en blocs et la façon dont les blocs s'enchaînent. Appliquer ECB à ChaCha20, ça n'a tout simplement pas de sens cryptographiquement. De même, AES en mode GCM est une catégorie à part. Contrairement aux autres modes, il ne fait pas que chiffrer les données, il les authentifie aussi en une seule passe. Autrement dit, il garantit à la fois la confidentialité et l'intégrité du message. Ce n'est pas juste un mode de chiffrement de plus, c'est une primitive avec des propriétés de sécurité supplémentaires, et ça justifie qu'il soit traité séparément dans l'analyse.
+
+Au final, cette sélection donne 31 combinaisons valides sur les deux plateformes. Et dans le code, elles sont toutes déclarées dans la constante `EXPERIMENT_MATRIX` de `scripts/experiment.py`, sous forme de tuples algorithme, modes, tailles de clé. Le script les parcourt entièrement et de façon identique, peu importe la plateforme. C'est ce qui garantit une comparaison propre, sans biais de configuration.
+
+En résumé, cette section établit le cadre de validité de la comparaison. Le protocole, le code et les paramètres de mesure sont constants. Les écarts observés s'interprètent donc comme un effet de la plateforme et de l'architecture, pas comme une variation de méthode.
 
 
-### Étape 2 - Verrou de conformité (essence de la vidéo 3)
-**Où sommes-nous :**
-GitHub repo, dossier validation/ puis scripts/run_kat.py.
+### Section 2 - Verrou de conformité
 
-**Texte à dire :**
-Avant d'interpréter les débits, on applique un verrou méthodologique: les KAT, les Known Answer Tests.
-Le principe est simple: pour chaque algorithme et mode, on chiffre des entrées connues et on compare la sortie au résultat de référence.
-Si un KAT échoue, on n'interprète pas les performances, car la conformité cryptographique n'est pas garantie.
-Si tous les KAT passent, alors les mesures de débit deviennent interprétables et comparables.
-
-**Action écran :**
-Montrer rapidement le dossier validation/, puis scripts/run_kat.py, et rappeler la commande python scripts/run_kat.py.
-
-Transition: maintenant que la conformité est validée, on peut passer au pipeline de mesure et à l'export CSV.
-
-### Étape 3 - De la configuration à l'export CSV
-**Où sommes-nous :**
-GitHub repo, fichiers application/ExperimentController.py et scripts/experiment.py.
-
-**Mini intro à dire :**
-Dans cette étape, on avance en deux temps. D'abord, on présente `ExperimentController.py`, qui calcule et structure chaque mesure. Ensuite, on passe à `scripts/experiment.py`, qui enchaîne toutes les configurations et exporte les résultats en CSV.
-
-**Action écran :**
-Ouvrir le repo et naviguer à travers les deux fichiers pour suivre la chaîne complète.
+**Intro (texte à lire) :**
+Avant d'interpréter quoi que ce soit, on pose un verrou de conformité cryptographique. Ce verrou, ce sont les KAT, les Known Answer Tests. L'idée est simple mais essentielle: si un algorithme ne produit pas la bonne sortie sur des vecteurs officiels, ses mesures de débit ne valent rien. On valide d'abord, on mesure ensuite.
 
 ---
 
-**Titre de bloc: Modèle de résultat normalisé**
+**Fichier / zone à montrer :** dossier `validation/`, puis `scripts/run_kat.py`
 
-**Class Name: ExperimentResult** (application/ExperimentController.py, lignes 30 à 46)
+**Intro (texte à lire) :**
+Dans le dossier `validation/` que nous voyons a lecran, on y trouve un fichier KAT par algorithme et par famille de modes. Chaque fichier contient des vecteurs extraits directement des publications officielles du NIST, soit les mêmes vecteurs qui servent de référence mondiale pour valider les implémentations cryptographiques.
 
-Voici la classe ExperimentResult. Son rôle, c'est de définir le format standard d'une mesure unique. En d'autres termes, c'est le conteneur qui regroupe tous les éléments importants, soit les paramètres de configuration, les métriques de performance, les indicateurs de robustesse et l'incertitude statistique. Pourquoi c'est crucial? Parce que cette classe sert à créer des objets ExperimentResult, qu'on appelle aussi des instances. Ce sont des copies concrètes créées à partir de cette classe. Chaque objet ExperimentResult représente une mesure réelle. Et qui crée ces objets? C'est ExperimentController qu'on va voir tout de suite. ExperimentController utilise cette classe pour normaliser tous les résultats. Toutes les mesures ont la même forme, ce qui garantit qu'elles sont comparables et exportables correctement.
+Par exemple, `kat_aes.py` utilise les vecteurs de FIPS 197, la norme officielle d'AES. Et `kat_gcm.py` utilise ceux de SP 800-38D. Ce ne sont pas des vecteurs inventés. Ce sont les vecteurs officiels.
 
----
+```python
+# kat_aes.py — lignes 35 à 39 (vecteur FIPS 197 Annexe B, AES-128)
+{
+    "label": "FIPS197 App-B AES-128 encrypt",
+    "key":   "2b 7e 15 16 28 ae d2 a6 ab f7 15 88 09 cf 4f 3c",
+    "plain": "32 43 f6 a8 88 5a 30 8d 31 31 98 a2 e0 37 07 34",
+    "cipher":"39 25 84 1d 02 dc 09 fb dc 11 85 97 19 6a 0b 32",
+},
+```
 
-**Titre de bloc: Orchestrateur de campagne**
+**Texte à lire :**
+Voici un exemple concret. Ce vecteur vient directement de l'Annexe B de FIPS 197, la norme officielle d'AES publiée par le NIST. On a une clé de 128 bits, un message en clair connu, et la sortie chiffrée attendue. Notre implémentation doit produire exactement ces octets, au bit près.
 
-**Class Name: ExperimentController** (application/ExperimentController.py, lignes 49 à 71)
+C'est ce que fait la fonction `run()` à la ligne 27. Elle prend ces vecteurs, chiffre le plaintext avec la clé donnée, et compare le résultat au cipher attendu. Zéro écart, l'algorithme est conforme. Un seul écart, on arrête tout.
 
-Passons à ExperimentController. Son rôle, c'est de centraliser toute la logique de mesure au même endroit, plutôt que de la disperser dans plusieurs fichiers. En d'autres termes, c'est le chef d'orchestre qui pilote le flux complet de mesure. La méthode __init__, qu'on voit aux lignes 63 à 71, reçoit le moteur de chiffrement configuré et les étiquettes algorithm et mode. Une fois initialisée, ExperimentController pilote l'exécution complète: elle appelle run_performance, qu'on va voir tout de suite, pour effectuer les mesures pour cette configuration spécifique, puis elle assemble les résultats dans un objet ExperimentResult. Et pourquoi c'est crucial? Parce que ExperimentController crée les instances de ExperimentResult qu'on a vu précédemment. C'est elle qui les remplit avec les données de mesure. Sans ExperimentController, on aurait pas de mesures, et donc pas d'objets ExperimentResult à exporter.
-
----
-
-**Titre de bloc: Pipeline de mesure d'une configuration**
-
-**Function Name: run_performance(...)** (application/ExperimentController.py, lignes 77 à 156)
-
-C'est run_performance qui fait le cœur du travail. Son rôle, c'est d'exécuter une mesure complète de performance pour une configuration donnée. 
-
-Pense à un test de vitesse automobile. On mesure le temps d'accélération de 0 à 100 km/h, mais pas juste une fois. On le fait plusieurs fois, on ignore les conditions externes, on chronomètre précisément. Et à la fin, on dit: "la voiture fait entre 7,8 et 8,2 secondes avec 95% de certitude". Eh bien, c'est exactement ce que run_performance fait, mais pour un algorithme de chiffrement.
-
-Voici comment. À la ligne 102, la fonction génère un plaintext aléatoire de test. C'est le message qu'on va chiffrer. Aux lignes 108 à 110, elle chronomètre le chiffrement. Elle utilise `perf_counter`, qui est un outil de haute précision. Contrairement aux chronomètres ordinaires, il fournit une mesure monotone et stable, adaptée au benchmarking. Puis aux lignes 117 à 119, elle chronomètre le déchiffrement exactement de la même façon.
-
-Ensuite vient le calcul statistique. Aux lignes 127 à 140, elle calcule l'IC à 95%. C'est l'intervalle de confiance. Elle utilise la fonction `_ci95_mbps`. 
-
-Pourquoi c'est important? Parce que chaque répétition donne un temps légèrement différent. Parfois le CPU fait autre chose. Parfois un processus passe. Parfois le cache est plus chaud.
-
-L'intervalle de confiance à 95% encadre cette variabilité. Il dit: "le vrai débit se situe probablement entre A et B mégaoctets par seconde". Et on peut être sûr à 95% de ça.
-
-Comment on calcule ça? On combine trois éléments. D'abord, la variabilité observée, donc l'écart-type. Ensuite, le nombre de répétitions: plus il est élevé, plus la plage se resserre. Enfin, un coefficient statistique lié au niveau de confiance fixé à 95% et au nombre de mesures.
-
-Pourquoi 100 répétitions, c'est un bon choix? Parce que c'est un compromis professionnel entre fiabilité statistique et temps de calcul. Avec trop peu de répétitions, le résultat est instable et sensible au bruit de la machine. Avec trop de répétitions, on gagne peu en précision, mais on paie beaucoup en temps.
-
-La règle simple est la suivante: la précision s'améliore avec la racine carrée du nombre de répétitions. Donc, pour améliorer nettement la précision, il faut beaucoup plus d'essais. Par exemple, passer de 25 à 100 répétitions ne multiplie pas la précision par quatre, mais environ par deux.
-
-En pratique, 100 répétitions donne des mesures stables, comparables entre plateformes, et reste raisonnable en durée d'exécution. C'est pour ça que ce choix est méthodologiquement défendable.
-
-Et ce coefficient proche de 2, il veut dire quoi? C'est le facteur de sécurité du niveau de confiance à 95%. Plus précisément, il vaut environ 1,96 quand on a assez de mesures. Concrètement, on prend l'incertitude de base, puis on la multiplie par ce facteur pour obtenir une plage qui couvre la vraie valeur dans environ 95% des cas. Le résultat, c'est une plage de confiance claire et fiable.
-
-> Pour tous les détails: formule complète, exemple numérique chiffré et tableau comparatif des répétitions, voir [docs/03-analysis-and-calculations/INF1430-IC95-calcul-detail.md](../03-analysis-and-calculations/INF1430-IC95-calcul-detail.md)
-
-Enfin, aux lignes 142 à 156, la fonction retourne un objet ExperimentResult complètement rempli avec tous ces chiffres. 
-
-Et qui appelle run_performance? C'est le script `experiment.py`, via `main()`, qui l'appelle sur une instance de `ExperimentController` pour chaque configuration. L'important, c'est que run_performance calcule tous les indicateurs: les temps, les débits, les intervalles de confiance. Et elle retourne un ExperimentResult prêt pour le CSV.
-
-Transition: jusqu'ici, dans `application/ExperimentController.py`, on a vu comment une mesure est calculée et structurée proprement dans un `ExperimentResult`. Maintenant, on passe à `scripts/experiment.py`, qui joue le rôle d'intermédiaire: il enchaîne toutes les configurations, récupère ces `ExperimentResult`, puis les écrit dans le fichier CSV final.
+Ce modèle est le même pour chaque fichier KAT du dossier `validation/`. Un fichier par algorithme, des vecteurs officiels, une fonction `run()` qui retourne le nombre d'échecs. C'est simple, traçable, et directement ancré dans les normes publiées par le NIST et l'IETF.
 
 ---
 
-**Titre de bloc: Paramétrage déclaratif**
+**Fichier / zone à montrer :** `scripts/run_kat.py`
 
-**Configuration de campagne + fonction main()** (scripts/experiment.py, lignes 51 à 127)
+**Texte de transition (texte à lire) :**
+Maintenant qu'on comprend comment chaque suite fonctionne, regardons comment `run_kat.py` les regroupe et les exécute toutes d'un seul coup.
 
-Ici, on explique deux éléments qui travaillent ensemble: un bloc de constantes qui déclarent la campagne de mesure — les algorithmes, les modes, les tailles de clé et les tailles de message — puis la fonction `main()` qui orchestre automatiquement l'exécution de toutes ces configurations.
+**Code à montrer :**
+```python
+# run_kat.py — lignes 20 à 27
+suites = [
+    ("AES  (FIPS 197)",                kat_aes.run),
+    ("DES  (SP 800-17)",               kat_des.run),
+    ("3DES (SP 800-67)",               kat_3des.run),
+    ("Modes ECB/CBC/CTR (SP 800-38A)", kat_modes.run),
+    ("AES-GCM (SP 800-38D)",           kat_gcm.run),
+    ("ChaCha20 (RFC 8439)",            kat_chacha20.run),
+]
+```
 
-Pensons à une liste d'épicerie organisée. On décides à l'avance quels produits acheter, en quelle quantité, et dans quel ordre. Ensuite, on envoies quelqu'un faire les courses avec cette liste exacte. Eh bien, c'est exactement ce que fait ce bloc: les constantes sont la liste, et `main()` est la personne qui fait les courses.
+**Narration ligne par ligne (texte à lire) :**
+À la ligne 17, `run_kat.py` importe toutes les suites KAT depuis le dossier `validation/` en une seule ligne. Ça centralise le point d'entrée.
 
-Voici concretement comment. 
+Aux lignes 20 à 27, on construit la liste `suites`. Chaque entrée est un tuple avec le nom de la suite et sa fonction `run`. On remarque que chaque nom cite explicitement la norme de référence, FIPS 197 pour AES, SP 800-17 pour DES, RFC 8439 pour ChaCha20. Ce n'est pas décoratif. Ça documente directement dans le code quelle autorité valide chaque algorithme.
 
-À la ligne 51, on déclare `REPETITIONS = 100`, c'est le nombre de fois que chaque configuration sera mesurée. Aux lignes 53 à 70, on a `EXPERIMENT_MATRIX`, qui liste tous les algorithmes et modes à tester. À la ligne 72, on a `MESSAGE_SIZES`, qui définit les 5 tailles de message à utiliser.
+Aux lignes 30 à 38, le script itère sur chaque suite, exécute le `run()` correspondant, accumule les échecs, et affiche le résultat en temps réel.
 
-Ensuite, à la ligne 97, la fonction `main()` démarre. À la ligne 100, la première boucle for commence: elle itère sur chaque combinaison (algorithme, mode, key_sizes) depuis `EXPERIMENT_MATRIX`. Pour chaque combinaison, la ligne 101 lance la deuxième boucle for, qui itère sur chaque taille de clé. Avant de continuer, le code valide que cette taille de clé fonctionne. Si c'est bon, la troisième boucle for, à la ligne 110, itère sur chaque taille de message. À l'intérieur de cette troisième boucle, à la ligne 116, on crée une instance de `ExperimentController` pour cette combinaison complète (algorithme, mode, clé, message). Aux lignes 124 à 127, on appelle `controller.run_performance()` avec les paramètres `message_size_bytes=msg_size` et `repetitions=REPETITIONS`.
+À la ligne 49, le script termine avec `sys.exit(0)` si tout est passé, ou `sys.exit(1)` en cas d'échec. Ce code de sortie binaire est important, parce qu'il permet à un pipeline d'intégration continue de bloquer automatiquement si la conformité n'est pas atteinte.
 
-Pourquoi c'est important? Parce que cette organisation garantit que le protocole est identique sur toutes les plateformes. On ne change rien entre le portable et le Raspberry Pi. Ce sont les mêmes constantes, les mêmes boucles, les mêmes appels. Les seuls écarts viennent du matériel.
+Pour voir le tout en action, on ouvre le terminal et on lance la commande suivante.
 
+**Commande à montrer (terminal) :**
+```
+cd crypto-experiments
+python scripts/run_kat.py
+```
 
-Ensuite, experiment.py passe à l’export CSV.
+**Texte à lire après la commande :**
+On voit défiler les résultats suite par suite. Chacune affiche ses vecteurs, et à la fin, le script indique si tout est passé ou non.
 
-(lignes 143 à 150)
+**Conclusion (texte à lire) :**
+Tous les KAT passent. Ça veut dire que chaque algorithme produit exactement la sortie attendue par les normes officielles. La conformité cryptographique est validée. On peut maintenant interpréter les mesures de performance avec confiance, parce qu'on sait qu'on mesure des implémentations correctes.
 
-Ce bloc de code est la dernière étape du processus. Son rôle, c'est de prendre tous les objets `ExperimentResult` accumulés et de les écrire dans un fichier CSV structuré.
+### Section 3 - De la configuration à l'export CSV
 
-On peut penser à un comptable qui reçoit tous les rapports de l'équipe, les met en forme dans un tableau standardisé, puis sauvegarde le fichier final. C'est exactement ce que fait ce bloc.
+**Visuel à montrer :** Diapositive "Pipeline de mesure" (diapo 03d)
 
-Voici comment. La fonction utilitaire `_output_path()` établit à quel endroit et sous quel nom sera généré le fichier CSV. Le fichier sera déposé dans le sous-dossier `results` de notre dossier `data`, et son nom sera composé du préfixe `experiment` suivi d'un horodatage, soit l'année, le mois et le jour. À la ligne 143, on construit la variable `fieldnames` à partir du premier objet `ExperimentResult`. La fonction `asdict()` convertit l'objet en dictionnaire, la méthode `keys()` récupère les noms des champs, et la fonction `list()` les transforme en liste. Cette liste est ensuite passée à `DictWriter`, une classe du module `csv`, qui s'en sert pour structurer le fichier. Aux lignes 146 à 150, la méthode `writeheader()` écrit l'en-tête, puis chaque objet `ExperimentResult` est écrit ligne par ligne dans le fichier. Le programme affiche ensuite le chemin du CSV généré.
+**Texte à lire :**
+Maintenant qu'on sait que chaque algorithme est conforme, on peut s'intéresser à ce qui se passe concrètement quand on lance une campagne de mesure. Ce pipeline, on va le parcourir bloc par bloc, de gauche à droite.
 
-Cette approche est rigoureuse: si on ajoute un champ à `ExperimentResult`, il se retrouve automatiquement dans le CSV. Rien n'a besoin d'être synchronisé manuellement.
+À gauche, on a `experiment.py`. C'est lui qui lance tout. Il déclare trois constantes. D'abord `EXPERIMENT_MATRIX`, qui liste toutes les combinaisons à tester — algorithme, mode, taille de clé. Ensuite `MESSAGE_SIZES`, qui couvre cinq tailles de message. Et enfin `REPETITIONS`, fixé à cent. Ces trois constantes définissent l'ensemble de la campagne, sur les deux plateformes, sans rien changer entre elles.
 
- En bref, `ExperimentResult` définit la structure, `ExperimentController` produit chaque mesure, `experiment.py` les rassemble dans `results`, puis le bloc CSV les écrit dans le fichier final.
+La flèche "instancie" nous amène au bloc MESURE. Pour chaque combinaison, `experiment.py` crée une instance de `ExperimentController` et appelle sa méthode `run_performance`. C'est là que la mesure se fait. Elle chronomètre le chiffrement et le déchiffrement avec `perf_counter`, répète cent fois, et calcule un intervalle de confiance à 95%. Propre, stable, statistiquement encadrée.
 
----
+La flèche "écrit" ferme le pipeline. Une fois toutes les mesures complétées, `experiment.py` écrit les résultats dans un fichier CSV horodaté, dans `data/results`. La structure est générée automatiquement depuis les champs de la dataclass — rien de manuel. Une campagne complète produit 310 lignes, une par configuration, sur chaque plateforme.
 
-**Commande (optionnelle, terminal PowerShell) :**
-Get-ChildItem data/results/experiment_*.csv | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+**Note de régie :** pointer CONFIGURE → flèche "instancie" → MESURE → flèche "écrit" → EXPORTE.
 
-### Conclusion
-La méthode est comparable entre plateformes, reproductible et statistiquement encadrée.
-Et surtout, elle est précédée d'un contrôle KAT qui valide la conformité cryptographique avant toute lecture des performances.
-Les résultats sont exportés de manière structurée, ce qui soutient l'analyse présentée dans TN3.
+**Texte à lire — fermeture :**
+Voilà. Dans cette vidéo, on a établi le cadre de comparaison, validé la conformité de chaque algorithme avec les KAT, et suivi le pipeline complet jusqu'à l'export. Trois couches de rigueur — méthodologique, cryptographique, et statistique — qui fondent la crédibilité de tout ce qu'on va présenter dans les prochaines vidéos. 
