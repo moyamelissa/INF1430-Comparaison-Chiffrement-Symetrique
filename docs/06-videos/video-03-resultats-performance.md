@@ -1,145 +1,123 @@
-﻿# Video 4 - Resultats de performance
+﻿# Video 3 - Resultats de performance
 
 ## Objectif
-Montrer les resultats de debit et expliquer clairement l impact de l acceleration materielle AES-NI.
-Cette video integre aussi les anciens focus ChaCha20 (inter-plateformes) et DES/3DES/Twofish.
+Montrer les resultats de performance de maniere claire et interpretable.
+Relier les chiffres observes a trois causes: algorithme, mode de chiffrement, et architecture materielle.
+
+## Duree cible
+15 a 20 minutes.
 
 ## Portee
-- scripts/generate_charts.py
-- Dossier data/charts
-- Graphiques de debit par algorithme et par taille de message
-- Lecture comparative orientee interpretation
+- Script de generation: scripts/generate_charts.py
+- Donnees source: data/results
+- Sortie visuelle: data/charts
+- Focus interpretation: debit, tailles de message, impact AES-NI
 
-## Script
+## Script video (camera-ready)
 
-### Conventions de lecture (voix + ecran)
-- Avant chaque indication de type **(SURLIGNER ...)**, faire une micro-pause.
-- Garder une idee principale par phrase.
-- Pendant un graphique, commenter d abord la tendance, puis la cause.
-- Vitesse cible: 125 a 140 mots par minute sur les graphiques.
-- Sur chaque figure: observation, interpretation, implication.
-
-### Introduction
-Dans cette video, on demontre ce que donnent les mesures de performance en pratique.
-Les KAT et le protocole ayant ete valides,
-on peut maintenant interpreter les debits avec confiance.
-Le focus principal est l effet de AES-NI sur les ecarts observes.
-(RESPIRER)
-
-### Repere de rythme (minute par minute)
-- 0:00 a 0:40 : cadrage performance et validite des donnees.
-- 0:40 a 2:30 : generation des graphes.
-- 2:30 a 5:45 : lecture debit par algorithme et mode.
-- 5:45 a 7:30 : focus DES, 3DES, Twofish.
-- 7:30 a 9:30 : debit selon taille de message.
-- 9:30 a 10:30 : focus AES-NI et transition.
-
-### Sequence par etape
-
-#### Etape 1
-**Action ecran :**
-Ouvrir scripts/generate_charts.py dans VS Code.
+### 1) Introduction
+**Support affiche :**
+PowerPoint - Slide d ouverture de la video 3.
 
 **Texte a dire :**
-Dans cette etape, on demontre comment les graphes sont produits a partir des CSV.
-Ce script lit les resultats bruts,
-construit les visualisations comparatives,
-et exporte les figures dans data/charts.
-(PAUSE) (SURLIGNER: **scripts/generate_charts.py**) (SURLIGNER: **lecture CSV**) (SURLIGNER: **generation des figures**)
+Dans cette video, on presente les resultats de performance obtenus pendant nos experiences.
+L objectif est simple: comprendre ce qui explique les ecarts de debit entre algorithmes et entre plateformes.
+Les tests de validation et le protocole etant deja verifies, on peut maintenant interpreter les graphes avec confiance.
 
-#### Etape 2
-**Action ecran :**
-Montrer rapidement que le script lit les CSV et construit les figures.
+**Phrase de transition :**
+Passons d abord a la source des graphes pour montrer que la lecture repose sur une chaine de traitement maitrisee.
 
-**Texte a dire :**
-Ici, on demontre la chaine de transformation des donnees.
-On passe d un tableau de mesures a des graphes lisibles.
-C est essentiel,
-car l interpretation finale depend de cette etape de synthese visuelle.
-(RESPIRER)
-(PAUSE) (SURLIGNER: **data/results/**) (SURLIGNER: **data/charts/**)
-
-#### Etape 3
-**Action ecran :**
-Ouvrir le terminal et executer python scripts/generate_charts.py.
+### 2) Rappel rapide de generation
+**Support affiche :**
+Code - VS Code sur scripts/generate_charts.py.
 
 **Texte a dire :**
-Dans cette etape, on demontre l execution reelle de la generation des graphiques.
-Je lance la commande python scripts/generate_charts.py.
-Le script produit automatiquement les figures a partir des CSV existants.
-(PAUSE) (SURLIGNER: **python scripts/generate_charts.py**)
+Ici, on montre rapidement comment les figures sont generees.
+Le script lit les CSV de mesures, construit les visualisations, puis exporte les images dans data/charts.
+Cette etape garantit que nos conclusions viennent de donnees tracees et reproductibles.
 
-#### Etape 4
-**Action ecran :**
-Ouvrir le dossier data/charts.
+**Phrase de transition :**
+Maintenant que la provenance des graphes est claire, on peut passer a la lecture des performances.
 
-**Texte a dire :**
-Ici, on demontre la sortie exploitable pour l analyse.
-Toutes les figures generees sont centralisees dans data/charts.
-On va se concentrer sur les deux graphes les plus informatifs pour la performance.
-(PAUSE) (SURLIGNER: **data/charts/**)
-
-#### Etape 5
-**Action ecran :**
-Afficher le graphique debit par algorithme et mode.
+### 3) Vue d ensemble des debits
+**Support affiche :**
+PowerPoint - Slide resultat global debit par algorithme et mode.
 
 **Texte a dire :**
-Dans cette etape, on demontre la hierarchie globale des debits.
-AES apparait en tete sur la plateforme x86,
-en particulier sur les modes les plus favorables au debit.
-GCM est plus couteux que ECB,
-car il ajoute la couche d authentification.
-La lecture correcte est donc: plus de securite integree,
-avec un surcout de performance attendu.
-(RESPIRER)
-(PAUSE) (SURLIGNER: **debit AES**) (SURLIGNER: **ECB**) (SURLIGNER: **GCM**)
+Ce premier graphe donne la hierarchie globale des debits.
+On observe que AES est generalement en tete sur la plateforme x86.
+On voit aussi que les modes de chiffrement n ont pas tous le meme cout.
 
-#### Etape 6
-**Action ecran :**
-Rester sur le graphique et pointer DES, 3DES et Twofish.
+**Phrase de transition :**
+Pour rendre cette vue utile en decision, on zoome maintenant sur les algorithmes majeurs.
+
+### 4) Focus AES et ChaCha20
+**Support affiche :**
+PowerPoint - Slide comparaison AES vs ChaCha20.
 
 **Texte a dire :**
-Ici, on demontre les limites pratiques des algorithmes heritage.
-DES reste en retrait,
-3DES est penalise par ses trois passes,
-et Twofish reste en dessous de AES dans ce contexte materiel.
-Le message est clair:
-les choix historiques ne suivent plus les contraintes de performance modernes.
-(PAUSE) (SURLIGNER: **DES**) (SURLIGNER: **3DES**) (SURLIGNER: **Twofish**)
+AES montre des debits tres eleves sur x86, notamment grace au support materiel.
+ChaCha20 reste une reference solide et stable, surtout quand l acceleration AES n est pas disponible.
+Le message ici n est pas de designer un gagnant universel, mais de choisir selon la plateforme cible.
 
-#### Etape 7
-**Action ecran :**
-Afficher le graphique debit selon la taille du message.
+**Phrase de transition :**
+Apres les algorithmes modernes, regardons les algorithmes heritage et leurs limites pratiques.
 
-**Texte a dire :**
-Dans cette etape, on demontre l effet de la taille de message sur le debit.
-Pour les petits blocs,
-les couts fixes pesent davantage.
-Quand la taille augmente,
-le debit utile monte,
-et les differences entre algorithmes deviennent plus visibles.
-(PAUSE) (SURLIGNER: **petites tailles**) (SURLIGNER: **grandes tailles**) (SURLIGNER: **courbe de debit**)
-
-#### Etape 8
-**Action ecran :**
-Pointer la zone des plus grosses tailles.
+### 5) Focus DES, 3DES, Twofish
+**Support affiche :**
+PowerPoint - Slide comparaison des algorithmes heritage.
 
 **Texte a dire :**
-Ici, on demontre l impact direct de AES-NI.
-Sur les grandes tailles,
-l acceleration materielle de AES sur x86 se voit clairement.
-C est ce facteur qui explique une partie majeure de l ecart avec Raspberry Pi,
-ou cette acceleration n est pas presente.
-(RESPIRER)
-(PAUSE) (SURLIGNER: **zone grandes tailles**) (SURLIGNER: **ecart x86 vs Pi**) (SURLIGNER: **AES-NI**)
+DES est clairement en retrait en performance et en securite.
+3DES est encore plus couteux a cause de ses trois passes de chiffrement.
+Twofish reste correct, mais dans notre contexte il est en dessous de AES sur le plan du debit.
+Conclusion de ce bloc: ces choix historiques ne sont plus optimaux pour les contraintes actuelles.
 
-#### Etape 9
-**Action ecran :**
-Laisser le graphique a l ecran pour transition.
+**Phrase de transition :**
+On a vu l effet de l algorithme; voyons maintenant l effet du mode de chiffrement.
+
+### 6) Impact du mode de chiffrement
+**Support affiche :**
+PowerPoint - Slide comparaison ECB, CBC, CTR, GCM.
 
 **Texte a dire :**
-Conclusion de la video 4:
-les resultats de performance sont coherents avec l architecture materielle,
-et l effet AES-NI est visible dans les mesures.
-Dans la prochaine video, on complete la lecture avec la robustesse cryptographique,
-notamment l effet d avalanche.
+Les modes n ont pas le meme compromis performance-securite.
+GCM ajoute l authentification, ce qui augmente le cout par rapport a des modes plus simples.
+Ce surcout est attendu et justifie quand on veut la confidentialite et l integrite dans le meme schema.
+
+**Phrase de transition :**
+Apres algorithme et mode, il reste un facteur important: la taille des messages.
+
+### 7) Effet de la taille du message
+**Support affiche :**
+PowerPoint - Slide debit selon la taille du message.
+
+**Texte a dire :**
+Sur petites tailles, les couts fixes pesent davantage sur le debit effectif.
+Quand la taille augmente, le debit utile se stabilise mieux et les ecarts deviennent plus lisibles.
+Cette lecture est importante pour relier nos resultats a des usages reels.
+
+**Phrase de transition :**
+Cette tendance nous amene directement a l interpretation materielle des ecarts.
+
+### 8) Interpretation materielle et AES-NI
+**Support affiche :**
+PowerPoint - Slide comparaison x86 vs Raspberry Pi.
+
+**Texte a dire :**
+La plateforme x86 beneficie de l acceleration AES-NI, ce qui explique une part majeure des gains observes sur AES.
+Sur Raspberry Pi, cet avantage materiel n est pas present de la meme facon, donc les ecarts se reduisent ou se deplacent selon les cas.
+Le point cle est que la performance cryptographique depend fortement du couple algorithme plus architecture.
+
+**Phrase de transition :**
+On termine avec une synthese operationnelle des decisions a retenir.
+
+### 9) Conclusion
+**Support affiche :**
+PowerPoint - Slide conclusion de la video 3.
+
+**Texte a dire :**
+Premier constat: le choix de l algorithme influence fortement le debit, avec un avantage net pour AES sur x86.
+Deuxieme constat: le mode de chiffrement ajoute un cout mesurable, notamment quand on integre l authentification.
+Troisieme constat: l architecture materielle, et en particulier AES-NI, explique une grande partie des ecarts inter-plateformes.
+Dans la prochaine video, on complete cette lecture performance par la robustesse cryptographique, avec l effet d avalanche.
