@@ -19,7 +19,7 @@ uniquement la bibliothèque standard Python, puis relues avec matplotlib.
 
 Usage
 -----
-    py scripts/ecb_visual_vulnerability.py
+    py scripts/charts/plot_ecb_demo.py
 
 Sortie : data/charts/fig8_ecb_vulnerability.png
          data/charts/ecb_demo_original.bmp
@@ -31,7 +31,8 @@ import os
 import struct
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, BASE_DIR)
 
 import matplotlib
 matplotlib.use("Agg")
@@ -44,7 +45,7 @@ from Crypto.Util.Padding import pad
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-CHARTS_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "charts")
+CHARTS_DIR = os.path.join(BASE_DIR, "data", "charts")
 os.makedirs(CHARTS_DIR, exist_ok=True)
 
 WIDTH  = 128   # pixels
@@ -170,7 +171,7 @@ if __name__ == "__main__":
     ecb_pixels      = _ecb_encrypt_raw(original_pixels)[:WIDTH * HEIGHT]
     cbc_pixels      = _cbc_encrypt_raw(original_pixels)[:WIDTH * HEIGHT]
 
-    ecb_demo_dir = os.path.join(CHARTS_DIR, "04-demo-visuel-ecb")
+    ecb_demo_dir = os.path.join(CHARTS_DIR, "03-modes-chiffrement", "demo-ecb")
     os.makedirs(ecb_demo_dir, exist_ok=True)
     orig_path = os.path.join(ecb_demo_dir, "image-originale.bmp")
     ecb_path  = os.path.join(ecb_demo_dir, "image-chiffree-ecb.bmp")

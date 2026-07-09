@@ -18,7 +18,7 @@ sous-clés sont appliquées.
 
 Usage
 -----
-    py scripts/analyse_rounds_avalanche.py
+    py scripts/charts/plot_avalanche_rounds.py
 
 Sortie : data/charts/fig7_rounds_avalanche.png + tableau console
 """
@@ -27,7 +27,9 @@ import os
 import sys
 import secrets
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+sys.path.insert(0, BASE_DIR)
 
 import matplotlib
 matplotlib.use("Agg")
@@ -278,7 +280,7 @@ def measure_avalanche_at_rounds(n_rounds: int) -> float:
 
 if __name__ == "__main__":
     print(f"Mesure du score d'avalanche DES pour les tours 1–16 ({TRIALS} essais chacun)…\n")
-    print(f"{'Rounds':>8}  {'Avalanche Score':>16}  {'Δ from ideal':>14}")
+    print(f"{'Rounds':>8}  {'Avalanche (%)':>16}  {'Δ à 50% (pp)':>14}")
     print("-" * 44)
 
     rounds_list = list(range(1, 17))
@@ -287,31 +289,34 @@ if __name__ == "__main__":
     for n in rounds_list:
         score = measure_avalanche_at_rounds(n)
         scores.append(score)
-        delta = abs(score - 0.5)
-        print(f"{n:>8}  {score:>16.4f}  {delta:>+14.4f}")
+        score_pct = score * 100.0
+        delta_pp = abs(score_pct - 50.0)
+        print(f"{n:>8}  {score_pct:>16.2f}  {delta_pp:>+14.2f}")
+
+    scores_pct = [s * 100.0 for s in scores]
 
     # Save chart
-    CHARTS_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "charts")
+    CHARTS_DIR = os.path.join(BASE_DIR, "data", "charts")
     os.makedirs(CHARTS_DIR, exist_ok=True)
 
     fig, ax = plt.subplots(figsize=(9, 5))
     fig.patch.set_facecolor("#FFFFFF")
     ax.set_facecolor("#FFFFFF")
-    ax.plot(rounds_list, scores, marker="o", linewidth=2,
+    ax.plot(rounds_list, scores_pct, marker="o", linewidth=2,
             color="#B03A2E", label="Score d'avalanche (DES)")  # rouge danger — DES
-    ax.axhline(0.5, color="#0A0A0A", linestyle="--", linewidth=1.2,
-               label="Valeur idéale (0,50)")
-    ax.fill_between(rounds_list, [0.48]*16, [0.52]*16,
+    ax.axhline(50.0, color="#0A0A0A", linestyle="--", linewidth=1.2,
+               label="Valeur idéale (50 %)")
+    ax.fill_between(rounds_list, [48.0]*16, [52.0]*16,
                     alpha=0.12, color="#3A7A3A", label="Plage ±2 % autour de l'idéal")  # vert validé
 
     ax.set_xlabel("Nombre de tours (rounds)", fontsize=11)
-    ax.set_ylabel("Score d'effet d'avalanche", fontsize=11)
+    ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=11)
     ax.set_title(
         "Score d'avalanche en fonction du nombre de tours DES",
         fontsize=11,
     )
     ax.set_xticks(rounds_list)
-    ax.set_ylim(0, 1)
+    ax.set_ylim(40, 60)
     ax.legend(fontsize=9)
     ax.yaxis.grid(True, linestyle="--", alpha=0.5)
     ax.set_axisbelow(True)

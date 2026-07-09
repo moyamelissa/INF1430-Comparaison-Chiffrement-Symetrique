@@ -341,7 +341,7 @@ Une fois les fichiers CSV du Raspberry Pi poussés sur GitHub, mettre à jour le
 cd "C:\Users\xmeli\OneDrive\Documents\GitHub\INF1430-Comparaison-Chiffrement-Symetrique"
 git pull
 cd crypto-experiments
-py scripts/compare_platforms.py
+py scripts/charts/plot_platform_comparison.py
 ```
 
 Les figures générées sont enregistrées dans `data/charts/comparison/`.

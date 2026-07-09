@@ -5,7 +5,7 @@ Transformer les resultats techniques en recommandations concretes selon le conte
 Cette video integre aussi les anciens focus ECB dangereux et synthese finale 2026.
 
 ## Portee
-- scripts/ecb_visual_vulnerability.py
+- scripts/charts/plot_ecb_demo.py
 - Demonstration ECB vs CBC
 - Slide de recommandations
 - Transition TN3 vers TN4
@@ -35,22 +35,22 @@ basees sur les mesures et la securite.
 
 #### Etape 1
 **Action ecran :**
-Ouvrir scripts/ecb_visual_vulnerability.py.
+Ouvrir scripts/charts/plot_ecb_demo.py.
 
 **Texte a dire :**
 Dans cette etape, on demontre pourquoi le mode d operation est critique.
 Le script prepare une comparaison visuelle entre ECB et CBC.
-(PAUSE) (SURLIGNER: **scripts/ecb_visual_vulnerability.py**) (SURLIGNER: **ECB vs CBC**)
+(PAUSE) (SURLIGNER: **scripts/charts/plot_ecb_demo.py**) (SURLIGNER: **ECB vs CBC**)
 
 #### Etape 2
 **Action ecran :**
-Executer python scripts/ecb_visual_vulnerability.py.
+Executer python scripts/charts/plot_ecb_demo.py.
 
 **Texte a dire :**
 Ici, on demontre le resultat concret,
 pas seulement un argument theorique.
-Je lance la commande python scripts/ecb_visual_vulnerability.py.
-(PAUSE) (SURLIGNER: **python scripts/ecb_visual_vulnerability.py**)
+Je lance la commande python scripts/charts/plot_ecb_demo.py.
+(PAUSE) (SURLIGNER: **python scripts/charts/plot_ecb_demo.py**)
 
 #### Etape 3
 **Action ecran :**

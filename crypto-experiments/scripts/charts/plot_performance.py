@@ -1,10 +1,10 @@
-"""
+﻿"""
 generate_charts.py
 Génère toutes les figures d'analyse à partir des données CSV de benchmarking.
 
 Usage
 -----
-    py scripts/generate_charts.py
+    py scripts/charts/plot_performance.py
 
 Sortie : data/charts/  (fichiers PNG à 150 dpi, adaptés à l'insertion dans Word)
 """
@@ -13,7 +13,9 @@ import sys
 import csv
 from collections import defaultdict
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+sys.path.insert(0, BASE_DIR)
 
 import matplotlib
 matplotlib.use("Agg")
@@ -24,8 +26,8 @@ import numpy as np
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-RESULTS_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "results")
-CHARTS_DIR  = os.path.join(os.path.dirname(__file__), "..", "data", "charts")
+RESULTS_DIR = os.path.join(BASE_DIR, "data", "results")
+CHARTS_DIR  = os.path.join(BASE_DIR, "data", "charts")
 os.makedirs(CHARTS_DIR, exist_ok=True)
 
 # Utilise le premier fichier CSV trouvé (le plus récent si trié)
@@ -658,7 +660,7 @@ def fig9_synthesis_heatmap():
         fontsize=11, color=TEXT_COLOR,
     )
     plt.tight_layout()
-    savefig("07-synthese/heatmap-synthese.png")
+    savefig("04-synthese/heatmap-synthese.png")
 
 
 # ===========================================================================
@@ -667,7 +669,7 @@ def fig9_synthesis_heatmap():
 if __name__ == "__main__":
     print("Generating charts...")
     for subdir in ["01-debit", "02-effet-avalanche", "03-modes-chiffrement",
-                   "07-synthese"]:
+                   "04-synthese"]:
         os.makedirs(os.path.join(CHARTS_DIR, subdir), exist_ok=True)
 
     fig1_throughput_4096()
@@ -681,3 +683,5 @@ if __name__ == "__main__":
     fig9_synthesis_heatmap()
 
     print(f"\nDone. Charts saved to: {os.path.abspath(CHARTS_DIR)}")
+
+

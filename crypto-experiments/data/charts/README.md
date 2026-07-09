@@ -6,12 +6,11 @@ Tous les graphiques d'analyse générés à partir des données CSV de benchmark
 
 ```
 data/charts/
-├── 01-debit/                    # Débits absolus et comparaisons plateformes
+├── 01-debit/                    # Débits absolus, comparaisons plateformes et stabilité IC95
 ├── 02-effet-avalanche/          # Scores d'avalanche par algorithme
-├── 03-modes-chiffrement/        # Impact des modes sur AES
-├── 04-demo-visuel-ecb/          # Démonstration visuelle vulnérabilité ECB (BMP)
-├── 05-comparaison-algorithmes/  # ChaCha20, IC95 stabilité
-└── 07-synthese/                 # Heatmap et radar multi-critères
+├── 03-modes-chiffrement/        # Impact des modes sur AES + démo ECB
+│   └── demo-ecb/                # Démonstration visuelle vulnérabilité ECB (BMP)
+└── 04-synthese/                 # Heatmap et radar multi-critères
 ```
 
 ---
@@ -20,32 +19,34 @@ data/charts/
 
 | Fichier | Description | Script source |
 |---|---|---|
-| `debit-4096o.png` | Débit de chiffrement par algo et mode — 4096 octets | `generate_charts.py` |
-| `debit-vs-taille-message.png` | Débit ECB selon la taille du message (x86) | `generate_charts.py` |
-| `comparaison-debit-global.png` | Débit x86 vs ARM — tous algos, 4096 octets | `compare_platforms.py` |
-| `comparaison-debit-vs-taille-message.png` | Scalabilité x86 vs ARM — débit selon taille | `compare_platforms.py` |
-| `comparaison-ratio-acceleration.png` | Ratio x86/ARM par algorithme | `compare_platforms.py` |
+| `debit-4096o.png` | Débit de chiffrement par algo et mode — 4096 octets | `scripts/charts/plot_performance.py` |
+| `debit-vs-taille-message.png` | Débit ECB selon la taille du message (x86) | `scripts/charts/plot_performance.py` |
+| `comparaison-debit-global.png` | Débit x86 vs ARM — tous algos, 4096 octets | `scripts/charts/plot_platform_comparison.py` |
+| `comparaison-debit-vs-taille-message.png` | Scalabilité x86 vs ARM — débit selon taille | `scripts/charts/plot_platform_comparison.py` |
+| `comparaison-ratio-acceleration.png` | Ratio x86/ARM par algorithme | `scripts/charts/plot_platform_comparison.py` |
+| `chacha20-comparaison-plateformes.png` | ChaCha20 x86 vs ARM — débit selon taille | `scripts/charts/plot_platform_comparison.py` |
+| `stabilite-ic95.png` | Intervalle de confiance 95% — stabilité des mesures | `scripts/charts/plot_platform_comparison.py` |
 
 ### 02-effet-avalanche
 
 | Fichier | Description | Script source |
 |---|---|---|
-| `avalanche-par-algorithme.png` | Score d'avalanche moyen par algorithme | `generate_charts.py` |
-| `avalanche-texte-vs-cle.png` | Flip texte clair vs flip clé | `generate_charts.py` |
-| `comparaison-avalanche.png` | Scores d'avalanche x86 vs ARM | `compare_platforms.py` |
-| `convergence-avalanche-par-tours.png` | Convergence de l'effet d'avalanche DES par tours | `analyse_rounds_avalanche.py` |
+| `avalanche-par-algorithme.png` | Score d'avalanche moyen par algorithme | `scripts/charts/plot_performance.py` |
+| `avalanche-texte-vs-cle.png` | Flip texte clair vs flip clé | `scripts/charts/plot_performance.py` |
+| `comparaison-avalanche.png` | Scores d'avalanche x86 vs ARM | `scripts/charts/plot_platform_comparison.py` |
+| `convergence-avalanche-par-tours.png` | Convergence de l'effet d'avalanche DES par tours | `scripts/charts/plot_avalanche_rounds.py` |
 
 ### 03-modes-chiffrement
 
 | Fichier | Description | Script source |
 |---|---|---|
-| `aes-comparaison-modes.png` | AES-128 — débit par mode (ECB/CBC/CTR/GCM) | `generate_charts.py` |
-| `aes-securite-vs-performance.png` | AES-128 — compromis sécurité/perf selon le mode | `generate_charts.py` |
-| `aes-impact-taille-cle.png` | Impact de la taille de clé AES sur le débit | `generate_charts.py` |
-| `chiffrement-vs-dechiffrement-ecb.png` | Symétrie chiffrement / déchiffrement (ECB) | `generate_charts.py` |
-| `vulnerabilite-mode-ecb.png` | Démonstration visuelle — ECB vs CBC sur image | `ecb_visual_vulnerability.py` |
+| `aes-comparaison-modes.png` | AES-128 — débit par mode (ECB/CBC/CTR/GCM) | `scripts/charts/plot_performance.py` |
+| `aes-securite-vs-performance.png` | AES-128 — compromis sécurité/perf selon le mode | `scripts/charts/plot_performance.py` |
+| `aes-impact-taille-cle.png` | Impact de la taille de clé AES sur le débit | `scripts/charts/plot_performance.py` |
+| `chiffrement-vs-dechiffrement-ecb.png` | Symétrie chiffrement / déchiffrement (ECB) | `scripts/charts/plot_performance.py` |
+| `vulnerabilite-mode-ecb.png` | Démonstration visuelle — ECB vs CBC sur image | `scripts/charts/plot_ecb_demo.py` |
 
-### 04-demo-visuel-ecb
+### 03-modes-chiffrement/demo-ecb
 
 Fichiers BMP utilisés pour construire `vulnerabilite-mode-ecb.png`.
 
@@ -55,19 +56,12 @@ Fichiers BMP utilisés pour construire `vulnerabilite-mode-ecb.png`.
 | `image-chiffree-ecb.bmp` | Image chiffrée ECB (patterns visibles) |
 | `image-chiffree-cbc.bmp` | Image chiffrée CBC (visuellement aléatoire) |
 
-### 05-comparaison-algorithmes
+### 04-synthese
 
 | Fichier | Description | Script source |
 |---|---|---|
-| `chacha20-comparaison-plateformes.png` | ChaCha20 x86 vs ARM — débit selon taille | `compare_platforms.py` |
-| `stabilite-ic95.png` | Intervalle de confiance 95% — stabilité des mesures | `compare_platforms.py` |
-
-### 07-synthese
-
-| Fichier | Description | Script source |
-|---|---|---|
-| `heatmap-synthese.png` | Scores normalisés par métrique (débit, latence, avalanche) | `generate_charts.py` |
-| `radar-synthese.png` | Radar multi-critères — débit, portabilité, avalanche | `compare_platforms.py` |
+| `heatmap-synthese.png` | Scores normalisés par métrique (débit, latence, avalanche) | `scripts/charts/plot_performance.py` |
+| `radar-synthese.png` | Radar multi-critères — débit, portabilité, avalanche | `scripts/charts/plot_platform_comparison.py` |
 
 ---
 
@@ -77,19 +71,19 @@ Depuis `crypto-experiments/` :
 
 ```bash
 # Graphiques plateforme unique (x86)
-python scripts/generate_charts.py
+python scripts/charts/plot_performance.py
 
 # Comparaison x86 vs ARM (requiert les deux CSV)
-python scripts/compare_platforms.py
+python scripts/charts/plot_platform_comparison.py
 
 # Convergence avalanche DES par tours
-python scripts/analyse_rounds_avalanche.py
+python scripts/charts/plot_avalanche_rounds.py
 
 # Démonstration visuelle ECB vs CBC
-python scripts/ecb_visual_vulnerability.py
+python scripts/charts/plot_ecb_demo.py
 ```
 
-> `compare_platforms.py` requiert un fichier `laptop-windows-x86_*.csv` **et** un `raspberry-pi_*.csv` dans `data/results/`.
+> `scripts/charts/plot_platform_comparison.py` requiert un fichier `laptop-windows-x86_*.csv` **et** un `raspberry-pi_*.csv` dans `data/results/`.
 
 ---
 

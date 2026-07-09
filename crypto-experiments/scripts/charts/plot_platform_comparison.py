@@ -1,10 +1,10 @@
-"""
+﻿"""
 compare_platforms.py
 Génère les graphiques de comparaison inter-plateformes (laptop x86 vs Raspberry Pi).
 
 Usage
 -----
-    py scripts/compare_platforms.py
+    py scripts/charts/plot_platform_comparison.py
 
 Le script trouve automatiquement les fichiers CSV correspondant à la convention
 de nommage :
@@ -13,7 +13,7 @@ de nommage :
 
 Si aucun CSV Pi n'est trouvé, le script affiche un message explicite et se
 termine proprement.
-Tous les graphiques sont enregistrés dans data/charts/comparison/.
+Tous les graphiques sont enregistrés dans data/charts/.
 
 Figures produites
 -----------------
@@ -30,7 +30,9 @@ import sys
 import csv
 from collections import defaultdict
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+sys.path.insert(0, BASE_DIR)
 
 import matplotlib
 matplotlib.use("Agg")
@@ -41,11 +43,11 @@ import numpy as np
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-RESULTS_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "results")
-OUT_DIR     = os.path.join(os.path.dirname(__file__), "..", "data", "charts")
+RESULTS_DIR = os.path.join(BASE_DIR, "data", "results")
+OUT_DIR     = os.path.join(BASE_DIR, "data", "charts")
 os.makedirs(OUT_DIR, exist_ok=True)
 # Create subdirectories for organized output
-for subdir in ["01-debit", "02-effet-avalanche", "05-comparaison-algorithmes", "07-synthese"]:
+for subdir in ["01-debit", "02-effet-avalanche", "04-synthese"]:
     os.makedirs(os.path.join(OUT_DIR, subdir), exist_ok=True)
 
 DPI   = 180
@@ -420,7 +422,7 @@ def cmp5_chacha20():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("05-comparaison-algorithmes/chacha20-comparaison-plateformes.png")
+    savefig("01-debit/chacha20-comparaison-plateformes.png")
 
 
 # ===========================================================================
@@ -479,7 +481,7 @@ def cmp6_ci95_stability():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("05-comparaison-algorithmes/stabilite-ic95.png")
+    savefig("01-debit/stabilite-ic95.png")
 
 
 # ===========================================================================
@@ -545,7 +547,7 @@ def cmp7_radar():
     )
     ax.legend(loc="upper right", bbox_to_anchor=(1.35, 1.15), fontsize=9)
     plt.tight_layout()
-    savefig("07-synthese/radar-synthese.png")
+    savefig("04-synthese/radar-synthese.png")
 
 
 # ===========================================================================
@@ -607,7 +609,7 @@ def cmp8_scalability_all_algos():
 # ===========================================================================
 if __name__ == "__main__":
     print("\nGénération des graphiques de comparaison...")
-    for subdir in ["01-debit", "02-effet-avalanche", "05-comparaison-algorithmes", "07-synthese"]:
+    for subdir in ["01-debit", "02-effet-avalanche", "04-synthese"]:
         os.makedirs(os.path.join(OUT_DIR, subdir), exist_ok=True)
     cmp1_throughput_all()
     cmp2_speedup_ratio()
@@ -617,3 +619,5 @@ if __name__ == "__main__":
     cmp6_ci95_stability()
     cmp7_radar()
     print(f"\nDone. Charts saved to: {os.path.abspath(OUT_DIR)}")
+
+

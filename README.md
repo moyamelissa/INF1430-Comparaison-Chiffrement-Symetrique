@@ -117,10 +117,11 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 │   ├── scripts/
 │   │   ├── experiment.py
 │   │   ├── run_kat.py
-│   │   ├── generate_charts.py
-│   │   ├── analyse_rounds_avalanche.py
-│   │   ├── compare_platforms.py
-│   │   └── ecb_visual_vulnerability.py
+│   │   ├── charts/
+│   │   │   ├── plot_performance.py
+│   │   │   ├── plot_platform_comparison.py
+│   │   │   ├── plot_avalanche_rounds.py
+│   │   │   └── plot_ecb_demo.py
 │   ├── validation/
 │   │   ├── kat_aes.py
 │   │   ├── kat_des.py
@@ -131,12 +132,11 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 │   └── data/
        ├── results/                     # CSV bruts — x86 et Raspberry Pi
        └── charts/
-           ├── 01-debit/                # Débits absolus et comparaisons plateformes
+           ├── 01-debit/                # Débits absolus, comparaisons plateformes, IC95
            ├── 02-effet-avalanche/      # Scores d'avalanche par algorithme
-           ├── 03-modes-chiffrement/    # Impact des modes sur AES
-           ├── 04-demo-visuel-ecb/      # Démonstration visuelle vulnérabilité ECB
-           ├── 05-comparaison-algorithmes/  # ChaCha20, IC95 stabilité
-           └── 07-synthese/             # Heatmap et radar multi-critères
+           ├── 03-modes-chiffrement/    # Impact des modes AES + demo ECB
+           │   └── demo-ecb/            # BMP de la demo visuelle ECB/CBC
+           └── 04-synthese/             # Heatmap et radar multi-critères
 ├── docs/
 │   ├── 01-project-instructions/
 │   ├── 02-deliverables/
@@ -203,14 +203,14 @@ python scripts/experiment.py
 ### 3) Générer les graphiques (plateforme unique)
 
 ```bash
-python scripts/generate_charts.py
+python scripts/charts/plot_performance.py
 ```
 
 ### 4) Analyses complémentaires
 
 ```bash
-python scripts/analyse_rounds_avalanche.py
-python scripts/ecb_visual_vulnerability.py
+python scripts/charts/plot_avalanche_rounds.py
+python scripts/charts/plot_ecb_demo.py
 ```
 
 ### 5) Comparaison multi-plateformes
@@ -218,7 +218,7 @@ python scripts/ecb_visual_vulnerability.py
 > **Prérequis** : deux fichiers CSV doivent être présents dans `data/results/` — un nommé `laptop-windows-x86_*.csv` et un `raspberry-pi_*.csv`. Sans les deux, ce script quitte avec un avertissement.
 
 ```bash
-python scripts/compare_platforms.py
+python scripts/charts/plot_platform_comparison.py
 ```
 
 ---
@@ -289,10 +289,10 @@ python scripts/run_kat.py
 python scripts/experiment.py
 
 # 4. Générer les graphiques
-python scripts/generate_charts.py
+python scripts/charts/plot_performance.py
 ```
 
-Pour la comparaison multi-plateformes, copier les CSV des deux machines dans `data/results/` avant d'exécuter `scripts/compare_platforms.py`.
+Pour la comparaison multi-plateformes, copier les CSV des deux machines dans `data/results/` avant d'exécuter `scripts/charts/plot_platform_comparison.py`.
 
 **Bonnes pratiques :**
 - Fermer toute application en arrière-plan pendant le benchmark.

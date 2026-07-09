@@ -34,23 +34,23 @@ Ce document présente les fichiers les plus importants à montrer en vidéo, dan
 
 4. **Vidéo 4 — AES: architecture et écarts (pages 7-10)**
    - Fichier principal: **crypto-experiments/domain/cipher/AES.py**
-   - Appui: résultats de **crypto-experiments/scripts/compare_platforms.py**
+   - Appui: résultats de **crypto-experiments/scripts/charts/plot_platform_comparison.py**
 
 5. **Vidéo 5 — ChaCha20 et ARM/x86 (pages 11-13)**
    - Fichier principal: **crypto-experiments/domain/cipher/ChaCha20.py**
-   - Appui: **crypto-experiments/scripts/compare_platforms.py**
+   - Appui: **crypto-experiments/scripts/charts/plot_platform_comparison.py**
 
 6. **Vidéo 6 — Algorithmes hérités et modes (pages 14-15)**
    - Fichiers principaux: **crypto-experiments/domain/cipher/DES.py**, **crypto-experiments/domain/cipher/TripleDES.py**, **crypto-experiments/domain/cipher/Twofish.py**
-   - Appui: **crypto-experiments/validation/kat_modes.py**, **crypto-experiments/scripts/ecb_visual_vulnerability.py**
+   - Appui: **crypto-experiments/validation/kat_modes.py**, **crypto-experiments/scripts/charts/plot_ecb_demo.py**
 
 7. **Vidéo 7 — Robustesse et stabilité statistique (pages 16-18)**
    - Fichier principal: **crypto-experiments/application/ExperimentController.py** (avalanche, key avalanche, IC95)
-   - Appui: **crypto-experiments/scripts/analyse_rounds_avalanche.py**
+   - Appui: **crypto-experiments/scripts/charts/plot_avalanche_rounds.py**
    - Preuve obligatoire demandée: graphique rounds vs score d'avalanche (**data/charts/fig7_rounds_avalanche.png** ou figure générée équivalente).
 
 8. **Vidéo 8 — Synthèse et recommandations (pages 19-22)**
-   - Fichier principal: **crypto-experiments/scripts/compare_platforms.py**
+   - Fichier principal: **crypto-experiments/scripts/charts/plot_platform_comparison.py**
    - Preuves de données: **crypto-experiments/data/results/laptop-windows-x86_experience*.csv** et **crypto-experiments/data/results/raspberry-pi_experience*.csv**
    - Appui: graphiques consolidés dans **crypto-experiments/data/charts/**
 
@@ -58,7 +58,7 @@ Ce document présente les fichiers les plus importants à montrer en vidéo, dan
 
 1. **Effet d'avalanche selon le nombre de tours**
    - Vidéo concernée: **Vidéo 7**
-   - Fichiers/preuves: **scripts/analyse_rounds_avalanche.py** + figure rounds vs avalanche.
+   - Fichiers/preuves: **scripts/charts/plot_avalanche_rounds.py** + figure rounds vs avalanche.
    - Message à livrer: identifier le seuil de convergence vers un score proche de 0,5.
 
 2. **Justification Python et neutralité expérimentale**
@@ -68,7 +68,7 @@ Ce document présente les fichiers les plus importants à montrer en vidéo, dan
 
 3. **Synthèse traçable par fichiers**
    - Vidéo concernée: **Vidéo 8**
-   - Fichiers/preuves: **scripts/compare_platforms.py** + CSV x86/Pi + graphiques générés.
+   - Fichiers/preuves: **scripts/charts/plot_platform_comparison.py** + CSV x86/Pi + graphiques générés.
    - Message à livrer: chaque recommandation finale doit être reliée à une mesure et à un artefact reproductible.
 
 ## Fichiers à présenter en priorité
@@ -98,7 +98,7 @@ Ce document présente les fichiers les plus importants à montrer en vidéo, dan
    - Pourquoi c'est important: démontre concrètement la vérification avec vecteurs de référence.
    - Critères couverts: compréhension des concepts, qualité de validation.
 
-6. **crypto-experiments/scripts/compare_platforms.py**
+6. **crypto-experiments/scripts/charts/plot_platform_comparison.py**
    - Rôle: comparaison inter-plateformes et génération de graphiques.
    - Pourquoi c'est important: relie les données brutes aux analyses x86 vs Raspberry Pi.
    - Critères couverts: interprétation des résultats, transférabilité.

@@ -12,7 +12,7 @@ On va suivre une lecture progressive. D'abord, on confirme la provenance des fig
 Interpréter les résultats de performance de manière rigoureuse, en reliant chaque écart mesuré à trois facteurs : l'algorithme, le mode de chiffrement et l'architecture matérielle.
 
 ## Portée
-- scripts/generate_charts.py
+- scripts/charts/plot_performance.py
 - data/results/laptop-windows-x86_experience3.csv
 - data/results/raspberry-pi_experience3.csv
 - data/charts/01-debit/debit-vs-taille-message.png
@@ -20,16 +20,16 @@ Interpréter les résultats de performance de manière rigoureuse, en reliant ch
 - data/charts/01-debit/comparaison-ratio-acceleration.png
 - data/charts/03-modes-chiffrement/aes-comparaison-modes.png
 - data/charts/03-modes-chiffrement/aes-securite-vs-performance.png
-- data/charts/05-comparaison-algorithmes/chacha20-comparaison-plateformes.png
+- data/charts/01-debit/chacha20-comparaison-plateformes.png
 
 ## Guide d'enregistrement
 
 ### Section 1 - Provenance des graphes et traçabilité
 **Où sommes-nous :**
-VS Code, fichier scripts/generate_charts.py, puis dossier data/charts.
+VS Code, fichier scripts/charts/plot_performance.py, puis dossier data/charts.
 
 **Fichier / zone à montrer :**
-scripts/generate_charts.py
+scripts/charts/plot_performance.py
 - Bloc configuration et sélection du CSV (résultats vers graphiques)
 - Fonction d'export savefig (écriture des PNG)
 
@@ -37,12 +37,13 @@ scripts/generate_charts.py
 Avant d'interpréter les chiffres, on vérifie d'où viennent les figures. Le principe est simple : les graphes ne sont pas dessinés manuellement. Ils sont générés automatiquement à partir des CSV exportés par la campagne de mesure.
 
 **Sujet (texte à lire) :**
-Le script generate_charts.py lit le fichier CSV sélectionné dans data/results, applique les mêmes règles de calcul et de visualisation, puis sauvegarde les images dans data/charts. Cette étape est importante, parce qu'elle garantit que la narration repose sur des données traçables et reproductibles. On peut donc lier chaque conclusion à un fichier source précis.
+Le script scripts/charts/plot_performance.py lit le fichier CSV sélectionné dans data/results, applique les mêmes règles de calcul et de visualisation, puis sauvegarde les images dans data/charts. Cette étape est importante, parce qu'elle garantit que la narration repose sur des données traçables et reproductibles. On peut donc lier chaque conclusion à un fichier source précis.
 
 **Code à montrer :**
 ```python
-RESULTS_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "results")
-CHARTS_DIR  = os.path.join(os.path.dirname(__file__), "..", "data", "charts")
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+RESULTS_DIR = os.path.join(BASE_DIR, "data", "results")
+CHARTS_DIR  = os.path.join(BASE_DIR, "data", "charts")
 os.makedirs(CHARTS_DIR, exist_ok=True)
 
 csv_files = sorted(
@@ -73,7 +74,7 @@ Enfin, la fonction savefig centralise l'export de toutes les figures PNG et affi
 **Commande à montrer (terminal) :**
 ```bash
 cd crypto-experiments
-python scripts/generate_charts.py
+python scripts/charts/plot_performance.py
 ```
 
 **Texte à lire après la commande :**
@@ -134,7 +135,7 @@ PowerPoint, slide x86 vs Raspberry Pi.
 
 **Visuels à montrer :**
 data/charts/01-debit/comparaison-ratio-acceleration.png
-data/charts/05-comparaison-algorithmes/chacha20-comparaison-plateformes.png
+data/charts/01-debit/chacha20-comparaison-plateformes.png
 
 **Texte à lire :**
 Cette section répond à la question du pourquoi entre x86 et ARM. Sur x86, AES profite fortement de l'extension AES-NI. Une partie importante de l'écart de débit vient donc du matériel, pas d'un changement de méthode logicielle. Sur Raspberry Pi, ce levier n'existe pas au même niveau, et la hiérarchie peut se resserrer selon les cas.
