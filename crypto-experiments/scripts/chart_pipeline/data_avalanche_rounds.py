@@ -7,8 +7,7 @@ La construction du graphique se fait dans ``build_avalanche_rounds.py``.
 
 from __future__ import annotations
 
-import os
-import secrets
+import random
 
 
 # ---------------------------------------------------------------------------
@@ -50,7 +49,29 @@ _S = [
 _PC1 = [57,49,41,33,25,17,9,1,58,50,42,34,26,18,10,2,59,51,43,35,27,19,11,3,60,52,44,36,63,55,47,39,31,23,15,7,62,54,46,38,30,22,14,6,61,53,45,37,29,21,13,5,28,20,12,4]
 _PC2 = [14,17,11,24,1,5,3,28,15,6,21,10,23,19,12,4,26,8,16,7,27,20,13,2,41,52,31,37,47,55,30,40,51,45,33,48,44,49,39,56,34,53,46,42,50,36,29,32]
 _SHIFTS = [1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1]
-TRIALS = 500
+TRIALS = 1000
+_BASE_SEED = 1430
+
+
+def _build_trial_set(trials: int) -> tuple[bytes, list[tuple[bytes, int, int]]]:
+    """Construit un jeu d'essais déterministe partagé par tous les nombres de tours.
+
+    Le but est d'isoler l'effet du nombre de tours: chaque point de la courbe
+    est mesuré avec la même clé, les mêmes blocs et les mêmes bits inversés.
+    """
+    rng = random.Random(_BASE_SEED)
+
+    def next_byte() -> int:
+        return rng.getrandbits(8)
+
+    key = bytes(next_byte() for _ in range(8))
+    trial_set: list[tuple[bytes, int, int]] = []
+    for _ in range(trials):
+        block = bytes(next_byte() for _ in range(8))
+        flip_byte = rng.randrange(8)
+        flip_bit = rng.randrange(8)
+        trial_set.append((block, flip_byte, flip_bit))
+    return key, trial_set
 
 
 def _bytes_to_bits(b: bytes) -> list[int]:
@@ -132,19 +153,23 @@ def des_encrypt_n_rounds(plaintext: bytes, key: bytes, n_rounds: int) -> bytes:
     return _bits_to_bytes(_permute(right + left, _IP_INV))
 
 
-def measure_avalanche_at_rounds(n_rounds: int, trials: int = TRIALS) -> float:
+def measure_avalanche_at_rounds(
+    n_rounds: int,
+    trials: int = TRIALS,
+    key: bytes | None = None,
+    trial_set: list[tuple[bytes, int, int]] | None = None,
+) -> float:
     """Mesure le score d'avalanche moyen pour un nombre de tours donné.
 
     À chaque essai, un seul bit du texte clair est modifié, puis on compare le
     nombre de bits changés dans les deux textes chiffrés obtenus.
     """
-    key = os.urandom(8)
+    if key is None or trial_set is None:
+        key, trial_set = _build_trial_set(trials)
+
     scores: list[float] = []
-    for _ in range(trials):
-        block = os.urandom(8)
+    for block, flip_byte, flip_bit in trial_set:
         reference = des_encrypt_n_rounds(block, key, n_rounds)
-        flip_byte = secrets.randbelow(8)
-        flip_bit = secrets.randbelow(8)
         modified = bytearray(block)
         modified[flip_byte] ^= 1 << flip_bit
         changed = des_encrypt_n_rounds(bytes(modified), key, n_rounds)
@@ -160,9 +185,15 @@ def measure_rounds_series(trials: int = TRIALS) -> list[dict[str, float]]:
     La sortie est déjà prête pour l'affichage console et pour le rendu du
     graphique final.
     """
+    key, trial_set = _build_trial_set(trials)
     series = []
     for n_rounds in range(1, 17):
-        score = measure_avalanche_at_rounds(n_rounds, trials=trials)
+        score = measure_avalanche_at_rounds(
+            n_rounds,
+            trials=trials,
+            key=key,
+            trial_set=trial_set,
+        )
         series.append({
             "rounds": n_rounds,
             "score": score,

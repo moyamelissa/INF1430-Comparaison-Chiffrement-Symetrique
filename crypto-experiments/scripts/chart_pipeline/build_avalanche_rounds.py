@@ -46,7 +46,7 @@ def generate_rounds_avalanche_chart():
     ax.set_facecolor(BG_COLOR)
     ax.plot(rounds_list, scores_pct, marker="o", linewidth=2, color="#B03A2E", label="Score d'avalanche (DES)")
     ax.axhline(50.0, color="#0A0A0A", linestyle="--", linewidth=1.2, label="Valeur idéale (50 %)")
-    ax.fill_between(rounds_list, [48.0] * 16, [52.0] * 16, alpha=0.12, color="#3A7A3A", label="Plage ±2 % autour de l'idéal")
+    ax.fill_between(rounds_list, [49.0] * 16, [51.0] * 16, alpha=0.10, color="#3A7A3A", label="Plage ±1 % autour de l'idéal")
     ax.set_xlabel("Nombre de tours (rounds)", fontsize=11)
     ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=11)
     ax.set_title("Score d'avalanche en fonction du nombre de tours DES", fontsize=11)
