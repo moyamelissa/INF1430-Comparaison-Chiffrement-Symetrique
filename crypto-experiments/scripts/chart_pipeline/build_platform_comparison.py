@@ -353,9 +353,9 @@ def cmp6_ci95_stability():
 
     ax.set_xticks(x)
     ax.set_xticklabels(algo_order, fontsize=11)
-    ax.set_ylabel("IC à 95 % du débit de chiffrement (MB/s)", fontsize=11)
+    ax.set_ylabel("Largeur de l'IC95 du débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Stabilité des mesures en fonction de la plateforme (IC95)",
+        "Stabilité des mesures en fonction de la plateforme (IC95, n=100 répétitions)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
