@@ -180,7 +180,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 
 ## Slide 15 — Vulnérabilité ECB
 
-**Images générées par** : [plot_ecb_demo.py](../crypto-experiments/scripts/charts/plot_ecb_demo.py)
+**Images générées par** : [render_ecb_demo.py](../crypto-experiments/scripts/charts/render_ecb_demo.py)
 
 | Fichier | Description |
 |---------|-------------|

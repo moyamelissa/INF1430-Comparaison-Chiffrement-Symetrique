@@ -1,146 +1,76 @@
-﻿"""
-generate_charts.py
-Génère toutes les figures d'analyse à partir des données CSV de benchmarking.
+﻿"""Construit les graphiques plateforme unique à partir des CSV de benchmark.
 
-Usage
------
-    py scripts/charts/plot_performance.py
+Chaîne de traitement
+-------------------
+1. scripts/experiment.py calcule les mesures et écrit les CSV dans data/results/.
+2. scripts/run_charts.py orchestre la génération des dossiers de graphiques.
+3. Ce module lit le CSV le plus récent et génère les graphiques x86/plateforme unique.
 
-Sortie : data/charts/  (fichiers PNG à 150 dpi, adaptés à l'insertion dans Word)
+Structure du fichier
+-------------------
+- Configuration et chargement des données
+- Style réutilisable commun à tous les graphiques
+- Graphique 1, Graphique 2, ... : une fonction par graphique
+- CHART_GROUPS / GRAPH_OUTPUTS : correspondance dossier -> fonctions -> PNG
+
+Utilisation
+-----------
+    py scripts/run_charts.py 01
+    py scripts/run_charts.py 02
+    py scripts/run_charts.py 03
+    py scripts/run_charts.py 04
+
+Sortie : data/charts/ (fichiers PNG adaptés à l'insertion dans le rapport)
 """
 import os
 import sys
-import csv
 from collections import defaultdict
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-
-sys.path.insert(0, BASE_DIR)
-
-import matplotlib
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import numpy as np
+SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
+SCRIPTS_DIR = os.path.dirname(SCRIPT_DIR)
+if SCRIPTS_DIR not in sys.path:
+    sys.path.insert(0, SCRIPTS_DIR)
 
-# ---------------------------------------------------------------------------
-# Configuration
-# ---------------------------------------------------------------------------
-RESULTS_DIR = os.path.join(BASE_DIR, "data", "results")
-CHARTS_DIR  = os.path.join(BASE_DIR, "data", "charts")
-os.makedirs(CHARTS_DIR, exist_ok=True)
-
-# Utilise le premier fichier CSV trouvé (le plus récent si trié)
-csv_files = sorted(
-    [f for f in os.listdir(RESULTS_DIR) if f.endswith(".csv") and f != ".gitkeep"]
+from chart_pipeline.style_charts import (
+    ALGO_COLORS,
+    BG_COLOR,
+    FIG_W,
+    MODE_COLORS,
+    MODE_HATCH,
+    TEXT_COLOR,
+    save_figure,
+    setup_matplotlib,
+    style_ax,
 )
-if not csv_files:
-    print("No CSV file found in data/results/")
-    sys.exit(1)
+from chart_pipeline.data_performance import load_latest_rows
+from chart_pipeline.shared_paths import CHARTS_DIR
 
-CSV_PATH = os.path.join(RESULTS_DIR, csv_files[-1])
-print(f"Reading: {CSV_PATH}")
 
-# ---------------------------------------------------------------------------
-# Chargement des données
-# ---------------------------------------------------------------------------
-rows = []
-with open(CSV_PATH, newline="", encoding="utf-8") as f:
-    reader = csv.DictReader(f)
-    for row in reader:
-        rows.append({
-            "algorithm":            row["algorithm"],
-            "mode":                 row["mode"],
-            "key_size_bytes":       int(row["key_size_bytes"]),
-            "key_size_bits":        int(row["key_size_bytes"]) * 8,
-            "message_size_bytes":   int(row["message_size_bytes"]),
-            "avg_encrypt_time_s":   float(row["avg_encrypt_time_s"]),
-            "avg_decrypt_time_s":   float(row["avg_decrypt_time_s"]),
-            "throughput_enc_mbps":  float(row["throughput_encrypt_mbps"]),
-            "throughput_dec_mbps":    float(row["throughput_decrypt_mbps"]),
-            "avalanche_score":        float(row["avalanche_score"]),
-            "key_avalanche_score":    float(row.get("key_avalanche_score", row["avalanche_score"])),
-        })
+setup_matplotlib(title_pad=12, hatch_linewidth=1.0)
 
-# ---------------------------------------------------------------------------
-# Palette — couleurs cohérentes par algorithme
-# ---------------------------------------------------------------------------
-BG_COLOR    = "#FFFFFF"
-PANEL_COLOR = "#FFFFFF"
-GRID_COLOR  = "#F0F0F0"
-TEXT_COLOR  = "#555555"
+CSV_PATH, rows = load_latest_rows()
+print(f"Lecture du fichier: {CSV_PATH}")
 
-plt.rcParams.update({
-    "figure.facecolor":  BG_COLOR,
-    "axes.facecolor":    PANEL_COLOR,
-    "axes.edgecolor":    GRID_COLOR,
-    "axes.labelcolor":   TEXT_COLOR,
-    "axes.titlecolor":   "#0A0A0A",
-    "xtick.color":       "#888888",
-    "ytick.color":       "#888888",
-    "text.color":        TEXT_COLOR,
-    "grid.color":        GRID_COLOR,
-    "grid.linestyle":    "--",
-    "grid.alpha":        0.8,
-    "legend.facecolor":  "#FFFFFF",
-    "legend.edgecolor":  "#C0C0C0",
-    "legend.labelcolor": TEXT_COLOR,
-    "font.family":       "Arial",
-    "axes.titlepad":     12,
-    "hatch.linewidth":   1.0,
-})
-matplotlib.rcParams["hatch.color"] = (0.0, 0.0, 0.0, 0.25)
-
-# ---------------------------------------------------------------------------
-# Palette officielle INF1430 TN3
-#   Noir principal  : #0A0A0A
-#   Or accent       : #C9A84C   (couleur signature)
-#   Gris texte      : #555555
-#   Gris léger      : #888888
-#   Gris très léger : #C0C0C0
-#   Vert validé     : #3A7A3A   (KAT / recommandé uniquement)
-#
-# Compléments harmonieux pour différenciation graphique :
-#   Rouge danger    : #B03A2E   (déprécié / non sécurisé)
-#   Orange héritage : #D4783A   (legacy, intermédiaire)
-#   Bleu marine     : #1A5E8A   (moderne / stream / standard)
-# ---------------------------------------------------------------------------
-ALGO_COLORS = {
-    "AES":      "#0A0A0A",   # noir principal (officiel) — standard dominant
-    "DES":      "#B03A2E",   # rouge danger — déprécié, cassé
-    "3DES":     "#D4783A",   # orange héritage — legacy, intermédiaire
-    "Twofish":  "#C9A84C",   # or accent (officiel) — finaliste AES, premium
-    "ChaCha20": "#1A5E8A",   # bleu marine — stream cipher, catégorie unique
-}
-MODE_COLORS = {
-    "ECB": "#B03A2E",        # rouge danger — non sécurisé (patterns visibles)
-    "CBC": "#1A5E8A",        # bleu marine — standard sécurisé
-    "CTR": "#3A7A3A",        # vert validé (officiel) — moderne, approuvé
-    "GCM": "#C9A84C",        # or accent (officiel) — authentifié, premium
-}
-MODE_HATCH = {"ECB": "", "CBC": "/", "CTR": "x", "GCM": "."}
-
-DPI   = 180
-FIG_W = 11
 
 def _style_ax(ax):
-    """Apply consistent light style to an axes."""
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_edgecolor("#C0C0C0")
-    ax.spines["bottom"].set_edgecolor("#C0C0C0")
-    ax.set_axisbelow(True)
-    ax.yaxis.grid(True)
+    style_ax(ax)
+
 
 def savefig(name: str):
-    path = os.path.join(CHARTS_DIR, name)
-    plt.savefig(path, dpi=DPI, bbox_inches="tight", facecolor=BG_COLOR)
-    plt.close()
-    print(f"  Saved: {path}")
+    save_figure(plt.gcf(), CHARTS_DIR, name, facecolor=BG_COLOR)
 
 
 # ===========================================================================
-# Figure 1 — Comparaison du débit à 4 096 octets (point médian représentatif)
+# Dossier 01 — debit
+# ===========================================================================
+
+
+# ===========================================================================
+# Graphique 1 — 01-debit/debit-4096o.png
+# Comparaison du débit à 4 096 octets (point médian représentatif)
 # Une barre par combinaison algorithme+mode, regroupées par algorithme.
 # ===========================================================================
 def fig1_throughput_4096():
@@ -199,11 +129,12 @@ def fig1_throughput_4096():
 
 
 # ===========================================================================
-# Figure 2 — Débit en fonction de la taille du message (courbe, mode ECB uniquement)
+# Graphique 2 — 01-debit/debit-vs-taille-message.png
+# Débit en fonction de la taille du message (courbe, mode ECB uniquement)
 # Montre la scalabilité de chaque algorithme selon la taille des données.
 # ===========================================================================
 def fig2_throughput_vs_size():
-    # Pick ECB (or CTR for DES/3DES which also have ECB; use ECB for all)
+    # On retient ECB pour comparer les algorithmes sur une base commune.
     ecb_data = [r for r in rows if r["mode"] == "ECB"]
 
     # Meilleure taille de clé par algo pour la clarté (la plus grande = recommandation courante)
@@ -242,45 +173,11 @@ def fig2_throughput_vs_size():
 
 
 # ===========================================================================
-# Figure 3 — Comparaison des modes pour AES-128 sur toutes les tailles de message
-# Débit de chiffrement : ECB / CBC / CTR / GCM
+# Dossier 02 — effet-avalanche
 # ===========================================================================
-def fig3_aes_mode_comparison():
-    aes128 = [r for r in rows if r["algorithm"] == "AES" and r["key_size_bits"] == 128]
-    modes  = ["ECB", "CBC", "CTR", "GCM"]
-    msg_sizes = sorted({r["message_size_bytes"] for r in aes128})
-
-    fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
-    fig.patch.set_facecolor(BG_COLOR)
-    for mode in modes:
-        subset = sorted(
-            [r for r in aes128 if r["mode"] == mode],
-            key=lambda r: r["message_size_bytes"],
-        )
-        if not subset:
-            continue
-        sizes = [r["message_size_bytes"] for r in subset]
-        mbps  = [r["throughput_enc_mbps"] for r in subset]
-        ax.plot(sizes, mbps, marker="o", label=mode,
-                color=MODE_COLORS[mode], linewidth=2.2, markersize=5, alpha=0.92)
-
-    ax.set_xscale("log", base=2)
-    ax.set_xticks(msg_sizes)
-    ax.set_xticklabels([f"{s:,}" for s in msg_sizes])
-    ax.set_xlabel("Taille du message (octets)", fontsize=11)
-    ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
-    ax.set_title(
-        "Débit AES-128 en fonction du mode d'opération",
-        fontsize=11,
-    )
-    ax.legend(title="Mode", fontsize=9)
-    _style_ax(ax)
-    plt.tight_layout()
-    savefig("03-modes-chiffrement/aes-comparaison-modes.png")
-
-
 # ===========================================================================
-# Figure 4 — Score d'avalanche par algorithme (barres, moyenne de tous les modes)
+# Graphique 3 — 02-effet-avalanche/avalanche-par-algorithme.png
+# Score d'avalanche par algorithme (barres, moyenne de tous les modes)
 # Valeur attendue ≈ 0,50 (diffusion idéale)
 # ===========================================================================
 def fig4_avalanche():
@@ -322,7 +219,8 @@ def fig4_avalanche():
 
 
 # ===========================================================================
-# Figure 4b — Comparaison avalanche texte clair vs avalanche clé
+# Graphique 4 — 02-effet-avalanche/avalanche-texte-vs-cle.png
+# Comparaison avalanche texte clair vs avalanche clé
 # Montre que tous les algorithmes répondent de façon égale aux deux types de flip.
 # ===========================================================================
 def fig4b_key_avalanche():
@@ -372,7 +270,52 @@ def fig4b_key_avalanche():
 
 
 # ===========================================================================
-# Figure 5 — Débit chiffrement vs déchiffrement (barres pairées, 4096 o, mode ECB)
+# Dossier 03 — modes-chiffrement
+# ===========================================================================
+
+
+# ===========================================================================
+# Graphique 5 — 03-modes-chiffrement/aes-comparaison-modes.png
+# Comparaison des modes pour AES-128 sur toutes les tailles de message
+# Débit de chiffrement : ECB / CBC / CTR / GCM
+# ===========================================================================
+def fig3_aes_mode_comparison():
+    aes128 = [r for r in rows if r["algorithm"] == "AES" and r["key_size_bits"] == 128]
+    modes  = ["ECB", "CBC", "CTR", "GCM"]
+    msg_sizes = sorted({r["message_size_bytes"] for r in aes128})
+
+    fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
+    fig.patch.set_facecolor(BG_COLOR)
+    for mode in modes:
+        subset = sorted(
+            [r for r in aes128 if r["mode"] == mode],
+            key=lambda r: r["message_size_bytes"],
+        )
+        if not subset:
+            continue
+        sizes = [r["message_size_bytes"] for r in subset]
+        mbps  = [r["throughput_enc_mbps"] for r in subset]
+        ax.plot(sizes, mbps, marker="o", label=mode,
+                color=MODE_COLORS[mode], linewidth=2.2, markersize=5, alpha=0.92)
+
+    ax.set_xscale("log", base=2)
+    ax.set_xticks(msg_sizes)
+    ax.set_xticklabels([f"{s:,}" for s in msg_sizes])
+    ax.set_xlabel("Taille du message (octets)", fontsize=11)
+    ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
+    ax.set_title(
+        "Débit AES-128 en fonction du mode d'opération",
+        fontsize=11,
+    )
+    ax.legend(title="Mode", fontsize=9)
+    _style_ax(ax)
+    plt.tight_layout()
+    savefig("03-modes-chiffrement/aes-comparaison-modes.png")
+
+
+# ===========================================================================
+# Graphique 6 — 03-modes-chiffrement/chiffrement-vs-dechiffrement-ecb.png
+# Débit chiffrement vs déchiffrement (barres pairées, 4096 o, mode ECB)
 # ===========================================================================
 def fig5_enc_vs_dec():
     target_size = 4096
@@ -411,7 +354,8 @@ def fig5_enc_vs_dec():
 
 
 # ===========================================================================
-# Figure 6 — Impact de la taille de clé sur le débit AES (ECB, 4096 o)
+# Graphique 7 — 03-modes-chiffrement/aes-impact-taille-cle.png
+# Impact de la taille de clé sur le débit AES (ECB, 4096 o)
 # ===========================================================================
 def fig6_key_size_impact():
     data = [r for r in rows
@@ -460,7 +404,7 @@ def algo_profile(algo_name):
 
     algo_color = ALGO_COLORS.get(algo_name, "#888")
 
-    # --- Stream ciphers (ChaCha20) : pas de modes bloc, afficher débit vs taille ---
+    # --- Chiffrement en flux (ChaCha20) : pas de modes bloc, on trace débit vs taille ---
     modes_in_data = {r["mode"] for r in algo_data}
     if modes_in_data == {"Stream"} or len(modes_in_data) == 1 and "Stream" in modes_in_data:
         msg_sizes = sorted({r["message_size_bytes"] for r in algo_data})
@@ -487,7 +431,7 @@ def algo_profile(algo_name):
         ax1.legend(fontsize=9)
         _style_ax(ax1)
 
-        # Avalanche scores by message size
+        # Score d'avalanche par taille de message.
         aval_vals = [np.mean([r["avalanche_score"] for r in algo_data if r["message_size_bytes"] == s])
                      for s in msg_sizes]
         ax2.bar(x, aval_vals, 0.5, color=algo_color, alpha=0.75, edgecolor=BG_COLOR)
@@ -504,7 +448,7 @@ def algo_profile(algo_name):
         savefig(f"06-algorithm-profiles/{algo_name.lower()}-profile.png")
         return
 
-    # --- Block ciphers : débit et avalanche par mode et taille de clé (4096 o) ---
+    # --- Chiffrement par blocs : débit et avalanche par mode et taille de clé (4096 o) ---
     data_4096 = [r for r in algo_data if r["message_size_bytes"] == 4096]
     if not data_4096:
         return
@@ -569,7 +513,8 @@ def algo_profile(algo_name):
 
 
 # ===========================================================================
-# Figure 7 — AES : sécurité vs performance — ECB / GCM / CTR
+# Graphique 8 — 03-modes-chiffrement/aes-securite-vs-performance.png
+# AES : sécurité vs performance — ECB / GCM / CTR
 # ===========================================================================
 def fig7_ecb_vs_gcm():
     aes128 = [r for r in rows if r["algorithm"] == "AES" and r["key_size_bits"] == 128]
@@ -607,7 +552,14 @@ def fig7_ecb_vs_gcm():
 
 
 # ===========================================================================
-# Figure 8 — Heatmap synthèse : algos × métriques (scores normalisés 0→1)
+# ===========================================================================
+# Dossier 04 — synthese
+# ===========================================================================
+
+
+# ===========================================================================
+# Graphique 9 — 04-synthese/heatmap-synthese.png
+# Heatmap synthèse : algos × métriques (scores normalisés 0→1)
 # ===========================================================================
 def fig9_synthesis_heatmap():
     best_key  = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
@@ -649,7 +601,8 @@ def fig9_synthesis_heatmap():
     for i in range(len(algo_order)):
         for j in range(len(metrics)):
             val = data[i, j]
-            # plasma: dark at low values, bright yellow at high — white text on dark, black on bright
+                # Avec la palette plasma: faible = sombre, élevé = clair.
+                # On adapte la couleur du texte pour garder un bon contraste.
             ax.text(j, i, f"{val:.2f}", ha="center", va="center",
                     fontsize=11, color="white" if val < 0.7 else "black", fontweight="bold")
     cbar = plt.colorbar(im, ax=ax)
@@ -663,25 +616,78 @@ def fig9_synthesis_heatmap():
     savefig("04-synthese/heatmap-synthese.png")
 
 
+CHART_GROUPS = {
+    "01-debit": [
+        fig1_throughput_4096,
+        fig2_throughput_vs_size,
+    ],
+    "02-effet-avalanche": [
+        fig4_avalanche,
+        fig4b_key_avalanche,
+    ],
+    "03-modes-chiffrement": [
+        fig3_aes_mode_comparison,
+        fig5_enc_vs_dec,
+        fig6_key_size_impact,
+        fig7_ecb_vs_gcm,
+    ],
+    "04-synthese": [
+        fig9_synthesis_heatmap,
+    ],
+}
+
+# Correspondance explicite: fonction de tracé -> fichier PNG de sortie.
+# Utile pour vérifier rapidement comment chaque graphique est produit.
+GRAPH_OUTPUTS = {
+    fig1_throughput_4096: "01-debit/debit-4096o.png",
+    fig2_throughput_vs_size: "01-debit/debit-vs-taille-message.png",
+    fig3_aes_mode_comparison: "03-modes-chiffrement/aes-comparaison-modes.png",
+    fig4_avalanche: "02-effet-avalanche/avalanche-par-algorithme.png",
+    fig4b_key_avalanche: "02-effet-avalanche/avalanche-texte-vs-cle.png",
+    fig5_enc_vs_dec: "03-modes-chiffrement/chiffrement-vs-dechiffrement-ecb.png",
+    fig6_key_size_impact: "03-modes-chiffrement/aes-impact-taille-cle.png",
+    fig7_ecb_vs_gcm: "03-modes-chiffrement/aes-securite-vs-performance.png",
+    fig9_synthesis_heatmap: "04-synthese/heatmap-synthese.png",
+}
+
+
+def describe_generation():
+    """Affiche une correspondance concise dossiers -> fonctions -> fichiers."""
+    for group, funcs in CHART_GROUPS.items():
+        print(f"[{group}]")
+        for func in funcs:
+            out = GRAPH_OUTPUTS.get(func, "<sortie inconnue>")
+            print(f"  - {func.__name__} -> {out}")
+
+
+def generate_groups(groups=None):
+    """Génère des groupes de graphiques selon le nom du dossier de sortie.
+
+    Paramètres:
+        groups: liste de dossiers, ex. ["01-debit", "04-synthese"].
+                Si None, tous les groupes sont générés.
+
+    Voir GRAPH_OUTPUTS pour la correspondance fonction -> PNG.
+    """
+    selected = groups or list(CHART_GROUPS.keys())
+    unknown = [g for g in selected if g not in CHART_GROUPS]
+    if unknown:
+        raise ValueError(f"Groupes de graphiques inconnus: {unknown}")
+
+    for group in selected:
+        os.makedirs(os.path.join(CHARTS_DIR, group), exist_ok=True)
+        for func in CHART_GROUPS[group]:
+            func()
+
+
 # ===========================================================================
 # Exécution de toutes les figures
 # ===========================================================================
 if __name__ == "__main__":
-    print("Generating charts...")
-    for subdir in ["01-debit", "02-effet-avalanche", "03-modes-chiffrement",
-                   "04-synthese"]:
-        os.makedirs(os.path.join(CHARTS_DIR, subdir), exist_ok=True)
+    print("Génération des graphiques...")
+    generate_groups()
 
-    fig1_throughput_4096()
-    fig2_throughput_vs_size()
-    fig3_aes_mode_comparison()
-    fig4_avalanche()
-    fig4b_key_avalanche()
-    fig5_enc_vs_dec()
-    fig6_key_size_impact()
-    fig7_ecb_vs_gcm()
-    fig9_synthesis_heatmap()
+    print(f"\nTerminé. Graphiques enregistrés dans: {os.path.abspath(CHARTS_DIR)}")
 
-    print(f"\nDone. Charts saved to: {os.path.abspath(CHARTS_DIR)}")
 
 

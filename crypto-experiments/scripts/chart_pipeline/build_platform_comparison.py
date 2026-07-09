@@ -1,100 +1,59 @@
-﻿"""
-compare_platforms.py
-Génère les graphiques de comparaison inter-plateformes (laptop x86 vs Raspberry Pi).
+﻿"""Construit les graphiques de comparaison x86/ARM à partir des CSV de benchmark.
 
-Usage
------
-    py scripts/charts/plot_platform_comparison.py
+Chaîne de traitement
+-------------------
+1. scripts/experiment.py produit un CSV sur chaque machine.
+2. Les CSV x86 et Raspberry Pi sont copiés dans data/results/.
+3. scripts/run_charts.py orchestre la génération.
+4. Ce module lit les deux CSV et génère les graphiques de comparaison.
 
-Le script trouve automatiquement les fichiers CSV correspondant à la convention
-de nommage :
-    laptop-windows-x86_experience*.csv   → plateforme x86
-    raspberry-pi_experience*.csv         → ARM / Raspberry Pi
+Structure du fichier
+-------------------
+- Recherche et chargement des CSV x86 / ARM
+- Style réutilisable commun à tous les graphiques
+- Graphique 1, Graphique 2, ... : une fonction par graphique
+- CHART_GROUPS / GRAPH_OUTPUTS : correspondance dossier -> fonctions -> PNG
 
-Si aucun CSV Pi n'est trouvé, le script affiche un message explicite et se
-termine proprement.
-Tous les graphiques sont enregistrés dans data/charts/.
-
-Figures produites
------------------
-    cmp1_throughput_all.png     — Barres de débit côte-à-côte (4096 o, ECB)
-    cmp2_speedup_ratio.png      — Ratio d'accélération x86/Pi par algorithme
-    cmp3_throughput_vs_size.png — Courbe : les deux plateformes, ECB meilleure clé
-    cmp4_avalanche.png          — Scores d'avalanche : les deux plateformes (doivent correspondre)
-    cmp5_chacha20.png           — Performance ChaCha20 : x86 vs Pi
-    cmp6_ci95_stability.png     — Stabilité des mesures : CI95 x86 vs Pi
+Utilisation
+-----------
+    py scripts/run_charts.py 01
+    py scripts/run_charts.py 02
+    py scripts/run_charts.py 04
 """
 
 import os
 import sys
-import csv
 from collections import defaultdict
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-
-sys.path.insert(0, BASE_DIR)
-
-import matplotlib
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import numpy as np
+SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
+SCRIPTS_DIR = os.path.dirname(SCRIPT_DIR)
+if SCRIPTS_DIR not in sys.path:
+    sys.path.insert(0, SCRIPTS_DIR)
 
-# ---------------------------------------------------------------------------
-# Configuration
-# ---------------------------------------------------------------------------
-RESULTS_DIR = os.path.join(BASE_DIR, "data", "results")
-OUT_DIR     = os.path.join(BASE_DIR, "data", "charts")
-os.makedirs(OUT_DIR, exist_ok=True)
-# Create subdirectories for organized output
+from chart_pipeline.style_charts import (
+    ALGO_COLORS,
+    BG_COLOR,
+    FIG_W,
+    GRID_COLOR,
+    PANEL_COLOR,
+    PLATFORM_STYLE,
+    TEXT_COLOR,
+    save_figure,
+    setup_matplotlib,
+)
+from chart_pipeline.data_platform import load_platform_rows
+from chart_pipeline.shared_paths import CHARTS_DIR as OUT_DIR, ensure_chart_dir
+
+
+setup_matplotlib(title_pad=14)
 for subdir in ["01-debit", "02-effet-avalanche", "04-synthese"]:
-    os.makedirs(os.path.join(OUT_DIR, subdir), exist_ok=True)
+    ensure_chart_dir(subdir)
 
-DPI   = 180
-FIG_W = 11
-
-# ---------------------------------------------------------------------------
-# Palette officielle INF1430 TN3
-# ---------------------------------------------------------------------------
-BG_COLOR    = "#FFFFFF"   # blanc pur
-PANEL_COLOR = "#FFFFFF"   # fond panel
-GRID_COLOR  = "#F0F0F0"   # grille subtile
-TEXT_COLOR  = "#555555"   # gris texte (officiel)
-
-plt.rcParams.update({
-    "figure.facecolor":  BG_COLOR,
-    "axes.facecolor":    PANEL_COLOR,
-    "axes.edgecolor":    GRID_COLOR,
-    "axes.labelcolor":   TEXT_COLOR,
-    "axes.titlecolor":   "#0A0A0A",
-    "xtick.color":       "#888888",
-    "ytick.color":       "#888888",
-    "text.color":        TEXT_COLOR,
-    "grid.color":        GRID_COLOR,
-    "grid.linestyle":    "--",
-    "grid.alpha":        0.8,
-    "legend.facecolor":  "#FFFFFF",
-    "legend.edgecolor":  "#C0C0C0",
-    "legend.labelcolor": TEXT_COLOR,
-    "font.family":       "Arial",
-    "axes.titlepad":     14,
-})
-
-ALGO_COLORS = {
-    "AES":      "#0A0A0A",   # noir principal (officiel) — standard dominant
-    "DES":      "#B03A2E",   # rouge danger — déprécié, cassé
-    "3DES":     "#D4783A",   # orange héritage — legacy, intermédiaire
-    "Twofish":  "#C9A84C",   # or accent (officiel) — finaliste AES
-    "ChaCha20": "#1A5E8A",   # bleu marine — stream cipher, catégorie unique
-}
-
-PLATFORM_STYLE = {
-    "x86":  {"hatch": "",   "alpha": 0.82, "label": "Laptop x86 (Windows)"},
-    "pi":   {"hatch": "//", "alpha": 0.45, "label": "Raspberry Pi (ARM)"},
-}
-
-# Best mode per algo for cross-platform comparison
-# ChaCha20 has no ECB — use Stream instead
+# Mode de référence par algorithme pour la comparaison inter-plateformes.
+# ChaCha20 ne possède pas de mode ECB: on utilise Stream.
 BEST_MODE = {
     "AES":      "ECB",
     "DES":      "ECB",
@@ -103,54 +62,20 @@ BEST_MODE = {
     "ChaCha20": "Stream",
 }
 
-# ---------------------------------------------------------------------------
-# Recherche des fichiers CSV
-# ---------------------------------------------------------------------------
-all_csvs = [f for f in os.listdir(RESULTS_DIR) if f.endswith(".csv")]
-
-x86_csvs = sorted([f for f in all_csvs if "x86" in f or "laptop-windows" in f])
-pi_csvs  = sorted([f for f in all_csvs if "raspberry" in f or "raspberry-pi" in f])
-
-if not x86_csvs:
-    print("ERROR: No x86 CSV found in data/results/")
+try:
+    x86_path, pi_path, x86_rows, pi_rows = load_platform_rows()
+except FileNotFoundError as exc:
+    message = str(exc)
+    if "Raspberry Pi" in message:
+        print("\n⚠  Aucun CSV Raspberry Pi trouvé dans data/results/")
+        print("   Fichier attendu: raspberry-pi_experience*.csv")
+        print("   Exécute experiment.py sur le Pi, copie le CSV ici, puis relance le script.")
+        sys.exit(0)
+    print(f"ERREUR: {message}")
     sys.exit(1)
 
-x86_path = os.path.join(RESULTS_DIR, x86_csvs[-1])
-print(f"x86 data : {x86_csvs[-1]}")
-
-if not pi_csvs:
-    print("\n⚠  No Raspberry Pi CSV found in data/results/")
-    print("   Expected a file matching: raspberry-pi_experience*.csv")
-    print("   Run experiment.py on the Pi, copy the CSV here, then re-run this script.")
-    sys.exit(0)
-
-pi_path = os.path.join(RESULTS_DIR, pi_csvs[-1])
-print(f"Pi data  : {pi_csvs[-1]}")
-
-# ---------------------------------------------------------------------------
-# Chargement des données
-# ---------------------------------------------------------------------------
-
-def _load(path: str) -> list:
-    rows = []
-    with open(path, newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
-            rows.append({
-                "algorithm":          row["algorithm"],
-                "mode":               row["mode"],
-                "key_size_bits":      int(row["key_size_bytes"]) * 8,
-                "message_size_bytes": int(row["message_size_bytes"]),
-                "throughput_enc":     float(row["throughput_encrypt_mbps"]),
-                "throughput_dec":     float(row["throughput_decrypt_mbps"]),
-                "avalanche":          float(row["avalanche_score"]),
-                "key_avalanche":      float(row.get("key_avalanche_score", row["avalanche_score"])),
-                "ci95_enc":           float(row.get("ci95_encrypt_mbps", 0)),
-            })
-    return rows
-
-
-x86_rows = _load(x86_path)
-pi_rows  = _load(pi_path)
+print(f"x86 data : {x86_path.name}")
+print(f"Pi data  : {pi_path.name}")
 
 
 def _lookup(rows, algo, mode, key_bits, msg_size):
@@ -163,14 +88,17 @@ def _lookup(rows, algo, mode, key_bits, msg_size):
 
 
 def savefig(name: str):
-    path = os.path.join(OUT_DIR, name)
-    plt.savefig(path, dpi=DPI, bbox_inches="tight", facecolor=BG_COLOR)
-    plt.close()
-    print(f"  Saved: {path}")
+    save_figure(plt.gcf(), OUT_DIR, name, facecolor=BG_COLOR)
 
 
 # ===========================================================================
-# cmp1 — Barres de débit côte-à-côte (ECB, 4096 o, meilleure clé par algo)
+# Dossier 01 — debit
+# ===========================================================================
+
+
+# ===========================================================================
+# Graphique 1 — 01-debit/comparaison-debit-global.png
+# Barres de débit côte-à-côte (ECB, 4096 o, meilleure clé par algo)
 # ===========================================================================
 def cmp1_throughput_all():
     target_size = 4096
@@ -224,7 +152,8 @@ def cmp1_throughput_all():
 
 
 # ===========================================================================
-# cmp2 — Rapport d'accélération x86/Pi par algorithme (ECB, 4096 o)
+# Graphique 2 — 01-debit/comparaison-ratio-acceleration.png
+# Rapport d'accélération x86/Pi par algorithme (ECB, 4096 o)
 # Montre dans quelle mesure x86 est plus rapide que le Pi pour chaque algorithme.
 # ===========================================================================
 def cmp2_speedup_ratio():
@@ -274,7 +203,8 @@ def cmp2_speedup_ratio():
 
 
 # ===========================================================================
-# cmp3 — Débit selon la taille du message : les deux plateformes, ECB, meilleure clé par algo
+# Graphique 3 — 01-debit/comparaison-debit-vs-taille-message.png
+# Débit selon la taille du message : les deux plateformes, ECB, meilleure clé par algo
 # ===========================================================================
 def cmp3_throughput_vs_size():
     best_key = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
@@ -330,54 +260,8 @@ def cmp3_throughput_vs_size():
 
 
 # ===========================================================================
-# cmp4 — Scores d'avalanche : les deux plateformes (doivent être identiques — aucun effet matériel)
-# ===========================================================================
-def cmp4_avalanche():
-    algo_order = ["AES", "DES", "3DES", "Twofish", "ChaCha20"]
-
-    x86_means = {a: np.mean([r["avalanche"] for r in x86_rows if r["algorithm"] == a])
-                 for a in algo_order if any(r["algorithm"] == a for r in x86_rows)}
-    pi_means  = {a: np.mean([r["avalanche"] for r in pi_rows  if r["algorithm"] == a])
-                 for a in algo_order if any(r["algorithm"] == a for r in pi_rows)}
-
-    algos  = [a for a in algo_order if a in x86_means and a in pi_means]
-    x      = np.arange(len(algos))
-    w      = 0.35
-    colors = [ALGO_COLORS.get(a, "#888") for a in algos]
-    x86_vals_pct = [x86_means[a] * 100.0 for a in algos]
-    pi_vals_pct  = [pi_means[a]  * 100.0 for a in algos]
-
-    fig, ax = plt.subplots(figsize=(9, 5))
-    fig.patch.set_facecolor(BG_COLOR)
-    ax.bar(x - w/2, x86_vals_pct, w,
-           label="x86", color=colors, edgecolor=BG_COLOR,
-           linewidth=0.8, alpha=PLATFORM_STYLE["x86"]["alpha"])
-    ax.bar(x + w/2, pi_vals_pct, w,
-           label="Pi",  color=colors, edgecolor=BG_COLOR,
-           linewidth=0.8, alpha=PLATFORM_STYLE["pi"]["alpha"], hatch="//")
-    ax.axhline(50.0, color="#64748B", linestyle="--", linewidth=1.4,
-               label="Valeur idéale (50 %)")
-    ax.set_xticks(x)
-    ax.set_xticklabels(algos, fontsize=11)
-    ax.set_ylim(42.0, 64.0)
-    ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=11)
-    ax.set_title(
-        "Score d'avalanche en fonction de l'algorithme (x86 et ARM)",
-        fontsize=11,
-    )
-    ax.legend(fontsize=9)
-    ax.yaxis.grid(True)
-    ax.set_axisbelow(True)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_edgecolor(GRID_COLOR)
-    ax.spines["bottom"].set_edgecolor(GRID_COLOR)
-    plt.tight_layout()
-    savefig("02-effet-avalanche/comparaison-avalanche.png")
-
-
-# ===========================================================================
-# cmp5 — Performance ChaCha20 : x86 vs Pi sur toutes les tailles de message
+# Graphique 4 — 01-debit/chacha20-comparaison-plateformes.png
+# Performance ChaCha20 : x86 vs Pi sur toutes les tailles de message
 # Intéressant car le Pi ne dispose pas d'AES-NI mais ChaCha20 n'a pas d'accélération
 # matérielle sur aucune des deux plateformes — l'écart devrait être plus faible qu'avec AES.
 # ===========================================================================
@@ -426,7 +310,8 @@ def cmp5_chacha20():
 
 
 # ===========================================================================
-# cmp6 — Stabilité des mesures : CI95 x86 vs Pi (ECB, 4096 o, meilleure clé)
+# Graphique 5 — 01-debit/stabilite-ic95.png
+# Stabilité des mesures : CI95 x86 vs Pi (ECB, 4096 o, meilleure clé)
 # Montre lequel des deux environnements est le plus déterministe.
 # ===========================================================================
 def cmp6_ci95_stability():
@@ -458,7 +343,7 @@ def cmp6_ci95_stability():
            color=colors, edgecolor=BG_COLOR, linewidth=0.8,
            alpha=PLATFORM_STYLE["pi"]["alpha"], hatch="//")
 
-    # Value labels on x86 bars
+    # Étiquettes de valeur sur les barres x86.
     for bar, val in zip(bars_x86, x86_ci):
         if val > 0:
             ax.text(bar.get_x() + bar.get_width() / 2,
@@ -485,73 +370,8 @@ def cmp6_ci95_stability():
 
 
 # ===========================================================================
-# cmp7 — Radar synthèse : tous algos sur 4 axes normalisés
-# Débit x86 · Débit Pi · Avalanche · Portabilité (ratio Pi/x86)
-# ===========================================================================
-def cmp7_radar():
-    algo_order = ["AES", "ChaCha20", "DES", "3DES", "Twofish"]
-    best_key  = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
-    target    = 16384  # largest message for peak throughput
-
-    x86_thr, pi_thr, aval_scores = {}, {}, {}
-    for algo in algo_order:
-        mode = BEST_MODE[algo]
-        kb   = best_key[algo]
-        r86  = _lookup(x86_rows, algo, mode, kb, target)
-        rpi  = _lookup(pi_rows,  algo, mode, kb, target)
-        x86_thr[algo] = r86["throughput_enc"] if r86 else 0
-        pi_thr[algo]  = rpi["throughput_enc"] if rpi else 0
-        avals = [r["avalanche"] for r in x86_rows if r["algorithm"] == algo]
-        aval_scores[algo] = np.mean(avals) if avals else 0.5
-
-    # Portability: Pi/x86 ratio (higher = more portable)
-    portability = {a: (pi_thr[a] / x86_thr[a]) if x86_thr[a] > 0 else 0 for a in algo_order}
-
-    # Normalize each axis 0→1
-    def norm(d):
-        mx = max(d.values()) or 1
-        return {k: v / mx for k, v in d.items()}
-
-    n_x86  = norm(x86_thr)
-    n_pi   = norm(pi_thr)
-    n_aval = {a: 1 - abs(aval_scores[a] - 0.5) * 10 for a in algo_order}
-    n_port = norm(portability)
-
-    categories = ["Débit x86", "Débit Pi (ARM)", "Avalanche\n(qualité)", "Portabilité\n(Pi/x86)"]
-    N      = len(categories)
-    angles = np.linspace(0, 2 * np.pi, N, endpoint=False).tolist()
-    angles += angles[:1]
-
-    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
-    fig.patch.set_facecolor(BG_COLOR)
-    ax.set_facecolor(PANEL_COLOR)
-    ax.spines["polar"].set_color(GRID_COLOR)
-    ax.grid(color=GRID_COLOR, linestyle="--", alpha=0.5)
-    ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(categories, size=10, color=TEXT_COLOR)
-    ax.set_ylim(0, 1)
-    ax.set_yticks([0.25, 0.5, 0.75, 1.0])
-    ax.set_yticklabels(["25%", "50%", "75%", "100%"], size=7, color=TEXT_COLOR)
-    ax.tick_params(colors=TEXT_COLOR)
-
-    for algo in algo_order:
-        vals = [n_x86[algo], n_pi[algo], n_aval[algo], n_port[algo]]
-        vals += vals[:1]
-        color = ALGO_COLORS.get(algo, "#888")
-        ax.plot(angles, vals, linewidth=2, color=color, label=algo, alpha=0.9)
-        ax.fill(angles, vals, alpha=0.08, color=color)
-
-    ax.set_title(
-        "Score global en fonction de l'algorithme (synthèse normalisée)",
-        fontsize=11, color=TEXT_COLOR, pad=25,
-    )
-    ax.legend(loc="upper right", bbox_to_anchor=(1.35, 1.15), fontsize=9)
-    plt.tight_layout()
-    savefig("04-synthese/radar-synthese.png")
-
-
-# ===========================================================================
-# cmp8 — Scalabilité tous algos : x86 (—) et Pi (- -) sur les mêmes axes
+# Graphique 6 — 01-debit/scalabilite-tous-algorithmes.png
+# Scalabilité tous algos : x86 (—) et Pi (- -) sur les mêmes axes
 # ===========================================================================
 def cmp8_scalability_all_algos():
     best_key  = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
@@ -605,19 +425,195 @@ def cmp8_scalability_all_algos():
 
 
 # ===========================================================================
+# Dossier 02 — effet-avalanche
+# ===========================================================================
+
+
+# ===========================================================================
+# Graphique 7 — 02-effet-avalanche/comparaison-avalanche.png
+# Scores d'avalanche : les deux plateformes (doivent être identiques — aucun effet matériel)
+# ===========================================================================
+def cmp4_avalanche():
+    algo_order = ["AES", "DES", "3DES", "Twofish", "ChaCha20"]
+
+    x86_means = {a: np.mean([r["avalanche"] for r in x86_rows if r["algorithm"] == a])
+                 for a in algo_order if any(r["algorithm"] == a for r in x86_rows)}
+    pi_means  = {a: np.mean([r["avalanche"] for r in pi_rows  if r["algorithm"] == a])
+                 for a in algo_order if any(r["algorithm"] == a for r in pi_rows)}
+
+    algos  = [a for a in algo_order if a in x86_means and a in pi_means]
+    x      = np.arange(len(algos))
+    w      = 0.35
+    colors = [ALGO_COLORS.get(a, "#888") for a in algos]
+    x86_vals_pct = [x86_means[a] * 100.0 for a in algos]
+    pi_vals_pct  = [pi_means[a]  * 100.0 for a in algos]
+
+    fig, ax = plt.subplots(figsize=(9, 5))
+    fig.patch.set_facecolor(BG_COLOR)
+    ax.bar(x - w/2, x86_vals_pct, w,
+           label="x86", color=colors, edgecolor=BG_COLOR,
+           linewidth=0.8, alpha=PLATFORM_STYLE["x86"]["alpha"])
+    ax.bar(x + w/2, pi_vals_pct, w,
+           label="Pi",  color=colors, edgecolor=BG_COLOR,
+           linewidth=0.8, alpha=PLATFORM_STYLE["pi"]["alpha"], hatch="//")
+    ax.axhline(50.0, color="#64748B", linestyle="--", linewidth=1.4,
+               label="Valeur idéale (50 %)")
+    ax.set_xticks(x)
+    ax.set_xticklabels(algos, fontsize=11)
+    ax.set_ylim(42.0, 64.0)
+    ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=11)
+    ax.set_title(
+        "Score d'avalanche en fonction de l'algorithme (x86 et ARM)",
+        fontsize=11,
+    )
+    ax.legend(fontsize=9)
+    ax.yaxis.grid(True)
+    ax.set_axisbelow(True)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_edgecolor(GRID_COLOR)
+    ax.spines["bottom"].set_edgecolor(GRID_COLOR)
+    plt.tight_layout()
+    savefig("02-effet-avalanche/comparaison-avalanche.png")
+
+
+# ===========================================================================
+# Dossier 04 — synthese
+# ===========================================================================
+
+
+# ===========================================================================
+# Graphique 8 — 04-synthese/radar-synthese.png
+# Radar synthèse : tous algos sur 4 axes normalisés
+# Débit x86 · Débit Pi · Avalanche · Portabilité (ratio Pi/x86)
+# ===========================================================================
+def cmp7_radar():
+    algo_order = ["AES", "ChaCha20", "DES", "3DES", "Twofish"]
+    best_key  = {"AES": 256, "DES": 64, "3DES": 192, "Twofish": 256, "ChaCha20": 256}
+    target    = 16384  # plus grande taille de message pour le débit maximal
+
+    x86_thr, pi_thr, aval_scores = {}, {}, {}
+    for algo in algo_order:
+        mode = BEST_MODE[algo]
+        kb   = best_key[algo]
+        r86  = _lookup(x86_rows, algo, mode, kb, target)
+        rpi  = _lookup(pi_rows,  algo, mode, kb, target)
+        x86_thr[algo] = r86["throughput_enc"] if r86 else 0
+        pi_thr[algo]  = rpi["throughput_enc"] if rpi else 0
+        avals = [r["avalanche"] for r in x86_rows if r["algorithm"] == algo]
+        aval_scores[algo] = np.mean(avals) if avals else 0.5
+
+    portability = {a: (pi_thr[a] / x86_thr[a]) if x86_thr[a] > 0 else 0 for a in algo_order}
+
+    def norm(d):
+        mx = max(d.values()) or 1
+        return {k: v / mx for k, v in d.items()}
+
+    n_x86  = norm(x86_thr)
+    n_pi   = norm(pi_thr)
+    n_aval = {a: 1 - abs(aval_scores[a] - 0.5) * 10 for a in algo_order}
+    n_port = norm(portability)
+
+    categories = ["Débit x86", "Débit Pi (ARM)", "Avalanche\n(qualité)", "Portabilité\n(Pi/x86)"]
+    N      = len(categories)
+    angles = np.linspace(0, 2 * np.pi, N, endpoint=False).tolist()
+    angles += angles[:1]
+
+    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+    fig.patch.set_facecolor(BG_COLOR)
+    ax.set_facecolor(PANEL_COLOR)
+    ax.spines["polar"].set_color(GRID_COLOR)
+    ax.grid(color=GRID_COLOR, linestyle="--", alpha=0.5)
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(categories, size=10, color=TEXT_COLOR)
+    ax.set_ylim(0, 1)
+    ax.set_yticks([0.25, 0.5, 0.75, 1.0])
+    ax.set_yticklabels(["25%", "50%", "75%", "100%"], size=7, color=TEXT_COLOR)
+    ax.tick_params(colors=TEXT_COLOR)
+
+    for algo in algo_order:
+        vals = [n_x86[algo], n_pi[algo], n_aval[algo], n_port[algo]]
+        vals += vals[:1]
+        color = ALGO_COLORS.get(algo, "#888")
+        ax.plot(angles, vals, linewidth=2, color=color, label=algo, alpha=0.9)
+        ax.fill(angles, vals, alpha=0.08, color=color)
+
+    ax.set_title(
+        "Score global en fonction de l'algorithme (synthèse normalisée)",
+        fontsize=11, color=TEXT_COLOR, pad=25,
+    )
+    ax.legend(loc="upper right", bbox_to_anchor=(1.35, 1.15), fontsize=9)
+    plt.tight_layout()
+    savefig("04-synthese/radar-synthese.png")
+
+
+CHART_GROUPS = {
+    "01-debit": [
+        cmp1_throughput_all,
+        cmp2_speedup_ratio,
+        cmp3_throughput_vs_size,
+        cmp5_chacha20,
+        cmp6_ci95_stability,
+        cmp8_scalability_all_algos,
+    ],
+    "02-effet-avalanche": [
+        cmp4_avalanche,
+    ],
+    "04-synthese": [
+        cmp7_radar,
+    ],
+}
+
+# Correspondance explicite: fonction de tracé -> fichier PNG de sortie.
+# Utile pour vérifier rapidement comment chaque graphique est produit.
+GRAPH_OUTPUTS = {
+    cmp1_throughput_all: "01-debit/comparaison-debit-global.png",
+    cmp2_speedup_ratio: "01-debit/comparaison-ratio-acceleration.png",
+    cmp3_throughput_vs_size: "01-debit/comparaison-debit-vs-taille-message.png",
+    cmp4_avalanche: "02-effet-avalanche/comparaison-avalanche.png",
+    cmp5_chacha20: "01-debit/chacha20-comparaison-plateformes.png",
+    cmp6_ci95_stability: "01-debit/stabilite-ic95.png",
+    cmp7_radar: "04-synthese/radar-synthese.png",
+    cmp8_scalability_all_algos: "01-debit/scalabilite-tous-algorithmes.png",
+}
+
+
+def describe_generation():
+    """Affiche une correspondance concise dossiers -> fonctions -> fichiers."""
+    for group, funcs in CHART_GROUPS.items():
+        print(f"[{group}]")
+        for func in funcs:
+            out = GRAPH_OUTPUTS.get(func, "<sortie inconnue>")
+            print(f"  - {func.__name__} -> {out}")
+
+
+def generate_groups(groups=None):
+    """Génère des groupes de graphiques selon le nom du dossier de sortie.
+
+    Paramètres:
+        groups: liste de dossiers, ex. ["01-debit", "04-synthese"].
+                Si None, tous les groupes sont générés.
+
+    Voir GRAPH_OUTPUTS pour la correspondance fonction -> PNG.
+    """
+    selected = groups or list(CHART_GROUPS.keys())
+    unknown = [g for g in selected if g not in CHART_GROUPS]
+    if unknown:
+        raise ValueError(f"Groupes de graphiques inconnus: {unknown}")
+
+    for group in selected:
+        os.makedirs(os.path.join(OUT_DIR, group), exist_ok=True)
+        for func in CHART_GROUPS[group]:
+            func()
+
+
+# ===========================================================================
 # Exécution de toutes les figures
 # ===========================================================================
 if __name__ == "__main__":
     print("\nGénération des graphiques de comparaison...")
-    for subdir in ["01-debit", "02-effet-avalanche", "04-synthese"]:
-        os.makedirs(os.path.join(OUT_DIR, subdir), exist_ok=True)
-    cmp1_throughput_all()
-    cmp2_speedup_ratio()
-    cmp3_throughput_vs_size()
-    cmp4_avalanche()
-    cmp5_chacha20()
-    cmp6_ci95_stability()
-    cmp7_radar()
-    print(f"\nDone. Charts saved to: {os.path.abspath(OUT_DIR)}")
+    generate_groups()
+    print(f"\nTerminé. Graphiques enregistrés dans: {os.path.abspath(OUT_DIR)}")
+
 
 

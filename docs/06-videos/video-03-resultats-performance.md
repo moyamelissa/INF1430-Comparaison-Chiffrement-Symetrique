@@ -12,7 +12,7 @@ On va suivre une lecture progressive. D'abord, on confirme la provenance des fig
 Interpréter les résultats de performance de manière rigoureuse, en reliant chaque écart mesuré à trois facteurs : l'algorithme, le mode de chiffrement et l'architecture matérielle.
 
 ## Portée
-- scripts/charts/plot_performance.py
+- scripts/charts/render_performance.py
 - data/results/laptop-windows-x86_experience3.csv
 - data/results/raspberry-pi_experience3.csv
 - data/charts/01-debit/debit-vs-taille-message.png
@@ -26,10 +26,10 @@ Interpréter les résultats de performance de manière rigoureuse, en reliant ch
 
 ### Section 1 - Provenance des graphes et traçabilité
 **Où sommes-nous :**
-VS Code, fichier scripts/charts/plot_performance.py, puis dossier data/charts.
+VS Code, fichier scripts/charts/render_performance.py, puis dossier data/charts.
 
 **Fichier / zone à montrer :**
-scripts/charts/plot_performance.py
+scripts/charts/render_performance.py
 - Bloc configuration et sélection du CSV (résultats vers graphiques)
 - Fonction d'export savefig (écriture des PNG)
 
@@ -37,7 +37,7 @@ scripts/charts/plot_performance.py
 Avant d'interpréter les chiffres, on vérifie d'où viennent les figures. Le principe est simple : les graphes ne sont pas dessinés manuellement. Ils sont générés automatiquement à partir des CSV exportés par la campagne de mesure.
 
 **Sujet (texte à lire) :**
-Le script scripts/charts/plot_performance.py lit le fichier CSV sélectionné dans data/results, applique les mêmes règles de calcul et de visualisation, puis sauvegarde les images dans data/charts. Cette étape est importante, parce qu'elle garantit que la narration repose sur des données traçables et reproductibles. On peut donc lier chaque conclusion à un fichier source précis.
+Le script scripts/charts/render_performance.py lit le fichier CSV sélectionné dans data/results, applique les mêmes règles de calcul et de visualisation, puis sauvegarde les images dans data/charts. Cette étape est importante, parce qu'elle garantit que la narration repose sur des données traçables et reproductibles. On peut donc lier chaque conclusion à un fichier source précis.
 
 **Code à montrer :**
 ```python
@@ -74,7 +74,7 @@ Enfin, la fonction savefig centralise l'export de toutes les figures PNG et affi
 **Commande à montrer (terminal) :**
 ```bash
 cd crypto-experiments
-python scripts/charts/plot_performance.py
+python scripts/charts/render_performance.py
 ```
 
 **Texte à lire après la commande :**

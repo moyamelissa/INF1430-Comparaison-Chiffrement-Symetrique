@@ -5,7 +5,7 @@ Montrer la robustesse cryptographique des algorithmes avec l effet d avalanche, 
 Cette video integre aussi les anciens focus dedies a l effet d avalanche et a IC95.
 
 ## Portee
-- scripts/charts/plot_avalanche_rounds.py
+- scripts/charts/render_avalanche_rounds.py
 - Execution terminal
 - Graphiques d avalanche, rounds et sensibilite cle
 
@@ -39,13 +39,13 @@ et la stabilite des mesures.
 
 #### Etape 1
 **Action ecran :**
-Ouvrir scripts/charts/plot_avalanche_rounds.py.
+Ouvrir scripts/charts/render_avalanche_rounds.py.
 
 **Texte a dire :**
 Dans cette etape, on demontre ou la robustesse est mesuree dans le code.
 Ce script calcule plusieurs indicateurs,
 pas seulement un score unique.
-(PAUSE) (SURLIGNER: **scripts/charts/plot_avalanche_rounds.py**) (SURLIGNER: **mesures d avalanche**)
+(PAUSE) (SURLIGNER: **scripts/charts/render_avalanche_rounds.py**) (SURLIGNER: **mesures d avalanche**)
 
 #### Etape 2
 **Action ecran :**
@@ -63,7 +63,7 @@ La cible ideale est proche de 0,5.
 
 #### Etape 3
 **Action ecran :**
-Executer python scripts/charts/plot_avalanche_rounds.py.
+Executer python scripts/charts/render_avalanche_rounds.py.
 
 **Texte a dire :**
 Dans cette etape, on demontre l execution reelle de l analyse de robustesse.

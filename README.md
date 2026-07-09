@@ -118,10 +118,10 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 │   │   ├── experiment.py
 │   │   ├── run_kat.py
 │   │   ├── charts/
-│   │   │   ├── plot_performance.py
-│   │   │   ├── plot_platform_comparison.py
-│   │   │   ├── plot_avalanche_rounds.py
-│   │   │   └── plot_ecb_demo.py
+│   │   │   ├── render_performance.py
+│   │   │   ├── render_platform_comparison.py
+│   │   │   ├── render_avalanche_rounds.py
+│   │   │   └── render_ecb_demo.py
 │   ├── validation/
 │   │   ├── kat_aes.py
 │   │   ├── kat_des.py
@@ -200,17 +200,19 @@ python scripts/experiment.py
 
 > Résultats exportés dans `data/results/` au format CSV.
 
-### 3) Générer les graphiques (plateforme unique)
+### 3) Générer les graphiques (commande unique)
 
 ```bash
-python scripts/charts/plot_performance.py
+python scripts/run_charts.py
 ```
 
-### 4) Analyses complémentaires
+### 4) Génération ciblée par dossier (optionnel)
 
 ```bash
-python scripts/charts/plot_avalanche_rounds.py
-python scripts/charts/plot_ecb_demo.py
+python scripts/run_charts.py 01
+python scripts/run_charts.py 02
+python scripts/run_charts.py 03
+python scripts/run_charts.py 04
 ```
 
 ### 5) Comparaison multi-plateformes
@@ -218,7 +220,7 @@ python scripts/charts/plot_ecb_demo.py
 > **Prérequis** : deux fichiers CSV doivent être présents dans `data/results/` — un nommé `laptop-windows-x86_*.csv` et un `raspberry-pi_*.csv`. Sans les deux, ce script quitte avec un avertissement.
 
 ```bash
-python scripts/charts/plot_platform_comparison.py
+python scripts/run_charts.py
 ```
 
 ---
@@ -289,10 +291,10 @@ python scripts/run_kat.py
 python scripts/experiment.py
 
 # 4. Générer les graphiques
-python scripts/charts/plot_performance.py
+python scripts/run_charts.py
 ```
 
-Pour la comparaison multi-plateformes, copier les CSV des deux machines dans `data/results/` avant d'exécuter `scripts/charts/plot_platform_comparison.py`.
+Pour la comparaison multi-plateformes, copier les CSV des deux machines dans `data/results/` avant d'exécuter `scripts/run_charts.py`.
 
 **Bonnes pratiques :**
 - Fermer toute application en arrière-plan pendant le benchmark.
