@@ -342,21 +342,23 @@ def cmp4_avalanche():
     x      = np.arange(len(algos))
     w      = 0.35
     colors = [ALGO_COLORS.get(a, "#888") for a in algos]
+    x86_vals_pct = [x86_means[a] * 100.0 for a in algos]
+    pi_vals_pct  = [pi_means[a]  * 100.0 for a in algos]
 
     fig, ax = plt.subplots(figsize=(9, 5))
     fig.patch.set_facecolor(BG_COLOR)
-    ax.bar(x - w/2, [x86_means[a] for a in algos], w,
+    ax.bar(x - w/2, x86_vals_pct, w,
            label="x86", color=colors, edgecolor=BG_COLOR,
            linewidth=0.8, alpha=PLATFORM_STYLE["x86"]["alpha"])
-    ax.bar(x + w/2, [pi_means[a]  for a in algos], w,
+    ax.bar(x + w/2, pi_vals_pct, w,
            label="Pi",  color=colors, edgecolor=BG_COLOR,
            linewidth=0.8, alpha=PLATFORM_STYLE["pi"]["alpha"], hatch="//")
-    ax.axhline(0.5, color="#64748B", linestyle="--", linewidth=1.4,
-               label="Valeur idéale (0,50)")
+    ax.axhline(50.0, color="#64748B", linestyle="--", linewidth=1.4,
+               label="Valeur idéale (50 %)")
     ax.set_xticks(x)
     ax.set_xticklabels(algos, fontsize=11)
-    ax.set_ylim(0.42, 0.64)
-    ax.set_ylabel("Score d'avalanche", fontsize=11)
+    ax.set_ylim(42.0, 64.0)
+    ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=11)
     ax.set_title(
         "Score d'avalanche en fonction de l'algorithme (x86 et ARM)",
         fontsize=11,
