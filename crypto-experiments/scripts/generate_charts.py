@@ -289,28 +289,30 @@ def fig4_avalanche():
     algo_order = ["AES", "DES", "3DES", "Twofish"]
     means  = [np.mean(algo_scores[a]) for a in algo_order if a in algo_scores]
     stdevs = [np.std(algo_scores[a])  for a in algo_order if a in algo_scores]
+    means_pct  = [m * 100.0 for m in means]
+    stdevs_pct = [s * 100.0 for s in stdevs]
     algos  = [a for a in algo_order if a in algo_scores]
     colors = [ALGO_COLORS[a] for a in algos]
 
     fig, ax = plt.subplots(figsize=(8, 5))
     fig.patch.set_facecolor(BG_COLOR)
-    bars = ax.bar(algos, means, yerr=stdevs, color=colors, capsize=6,
+    bars = ax.bar(algos, means_pct, yerr=stdevs_pct, color=colors, capsize=6,
                   edgecolor=BG_COLOR, linewidth=0.8, width=0.5,
                   alpha=0.82,
                   error_kw={"linewidth": 1.5, "ecolor": TEXT_COLOR})
-    ax.axhline(0.5, color="#475569", linestyle="--", linewidth=1.4,
-               label="Valeur idéale (0,50)")
-    ax.set_ylim(0.45, 0.565)
-    ax.set_ylabel("Score d'effet d'avalanche (proportion de bits modifiés)", fontsize=10)
+    ax.axhline(50.0, color="#475569", linestyle="--", linewidth=1.4,
+               label="Valeur idéale (50 %) ")
+    ax.set_ylim(45.0, 56.5)
+    ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=10)
     ax.set_title(
         "Score d'avalanche en fonction de l'algorithme",
         fontsize=11,
     )
     ax.legend(fontsize=9)
 
-    for bar, mean, std, color in zip(bars, means, stdevs, colors):
-        ax.text(bar.get_x() + bar.get_width() / 2, mean + std + 0.003,
-                f"{mean:.4f}", ha="center", va="bottom", fontsize=9, color=color)
+    for bar, mean_pct, std_pct, color in zip(bars, means_pct, stdevs_pct, colors):
+        ax.text(bar.get_x() + bar.get_width() / 2, mean_pct + std_pct + 0.3,
+                f"{mean_pct:.2f}%", ha="center", va="bottom", fontsize=9, color=color)
 
     _style_ax(ax)
     plt.tight_layout()
@@ -332,34 +334,36 @@ def fig4b_key_avalanche():
                   if a in algo_scores_pt]
     means_pt  = [np.mean(algo_scores_pt[a])  for a in algo_order]
     means_key = [np.mean(algo_scores_key[a]) for a in algo_order]
+    means_pt_pct  = [m * 100.0 for m in means_pt]
+    means_key_pct = [m * 100.0 for m in means_key]
 
     x = np.arange(len(algo_order))
     w = 0.32
     fig, ax = plt.subplots(figsize=(9, 5))
     fig.patch.set_facecolor(BG_COLOR)
-    bars_pt  = ax.bar(x - w/2, means_pt,  w, label="Avalanche (texte clair)",
+    bars_pt  = ax.bar(x - w/2, means_pt_pct,  w, label="Avalanche (texte clair)",
                       color=[ALGO_COLORS[a] for a in algo_order],
                       edgecolor=BG_COLOR, linewidth=0.8, alpha=0.50)
-    bars_key = ax.bar(x + w/2, means_key, w, label="Avalanche (clé)",
+    bars_key = ax.bar(x + w/2, means_key_pct, w, label="Avalanche (clé)",
                       color=[ALGO_COLORS[a] for a in algo_order],
                       edgecolor=BG_COLOR, linewidth=0.8, alpha=0.88)
-    ax.axhline(0.5, color="#475569", linestyle="--", linewidth=1.4,
-               label="Valeur idéale (0,50)")
+    ax.axhline(50.0, color="#475569", linestyle="--", linewidth=1.4,
+               label="Valeur idéale (50 %) ")
     ax.set_xticks(x)
     ax.set_xticklabels(algo_order, fontsize=11)
-    ax.set_ylim(0.40, 0.65)
-    ax.set_ylabel("Score d'avalanche", fontsize=11)
+    ax.set_ylim(40.0, 65.0)
+    ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=11)
     ax.set_title(
         "Score d'avalanche en fonction du type de perturbation",
         fontsize=11,
     )
     ax.legend(fontsize=9)
-    for bar, m, c in zip(bars_pt, means_pt, [ALGO_COLORS[a] for a in algo_order]):
-        ax.text(bar.get_x() + bar.get_width()/2, m + 0.001,
-                f"{m:.3f}", ha="center", va="bottom", fontsize=8, color=c)
-    for bar, m, c in zip(bars_key, means_key, [ALGO_COLORS[a] for a in algo_order]):
-        ax.text(bar.get_x() + bar.get_width()/2, m + 0.001,
-                f"{m:.3f}", ha="center", va="bottom", fontsize=8, color=c)
+    for bar, m_pct, c in zip(bars_pt, means_pt_pct, [ALGO_COLORS[a] for a in algo_order]):
+        ax.text(bar.get_x() + bar.get_width()/2, m_pct + 0.1,
+                f"{m_pct:.1f}%", ha="center", va="bottom", fontsize=8, color=c)
+    for bar, m_pct, c in zip(bars_key, means_key_pct, [ALGO_COLORS[a] for a in algo_order]):
+        ax.text(bar.get_x() + bar.get_width()/2, m_pct + 0.1,
+                f"{m_pct:.1f}%", ha="center", va="bottom", fontsize=8, color=c)
     _style_ax(ax)
     plt.tight_layout()
     savefig("02-effet-avalanche/avalanche-texte-vs-cle.png")
