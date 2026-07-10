@@ -609,7 +609,7 @@ def fig9_synthesis_heatmap():
                     fontsize=11, color=text_color, fontweight="bold")
     cbar = plt.colorbar(im, ax=ax)
     cbar.ax.tick_params(colors=TEXT_COLOR, labelsize=8)
-    cbar.set_label("Score normalisé (0-1)", fontsize=9)
+    cbar.set_label("Score normalisé (0 = faible relatif, 1 = élevé relatif)", fontsize=9)
     cbar.ax.yaxis.label.set_color(TEXT_COLOR)
     ax.set_title(
         "Carte thermique des scores normalisés (0-1)",
