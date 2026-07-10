@@ -104,8 +104,8 @@ Elles doivent être lancées depuis le dossier `crypto-experiments/`.
 | Impact de la taille de clé AES sur le débit | `03-modes-chiffrement/aes-impact-taille-cle.png` | `python -c "import sys; sys.path.insert(0, 'scripts'); from chart_pipeline import build_performance as b; b.fig6_key_size_impact()"` |
 | Compromis sécurité/performance (ECB vs GCM) | `03-modes-chiffrement/aes-securite-vs-performance.png` | `python -c "import sys; sys.path.insert(0, 'scripts'); from chart_pipeline import build_performance as b; b.fig7_ecb_vs_gcm()"` |
 | Vulnérabilité visuelle du mode ECB | `03-modes-chiffrement/vulnerabilite-mode-ecb.png` | `python -c "import sys; sys.path.insert(0, 'scripts'); from chart_pipeline import build_ecb_demo as b; b.generate_ecb_demo_chart()"` |
-| Heatmap de synthèse normalisée | `04-synthese/heatmap-synthese.png` | `python -c "import sys; sys.path.insert(0, 'scripts'); from chart_pipeline import build_performance as b; b.fig9_synthesis_heatmap()"` |
-| Radar de synthèse multi-critères | `04-synthese/radar-synthese.png` | `python -c "import sys; sys.path.insert(0, 'scripts'); from chart_pipeline import build_platform_comparison as b; b.cmp7_radar()"` |
+| Heatmap de synthèse normalisée | `04-synthese/multicriteria-heatmap.png` | `python -c "import sys; sys.path.insert(0, 'scripts'); from chart_pipeline import build_performance as b; b.fig9_synthesis_heatmap()"` |
+| Radar de synthèse multi-critères | `04-synthese/algorithm-profile-radar.png` | `python -c "import sys; sys.path.insert(0, 'scripts'); from chart_pipeline import build_platform_comparison as b; b.cmp7_radar()"` |
 
 ## Ordre de lecture recommandé
 

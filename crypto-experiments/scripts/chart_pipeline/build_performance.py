@@ -558,7 +558,7 @@ def fig7_ecb_vs_gcm():
 
 
 # ===========================================================================
-# Graphique 9 — 04-synthese/heatmap-synthese.png
+# Graphique 9 — 04-synthese/multicriteria-heatmap.png
 # Heatmap synthèse : algos × métriques (scores normalisés 0→1)
 # ===========================================================================
 def fig9_synthesis_heatmap():
@@ -592,7 +592,8 @@ def fig9_synthesis_heatmap():
 
     fig, ax = plt.subplots(figsize=(8, 5))
     fig.patch.set_facecolor(BG_COLOR)
-    im = ax.imshow(data, cmap="plasma", aspect="auto", vmin=0, vmax=1)
+    heatmap_cmap = plt.get_cmap("cividis")
+    im = ax.imshow(data, cmap=heatmap_cmap, aspect="auto", vmin=0, vmax=1)
     ax.set_xticks(range(len(metrics)))
     ax.set_xticklabels(metrics, fontsize=11, color=TEXT_COLOR)
     ax.set_yticks(range(len(algo_order)))
@@ -601,19 +602,21 @@ def fig9_synthesis_heatmap():
     for i in range(len(algo_order)):
         for j in range(len(metrics)):
             val = data[i, j]
-                # Avec la palette plasma: faible = sombre, élevé = clair.
-                # On adapte la couleur du texte pour garder un bon contraste.
+            rgba = heatmap_cmap(val)
+            luminance = 0.2126 * rgba[0] + 0.7152 * rgba[1] + 0.0722 * rgba[2]
+            text_color = "#1A1A1A" if luminance > 0.56 else "white"
             ax.text(j, i, f"{val:.2f}", ha="center", va="center",
-                    fontsize=11, color="white" if val < 0.7 else "black", fontweight="bold")
+                    fontsize=11, color=text_color, fontweight="bold")
     cbar = plt.colorbar(im, ax=ax)
     cbar.ax.tick_params(colors=TEXT_COLOR, labelsize=8)
+    cbar.set_label("Score normalisé (0-1)", fontsize=9)
     cbar.ax.yaxis.label.set_color(TEXT_COLOR)
     ax.set_title(
-        "Score global en fonction de l'algorithme et de la métrique",
+        "Heatmap de synthèse des scores normalisés (0-1)",
         fontsize=11, color=TEXT_COLOR,
     )
     plt.tight_layout()
-    savefig("04-synthese/heatmap-synthese.png")
+    savefig("04-synthese/multicriteria-heatmap.png")
 
 
 CHART_GROUPS = {
@@ -647,7 +650,7 @@ GRAPH_OUTPUTS = {
     fig5_enc_vs_dec: "03-modes-chiffrement/chiffrement-vs-dechiffrement-ecb.png",
     fig6_key_size_impact: "03-modes-chiffrement/aes-impact-taille-cle.png",
     fig7_ecb_vs_gcm: "03-modes-chiffrement/aes-securite-vs-performance.png",
-    fig9_synthesis_heatmap: "04-synthese/heatmap-synthese.png",
+    fig9_synthesis_heatmap: "04-synthese/multicriteria-heatmap.png",
 }
 
 

@@ -60,8 +60,8 @@ Fichiers BMP utilisés pour construire `vulnerabilite-mode-ecb.png`.
 
 | Fichier | Description | Script source |
 |---|---|---|
-| `heatmap-synthese.png` | Scores normalisés par métrique (débit, latence, avalanche) | `scripts/run_charts.py 04` |
-| `radar-synthese.png` | Radar multi-critères — débit, portabilité, avalanche | `scripts/run_charts.py 04` |
+| `multicriteria-heatmap.png` | Scores normalisés par métrique (débit, latence, avalanche) | `scripts/run_charts.py 04` |
+| `algorithm-profile-radar.png` | Radar multi-critères — débit, portabilité, avalanche | `scripts/run_charts.py 04` |
 
 ---
 

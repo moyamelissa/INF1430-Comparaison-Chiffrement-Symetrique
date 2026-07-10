@@ -483,7 +483,7 @@ def cmp4_avalanche():
 
 
 # ===========================================================================
-# Graphique 8 — 04-synthese/radar-synthese.png
+# Graphique 8 — 04-synthese/algorithm-profile-radar.png
 # Radar synthèse : tous algos sur 4 axes normalisés
 # Débit x86 · Débit Pi · Avalanche · Portabilité (ratio Pi/x86)
 # ===========================================================================
@@ -544,7 +544,7 @@ def cmp7_radar():
     )
     ax.legend(loc="upper right", bbox_to_anchor=(1.35, 1.15), fontsize=9)
     plt.tight_layout()
-    savefig("04-synthese/radar-synthese.png")
+    savefig("04-synthese/algorithm-profile-radar.png")
 
 
 CHART_GROUPS = {
@@ -573,7 +573,7 @@ GRAPH_OUTPUTS = {
     cmp4_avalanche: "02-effet-avalanche/comparaison-avalanche.png",
     cmp5_chacha20: "01-debit/chacha20-comparaison-plateformes.png",
     cmp6_ci95_stability: "01-debit/stabilite-ic95.png",
-    cmp7_radar: "04-synthese/radar-synthese.png",
+    cmp7_radar: "04-synthese/algorithm-profile-radar.png",
     cmp8_scalability_all_algos: "01-debit/scalabilite-tous-algorithmes.png",
 }
 
