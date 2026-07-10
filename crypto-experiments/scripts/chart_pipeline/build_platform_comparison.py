@@ -514,21 +514,23 @@ def cmp7_radar():
     n_aval = {a: 1 - abs(aval_scores[a] - 0.5) * 10 for a in algo_order}
     n_port = norm(portability)
 
-    categories = ["Débit x86", "Débit Pi (ARM)", "Avalanche\n(qualité)", "Portabilité\n(Pi/x86)"]
+    categories = ["Débit\nx86", "Débit\nPi (ARM)", "Avalanche\nqualité", "Portabilité\nPi/x86"]
     N      = len(categories)
     angles = np.linspace(0, 2 * np.pi, N, endpoint=False).tolist()
     angles += angles[:1]
 
-    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+    fig, ax = plt.subplots(figsize=(9, 8), subplot_kw=dict(polar=True))
     fig.patch.set_facecolor(BG_COLOR)
     ax.set_facecolor(PANEL_COLOR)
     ax.spines["polar"].set_color(GRID_COLOR)
     ax.grid(color=GRID_COLOR, linestyle="--", alpha=0.5)
     ax.set_xticks(angles[:-1])
     ax.set_xticklabels(categories, size=10, color=TEXT_COLOR)
+    ax.tick_params(axis="x", pad=12)
     ax.set_ylim(0, 1)
     ax.set_yticks([0.25, 0.5, 0.75, 1.0])
-    ax.set_yticklabels(["25%", "50%", "75%", "100%"], size=7, color=TEXT_COLOR)
+    ax.set_yticklabels(["", "50%", "", "100%"], size=8, color=TEXT_COLOR)
+    ax.set_rlabel_position(22)
     ax.tick_params(colors=TEXT_COLOR)
 
     for algo in algo_order:
@@ -542,7 +544,7 @@ def cmp7_radar():
         "Score global en fonction de l'algorithme (synthèse normalisée)",
         fontsize=11, color=TEXT_COLOR, pad=25,
     )
-    ax.legend(loc="upper right", bbox_to_anchor=(1.35, 1.15), fontsize=9)
+    ax.legend(loc="upper right", bbox_to_anchor=(1.28, 1.12), fontsize=9)
     plt.tight_layout()
     savefig("04-synthese/algorithm-profile-radar.png")
 
