@@ -612,7 +612,7 @@ def fig9_synthesis_heatmap():
     cbar.set_label("Score normalisé (0-1)", fontsize=9)
     cbar.ax.yaxis.label.set_color(TEXT_COLOR)
     ax.set_title(
-        "Heatmap de synthèse des scores normalisés (0-1)",
+        "Carte thermique des scores normalisés (0-1)",
         fontsize=11, color=TEXT_COLOR,
     )
     plt.tight_layout()
