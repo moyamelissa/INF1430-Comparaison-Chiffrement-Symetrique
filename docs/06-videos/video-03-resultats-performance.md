@@ -102,7 +102,7 @@ Au final, `run_charts.py` joue bien le rôle de routeur d'exécution, car il pre
 
 Deuxièmement, je vais vous montrer un extrait du fichier `scripts/chart_pipeline/data_performance.py`, parce que c'est lui qui sélectionne les sources CSV x86 et qui prépare les données avant le tracé. 
 
-On commence par montrer le bloc des lignes 20 à 28, parce qu’il explique la règle de sélection des sources x86. Il parcourt les fichiers CSV disponibles, applique un filtre, trie la liste, puis retient tous les fichiers x86 utiles au calcul.
+On commence par montrer le bloc des lignes 48 à 57, parce qu’il explique la règle de sélection des sources x86. Il parcourt les fichiers CSV disponibles, applique un filtre, trie la liste, puis retient tous les fichiers x86 utiles au calcul.
 
 ```python
 # scripts/chart_pipeline/data_performance.py
@@ -115,7 +115,7 @@ def x86_results_csvs() -> list[Path]:
     return csvs
 ```
 
-Ici, l'objectif est simple, montrer comment les sources CSV x86 sont choisies de façon traçable. À la ligne 20, `x86_results_csvs()` est la fonction utilitaire qui centralise cette sélection. Aux lignes 22 à 25, la variable `csvs` est construite à partir de `RESULTS_DIR.iterdir()`. Le filtre garde seulement les fichiers `.csv`, exclut `.gitkeep` et conserve les noms x86, puis `sorted()` trie la liste. Enfin, à la ligne 28, `return csvs` retourne l'ensemble des fichiers retenus pour la suite du pipeline.
+Ici, l'objectif est simple, montrer comment les sources CSV x86 sont choisies de façon traçable. À la ligne 48, `x86_results_csvs()` est la fonction utilitaire qui centralise cette sélection. Aux lignes 50 à 54, la variable `csvs` est construite à partir de `RESULTS_DIR.iterdir()`. Le filtre garde seulement les fichiers `.csv`, exclut `.gitkeep` et conserve les noms x86, puis `sorted()` trie la liste. Enfin, à la ligne 57, `return csvs` retourne l'ensemble des fichiers retenus pour la suite du pipeline.
 
 On montre ce bloc pour justifier la traçabilité de la source, parce qu'avant même de tracer un graphe, on sait exactement quels fichiers CSV sont sélectionnés et selon quelle règle.
 
@@ -134,14 +134,14 @@ def load_latest_rows() -> tuple[list[Path], list[Row]]:
                 })
     return paths, _average_rows(all_rows)
 ```
-Ensuite, on va explorer le bloc des lignes 52 à 78, parce qu’il décrit le flux complet de préparation des données avant le tracé.
+Ensuite, on va explorer le bloc des lignes 85 à 110, parce qu’il décrit le flux complet de préparation des données avant le tracé.
 Il ouvre chaque CSV sélectionné, lit chaque ligne, normalise les types numériques, puis retourne à la fois la liste des sources utilisées et les données moyennées prêtes pour les graphiques.
 
-Premièrement, à la ligne 52, on a la déclaration de `load_latest_rows()`, qui est la fonction de lecture et de normalisation. Ensuite, à la ligne 58, `paths = x86_results_csvs()` récupère les chemins des CSV sélectionnés, puis à la ligne 59, `all_rows` est initialisée comme liste de dictionnaires pour stocker les mesures.
+Premièrement, à la ligne 85, on a la déclaration de `load_latest_rows()`, qui est la fonction de lecture et de normalisation. Ensuite, à la ligne 91, `paths = x86_results_csvs()` récupère les chemins des CSV sélectionnés, puis à la ligne 92, `all_rows` est initialisée comme liste de dictionnaires pour stocker les mesures.
 
-Ensuite, à la ligne 60, la boucle `for csv_path in paths` parcourt chaque fichier, à la ligne 61, `csv_path.open()` est la méthode d'ouverture du fichier, et à la ligne 62, `csv.DictReader` est la classe de la bibliothèque `csv` qui lit chaque ligne sous forme de dictionnaire. Puis, aux lignes 67 et 71, `int` et `float` sont des fonctions de conversion de type pour normaliser les champs numériques.
+Ensuite, à la ligne 93, la boucle `for csv_path in paths` parcourt chaque fichier, à la ligne 94, `csv_path.open()` est la méthode d'ouverture du fichier, et à la ligne 95, `csv.DictReader` est la classe de la bibliothèque `csv` qui lit chaque ligne sous forme de dictionnaire. Puis, aux lignes 102 et 105, `int` et `float` sont des fonctions de conversion de type pour normaliser les champs numériques.
 
-Finalement, à la ligne 78, `return paths, _average_rows(all_rows)` retourne à la fois la liste des sources exactes et les données déjà moyennées pour le tracé.
+Finalement, à la ligne 110, `return paths, _average_rows(all_rows)` retourne à la fois la liste des sources exactes et les données déjà moyennées pour le tracé.
 
 Enfin, on montre cet extrait pour visualiser où la préparation des données est centralisée avant l'étape de rendu.
 
