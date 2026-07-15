@@ -100,9 +100,9 @@ Au final, `run_charts.py` joue bien le rôle de routeur d'exécution, car il pre
 
 ## Code 2
 
-Deuxièmement, je vais vous montrer un extrait du fichier `scripts/chart_pipeline/data_performance.py`, parce que c'est lui qui sélectionne les sources CSV x86 et qui prépare les données avant le tracé. 
+Deuxièmement, je vais vous montrer un extrait du fichier `scripts/chart_pipeline/data_performance.py`, parce que c'est lui qui sélectionne les sources CSV du laptop sous Windows et qui prépare les données avant le tracé. Ici, on traite uniquement le laptop sous Windows pour isoler l'analyse intra-plateforme, tandis que la comparaison avec le Raspberry Pi est gérée séparément dans le pipeline inter-plateformes.
 
-On commence par montrer le bloc des lignes 48 à 57, parce qu’il explique la règle de sélection des sources x86. Il parcourt les fichiers CSV disponibles, applique un filtre, trie la liste, puis retient tous les fichiers x86 utiles au calcul.
+On commence par montrer le bloc des lignes 48 à 57, parce qu’il explique la règle de sélection des sources du laptop sous Windows. Il parcourt les fichiers CSV disponibles, applique un filtre, trie la liste, puis retient tous les fichiers du laptop sous Windows utiles au calcul.
 
 ```python
 # scripts/chart_pipeline/data_performance.py
@@ -115,7 +115,7 @@ def x86_results_csvs() -> list[Path]:
     return csvs
 ```
 
-Ici, l'objectif est simple, montrer comment les sources CSV x86 sont choisies de façon traçable. À la ligne 48, `x86_results_csvs()` est la fonction utilitaire qui centralise cette sélection. Aux lignes 50 à 54, la variable `csvs` est construite à partir de `RESULTS_DIR.iterdir()`. Le filtre garde seulement les fichiers `.csv`, exclut `.gitkeep` et conserve les noms x86, puis `sorted()` trie la liste. Enfin, à la ligne 57, `return csvs` retourne l'ensemble des fichiers retenus pour la suite du pipeline.
+Ici, l'objectif est simple, montrer comment les sources CSV du laptop sous Windows sont choisies de façon traçable. À la ligne 48, `x86_results_csvs()` est la fonction utilitaire qui centralise cette sélection. Aux lignes 50 à 54, la variable `csvs` est construite à partir de `RESULTS_DIR.iterdir()`. Le filtre garde seulement les fichiers `.csv`, exclut `.gitkeep` et conserve les noms du laptop sous Windows, puis `sorted()` trie la liste. Enfin, à la ligne 57, `return csvs` retourne l'ensemble des fichiers retenus pour la suite du pipeline.
 
 On montre ce bloc pour justifier la traçabilité de la source, parce qu'avant même de tracer un graphe, on sait exactement quels fichiers CSV sont sélectionnés et selon quelle règle.
 
@@ -139,7 +139,7 @@ Il ouvre chaque CSV sélectionné, lit chaque ligne, normalise les types numéri
 
 Premièrement, à la ligne 85, on a la déclaration de `load_latest_rows()`, qui est la fonction de lecture et de normalisation. Ensuite, à la ligne 91, `paths = x86_results_csvs()` récupère les chemins des CSV sélectionnés, puis à la ligne 92, `all_rows` est initialisée comme liste de dictionnaires pour stocker les mesures.
 
-Ensuite, à la ligne 93, la boucle `for csv_path in paths` parcourt chaque fichier, à la ligne 94, `csv_path.open()` est la méthode d'ouverture du fichier, et à la ligne 95, `csv.DictReader` est la classe de la bibliothèque `csv` qui lit chaque ligne sous forme de dictionnaire. Puis, aux lignes 102 et 105, `int` et `float` sont des fonctions de conversion de type pour normaliser les champs numériques.
+Ensuite, à la ligne 93, la boucle `for csv_path in paths` parcourt chaque fichier, à la ligne 94, `csv_path.open()` est la méthode d'ouverture du fichier, et à la ligne 95, `csv.DictReader` est la classe de la bibliothèque `csv` qui lit chaque ligne sous forme de dictionnaire. Puis, dans le bloc des lignes 100 à 108, on convertit les champs texte du CSV en types numériques cohérents avant l'agrégation. Par exemple, à la ligne 102, `int` convertit `message_size_bytes` en entier, et à la ligne 105, `_to_float` convertit `throughput_encrypt_mbps` en nombre décimal. C'est important, car sans ces conversions, les calculs de moyenne et les comparaisons de débit peuvent devenir incohérents.
 
 Finalement, à la ligne 110, `return paths, _average_rows(all_rows)` retourne à la fois la liste des sources exactes et les données déjà moyennées pour le tracé.
 
@@ -170,7 +170,10 @@ def savefig(name: str):
 
 Concrètement, ce bloc montre que chaque figure suit le même chemin, de la lecture des données jusqu'à l'enregistrement final. C'est ce qui rend le rapport cohérent d'une figure à l'autre.
 
-**Commande à montrer (terminal)**
+
+# Démonstration dans le terminal
+Je vais maintenant passer à une vérification en conditions réelles, dans le terminal, pour observer directement quelles sources sont chargées et quelles sorties sont produites.
+
 ```bash
 cd crypto-experiments
 python scripts/run_charts.py 01
@@ -178,9 +181,13 @@ python scripts/run_charts.py 03
 ```
 
 **Texte à lire pendant la commande**
-Je lance maintenant deux cibles pour vérifier le comportement en conditions réelles. Avec `01`, je teste le flux orienté débit. Avec `03`, je teste le flux orienté modes de chiffrement. De cette façon, on valide non seulement que les fonctions sont bien appelées, mais aussi que chaque cible active le bon sous-ensemble du pipeline.
-**Texte à lire après la commande**
-Dans le terminal, on voit d'abord `Fichiers x86 lus (...)`, ce qui permet d'identifier immédiatement toutes les sources utilisées pour la moyenne côté x86. Ensuite on voit `x86 data (...)` et `Pi data (...)`, ce qui confirme les sources inter-plateformes utilisées pour la comparaison. Enfin on voit les fichiers enregistrés avec leurs chemins complets, ce qui confirme exactement où les sorties sont écrites.
+Dans le terminal, je me place d'abord dans le dossier `crypto-experiments` avec la commande `cd crypto-experiments`. Ensuite, je lance `python scripts/run_charts.py 01` pour exécuter la cible orientée débit.
+
+À l'écran, on voit d'abord `Fichiers x86 lus (...)`, ce qui permet d'identifier immédiatement toutes les sources utilisées pour la moyenne côté x86. Ensuite, on voit `x86 data (...)` et `Pi data (...)`, ce qui confirme les sources inter-plateformes utilisées pour la comparaison. Enfin, on voit les fichiers enregistrés avec leurs chemins complets, ce qui confirme exactement où les sorties orientées débit sont écrites.
+
+Je lance ensuite `python scripts/run_charts.py 03` pour exécuter la cible orientée modes de chiffrement. Là encore, le terminal affiche les sources utilisées et les fichiers générés, ce qui permet de vérifier que cette deuxième cible active bien le bon sous-ensemble du pipeline.
+
+Au final, cette démonstration montre que le pipeline part bien des bonnes sources, applique automatiquement la bonne logique selon la cible choisie, puis écrit les sorties au bon endroit.
 
 **Transition**
 Maintenant que la chaîne de production est claire, on passe à la lecture des débits.
