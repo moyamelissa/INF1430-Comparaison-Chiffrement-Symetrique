@@ -51,8 +51,8 @@ from chart_pipeline.shared_paths import CHARTS_DIR
 
 setup_matplotlib(title_pad=12, hatch_linewidth=1.0)
 
-CSV_PATH, rows = load_latest_rows()
-print(f"Lecture du fichier: {CSV_PATH}")
+CSV_PATHS, rows = load_latest_rows()
+print(f"Fichiers x86 lus ({len(CSV_PATHS)}) : {', '.join(p.name for p in CSV_PATHS)}")
 
 
 def _style_ax(ax):

@@ -16,31 +16,24 @@ from chart_pipeline.shared_paths import RESULTS_DIR
 Row = dict[str, object]
 
 
-def discover_platform_csvs() -> tuple[Path, Path]:
-    """Détecte automatiquement le dernier CSV x86 et le dernier CSV Raspberry Pi."""
-    all_csvs = [f for f in RESULTS_DIR.iterdir() if f.suffix == ".csv"]
+def discover_platform_csvs() -> tuple[list[Path], list[Path]]:
+    """Retourne tous les CSV x86 et tous les CSV Raspberry Pi disponibles."""
+    all_csvs = [f for f in RESULTS_DIR.iterdir() if f.suffix == ".csv" and f.name != ".gitkeep"]
 
-    # Les fichiers ont été nommés à la fois selon la machine et selon la
-    # campagne d'expérience. On garde donc une détection tolérante sur le nom.
     x86_csvs = sorted(f for f in all_csvs if "x86" in f.name or "laptop-windows" in f.name)
-    pi_csvs = sorted(f for f in all_csvs if "raspberry" in f.name or "raspberry-pi" in f.name)
+    pi_csvs  = sorted(f for f in all_csvs if "raspberry" in f.name or "raspberry-pi" in f.name)
     if not x86_csvs:
         raise FileNotFoundError("Aucun CSV x86 trouvé dans data/results/.")
     if not pi_csvs:
         raise FileNotFoundError("Aucun CSV Raspberry Pi trouvé dans data/results/.")
-    return x86_csvs[-1], pi_csvs[-1]
+    return x86_csvs, pi_csvs
 
 
-def load_rows(path: Path) -> list[Row]:
+def _load_rows_from_path(path: Path) -> list[Row]:
     """Charge un CSV de plateforme et convertit les champs nécessaires au rendu."""
     rows: list[Row] = []
-
-    # Le schéma est volontairement aplati pour faciliter les comparaisons entre
-    # les deux plateformes via l'orchestration centralisée de run_charts.py.
     with path.open(newline="", encoding="utf-8") as handle:
         for row in csv.DictReader(handle):
-            # Les noms de champs ici sont volontairement plus courts que dans
-            # le CSV source pour simplifier les filtres dans les build_*.py.
             rows.append({
                 "algorithm": row["algorithm"],
                 "mode": row["mode"],
@@ -55,12 +48,38 @@ def load_rows(path: Path) -> list[Row]:
     return rows
 
 
-def load_platform_rows() -> tuple[Path, Path, list[Row], list[Row]]:
-    """Retourne les chemins des deux CSV et leurs lignes normalisées.
+def _average_rows(all_rows: list[Row]) -> list[Row]:
+    """Moyenne les mesures numériques par combinaison unique (algo, mode, clé, taille)."""
+    from collections import defaultdict
+    groups: dict[tuple, list[Row]] = defaultdict(list)
+    for row in all_rows:
+        key = (row["algorithm"], row["mode"], row["key_size_bits"], row["message_size_bytes"])
+        groups[key].append(row)
+
+    numeric_fields = ["throughput_enc", "throughput_dec", "avalanche", "key_avalanche", "ci95_enc"]
+    averaged: list[Row] = []
+    for _key, group in sorted(groups.items()):
+        base = dict(group[0])
+        for field in numeric_fields:
+            base[field] = sum(r[field] for r in group) / len(group)  # type: ignore[arg-type]
+        averaged.append(base)
+    return averaged
+
+
+def load_averaged_rows(paths: list[Path]) -> list[Row]:
+    """Charge et moyenne les lignes de plusieurs CSV d'une même plateforme."""
+    all_rows: list[Row] = []
+    for path in paths:
+        all_rows.extend(_load_rows_from_path(path))
+    return _average_rows(all_rows)
+
+
+def load_platform_rows() -> tuple[list[Path], list[Path], list[Row], list[Row]]:
+    """Retourne les chemins des CSV et leurs lignes moyennées par plateforme.
 
     Cette fonction sert de point d'entrée unique pour les graphiques de
     comparaison inter-plateformes.
     """
-    x86_path, pi_path = discover_platform_csvs()
-    return x86_path, pi_path, load_rows(x86_path), load_rows(pi_path)
+    x86_paths, pi_paths = discover_platform_csvs()
+    return x86_paths, pi_paths, load_averaged_rows(x86_paths), load_averaged_rows(pi_paths)
 

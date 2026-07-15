@@ -19,7 +19,11 @@ Interpréter rigoureusement les performances en reliant chaque écart à trois f
 - `scripts/run_charts.py`
 - `scripts/chart_pipeline/build_performance.py`
 - `scripts/chart_pipeline/build_platform_comparison.py`
+- `data/results/laptop-windows-x86_experience1.csv`
+- `data/results/laptop-windows-x86_experience2.csv`
 - `data/results/laptop-windows-x86_experience3.csv`
+- `data/results/raspberry-pi_experience1.csv`
+- `data/results/raspberry-pi_experience2.csv`
 - `data/results/raspberry-pi_experience3.csv`
 - `data/charts/01-debit/comparaison-debit-global.png`
 - `data/charts/01-debit/debit-vs-taille-message.png`
@@ -96,45 +100,48 @@ Au final, `run_charts.py` joue bien le rôle de routeur d'exécution, car il pre
 
 ## Code 2
 
-Deuxièmement, je vais vous montrer un extrait du fichier `scripts/chart_pipeline/data_performance.py`, parce que c'est lui qui sélectionne la source CSV et qui prépare les données avant le tracé. 
+Deuxièmement, je vais vous montrer un extrait du fichier `scripts/chart_pipeline/data_performance.py`, parce que c'est lui qui sélectionne les sources CSV x86 et qui prépare les données avant le tracé. 
 
-On commence par montrer le bloc des lignes 20 à 27, parce qu’il explique la règle de sélection de la source. Il parcourt les fichiers CSV disponibles, applique un filtre, trie la liste, puis retient le fichier le plus récent.
+On commence par montrer le bloc des lignes 20 à 28, parce qu’il explique la règle de sélection des sources x86. Il parcourt les fichiers CSV disponibles, applique un filtre, trie la liste, puis retient tous les fichiers x86 utiles au calcul.
 
 ```python
 # scripts/chart_pipeline/data_performance.py
-def latest_results_csv() -> Path:
-    csv_files = sorted(
-        f for f in RESULTS_DIR.iterdir() if f.suffix == ".csv" and f.name != ".gitkeep"
+def x86_results_csvs() -> list[Path]:
+    csvs = sorted(
+        f for f in RESULTS_DIR.iterdir()
+        if f.suffix == ".csv" and f.name != ".gitkeep"
+        and ("x86" in f.name or "laptop-windows" in f.name)
     )
-    return csv_files[-1]
+    return csvs
 ```
 
-Ici, l'objectif est simple, montrer comment la source CSV est choisie de façon traçable. À la ligne 20, `latest_results_csv()` est la fonction utilitaire qui centralise cette sélection. Aux lignes 22 et 23, la variable `csv_files` est construite à partir de `RESULTS_DIR.iterdir()`. Le filtre garde seulement les fichiers `.csv` et exclut `.gitkeep`, puis `sorted()` trie la liste. Enfin, à la ligne 27, `csv_files[-1]` retourne le dernier élément de la liste triée, donc le fichier CSV retenu pour la suite du pipeline.
+Ici, l'objectif est simple, montrer comment les sources CSV x86 sont choisies de façon traçable. À la ligne 20, `x86_results_csvs()` est la fonction utilitaire qui centralise cette sélection. Aux lignes 22 à 25, la variable `csvs` est construite à partir de `RESULTS_DIR.iterdir()`. Le filtre garde seulement les fichiers `.csv`, exclut `.gitkeep` et conserve les noms x86, puis `sorted()` trie la liste. Enfin, à la ligne 28, `return csvs` retourne l'ensemble des fichiers retenus pour la suite du pipeline.
 
-On montre ce bloc pour justifier la traçabilité de la source, parce qu'avant même de tracer un graphe, on sait exactement quel fichier CSV est sélectionné et selon quelle règle.
+On montre ce bloc pour justifier la traçabilité de la source, parce qu'avant même de tracer un graphe, on sait exactement quels fichiers CSV sont sélectionnés et selon quelle règle.
 
 ```python
-def load_latest_rows() -> tuple[Path, list[Row]]:
-    csv_path = latest_results_csv()
-    rows: list[Row] = []
-    with csv_path.open(newline="", encoding="utf-8") as handle:
-        reader = csv.DictReader(handle)
-        for row in reader:
-            rows.append({
-                "algorithm": row["algorithm"],
-                "message_size_bytes": int(row["message_size_bytes"]),
-                "throughput_enc_mbps": float(row["throughput_enc_mbps"]),
-            })
-    return csv_path, rows
+def load_latest_rows() -> tuple[list[Path], list[Row]]:
+    paths = x86_results_csvs()
+    all_rows: list[Row] = []
+    for csv_path in paths:
+        with csv_path.open(newline="", encoding="utf-8") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                all_rows.append({
+                    "algorithm": row["algorithm"],
+                    "message_size_bytes": int(row["message_size_bytes"]),
+                    "throughput_enc_mbps": float(row["throughput_encrypt_mbps"]),
+                })
+    return paths, _average_rows(all_rows)
 ```
-Ensuite, on va explorer le bloc des lignes 30 à 61, parce qu’il décrit le flux complet de préparation des données avant le tracé.
-Il ouvre le CSV sélectionné, lit chaque ligne, normalise les types numériques, puis retourne à la fois la source utilisée et les données prêtes pour les graphiques.
+Ensuite, on va explorer le bloc des lignes 52 à 78, parce qu’il décrit le flux complet de préparation des données avant le tracé.
+Il ouvre chaque CSV sélectionné, lit chaque ligne, normalise les types numériques, puis retourne à la fois la liste des sources utilisées et les données moyennées prêtes pour les graphiques.
 
-Premièrement, à la ligne 30, on a la déclaration de `load_latest_rows()`, qui est la fonction de lecture et de normalisation. Ensuite, à la ligne 36, `csv_path = latest_results_csv()` récupère le chemin du CSV sélectionné, puis à la ligne 37, `rows` est initialisée comme liste de dictionnaires pour stocker les mesures.
+Premièrement, à la ligne 52, on a la déclaration de `load_latest_rows()`, qui est la fonction de lecture et de normalisation. Ensuite, à la ligne 58, `paths = x86_results_csvs()` récupère les chemins des CSV sélectionnés, puis à la ligne 59, `all_rows` est initialisée comme liste de dictionnaires pour stocker les mesures.
 
-Ensuite, à la ligne 42, `csv_path.open()` est la méthode d'ouverture du fichier, et à la ligne 43, `csv.DictReader` est la classe de la bibliothèque `csv` qui lit chaque ligne sous forme de dictionnaire. Puis, aux lignes 53 et 56, `int` et `float` sont des fonctions de conversion de type pour normaliser les champs numériques.
+Ensuite, à la ligne 60, la boucle `for csv_path in paths` parcourt chaque fichier, à la ligne 61, `csv_path.open()` est la méthode d'ouverture du fichier, et à la ligne 62, `csv.DictReader` est la classe de la bibliothèque `csv` qui lit chaque ligne sous forme de dictionnaire. Puis, aux lignes 67 et 71, `int` et `float` sont des fonctions de conversion de type pour normaliser les champs numériques.
 
-Finalement, à la ligne 61, `return csv_path, rows` retourne à la fois la source exacte et les données déjà prêtes pour le tracé.
+Finalement, à la ligne 78, `return paths, _average_rows(all_rows)` retourne à la fois la liste des sources exactes et les données déjà moyennées pour le tracé.
 
 Enfin, on montre cet extrait pour visualiser où la préparation des données est centralisée avant l'étape de rendu.
 
@@ -142,17 +149,17 @@ Au final, `data_performance.py` garantit que les modules de tracé reçoivent de
 
 ## Code 3
 
-Troisièmement, je vais vous montrer un extrait du fichier `scripts/chart_pipeline/build_performance.py`, parce que c'est lui qui affiche la source réellement utilisée et qui standardise l'export des figures.
+Troisièmement, je vais vous montrer un extrait du fichier `scripts/chart_pipeline/build_performance.py`, parce que c'est lui qui affiche les sources réellement utilisées et qui standardise l'export des figures.
 
 Ce troisième extrait joue le rôle de couche de sortie. Son objectif est simple, garder la trace de la source utilisée et enregistrer toutes les figures avec le même format visuel.
 
 ```python
 # scripts/chart_pipeline/build_performance.py
-CSV_PATH, rows = load_latest_rows()
-print(f"Lecture du fichier: {CSV_PATH}")
+CSV_PATHS, rows = load_latest_rows()
+print(f"Fichiers x86 lus ({len(CSV_PATHS)}) : {', '.join(p.name for p in CSV_PATHS)}")
 ```
 
-À la ligne 54, `CSV_PATH` est une variable qui contient le chemin réel du fichier lu et `rows` est la liste des données prêtes à tracer, tous deux retournés par la fonction `load_latest_rows()`. À la ligne 55, `print()` est une fonction d'affichage qui écrit cette source dans le terminal.
+À la ligne 54, `CSV_PATHS` est une variable qui contient la liste des chemins réellement lus et `rows` est la liste des données prêtes à tracer, tous deux retournés par la fonction `load_latest_rows()`. À la ligne 55, `print()` est une fonction d'affichage qui écrit ces sources dans le terminal.
 
 ```python
 def savefig(name: str):
@@ -173,7 +180,7 @@ python scripts/run_charts.py 03
 **Texte à lire pendant la commande**
 Je lance maintenant deux cibles pour vérifier le comportement en conditions réelles. Avec `01`, je teste le flux orienté débit. Avec `03`, je teste le flux orienté modes de chiffrement. De cette façon, on valide non seulement que les fonctions sont bien appelées, mais aussi que chaque cible active le bon sous-ensemble du pipeline.
 **Texte à lire après la commande**
-Dans le terminal, on voit d'abord `Lecture du fichier ...`, ce qui permet d'identifier immédiatement la source utilisée. Ensuite on voit les fichiers enregistrés avec leurs chemins complets, ce qui confirme exactement où les sorties sont écrites. Enfin, comme cette séquence se répète à chaque exécution de cible, on voit aussi quand le pipeline produit les figures, donc immédiatement après la sélection et l'appel des fonctions d'orchestration.
+Dans le terminal, on voit d'abord `Fichiers x86 lus (...)`, ce qui permet d'identifier immédiatement toutes les sources utilisées pour la moyenne côté x86. Ensuite on voit `x86 data (...)` et `Pi data (...)`, ce qui confirme les sources inter-plateformes utilisées pour la comparaison. Enfin on voit les fichiers enregistrés avec leurs chemins complets, ce qui confirme exactement où les sorties sont écrites.
 
 **Transition**
 Maintenant que la chaîne de production est claire, on passe à la lecture des débits.

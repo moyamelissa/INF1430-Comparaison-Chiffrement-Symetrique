@@ -63,7 +63,7 @@ BEST_MODE = {
 }
 
 try:
-    x86_path, pi_path, x86_rows, pi_rows = load_platform_rows()
+    x86_paths, pi_paths, x86_rows, pi_rows = load_platform_rows()
 except FileNotFoundError as exc:
     message = str(exc)
     if "Raspberry Pi" in message:
@@ -74,8 +74,8 @@ except FileNotFoundError as exc:
     print(f"ERREUR: {message}")
     sys.exit(1)
 
-print(f"x86 data : {x86_path.name}")
-print(f"Pi data  : {pi_path.name}")
+print(f"x86 data ({len(x86_paths)}) : {', '.join(p.name for p in x86_paths)}")
+print(f"Pi data  ({len(pi_paths)}) : {', '.join(p.name for p in pi_paths)}")
 
 
 def _lookup(rows, algo, mode, key_bits, msg_size):
