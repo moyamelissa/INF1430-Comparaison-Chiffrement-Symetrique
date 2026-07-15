@@ -18,6 +18,33 @@ from chart_pipeline.shared_paths import RESULTS_DIR
 Row = dict[str, object]
 
 
+def _row_value(row: dict[str, str], key: str) -> str:
+    """Retourne une valeur CSV en tolérant les variantes d'entête (BOM/quotes)."""
+    if key in row:
+        return row[key]
+    quoted = f'"{key}"'
+    if quoted in row:
+        return row[quoted]
+    bom_quoted = f'\ufeff"{key}"'
+    if bom_quoted in row:
+        return row[bom_quoted]
+    raise KeyError(key)
+
+
+def _to_float(value: str) -> float:
+    return float(value)
+
+
+def _to_float_optional(value: str) -> float | None:
+    raw = value.strip()
+    if not raw or raw == "{}":
+        return None
+    try:
+        return float(raw)
+    except ValueError:
+        return None
+
+
 def x86_results_csvs() -> list[Path]:
     """Retourne tous les CSV x86 disponibles dans data/results/, triés."""
     csvs = sorted(
@@ -47,7 +74,10 @@ def _average_rows(all_rows: list[Row]) -> list[Row]:
     for _key, group in sorted(groups.items()):
         base = dict(group[0])
         for field in numeric_fields:
-            base[field] = sum(r[field] for r in group) / len(group)  # type: ignore[arg-type]
+            values = [r[field] for r in group if isinstance(r[field], (int, float))]
+            if not values:
+                raise ValueError(f"Aucune valeur numérique valide pour '{field}' dans le groupe {_key}")
+            base[field] = sum(values) / len(values)
         averaged.append(base)
     return averaged
 
@@ -65,17 +95,17 @@ def load_latest_rows() -> tuple[list[Path], list[Row]]:
             reader = csv.DictReader(handle)
             for row in reader:
                 all_rows.append({
-                    "algorithm": row["algorithm"],
-                    "mode": row["mode"],
-                    "key_size_bytes": int(row["key_size_bytes"]),
-                    "key_size_bits": int(row["key_size_bytes"]) * 8,
-                    "message_size_bytes": int(row["message_size_bytes"]),
-                    "avg_encrypt_time_s": float(row["avg_encrypt_time_s"]),
-                    "avg_decrypt_time_s": float(row["avg_decrypt_time_s"]),
-                    "throughput_enc_mbps": float(row["throughput_encrypt_mbps"]),
-                    "throughput_dec_mbps": float(row["throughput_decrypt_mbps"]),
-                    "avalanche_score": float(row["avalanche_score"]),
-                    "key_avalanche_score": float(row["key_avalanche_score"]),
+                    "algorithm": _row_value(row, "algorithm"),
+                    "mode": _row_value(row, "mode"),
+                    "key_size_bytes": int(_row_value(row, "key_size_bytes")),
+                    "key_size_bits": int(_row_value(row, "key_size_bytes")) * 8,
+                    "message_size_bytes": int(_row_value(row, "message_size_bytes")),
+                    "avg_encrypt_time_s": _to_float(_row_value(row, "avg_encrypt_time_s")),
+                    "avg_decrypt_time_s": _to_float(_row_value(row, "avg_decrypt_time_s")),
+                    "throughput_enc_mbps": _to_float(_row_value(row, "throughput_encrypt_mbps")),
+                    "throughput_dec_mbps": _to_float(_row_value(row, "throughput_decrypt_mbps")),
+                    "avalanche_score": _to_float(_row_value(row, "avalanche_score")),
+                    "key_avalanche_score": _to_float_optional(_row_value(row, "key_avalanche_score")),
                 })
     return paths, _average_rows(all_rows)
 

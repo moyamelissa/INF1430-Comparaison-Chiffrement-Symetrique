@@ -16,6 +16,33 @@ from chart_pipeline.shared_paths import RESULTS_DIR
 Row = dict[str, object]
 
 
+def _row_value(row: dict[str, str], key: str) -> str:
+    """Retourne une valeur CSV en tolérant les variantes d'entête (BOM/quotes)."""
+    if key in row:
+        return row[key]
+    quoted = f'"{key}"'
+    if quoted in row:
+        return row[quoted]
+    bom_quoted = f'\ufeff"{key}"'
+    if bom_quoted in row:
+        return row[bom_quoted]
+    raise KeyError(key)
+
+
+def _to_float(value: str) -> float:
+    return float(value)
+
+
+def _to_float_optional(value: str) -> float | None:
+    raw = value.strip()
+    if not raw or raw == "{}":
+        return None
+    try:
+        return float(raw)
+    except ValueError:
+        return None
+
+
 def discover_platform_csvs() -> tuple[list[Path], list[Path]]:
     """Retourne tous les CSV x86 et tous les CSV Raspberry Pi disponibles."""
     all_csvs = [f for f in RESULTS_DIR.iterdir() if f.suffix == ".csv" and f.name != ".gitkeep"]
@@ -35,15 +62,20 @@ def _load_rows_from_path(path: Path) -> list[Row]:
     with path.open(newline="", encoding="utf-8") as handle:
         for row in csv.DictReader(handle):
             rows.append({
-                "algorithm": row["algorithm"],
-                "mode": row["mode"],
-                "key_size_bits": int(row["key_size_bytes"]) * 8,
-                "message_size_bytes": int(row["message_size_bytes"]),
-                "throughput_enc": float(row["throughput_encrypt_mbps"]),
-                "throughput_dec": float(row["throughput_decrypt_mbps"]),
-                "avalanche": float(row["avalanche_score"]),
-                "key_avalanche": float(row["key_avalanche_score"]),
-                "ci95_enc": float(row.get("ci95_encrypt_mbps", 0)),
+                "algorithm": _row_value(row, "algorithm"),
+                "mode": _row_value(row, "mode"),
+                "key_size_bits": int(_row_value(row, "key_size_bytes")) * 8,
+                "message_size_bytes": int(_row_value(row, "message_size_bytes")),
+                "throughput_enc": _to_float(_row_value(row, "throughput_encrypt_mbps")),
+                "throughput_dec": _to_float(_row_value(row, "throughput_decrypt_mbps")),
+                "avalanche": _to_float(_row_value(row, "avalanche_score")),
+                "key_avalanche": _to_float_optional(_row_value(row, "key_avalanche_score")),
+                "ci95_enc": _to_float_optional(
+                    row.get("ci95_encrypt_mbps")
+                    or row.get('"ci95_encrypt_mbps"')
+                    or row.get('\ufeff"ci95_encrypt_mbps"')
+                    or ""
+                ),
             })
     return rows
 
@@ -61,7 +93,10 @@ def _average_rows(all_rows: list[Row]) -> list[Row]:
     for _key, group in sorted(groups.items()):
         base = dict(group[0])
         for field in numeric_fields:
-            base[field] = sum(r[field] for r in group) / len(group)  # type: ignore[arg-type]
+            values = [r[field] for r in group if isinstance(r[field], (int, float))]
+            if not values:
+                raise ValueError(f"Aucune valeur numérique valide pour '{field}' dans le groupe {_key}")
+            base[field] = sum(values) / len(values)
         averaged.append(base)
     return averaged
 
