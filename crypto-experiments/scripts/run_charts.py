@@ -3,9 +3,9 @@
 Rôle dans la chaîne
 -------------------
 1. scripts/experiment.py calcule les mesures et écrit les CSV.
-2. Ce script est la commande propre pour générer les graphiques.
-3. Les modules scripts/chart_pipeline/build_*.py contiennent la logique partagée de construction.
-4. Ce script orchestre directement les dossiers 01, 02, 03 et 04.
+2. Ce script orchestre la génération des figures.
+3. Les modules scripts/chart_pipeline/build_*.py contiennent la logique de tracé.
+4. Ce script orchestre les dossiers 01, 02, 03 et 04.
 
 Utilisation (depuis crypto-experiments/):
     python scripts/run_charts.py
