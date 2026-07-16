@@ -5,8 +5,8 @@ Le rapport combine:
 - les donnees agregees x86 et Raspberry Pi de data_platform.py
 
 Usage (depuis crypto-experiments/):
-    python scripts/audit_aggregates.py
-    python scripts/audit_aggregates.py --out data/results/audit_custom.csv
+    python scripts/audit/audit_aggregates.py
+    python scripts/audit/audit_aggregates.py --out data/results/audit_custom.csv
 """
 
 from __future__ import annotations
@@ -14,6 +14,10 @@ from __future__ import annotations
 import argparse
 import csv
 from pathlib import Path
+import sys
+
+# Permet d'importer chart_pipeline depuis scripts/audit/
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from chart_pipeline.data_performance import load_latest_rows
 from chart_pipeline.data_platform import load_platform_rows

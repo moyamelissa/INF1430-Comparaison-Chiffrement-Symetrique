@@ -1,8 +1,8 @@
 """Export a CSV diff report between raw values and chart aggregation outputs.
 
 Usage (from crypto-experiments/):
-    python scripts/audit_diff.py
-    python scripts/audit_diff.py --out data/results/audit_diff_report.csv
+    python scripts/audit/audit_diff.py
+    python scripts/audit/audit_diff.py --out data/results/audit_diff_report.csv
 """
 
 from __future__ import annotations
@@ -11,6 +11,10 @@ import argparse
 import csv
 from collections import defaultdict
 from pathlib import Path
+import sys
+
+# Allow imports from scripts/chart_pipeline when executed from scripts/audit/
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from chart_pipeline.data_performance import load_latest_rows
 from chart_pipeline.data_platform import load_platform_rows

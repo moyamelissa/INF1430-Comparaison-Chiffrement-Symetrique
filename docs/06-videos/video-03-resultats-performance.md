@@ -32,12 +32,12 @@ Et finalement, on va terminer avec une démonstration en direct dans le terminal
 À la fin de cette vidéo, vous aurez une vue claire, simple et traçable de la génération des graphiques.
 
 
-### Intro - Traçabilité de la chaîne de génération
+### Architecture - Traçabilité et séparation des rôles
 **Où sommes-nous**
 VS Code sur `scripts/run_charts.py`, puis `scripts/chart_pipeline/` et `data/charts/`.
 
 **Texte à lire**
-Avant de montrer les sorties, on confirme la traçabilité. Les figures ne sont pas dessinées manuellement. Elles sont générées automatiquement à partir des CSV de mesure.
+Avant d'explorer le code ligne par ligne, on va d'abord lire l'architecture pour comprendre comment les rôles sont séparés. Cette architecture garantit la traçabilité: les figures ne sont pas dessinées manuellement, elles sont générées automatiquement à partir des CSV de mesure.
 
 Le point d'entrée est `scripts/run_charts.py`. Ce script orchestre la génération des dossiers de sortie et délègue le rendu aux modules de `scripts/chart_pipeline/`.
 
