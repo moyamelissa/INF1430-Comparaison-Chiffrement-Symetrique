@@ -220,3 +220,5 @@ Dans le terminal, je me place directement dans le dossier `scripts` avec la comm
 Après cela, le terminal affiche les images enregistrées avec leurs chemins complets. Cette sortie confirme que le graphe a bien été construit et sauvegardé dans le bon dossier. Puis je lance `python .\run_charts.py 03` pour montrer la même logique sur l'autre cible, avec le même principe de lecture des sources et de génération des sorties.
 
 Le point important, c'est que cette démonstration ne refait pas la mesure. Elle montre seulement le rôle de `run_charts.py`, qui prend les CSV disponibles, choisit la bonne cible et écrit les figures correspondantes. C'est exactement ce qu'on veut vérifier ici.
+
+Pour conclure cette partie, `run_charts.py` est bien le point d'entrée qu'on veut montrer dans la vidéo. Il ne calcule rien lui-même, il prend des résultats déjà produits, il les transforme en graphiques, puis il les enregistre dans le bon dossier. C'est ça qui démontre clairement la chaîne de génération et le travail de préparation qui a été fait avant.
