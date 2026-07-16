@@ -20,6 +20,7 @@ cabler les couches domaine et application et gérer les E/S.
 import csv
 import os
 import sys
+from collections import defaultdict
 from dataclasses import asdict
 from datetime import datetime
 
@@ -99,12 +100,47 @@ def _twofish_import_error() -> str | None:
         return str(exc)
 
 
+def _print_run_summary(stats: dict[str, dict[str, int]]) -> bool:
+    """Affiche un tableau synthèse et retourne True si tous les algorithmes sont présents."""
+    print("\nRun summary by algorithm")
+    header = f"{'Algorithm':<12} {'Planned':>8} {'Success':>8} {'Skipped':>8}  Status"
+    print(header)
+    print("-" * len(header))
+
+    missing_algorithms: list[str] = []
+    for algo in sorted(stats.keys()):
+        planned = stats[algo]["planned"]
+        success = stats[algo]["success"]
+        skipped = stats[algo]["skipped"]
+        status = "OK"
+        if success == 0:
+            status = "MISSING"
+            missing_algorithms.append(algo)
+        elif skipped > 0:
+            status = "PARTIAL"
+
+        print(f"{algo:<12} {planned:>8} {success:>8} {skipped:>8}  {status}")
+
+    if missing_algorithms:
+        print(
+            "\n[error] One or more expected algorithms produced no successful runs: "
+            + ", ".join(missing_algorithms)
+        )
+        return False
+    else:
+        print("\n[ok] All algorithms in the matrix completed successfully.")
+        return True
+
+
 # ------------------------------------------------------------------ #
 #  Point d'entrée principal                                            #
 # ------------------------------------------------------------------ #
 
-def main() -> None:
+def main() -> int:
     results = []
+    run_stats: dict[str, dict[str, int]] = defaultdict(
+        lambda: {"planned": 0, "success": 0, "skipped": 0}
+    )
 
     matrix = EXPERIMENT_MATRIX
     twofish_error = _twofish_import_error()
@@ -118,14 +154,21 @@ def main() -> None:
         )
         matrix = [entry for entry in EXPERIMENT_MATRIX if entry[0] != "Twofish"]
 
+    scheduled_algorithms = sorted({entry[0] for entry in matrix})
+    print("[info] Algorithms scheduled: " + ", ".join(scheduled_algorithms))
+
     for algo, primitive_cls, mode_label, mode_cls, key_sizes in matrix:
         for key_size in key_sizes:
+            planned_for_key = len(MESSAGE_SIZES)
+            run_stats[algo]["planned"] += planned_for_key
+
             # Vérification préalable : peut-on instancier cette primitive ?
             try:
                 _probe_key = _make_key(key_size)
                 _probe = primitive_cls(_probe_key)
             except Exception as exc:  # noqa: BLE001
                 print(f"  SKIPPED {algo} (key={key_size*8}bit) — {exc}")
+                run_stats[algo]["skipped"] += planned_for_key
                 break  # Skip all message sizes / modes for this key size too
 
             for msg_size in MESSAGE_SIZES:
@@ -147,6 +190,7 @@ def main() -> None:
                         repetitions=REPETITIONS,
                     )
                     results.append(result)
+                    run_stats[algo]["success"] += 1
                     print(
                         f"enc={result.avg_encrypt_time_s*1000:.3f}ms "
                         f"thr={result.throughput_encrypt_mbps:.2f}MB/s "
@@ -154,11 +198,14 @@ def main() -> None:
                     )
 
                 except Exception as exc:  # noqa: BLE001
+                    run_stats[algo]["skipped"] += 1
                     print(f"  SKIPPED {algo}-{mode_label} key={key_size*8}bit msg={msg_size}B — {exc}")
+
+    all_algorithms_ok = _print_run_summary(run_stats)
 
     if not results:
         print("No results collected.")
-        return
+        return 1
 
     out_path = _output_path()
     fieldnames = list(asdict(results[0]).keys())
@@ -169,7 +216,11 @@ def main() -> None:
             writer.writerow(asdict(r))
 
     print(f"\nResults saved to: {out_path}")
+    if not all_algorithms_ok:
+        print("[error] Experiment completed with missing algorithms. Exiting with status 1.")
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
