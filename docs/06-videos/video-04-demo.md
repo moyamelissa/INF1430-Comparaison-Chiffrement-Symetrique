@@ -11,6 +11,8 @@ Le but ici est de montrer que la chaîne est exécutable, traçable et reproduct
 
 On commence par un correctif important lié à la vidéo 1, puis on déroule les exécutions en conditions réelles.
 
+On met aussi l'accent sur les tests KAT, parce qu'on veut montrer que les fonctions, les sorties et la validation cryptographique passent à 100 %. Si ce n'est pas le cas, l'échec remonte pendant le push via le pipeline, ce qui permet de détecter immédiatement une exécution incomplète.
+
 ## Section 1 - Retour sur l'erreur de la vidéo 1 et correctif Twofish
 **Où sommes-nous**
 Présentation PowerPoint - Diapo de correction, puis `scripts/experiment.py`
@@ -18,11 +20,11 @@ Présentation PowerPoint - Diapo de correction, puis `scripts/experiment.py`
 **Texte à lire**
 Avant de lancer la démo complète, je corrige un point important observé pendant la démo de la vidéo 1.
 
-Pendant cette première démo, l'exécution de `scripts/experiment.py` n'incluait pas Twofish dans certains environnements. La cause était une dépendance Python manquante dans l'interpréteur actif, donc le package `twofish` n'était pas importable au moment de la campagne.
+Pendant cette première démo sous Windows, l'exécution de `scripts/experiment.py` n'incluait pas Twofish dans certains environnements. La cause était une dépendance Python manquante dans l'interpréteur actif, donc le package `twofish` n'était pas importable au moment de la campagne.
 
 Le risque, dans ce cas, c'est de croire que toute la matrice est exécutée alors qu'un algorithme est absent, ce qui rend la sortie incomplète si on ne regarde pas les logs en détail.
 
-Le correctif a été appliqué dans `scripts/experiment.py` avec quatre sécurités. Premièrement, le script détecte explicitement l'erreur d'import Twofish. Deuxièmement, il affiche un message d'alerte clair avec l'interpréteur actif et la commande d'installation recommandée. Sur Raspberry Pi, ce warning est formulé de façon explicite pour signaler immédiatement l'absence de support Twofish dans l'environnement actif. Troisièmement, le script imprime un résumé final par algorithme. Quatrièmement, il retourne un code d'échec si un algorithme attendu est manquant.
+Le correctif a été appliqué dans `scripts/experiment.py` avec quatre sécurités. Premièrement, le script détecte explicitement l'erreur d'import Twofish. Deuxièmement, il affiche un message d'alerte clair avec l'interpréteur actif et la commande d'installation recommandée. Troisièmement, le script imprime un résumé final par algorithme. Quatrièmement, il retourne un code d'échec si un algorithme attendu est manquant.
 
 Concrètement, si le problème réapparaît, l'utilisateur voit immédiatement un warning explicite dans le terminal, puis un statut de run non conforme en fin d'exécution. Et comme le script retourne un code d'échec, le pipeline CI/CD détecte aussi automatiquement la campagne incomplète. Le but est d'attirer l'attention tout de suite, sans laisser passer une exécution invalide.
 
@@ -64,7 +66,9 @@ python scripts/run_kat.py
 ```
 
 **Texte à lire après la commande**
-Dans la sortie, on vérifie que les suites KAT passent sans échec. C'est cette étape qui confirme que les mesures sont faites sur des implémentations valides.
+Dans la sortie, on vérifie que les suites KAT passent à 100 %. C'est cette étape qui confirme que les fonctions, les sorties et les comportements attendus sont bien valides.
+
+Si ce n'est pas 100 %, l'échec n'est pas silencieux: il remonte lors du push via le pipeline, ce qui signale immédiatement qu'une partie de la validation n'est pas passée.
 
 ## Section 5 - Génération des graphes sur Windows
 **Où sommes-nous**
@@ -130,7 +134,9 @@ python scripts/run_kat.py
 ```
 
 **Texte à lire après la commande**
-On confirme que les suites de test passent. Le point important ici, c'est que la validation est rejouée sur la plateforme ARM, pas seulement sur Windows.
+On confirme que les suites de test passent à 100 %. Le point important ici, c'est que la validation est rejouée sur la plateforme ARM, pas seulement sur Windows.
+
+Et si le résultat n'est pas complet, l'échec remonte aussi au moment du push via le pipeline, pour éviter de laisser passer une version invalide.
 
 ## Section 10 - Génération des graphes sur Raspberry Pi
 **Où sommes-nous**
