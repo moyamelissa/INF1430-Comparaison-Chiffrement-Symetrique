@@ -208,12 +208,13 @@ Je vais maintenant passer à une vérification en conditions réelles, dans le t
 
 ```bash
 cd crypto-experiments
-python scripts/run_charts.py 01
-python scripts/run_charts.py 03
+cd scripts
+python .\run_charts.py 01
+python .\run_charts.py 03
 ```
 
 **Texte à lire pendant la commande**
-Dans le terminal, je me place d'abord dans le dossier `crypto-experiments` avec la commande `cd crypto-experiments`. Ensuite, je lance `python scripts/run_charts.py 01` pour générer les figures de débit à partir des CSV déjà présents dans `data/results`.
+Dans le terminal, je me place d'abord dans le dossier `crypto-experiments` avec la commande `cd crypto-experiments`. Ensuite, je me place dans le dossier `scripts` avec `cd scripts`, puis je lance `python .\run_charts.py 01` pour générer les figures de débit à partir des CSV déjà présents dans `data/results`.
 
 À l'écran, on voit d'abord les lignes `Sources x86 (...)`. Ici, on comprend immédiatement quels fichiers ont été lus pour construire les graphiques. C'est intéressant à montrer, parce que cela permet de vérifier, en direct, que le pipeline part bien des bonnes sources avant de tracer quoi que ce soit.
 
@@ -225,6 +226,6 @@ Je lance ensuite `python scripts/run_charts.py 01` pour exécuter la cible orien
 
 À l'écran, on voit d'abord `Sources x86 (...)`, ce qui permet d'identifier immédiatement toutes les sources utilisées côté laptop Windows. Ensuite, on voit `Sources Raspberry Pi (...)`, ce qui confirme les sources utilisées pour la comparaison inter-plateformes. Enfin, on voit les fichiers enregistrés avec leurs chemins complets, ce qui confirme exactement où les sorties orientées débit sont écrites.
 
-Je lance ensuite `python scripts/run_charts.py 03` pour exécuter la cible orientée modes de chiffrement. Là encore, le terminal affiche les sources utilisées et les fichiers générés, ce qui permet de vérifier que cette deuxième cible active bien le bon sous-ensemble du pipeline.
+Je lance ensuite `python .\run_charts.py 03` pour exécuter la cible orientée modes de chiffrement. Là encore, le terminal affiche les sources utilisées et les fichiers générés, ce qui permet de vérifier que cette deuxième cible active bien le bon sous-ensemble du pipeline.
 
 Au final, cette démonstration montre la chaîne complète: mesure d'abord, export CSV ensuite, génération des figures enfin.
