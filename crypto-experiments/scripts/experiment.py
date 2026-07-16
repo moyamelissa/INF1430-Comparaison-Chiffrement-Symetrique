@@ -90,6 +90,15 @@ def _output_path() -> str:
     return os.path.join(out_dir, f"experiment_{ts}.csv")
 
 
+def _twofish_available() -> bool:
+    """Retourne True si la dépendance Twofish est utilisable dans ce runtime."""
+    try:
+        import twofish  # noqa: F401
+        return True
+    except Exception:
+        return False
+
+
 # ------------------------------------------------------------------ #
 #  Point d'entrée principal                                            #
 # ------------------------------------------------------------------ #
@@ -97,7 +106,15 @@ def _output_path() -> str:
 def main() -> None:
     results = []
 
-    for algo, primitive_cls, mode_label, mode_cls, key_sizes in EXPERIMENT_MATRIX:
+    matrix = EXPERIMENT_MATRIX
+    if not _twofish_available():
+        print(
+            "[warning] Twofish indisponible dans cet environnement Python "
+            "(dépendance non compatible). Les cas Twofish sont ignorés."
+        )
+        matrix = [entry for entry in EXPERIMENT_MATRIX if entry[0] != "Twofish"]
+
+    for algo, primitive_cls, mode_label, mode_cls, key_sizes in matrix:
         for key_size in key_sizes:
             # Vérification préalable : peut-on instancier cette primitive ?
             try:

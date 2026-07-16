@@ -52,7 +52,7 @@ from chart_pipeline.shared_paths import CHARTS_DIR
 setup_matplotlib(title_pad=12, hatch_linewidth=1.0)
 
 CSV_PATHS, rows = load_latest_rows()
-print(f"Fichiers x86 lus ({len(CSV_PATHS)}) : {', '.join(p.name for p in CSV_PATHS)}")
+print(f"Sources x86 ({len(CSV_PATHS)}) : {', '.join(p.name for p in CSV_PATHS)}")
 
 
 def _style_ax(ax):
@@ -69,7 +69,7 @@ def savefig(name: str):
 
 
 # ===========================================================================
-# Graphique 1 — 01-debit/debit-4096o.png
+# Graphique 1 — 01-debit/debit-40960-x86.png
 # Comparaison du débit à 4 096 octets (point médian représentatif)
 # Une barre par combinaison algorithme+mode, regroupées par algorithme.
 # ===========================================================================
@@ -109,9 +109,17 @@ def fig1_throughput_4096():
     ax.set_xticks(tick_positions)
     ax.set_xticklabels(tick_labels, fontsize=7)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
-    ax.set_title(
-        "Débit de chiffrement en fonction de l'algorithme et du mode",
-        fontsize=11,
+    ax.set_title("Débit de chiffrement en fonction de l'algorithme et du mode", fontsize=11, pad=20)
+    ax.text(
+        0.5,
+        1.01,
+        "Données x86 uniquement",
+        transform=ax.transAxes,
+        ha="center",
+        va="bottom",
+        fontsize=9,
+        fontstyle="italic",
+        color=TEXT_COLOR,
     )
 
     for algo, cx in group_centers.items():
@@ -125,7 +133,7 @@ def fig1_throughput_4096():
     ax.set_ylim(bottom=0)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("01-debit/debit-4096o.png")
+    savefig("01-debit/debit-40960-x86.png")
 
 
 # ===========================================================================
@@ -642,7 +650,7 @@ CHART_GROUPS = {
 # Correspondance explicite: fonction de tracé -> fichier PNG de sortie.
 # Utile pour vérifier rapidement comment chaque graphique est produit.
 GRAPH_OUTPUTS = {
-    fig1_throughput_4096: "01-debit/debit-4096o.png",
+    fig1_throughput_4096: "01-debit/debit-40960-x86.png",
     fig2_throughput_vs_size: "01-debit/debit-vs-taille-message.png",
     fig3_aes_mode_comparison: "03-modes-chiffrement/aes-comparaison-modes.png",
     fig4_avalanche: "02-effet-avalanche/avalanche-par-algorithme.png",

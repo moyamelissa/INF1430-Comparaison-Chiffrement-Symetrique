@@ -27,7 +27,7 @@ Interpréter rigoureusement les performances en reliant chaque écart à trois f
 - `data/results/raspberry-pi_experience3.csv`
 - `data/charts/01-debit/comparaison-debit-global.png`
 - `data/charts/01-debit/debit-vs-taille-message.png`
-- `data/charts/01-debit/debit-4096o.png`
+- `data/charts/01-debit/debit-40960-x86.png`
 - `data/charts/01-debit/comparaison-ratio-acceleration.png`
 - `data/charts/03-modes-chiffrement/aes-comparaison-modes.png`
 - `data/charts/03-modes-chiffrement/vulnerabilite-mode-ecb.png`
@@ -183,7 +183,7 @@ python scripts/run_charts.py 03
 **Texte à lire pendant la commande**
 Dans le terminal, je me place d'abord dans le dossier `crypto-experiments` avec la commande `cd crypto-experiments`. Ensuite, je lance `python scripts/run_charts.py 01` pour exécuter la cible orientée débit.
 
-À l'écran, on voit d'abord `Fichiers x86 lus (...)`, ce qui permet d'identifier immédiatement toutes les sources utilisées pour la moyenne côté x86. Ensuite, on voit `x86 data (...)` et `Pi data (...)`, ce qui confirme les sources inter-plateformes utilisées pour la comparaison. Enfin, on voit les fichiers enregistrés avec leurs chemins complets, ce qui confirme exactement où les sorties orientées débit sont écrites.
+À l'écran, on voit d'abord `Sources x86 (...)`, ce qui permet d'identifier immédiatement toutes les sources utilisées côté laptop Windows. Ensuite, on voit `Sources Raspberry Pi (...)`, ce qui confirme les sources utilisées pour la comparaison inter-plateformes. Enfin, on voit les fichiers enregistrés avec leurs chemins complets, ce qui confirme exactement où les sorties orientées débit sont écrites.
 
 Je lance ensuite `python scripts/run_charts.py 03` pour exécuter la cible orientée modes de chiffrement. Là encore, le terminal affiche les sources utilisées et les fichiers générés, ce qui permet de vérifier que cette deuxième cible active bien le bon sous-ensemble du pipeline.
 

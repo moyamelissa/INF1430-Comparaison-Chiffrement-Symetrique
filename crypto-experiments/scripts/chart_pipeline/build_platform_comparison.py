@@ -74,8 +74,7 @@ except FileNotFoundError as exc:
     print(f"ERREUR: {message}")
     sys.exit(1)
 
-print(f"x86 data ({len(x86_paths)}) : {', '.join(p.name for p in x86_paths)}")
-print(f"Pi data  ({len(pi_paths)}) : {', '.join(p.name for p in pi_paths)}")
+print(f"Sources Raspberry Pi ({len(pi_paths)}) : {', '.join(p.name for p in pi_paths)}")
 
 
 def _lookup(rows, algo, mode, key_bits, msg_size):
@@ -137,7 +136,7 @@ def cmp1_throughput_all():
     ax.set_xticklabels(algo_order, fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Débit de chiffrement en fonction de l'algorithme (x86 et ARM)",
+        "Débit de chiffrement en fonction de l'algorithme",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -149,6 +148,94 @@ def cmp1_throughput_all():
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
     savefig("01-debit/comparaison-debit-global.png")
+
+
+# ===========================================================================
+# Graphique 1b — 01-debit/debit-40960-pi.png
+# Comparaison du débit à 4 096 octets (Raspberry Pi uniquement)
+# Une barre par combinaison algorithme+mode, regroupées par algorithme.
+# ===========================================================================
+def cmp1b_throughput_4096_pi():
+    target_size = 4096
+    data = [r for r in pi_rows if r["message_size_bytes"] == target_size]
+
+    groups = defaultdict(list)
+    for r in data:
+        label = f"{r['mode']}\n{r['key_size_bits']}b"
+        groups[r["algorithm"]].append((label, r["throughput_enc"]))
+
+    algo_order = ["AES", "DES", "3DES", "Twofish", "ChaCha20"]
+    fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
+    fig.patch.set_facecolor(BG_COLOR)
+
+    x_pos = 0
+    tick_positions, tick_labels = [], []
+    group_centers = {}
+
+    for algo in algo_order:
+        if algo not in groups:
+            continue
+        items = groups[algo]
+        start = x_pos
+        for label, mbps in items:
+            ax.bar(
+                x_pos,
+                mbps,
+                color=ALGO_COLORS.get(algo, "#888"),
+                edgecolor=BG_COLOR,
+                linewidth=0.8,
+                width=0.7,
+                alpha=PLATFORM_STYLE["pi"]["alpha"],
+                hatch=PLATFORM_STYLE["pi"]["hatch"],
+            )
+            tick_positions.append(x_pos)
+            tick_labels.append(label)
+            x_pos += 1
+        group_centers[algo] = (start + x_pos - 1) / 2
+        x_pos += 0.8
+
+    ax.set_xticks(tick_positions)
+    ax.set_xticklabels(tick_labels, fontsize=7)
+    ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
+    ax.set_title("Débit de chiffrement en fonction de l'algorithme et du mode", fontsize=11, pad=20)
+    ax.text(
+        0.5,
+        1.01,
+        "Données Raspberry Pi uniquement",
+        transform=ax.transAxes,
+        ha="center",
+        va="bottom",
+        fontsize=9,
+        fontstyle="italic",
+        color=TEXT_COLOR,
+    )
+
+    for algo, cx in group_centers.items():
+        ax.text(
+            cx,
+            -ax.get_ylim()[1] * 0.12,
+            algo,
+            ha="center",
+            fontsize=9,
+            fontweight="bold",
+            color=ALGO_COLORS.get(algo, "#888"),
+        )
+
+    legend_patches = [
+        mpatches.Patch(color=ALGO_COLORS.get(a, "#888"), label=a)
+        for a in algo_order
+        if a in groups
+    ]
+    ax.legend(handles=legend_patches, loc="upper right", fontsize=9)
+    ax.set_ylim(bottom=0)
+    ax.yaxis.grid(True)
+    ax.set_axisbelow(True)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_edgecolor(GRID_COLOR)
+    ax.spines["bottom"].set_edgecolor(GRID_COLOR)
+    plt.tight_layout()
+    savefig("01-debit/debit-40960-pi.png")
 
 
 # ===========================================================================
@@ -187,7 +274,7 @@ def cmp2_speedup_ratio():
 
     ax.set_ylabel("Rapport de débit x86 / Pi (×)", fontsize=11)
     ax.set_title(
-        "Ratio de performance en fonction de l'algorithme (x86/ARM)",
+        "Ratio de performance en fonction de l'algorithme",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -244,9 +331,17 @@ def cmp3_throughput_vs_size():
     ax.set_xticklabels([f"{s:,}" for s in msg_sizes])
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
-    ax.set_title(
-        "Débit en fonction de la taille du message (x86 et ARM)",
-        fontsize=11,
+    ax.set_title("Débit en fonction de la taille du message", fontsize=11, pad=20)
+    ax.text(
+        0.5,
+        1.01,
+        "ECB forcé pour les algorithmes comparés",
+        transform=ax.transAxes,
+        ha="center",
+        va="bottom",
+        fontsize=9,
+        fontstyle="italic",
+        color=TEXT_COLOR,
     )
     ax.legend(fontsize=7, ncol=2)
     ax.yaxis.grid(True)
@@ -295,7 +390,7 @@ def cmp5_chacha20():
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Débit de ChaCha20 en fonction de la taille du message (x86 et ARM)",
+        "Débit de ChaCha20 en fonction de la taille du message",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -370,7 +465,7 @@ def cmp6_ci95_stability():
 
 
 # ===========================================================================
-# Graphique 6 — 01-debit/scalabilite-tous-algorithmes.png
+# Graphique 6 — 01-debit/comparaison-debit-vs-taille-message-all-algorithms.png
 # Scalabilité tous algos : x86 (—) et Pi (- -) sur les mêmes axes
 # ===========================================================================
 def cmp8_scalability_all_algos():
@@ -409,9 +504,17 @@ def cmp8_scalability_all_algos():
     ax.set_xticklabels([f"{s:,}" for s in msg_sizes])
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
-    ax.set_title(
-        "Débit en fonction de la taille du message (tous algorithmes)",
-        fontsize=11,
+    ax.set_title("Débit en fonction de la taille du message — tous algorithmes", fontsize=11, pad=20)
+    ax.text(
+        0.5,
+        1.01,
+        "ECB pour AES/DES/3DES/Twofish, Stream pour ChaCha20",
+        transform=ax.transAxes,
+        ha="center",
+        va="bottom",
+        fontsize=9,
+        fontstyle="italic",
+        color=TEXT_COLOR,
     )
     ax.legend(fontsize=7, ncol=5)
     ax.yaxis.grid(True)
@@ -421,7 +524,7 @@ def cmp8_scalability_all_algos():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/scalabilite-tous-algorithmes.png")
+    savefig("01-debit/comparaison-debit-vs-taille-message-all-algorithms.png")
 
 
 # ===========================================================================
@@ -463,7 +566,7 @@ def cmp4_avalanche():
     ax.set_ylim(42.0, 64.0)
     ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=11)
     ax.set_title(
-        "Score d'avalanche en fonction de l'algorithme (x86 et ARM)",
+        "Score d'avalanche en fonction de l'algorithme",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -552,6 +655,7 @@ def cmp7_radar():
 CHART_GROUPS = {
     "01-debit": [
         cmp1_throughput_all,
+        cmp1b_throughput_4096_pi,
         cmp2_speedup_ratio,
         cmp3_throughput_vs_size,
         cmp5_chacha20,
@@ -570,13 +674,14 @@ CHART_GROUPS = {
 # Utile pour vérifier rapidement comment chaque graphique est produit.
 GRAPH_OUTPUTS = {
     cmp1_throughput_all: "01-debit/comparaison-debit-global.png",
+    cmp1b_throughput_4096_pi: "01-debit/debit-40960-pi.png",
     cmp2_speedup_ratio: "01-debit/comparaison-ratio-acceleration.png",
     cmp3_throughput_vs_size: "01-debit/comparaison-debit-vs-taille-message.png",
     cmp4_avalanche: "02-effet-avalanche/comparaison-avalanche.png",
     cmp5_chacha20: "01-debit/chacha20-comparaison-plateformes.png",
     cmp6_ci95_stability: "01-debit/stabilite-ic95.png",
     cmp7_radar: "04-synthese/algorithm-profile-radar.png",
-    cmp8_scalability_all_algos: "01-debit/scalabilite-tous-algorithmes.png",
+    cmp8_scalability_all_algos: "01-debit/comparaison-debit-vs-taille-message-all-algorithms.png",
 }
 
 

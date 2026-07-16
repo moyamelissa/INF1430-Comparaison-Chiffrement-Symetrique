@@ -19,12 +19,14 @@ data/charts/
 
 | Fichier | Description | Script source |
 |---|---|---|
-| `debit-4096o.png` | Débit de chiffrement par algo et mode — 4096 octets | `scripts/run_charts.py 01` |
+| `debit-40960-x86.png` | Débit de chiffrement par algo et mode — 4096 octets (x86 uniquement) | `scripts/run_charts.py 01` |
+| `debit-40960-pi.png` | Débit de chiffrement par algo et mode — 4096 octets (Raspberry Pi uniquement) | `scripts/run_charts.py 01` |
 | `debit-vs-taille-message.png` | Débit ECB selon la taille du message (x86) | `scripts/run_charts.py 01` |
 | `comparaison-debit-global.png` | Débit x86 vs ARM — tous algos, 4096 octets | `scripts/run_charts.py 01` |
-| `comparaison-debit-vs-taille-message.png` | Scalabilité x86 vs ARM — débit selon taille | `scripts/run_charts.py 01` |
+| `comparaison-debit-vs-taille-message.png` | Scalabilité x86 vs ARM — débit selon taille (ECB forcé) | `scripts/run_charts.py 01` |
 | `comparaison-ratio-acceleration.png` | Ratio x86/ARM par algorithme | `scripts/run_charts.py 01` |
 | `chacha20-comparaison-plateformes.png` | ChaCha20 x86 vs ARM — débit selon taille | `scripts/run_charts.py 01` |
+| `comparaison-debit-vs-taille-message-all-algorithms.png` | Scalabilité x86 vs ARM — tous algorithmes (inclut ChaCha20 en Stream) | `scripts/run_charts.py 01` |
 | `stabilite-ic95.png` | Intervalle de confiance 95% — stabilité des mesures | `scripts/run_charts.py 01` |
 
 ### 02-effet-avalanche
