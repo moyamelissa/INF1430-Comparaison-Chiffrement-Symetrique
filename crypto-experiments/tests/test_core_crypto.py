@@ -117,6 +117,21 @@ def test_twofish_import_error_path(monkeypatch):
         Twofish(bytes(range(16)))
 
 
+def test_twofish_import_error_missing_package(monkeypatch):
+    import builtins
+
+    real_import = builtins.__import__
+
+    def fake_builtin_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "twofish":
+            raise ImportError("No module named twofish", name="twofish")
+        return real_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", fake_builtin_import)
+    with pytest.raises(ImportError, match="required for Twofish support"):
+        Twofish(bytes(range(16)))
+
+
 def test_chacha20_roundtrip_and_validation():
     with pytest.raises(ValueError):
         ChaCha20(b"short")
