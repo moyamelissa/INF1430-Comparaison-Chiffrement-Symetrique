@@ -19,6 +19,7 @@ cabler les couches domaine et application et gérer les E/S.
 
 import csv
 import os
+import platform
 import sys
 from collections import defaultdict
 from dataclasses import asdict
@@ -100,6 +101,43 @@ def _twofish_import_error() -> str | None:
         return str(exc)
 
 
+def _is_raspberry_pi() -> bool:
+    """Détecte si le runtime courant est probablement un Raspberry Pi."""
+    node = platform.node().lower()
+    if "raspberry" in node:
+        return True
+
+    if platform.system().lower() != "linux":
+        return False
+
+    machine = platform.machine().lower()
+    if not (machine.startswith("arm") or machine.startswith("aarch64")):
+        return False
+
+    model_paths = [
+        "/proc/device-tree/model",
+        "/sys/firmware/devicetree/base/model",
+    ]
+    for model_path in model_paths:
+        try:
+            with open(model_path, "rb") as handle:
+                model = handle.read().decode("utf-8", errors="ignore").lower()
+            if "raspberry" in model:
+                return True
+        except OSError:
+            continue
+
+    try:
+        with open("/etc/os-release", "r", encoding="utf-8") as handle:
+            os_release = handle.read().lower()
+        if "raspbian" in os_release or "raspberry pi" in os_release:
+            return True
+    except OSError:
+        pass
+
+    return False
+
+
 def _print_run_summary(stats: dict[str, dict[str, int]]) -> bool:
     """Affiche un tableau synthèse et retourne True si tous les algorithmes sont présents."""
     print("\nRun summary by algorithm")
@@ -138,6 +176,7 @@ def _print_run_summary(stats: dict[str, dict[str, int]]) -> bool:
 
 def main() -> int:
     results = []
+    running_on_rpi = _is_raspberry_pi()
     run_stats: dict[str, dict[str, int]] = defaultdict(
         lambda: {"planned": 0, "success": 0, "skipped": 0}
     )
@@ -145,13 +184,23 @@ def main() -> int:
     matrix = EXPERIMENT_MATRIX
     twofish_error = _twofish_import_error()
     if twofish_error is not None:
-        print(
-            "[warning] Twofish indisponible dans cet environnement Python. "
-            f"Interpréteur actif: {sys.executable}. "
-            f"Erreur d'import: {twofish_error}. "
-            "Installez avec cet interpréteur: "
-            f"{sys.executable} -m pip install twofish"
-        )
+        if running_on_rpi:
+            print(
+                "[warning] Raspberry Pi detected. Twofish support is unavailable "
+                "in this Python environment. "
+                f"Interpréteur actif: {sys.executable}. "
+                f"Erreur d'import: {twofish_error}. "
+                "If you need Twofish on Pi, install/fix it in this interpreter: "
+                f"{sys.executable} -m pip install twofish"
+            )
+        else:
+            print(
+                "[warning] Twofish indisponible dans cet environnement Python. "
+                f"Interpréteur actif: {sys.executable}. "
+                f"Erreur d'import: {twofish_error}. "
+                "Installez avec cet interpréteur: "
+                f"{sys.executable} -m pip install twofish"
+            )
         matrix = [entry for entry in EXPERIMENT_MATRIX if entry[0] != "Twofish"]
 
     scheduled_algorithms = sorted({entry[0] for entry in matrix})

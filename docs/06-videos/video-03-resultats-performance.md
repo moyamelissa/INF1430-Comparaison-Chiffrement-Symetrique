@@ -1,46 +1,43 @@
-﻿# Vidéo 3 - Résultats de performance
+﻿# Vidéo 3 - Génération des graphes par le code
 
-## Introduction (ouverture caméra)
+## Intro - Objectif et périmètre de démonstration
+**Où sommes-nous**
+Présentation PowerPoint - Diapo 04c
+
 **Texte à lire**
-Bonjour et bienvenue dans cette troisième vidéo, qui a pour but de présenter et d'interpréter les résultats de performance de notre campagne expérimentale.
+Bonjour et bienvenue dans cette troisième vidéo, qui a pour but de montrer comment les graphiques sont générés automatiquement à partir de notre code et de nos mesures.
 
-Dans les vidéos précédentes, on a posé les bases: la validation fonctionnelle des algorithmes et la méthode de mesure. Maintenant, on répond à la vraie question, celle qui nous intéresse depuis le début: qu'est-ce qui explique les écarts de débit entre les algorithmes, entre les modes d'opération, et entre les plateformes x86 et ARM?
+On commence avec la diapo 04c pour visualiser la chaîne complète, du lancement de la campagne jusqu'au CSV de sortie.
 
-On va d'abord passer par le code pour comprendre d'où viennent exactement les graphiques que vous allez voir. Je vais vous montrer comment le pipeline génère automatiquement chaque figure à partir des données brutes, pour qu'on puisse lire les résultats avec confiance.
+Sur cette diapo, on lit le pipeline de gauche à droite.
 
-Ensuite, on va parcourir les graphiques obtenus, section par section, pour analyser l'effet de la taille des messages, l'impact des modes de chiffrement, la vulnérabilité visuelle d'ECB, et les écarts inter-plateformes entre x86 et le Raspberry Pi.
+À gauche, on regarde le bloc `experiment.py`. La flèche `instancie` indique que ce script crée les objets nécessaires au calcul, notamment le contrôleur et les composants de chiffrement.
 
-À la fin de cette vidéo, vous aurez une image claire et justifiée de ce qui détermine réellement la performance en chiffrement symétrique.
+Au centre, on regarde les blocs de calcul performance et robustesse. La flèche `retourne` indique que ces fonctions renvoient un résultat structuré après chaque mesure. Le bloc performance correspond à la méthode `run_performance()`, qui calcule notamment le débit et l'intervalle de confiance à 95 %. Le bloc robustesse correspond aux méthodes `measure_avalanche()` et `measure_key_avalanche()`, qui mesurent l'effet d'une inversion d'un seul bit, de 0 vers 1 ou de 1 vers 0, côté texte clair et côté clé.
 
-## Objectif
-Interpréter rigoureusement les performances en reliant chaque écart à trois facteurs, soit l'algorithme, le mode d'opération et l'architecture matérielle.
+À droite, on regarde le bloc d'export. Les résultats renvoyés sont écrits dans un fichier CSV `experiment_YYYYMMDD.csv`, via la structure `ExperimentResult`, avec une ligne par configuration mesurée.
 
-## Portée
-- `scripts/run_charts.py`
-- `scripts/chart_pipeline/build_performance.py`
-- `scripts/chart_pipeline/build_platform_comparison.py`
-- `data/results/laptop-windows-x86_experience1.csv`
-- `data/results/laptop-windows-x86_experience2.csv`
-- `data/results/laptop-windows-x86_experience3.csv`
-- `data/results/raspberry-pi_experience1.csv`
-- `data/results/raspberry-pi_experience2.csv`
-- `data/results/raspberry-pi_experience3.csv`
-- `data/charts/01-debit/comparaison-debit-global.png`
-- `data/charts/01-debit/debit-vs-taille-message.png`
-- `data/charts/01-debit/debit-40960-x86.png`
-- `data/charts/01-debit/comparaison-ratio-acceleration.png`
-- `data/charts/03-modes-chiffrement/aes-comparaison-modes.png`
-- `data/charts/03-modes-chiffrement/vulnerabilite-mode-ecb.png`
-- `data/charts/01-debit/chacha20-comparaison-plateformes.png`
+Donc la logique de la diapo est simple et traçable: on lance, on mesure, puis on exporte.
 
-## Guide d'enregistrement
+Le point important, ce n'est pas seulement le flux, c'est la séparation des responsabilités. `experiment.py` orchestre, `ExperimentController` calcule, puis l'export sérialise. Cette séparation réduit les erreurs silencieuses et permet de diagnostiquer rapidement où un problème apparaît.
 
-### Section 1 - Traçabilité des graphes
+En pratique, pendant la démo, on vérifie trois choses qui donnent de la confiance. Premièrement, le script lance bien toutes les configurations prévues. Deuxièmement, les fonctions de mesure retournent des champs cohérents, par exemple débit, avalanche et intervalle de confiance à 95 %. Troisièmement, l'export final écrit un CSV complet et exploitable par le pipeline de graphes.
+
+Pourquoi c'est essentiel? Parce que si une seule de ces trois étapes est incomplète, les graphes peuvent être visuellement corrects mais scientifiquement incomplets. L'objectif de la vidéo est donc de prouver la fiabilité de la chaîne, pas seulement de montrer des images.
+
+Ensuite, on va explorer quelques parties du code pour comprendre clairement le processus de génération.
+
+Et finalement, on va terminer avec une démonstration en direct dans le terminal.
+
+À la fin de cette vidéo, vous aurez une vue claire, simple et traçable de la génération des graphiques.
+
+
+### Intro - Traçabilité de la chaîne de génération
 **Où sommes-nous**
 VS Code sur `scripts/run_charts.py`, puis `scripts/chart_pipeline/` et `data/charts/`.
 
 **Texte à lire**
-Avant d'interpréter les chiffres, on confirme la traçabilité. Les figures ne sont pas dessinées manuellement. Elles sont générées automatiquement à partir des CSV de mesure.
+Avant de montrer les sorties, on confirme la traçabilité. Les figures ne sont pas dessinées manuellement. Elles sont générées automatiquement à partir des CSV de mesure.
 
 Le point d'entrée est `scripts/run_charts.py`. Ce script orchestre la génération des dossiers de sortie et délègue le rendu aux modules de `scripts/chart_pipeline/`.
 
@@ -58,10 +55,91 @@ Quand on lance le script run_charts.py avec l'argument 01, il appelle la fonctio
 
 Cette architecture garantit une narration reproductible, parce que chaque conclusion est rattachée à une source mesurée et à une image générée automatiquement.
 
-Pour rendre ça concret, je vais maintenant montrer trois extraits de code qui illustrent chacune de ces étapes.
+Pour rendre ça concret, je vais maintenant montrer trois extraits de code qui illustrent la chaîne complète, de la mesure brute jusqu'au graphique final.
 
-## Code 1
-Premièrement, je vais vous montrer un extrait de `scripts/run_charts.py`, parce que c'est lui qui reçoit l'argument de lancement et qui oriente la génération vers la bonne fonction.
+## Code 1 - Production des mesures et export CSV
+Premièrement, je vais vous montrer un extrait de `scripts/experiment.py`, parce que c'est lui qui exécute réellement les campagnes de mesure et qui écrit les CSV sources.
+
+```python
+# scripts/experiment.py
+EXPERIMENT_MATRIX = [
+    ("AES", AES, "ECB", ECB, [16, 24, 32]),
+    ("AES", AES, "CBC", CBC, [16, 24, 32]),
+    ...
+]
+
+for algo, primitive_cls, mode_label, mode_cls, key_sizes in matrix:
+    ...
+    result = controller.run_performance(...)
+    results.append(result)
+
+all_algorithms_ok = _print_run_summary(run_stats)
+out_path = _output_path()
+```
+
+Ici, `EXPERIMENT_MATRIX` est une variable de configuration au niveau du fichier `scripts/experiment.py`. Cette liste définit explicitement les algorithmes, les modes et les tailles de clé qui doivent être exécutés. Cette structure fixe le périmètre de mesure avant même de parler de graphiques.
+
+Ensuite, la boucle principale parcourt cette variable de configuration et appelle `controller.run_performance(...)`, qui est une méthode de l'objet `controller` de la classe `ExperimentController`. Chaque mesure est ajoutée à la variable liste `results`, ce qui construit progressivement le jeu de données brut.
+
+```python
+with open(out_path, "w", newline="", encoding="utf-8") as f:
+    writer = csv.DictWriter(f, fieldnames=fieldnames)
+    writer.writeheader()
+    for r in results:
+        writer.writerow(asdict(r))
+```
+
+Finalement, ce bloc écrit les résultats dans un CSV traçable. `csv.DictWriter` est une classe de la bibliothèque standard, `writeheader()` et `writerow()` sont des méthodes d'écriture CSV, et `asdict()` est une fonction qui convertit un objet de données en dictionnaire. On montre ce passage pour ancrer l'idée clé de la vidéo: les figures ne viennent pas d'une saisie manuelle, elles viennent d'un export mesuré.
+
+```python
+if not all_algorithms_ok:
+    return 1
+```
+
+Enfin, on montre cette condition pour rendre explicite la robustesse d'exécution: `all_algorithms_ok` est une variable booléenne calculée par la fonction `_print_run_summary()`, et `return 1` est le code de sortie d'échec du script.
+
+Au final, `experiment.py` joue bien le rôle de producteur de vérité expérimentale, car il exécute, contrôle et exporte les mesures sources.
+
+## Code 2 - Calcul des métriques dans le contrôleur
+Deuxièmement, je vais vous montrer un extrait du fichier `application/ExperimentController.py`, parce que c'est lui qui calcule les métriques de performance et de robustesse utilisées ensuite dans les CSV.
+
+On commence par montrer le bloc de `run_performance`, qui est une méthode de la classe `ExperimentController`, parce qu'il contient le chronométrage et le calcul du débit.
+
+```python
+# application/ExperimentController.py
+def run_performance(...):
+    plaintext = os.urandom(message_size_bytes)
+    ...
+    t0 = time.perf_counter()
+    ct = self._engine.encrypt(plaintext)
+    ...
+    throughput_encrypt_mbps = mb / avg_enc
+```
+
+Ici, `time.perf_counter()` est une fonction du module standard `time` qui sert au chronométrage précis et encadre uniquement l'appel cryptographique. Dans ce bloc, `self._engine.encrypt(...)` est une méthode de l'objet moteur de chiffrement, et `throughput_encrypt_mbps` est une variable numérique calculée en MB/s à partir du temps moyen, pour obtenir une métrique comparable entre tailles de messages et plateformes.
+
+On montre ce code pour relier directement le graphe de débit à sa formule de calcul, pas seulement à son affichage.
+
+```python
+return ExperimentResult(
+    ...
+    avalanche_score=self.measure_avalanche(),
+    key_avalanche_score=self.measure_key_avalanche(),
+    ci95_encrypt_mbps=ci95_enc,
+)
+```
+
+Ensuite, ce retour de `ExperimentResult` regroupe toutes les métriques clés dans une structure unique. Ici, `ExperimentResult` est une classe de données définie dans `application/ExperimentController.py`, et `measure_avalanche()` ainsi que `measure_key_avalanche()` sont des méthodes de la même classe. Cela simplifie l'export CSV et garantit une correspondance stable avec les colonnes de sortie.
+
+Enfin, on montre ce passage pour souligner que l'avalanche, la sensibilité clé et l'intervalle de confiance à 95 % sont produits au moment de la mesure, et non ajoutés plus tard dans la phase de visualisation.
+
+Au final, `ExperimentController.py` joue bien le rôle de noyau scientifique, car il transforme les exécutions cryptographiques en métriques exploitables.
+
+## Code 3 - Orchestration et rendu des graphiques
+
+Troisièmement, je vais vous montrer la partie pipeline de rendu, parce qu'elle prend les CSV mesurés et les transforme en figures traçables.
+
+Ce troisième extrait joue le rôle de couche de transformation et de sortie. Son objectif est simple, sélectionner les bonnes sources, agréger proprement, puis enregistrer les figures de façon standardisée.
 
 ```python
 # scripts/run_charts.py
@@ -70,39 +148,7 @@ def _generate_01_debit() -> None:
     platform_cmp.generate_groups(["01-debit"])
 ```
 
-Ici, `_generate_01_debit()` est la fonction d'orchestration de la cible `01`. Son rôle est de transformer une cible de lancement en un plan d'exécution concret. Elle ne produit pas elle-même les figures. Elle appelle d'abord la fonction `generate_groups` du module `perf`, avec l'argument `01-debit`, pour générer les graphiques de débit à partir des données préparées. Ensuite, elle appelle la fonction `generate_groups` du module `platform_cmp`, avec ce même argument, pour générer les graphiques de comparaison entre plateformes.
-
-On montre ce code pour mettre en évidence le contrat du pipeline, car une cible donnée correspond toujours au même ensemble d'actions. Quand on choisit `01`, le programme sait exactement quels groupes de graphiques doivent être lancés. Il n'y a donc ni sélection manuelle ni ambiguïté sur la sortie produite.
-
-```python
-TARGETS = {
-    "01": _generate_01_debit,
-    "02": _generate_02_effet_avalanche,
-    "03": _generate_03_modes_chiffrement,
-    "04": _generate_04_synthese,
-}
-```
-
-Ici, `TARGETS` est un dictionnaire de correspondance, avec une structure clé vers fonction. La clé est l'identifiant de cible lu en argument au lancement du script, et la valeur est la fonction d'orchestration à exécuter. Par exemple, la clé `"01"` est associée à la fonction `_generate_01_debit()`, qui déclenche ensuite la génération des graphiques de débit et de comparaison entre plateformes. De la même manière, `"02"` appelle la fonction de l'effet avalanche, `"03"` celle des modes de chiffrement, et `"04"` celle de la synthèse.
-
-```python
-def main(argv: list[str]) -> int:
-    ...
-    for key in ordered:
-        TARGETS[key]()
-```
-
-Enfin, on montre cet extrait de code pour visualiser le moment exact où la cible choisie devient une exécution concrète dans le pipeline.
-
-Premièrement, à la ligne 62, on a l'entrée de `main()`, qui reçoit les arguments de lancement et prépare la sélection de cible. Ensuite, à la ligne 82, on a la boucle sur les clés à exécuter, avec `for key in ordered`. Finalement, à la ligne 84, on a la résolution clé vers fonction et l'appel, avec `TARGETS[key]()`, ce qui déclenche la bonne fonction d'orchestration pour chaque cible.
-
-Au final, `run_charts.py` joue bien le rôle de routeur d'exécution, car il prend une cible en entrée et lance automatiquement le bon sous-ensemble de génération.
-
-## Code 2
-
-Deuxièmement, je vais vous montrer un extrait du fichier `scripts/chart_pipeline/data_performance.py`, parce que c'est lui qui sélectionne les sources CSV du laptop sous Windows et qui prépare les données avant le tracé. Ici, on traite uniquement le laptop sous Windows pour isoler l'analyse intra-plateforme, tandis que la comparaison avec le Raspberry Pi est gérée séparément dans le pipeline inter-plateformes.
-
-On commence par montrer le bloc des lignes 48 à 57, parce qu’il explique la règle de sélection des sources du laptop sous Windows. Il parcourt les fichiers CSV disponibles, applique un filtre, trie la liste, puis retient tous les fichiers du laptop sous Windows utiles au calcul.
+Ici, `_generate_01_debit()` est une fonction d'orchestration dans le fichier `scripts/run_charts.py`. Elle appelle `generate_groups(...)`, qui est une fonction exposée par les modules `perf` et `platform_cmp`, pour déclencher les figures de débit x86 et les comparaisons inter-plateformes. On montre ce bloc pour rappeler où la génération des graphes est pilotée.
 
 ```python
 # scripts/chart_pipeline/data_performance.py
@@ -115,43 +161,7 @@ def x86_results_csvs() -> list[Path]:
     return csvs
 ```
 
-Ici, l'objectif est simple, montrer comment les sources CSV du laptop sous Windows sont choisies de façon traçable. À la ligne 48, `x86_results_csvs()` est la fonction utilitaire qui centralise cette sélection. Aux lignes 50 à 54, la variable `csvs` est construite à partir de `RESULTS_DIR.iterdir()`. Le filtre garde seulement les fichiers `.csv`, exclut `.gitkeep` et conserve les noms du laptop sous Windows, puis `sorted()` trie la liste. Enfin, à la ligne 57, `return csvs` retourne l'ensemble des fichiers retenus pour la suite du pipeline.
-
-On montre ce bloc pour justifier la traçabilité de la source, parce qu'avant même de tracer un graphe, on sait exactement quels fichiers CSV sont sélectionnés et selon quelle règle.
-
-```python
-def load_latest_rows() -> tuple[list[Path], list[Row]]:
-    paths = x86_results_csvs()
-    all_rows: list[Row] = []
-    for csv_path in paths:
-        with csv_path.open(newline="", encoding="utf-8") as handle:
-            reader = csv.DictReader(handle)
-            for row in reader:
-                all_rows.append({
-                    "algorithm": row["algorithm"],
-                    "message_size_bytes": int(row["message_size_bytes"]),
-                    "throughput_enc_mbps": float(row["throughput_encrypt_mbps"]),
-                })
-    return paths, _average_rows(all_rows)
-```
-Ensuite, on va explorer le bloc des lignes 85 à 110, parce qu’il décrit le flux complet de préparation des données avant le tracé.
-Il ouvre chaque CSV sélectionné, lit chaque ligne, normalise les types numériques, puis retourne à la fois la liste des sources utilisées et les données moyennées prêtes pour les graphiques.
-
-Premièrement, à la ligne 85, on a la déclaration de `load_latest_rows()`, qui est la fonction de lecture et de normalisation. Ensuite, à la ligne 91, `paths = x86_results_csvs()` récupère les chemins des CSV sélectionnés, puis à la ligne 92, `all_rows` est initialisée comme liste de dictionnaires pour stocker les mesures.
-
-Ensuite, à la ligne 93, la boucle `for csv_path in paths` parcourt chaque fichier, à la ligne 94, `csv_path.open()` est la méthode d'ouverture du fichier, et à la ligne 95, `csv.DictReader` est la classe de la bibliothèque `csv` qui lit chaque ligne sous forme de dictionnaire. Puis, dans le bloc des lignes 100 à 108, on convertit les champs texte du CSV en types numériques cohérents avant l'agrégation. Par exemple, à la ligne 102, `int` convertit `message_size_bytes` en entier, et à la ligne 105, `_to_float` convertit `throughput_encrypt_mbps` en nombre décimal. C'est important, car sans ces conversions, les calculs de moyenne et les comparaisons de débit peuvent devenir incohérents.
-
-Finalement, à la ligne 110, `return paths, _average_rows(all_rows)` retourne à la fois la liste des sources exactes et les données déjà moyennées pour le tracé.
-
-Enfin, on montre cet extrait pour visualiser où la préparation des données est centralisée avant l'étape de rendu.
-
-Au final, `data_performance.py` garantit que les modules de tracé reçoivent des données propres, typées et traçables.
-
-## Code 3
-
-Troisièmement, je vais vous montrer un extrait du fichier `scripts/chart_pipeline/build_performance.py`, parce que c'est lui qui affiche les sources réellement utilisées et qui standardise l'export des figures.
-
-Ce troisième extrait joue le rôle de couche de sortie. Son objectif est simple, garder la trace de la source utilisée et enregistrer toutes les figures avec le même format visuel.
+Ensuite, cette fonction `x86_results_csvs()` centralise la sélection des sources x86. C'est une fonction utilitaire du fichier `data_performance.py`; elle lit le dossier indiqué par la variable de chemin `RESULTS_DIR`, applique une règle explicite de filtrage et retourne une liste ordonnée. On montre ce bloc pour prouver que la lecture des CSV est déterministe et traçable.
 
 ```python
 # scripts/chart_pipeline/build_performance.py
@@ -159,155 +169,37 @@ CSV_PATHS, rows = load_latest_rows()
 print(f"Fichiers x86 lus ({len(CSV_PATHS)}) : {', '.join(p.name for p in CSV_PATHS)}")
 ```
 
-À la ligne 54, `CSV_PATHS` est une variable qui contient la liste des chemins réellement lus et `rows` est la liste des données prêtes à tracer, tous deux retournés par la fonction `load_latest_rows()`. À la ligne 55, `print()` est une fonction d'affichage qui écrit ces sources dans le terminal.
+Dans ce bloc, `CSV_PATHS` est une variable qui contient la liste des chemins réellement lus et `rows` est une variable liste des données prêtes à tracer, tous deux retournés par la fonction `load_latest_rows()`. La fonction `print()` écrit ces sources dans le terminal.
 
 ```python
 def savefig(name: str):
     save_figure(plt.gcf(), CHARTS_DIR, name, facecolor=BG_COLOR)
 ```
 
-À la ligne 62, `savefig()` est une fonction locale d'export qui appelle `save_figure()`, une fonction utilitaire de sauvegarde. À la ligne 63, `plt.gcf()` est une méthode Matplotlib qui récupère la figure courante, `CHARTS_DIR` est la variable de chemin du dossier de sortie, et `BG_COLOR` est la variable de style qui fixe la couleur de fond.
+Ici, `savefig()` est une fonction locale d'export qui appelle `save_figure()`, une fonction utilitaire de sauvegarde. `plt.gcf()` est une fonction de l'API Matplotlib qui récupère la figure courante, `CHARTS_DIR` est une variable de chemin du dossier de sortie, et `BG_COLOR` est une variable de style qui fixe la couleur de fond.
 
-Concrètement, ce bloc montre que chaque figure suit le même chemin, de la lecture des données jusqu'à l'enregistrement final. C'est ce qui rend le rapport cohérent d'une figure à l'autre.
+Concrètement, ces blocs montrent que chaque figure suit le même chemin, des CSV mesurés jusqu'à l'enregistrement final. C'est ce qui rend le rapport cohérent d'une figure à l'autre.
 
 
-# Démonstration dans le terminal
+## Démo - Exécution complète et validation des sorties
 Je vais maintenant passer à une vérification en conditions réelles, dans le terminal, pour observer directement quelles sources sont chargées et quelles sorties sont produites.
 
 ```bash
 cd crypto-experiments
+python scripts/experiment.py
 python scripts/run_charts.py 01
 python scripts/run_charts.py 03
 ```
 
 **Texte à lire pendant la commande**
-Dans le terminal, je me place d'abord dans le dossier `crypto-experiments` avec la commande `cd crypto-experiments`. Ensuite, je lance `python scripts/run_charts.py 01` pour exécuter la cible orientée débit.
+Dans le terminal, je me place d'abord dans le dossier `crypto-experiments` avec la commande `cd crypto-experiments`. Ensuite, je lance `python scripts/experiment.py` pour exécuter la campagne de mesure et générer les CSV.
+
+À l'écran, on voit les lignes `Running ...`, puis le tableau `Run summary by algorithm`, puis le chemin du fichier CSV exporté. Cette étape confirme que les données sources sont effectivement produites par le protocole.
+
+Je lance ensuite `python scripts/run_charts.py 01` pour exécuter la cible orientée débit.
 
 À l'écran, on voit d'abord `Sources x86 (...)`, ce qui permet d'identifier immédiatement toutes les sources utilisées côté laptop Windows. Ensuite, on voit `Sources Raspberry Pi (...)`, ce qui confirme les sources utilisées pour la comparaison inter-plateformes. Enfin, on voit les fichiers enregistrés avec leurs chemins complets, ce qui confirme exactement où les sorties orientées débit sont écrites.
 
 Je lance ensuite `python scripts/run_charts.py 03` pour exécuter la cible orientée modes de chiffrement. Là encore, le terminal affiche les sources utilisées et les fichiers générés, ce qui permet de vérifier que cette deuxième cible active bien le bon sous-ensemble du pipeline.
 
-Au final, cette démonstration montre que le pipeline part bien des bonnes sources, applique automatiquement la bonne logique selon la cible choisie, puis écrit les sorties au bon endroit.
-
-**Transition**
-Maintenant que la chaîne de production est claire, on passe à la lecture des débits.
-
-### Section 2 - Débit selon la taille du message
-**Visuel à montrer**
-`data/charts/01-debit/comparaison-debit-global.png`
-
-**Texte à lire**
-On commence par la vue d'ensemble du débit global entre x86 et ARM. Ce graphique compare, pour chaque algorithme, le débit mesuré sur le laptop x86 et sur le Raspberry Pi ARM.
-
-Le message principal est immédiat. AES domine sur x86 avec un écart marqué, ce qui est cohérent avec l'accélération matérielle AES-NI. ChaCha20 reste performant sur les deux plateformes et montre un comportement plus régulier. À l'inverse, 3DES présente un écart inter-plateforme plus faible, mais à un niveau de débit globalement bas.
-
-Cette hiérarchie ne vient donc pas uniquement de l'algorithme, mais aussi de l'architecture d'exécution, en particulier du support matériel disponible sur x86.
-
-Cette première lecture donne la hiérarchie générale. Ensuite, on va expliquer pourquoi cette hiérarchie peut évoluer selon la taille des messages.
-
-**Transition**
-Après cette vue d'ensemble inter-plateformes, on analyse l'effet de la taille du message.
-
-### Section 3 - Débit selon la taille du message
-**Visuel à montrer**
-`data/charts/01-debit/debit-vs-taille-message.png`
-
-**Texte à lire**
-Ce graphe montre l'évolution du débit quand la taille du message augmente. Sur les petites tailles, le coût fixe pèse fortement. Quand la taille augmente, ce coût est amorti, et le débit utile se stabilise.
-
-On voit aussi que AES confirme sa position, avec la montée la plus nette quand la taille augmente, surtout côté x86. DES, 3DES et Twofish progressent aussi avec la taille, mais restent nettement derrière sur toute la plage.
-
-L'explication est simple: quand la taille augmente, le coût fixe de lancement est amorti, donc le débit observé reflète davantage le coût réel par bloc et met mieux en valeur les implémentations les plus optimisées.
-
-Le point important est méthodologique, car un algorithme moyen à 64 octets peut devenir compétitif à 4096 ou 16384 octets. C'est pourquoi notre protocole couvre plusieurs tailles de message.
-
-**Transition**
-Après la tendance globale selon la taille, on fixe une taille de référence pour comparer plus clairement.
-
-### Section 4 - Impact du mode d'opération sur le débit (AES-128)
-**Visuel à montrer**
-`data/charts/03-modes-chiffrement/aes-comparaison-modes.png`
-
-**Texte à lire**
-Ici, on fixe l'algorithme à AES-128, puis on compare uniquement l'effet du mode d'opération sur le débit. On a choisi AES-128 parce que c'est une version standard, très utilisée, et suffisante pour comparer proprement les modes sans mélanger l'effet de la taille de clé.
-
-La lecture des courbes est nette. ECB reste le plus rapide sur toutes les tailles de message, avec une montée très forte quand la taille augmente.
-
-Pourquoi ECB est devant? Parce que c'est le mode le plus simple sur le plan opérationnel. Chaque bloc est chiffré indépendamment, sans chaînage avec le bloc précédent, sans compteur à maintenir et sans étape d'authentification. Donc il y a moins d'opérations par bloc et moins de dépendances entre blocs, ce qui favorise le débit brut.
-
-GCM arrive ensuite, avec un débit inférieur à ECB, ce qui est attendu parce qu'il ajoute l'authentification en plus du chiffrement. CTR progresse de manière plus modérée, alors que CBC reste le plus limité dans ces mesures, notamment à cause du chaînage qui introduit plus de dépendances dans le traitement.
-
-**Transition**
-Après la lecture du débit, on explicite le compromis sécurité-performance des mêmes modes.
-
-### Section 5 - Vulnérabilité ECB — sécurité vs performance
-**Visuel à montrer**
-`data/charts/03-modes-chiffrement/vulnerabilite-mode-ecb.png`
-
-**Texte à lire**
-Ici, on ne compare plus le débit, on compare la sécurité visuelle des modes. On réutilise AES-128 parce que c'est une base standard, simple à lire, et que cela permet de garder la même clé et le même algorithme pendant qu'on change seulement le mode.
-
-Ce qu'on a fait, très simplement, c'est le suivant. D'abord, on a construit une image de test en code, pas une photo réelle. Cette image contient de grandes zones uniformes et des formes très répétitives, pour que les motifs soient faciles à voir.
-
-Ensuite, on a pris exactement cette même image et on l'a chiffrée deux fois avec AES-128, parce que c'est notre base commune pour comparer les modes dans des conditions simples et standard. Une première fois en ECB, une deuxième fois en CBC. La clé reste la même dans les deux cas, donc la seule différence vient du mode de chiffrement.
-
-Avec ECB, chaque bloc est chiffré séparément, c'est-à-dire que le chiffrement d'un bloc ne tient pas compte des blocs avant lui. Donc si deux blocs clairs sont identiques, les blocs chiffrés le restent aussi. C'est pour ça que les bandes et les formes de l'image originale réapparaissent encore dans le résultat.
-
-Avec CBC, chaque bloc dépend du bloc précédent, c'est-à-dire qu'avant de chiffrer le bloc courant, on le mélange avec le résultat du bloc d'avant. Même si deux zones de départ se ressemblent, le résultat chiffré change davantage. La structure visuelle disparaît donc beaucoup plus vite, et l'image ressemble davantage à du bruit.
-
-Le message à retenir est très simple: ECB est rapide, mais il laisse voir les motifs. CBC est un peu plus lourd, mais il cache beaucoup mieux la structure. Donc, si on veut protéger des données qui ont une forme reconnaissable, CBC est le bon choix.
-
-**Transition**
-Après cette démonstration visuelle, on revient aux écarts de performance entre plateformes.
-
-### Section 6 - ChaCha20 sur ARM — portabilité sans compromis
-**Visuel à montrer**
-`data/charts/01-debit/chacha20-comparaison-plateformes.png`
-
-**Texte à lire**
-Ici, on compare ChaCha20 sur x86 et sur ARM. L'idée est simple, il ne dépend pas d'une accélération matérielle spéciale comme AES avec AES-NI.
-
-Les deux courbes montent de manière assez parallèle. Quand la taille du message augmente, le débit augmente aussi, et l'écart entre les deux plateformes reste plus limité que pour AES.
-
-Si le Raspberry Pi reste en dessous du laptop x86, c'est surtout parce qu'il est moins puissant en général, avec un processeur plus lent et moins de marge pour traiter de gros volumes.
-
-Le point à retenir, c'est que ChaCha20 est très portable, parce qu'il repose surtout sur des opérations simples bien supportées partout, comme additions, XOR et rotations, sans dépendre d'une extension dédiée de type AES-NI. Il garde donc de bonnes performances sur ARM comme sur x86, ce qui en fait un choix intéressant quand on veut un comportement régulier sur des machines différentes.
-
-**Transition**
-Après ChaCha20, on revient à l'effet matériel pour expliquer pourquoi AES peut encore creuser l'écart sur x86.
-
-### Section 7 - Effet plateforme: ratio d'accélération x86 vs ARM
-**Visuel à montrer**
-`data/charts/01-debit/comparaison-ratio-acceleration.png`
-
-**Texte à lire**
-Dans cette dernière figure, on résume l'écart entre x86 et ARM avec un indicateur unique, le ratio de débit x86 sur Pi.
-
-La ligne pointillée à 1 représente des performances égales. Plus la barre monte au-dessus de 1, plus l'avantage va à x86.
-
-On lit tout de suite les extrêmes. AES affiche un ratio de 4,08x, ce qui veut dire que le laptop x86 chiffre plus de quatre fois plus vite que le Raspberry Pi pour le même algorithme. Cet écart est aussi élevé parce que AES profite de l'extension AES-NI sur x86, une accélération matérielle absente sur le Pi. ChaCha20 est à 1,61x, donc x86 est environ une fois et demie plus rapide que le Pi, mais l'écart est beaucoup plus contenu parce que ChaCha20 ne dépend pas d'une telle extension.
-
-Entre les deux, on trouve DES à 1,98x, 3DES à 1,27x et Twofish à 2,26x.
-
-Twofish est plus haut que DES et 3DES parce qu'il est un algorithme structurellement plus complexe, avec des tables de substitution dépendantes de la clé, une matrice de diffusion et un calendrier de clés plus lourd. Ces opérations profitent davantage des caches plus grands et des unités d'exécution plus larges du processeur x86, ce qui creuse plus l'écart avec le Pi.
-
-À l'inverse, 3DES affiche le ratio le plus bas après ChaCha20, à 1,27x. Cela s'explique parce que 3DES est intrinsèquement lent sur les deux plateformes, il applique DES trois fois de suite de façon séquentielle. La lenteur est structurelle, donc les deux machines se retrouvent proportionnellement plus proches.
-
-Le message final est clair. Le débit ne dépend pas seulement de l'algorithme en théorie, il dépend aussi de la machine qui l'exécute.
-
-**Transition**
-Après cette dernière slide des résultats de performance, on peut conclure sur les trois facteurs qui expliquent les écarts observés.
-
-### Section 8 - Conclusion vidéo 3
-**Texte à lire**
-Ce qu'on retient de cette vidéo, c'est que la performance en chiffrement symétrique n'a pas une seule cause. Elle est le résultat de trois facteurs qui se combinent.
-
-Le premier, c'est l'algorithme lui-même. AES est plus rapide que DES, 3DES ou Twofish, pas seulement parce qu'il est moderne, mais parce qu'il a été conçu pour être efficace en logiciel et en matériel.
-
-Le deuxième, c'est le mode d'opération. À algorithme identique, ECB est plus rapide que GCM ou CBC, parce qu'il fait moins d'opérations par bloc. Mais cette rapidité a un coût, ECB est aussi le mode le moins sûr. Le bon choix, c'est GCM, qui offre chiffrement et authentification avec un surcoût acceptable.
-
-Le troisième, c'est l'architecture matérielle. AES sur x86 avec AES-NI affiche un ratio de 4,08x par rapport au Raspberry Pi, alors que ChaCha20 n'est qu'à 1,61x. Ce n'est pas AES qui est meilleur sur toutes les machines, c'est que x86 lui donne un avantage structurel que les autres algorithmes n'ont pas.
-
-Donc, si on devait choisir un algorithme pour un système réel, on dirait AES-GCM sur x86 pour la performance maximale et la sécurité, ou ChaCha20 sur ARM pour un comportement stable et prévisible sans dépendance matérielle.
-
-Dans la vidéo suivante, on complète cette lecture avec la robustesse cryptographique, l'effet d'avalanche et la stabilité statistique.
+Au final, cette démonstration montre la chaîne complète: mesure d'abord, export CSV ensuite, génération des figures enfin.
