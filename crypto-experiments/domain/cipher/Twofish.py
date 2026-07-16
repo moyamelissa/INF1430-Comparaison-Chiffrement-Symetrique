@@ -42,9 +42,16 @@ class Twofish(CipherPrimitive):
         try:
             from twofish import Twofish as _Twofish  # type: ignore[import]
         except ImportError as exc:
+            # Distinguish between a missing dependency and an internal failure in
+            # the dependency itself (e.g. incompatibility with Python runtime).
+            if getattr(exc, "name", None) == "twofish":
+                raise ImportError(
+                    "The 'twofish' package is required for Twofish support. "
+                    "Install it with: python -m pip install twofish"
+                ) from exc
             raise ImportError(
-                "The 'twofish' package is required for Twofish support. "
-                "Install it with: pip install twofish"
+                "Failed to import the 'twofish' package dependency. "
+                f"Original import error: {exc}"
             ) from exc
 
         self._key = key

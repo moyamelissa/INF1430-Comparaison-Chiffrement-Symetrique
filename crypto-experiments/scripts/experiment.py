@@ -90,13 +90,13 @@ def _output_path() -> str:
     return os.path.join(out_dir, f"experiment_{ts}.csv")
 
 
-def _twofish_available() -> bool:
-    """Retourne True si la dépendance Twofish est utilisable dans ce runtime."""
+def _twofish_import_error() -> str | None:
+    """Retourne l'erreur d'import Twofish, ou None si l'import réussit."""
     try:
         import twofish  # noqa: F401
-        return True
-    except Exception:
-        return False
+        return None
+    except Exception as exc:  # noqa: BLE001
+        return str(exc)
 
 
 # ------------------------------------------------------------------ #
@@ -107,10 +107,14 @@ def main() -> None:
     results = []
 
     matrix = EXPERIMENT_MATRIX
-    if not _twofish_available():
+    twofish_error = _twofish_import_error()
+    if twofish_error is not None:
         print(
-            "[warning] Twofish indisponible dans cet environnement Python "
-            "(dépendance non compatible). Les cas Twofish sont ignorés."
+            "[warning] Twofish indisponible dans cet environnement Python. "
+            f"Interpréteur actif: {sys.executable}. "
+            f"Erreur d'import: {twofish_error}. "
+            "Installez avec cet interpréteur: "
+            f"{sys.executable} -m pip install twofish"
         )
         matrix = [entry for entry in EXPERIMENT_MATRIX if entry[0] != "Twofish"]
 
