@@ -204,28 +204,19 @@ Au final, ce qu'on retient ici, c'est le rôle précis du script `build_` dans l
 
 
 ## Démo - Exécution complète et validation des sorties
-Je vais maintenant passer à une vérification en conditions réelles, dans le terminal, pour observer directement quelles sources sont chargées et quelles sorties sont produites.
+Je vais maintenant passer à une vérification en conditions réelles, dans le terminal, pour montrer comment `run_charts.py` lit les CSV déjà présents et produit les figures attendues.
 
 ```bash
-cd crypto-experiments
-cd scripts
+cd .\crypto-experiments\scripts
 python .\run_charts.py 01
 python .\run_charts.py 03
 ```
 
 **Texte à lire pendant la commande**
-Dans le terminal, je me place d'abord dans le dossier `crypto-experiments` avec la commande `cd crypto-experiments`. Ensuite, je me place dans le dossier `scripts` avec `cd scripts`, puis je lance `python .\run_charts.py 01` pour générer les figures de débit à partir des CSV déjà présents dans `data/results`.
+Dans le terminal, je me place directement dans le dossier `scripts` avec la commande `cd .\crypto-experiments\scripts`, puis je lance `python .\run_charts.py 01` pour générer les figures de débit à partir des CSV déjà présents dans `data/results`.
 
-À l'écran, on voit d'abord les lignes `Sources x86 (...)`. Ici, on comprend immédiatement quels fichiers ont été lus pour construire les graphiques. C'est intéressant à montrer, parce que cela permet de vérifier, en direct, que le pipeline part bien des bonnes sources avant de tracer quoi que ce soit.
+À l'écran, on voit d'abord les lignes `Sources x86 (...)`. Ici, on comprend immédiatement quels fichiers ont été lus pour construire les graphiques. C'est ce passage qui nous intéresse, parce qu'il montre que le script ne trace rien au hasard et qu'il part bien des bonnes sources.
 
-Après cela, le terminal affiche les images enregistrées avec leurs chemins complets. Cette sortie confirme que le graphe a bien été construit et sauvegardé dans le bon dossier. Puis je lance `python scripts/run_charts.py 03` pour montrer la même logique sur l'autre cible, toujours avec les mêmes sources déjà préparées.
+Après cela, le terminal affiche les images enregistrées avec leurs chemins complets. Cette sortie confirme que le graphe a bien été construit et sauvegardé dans le bon dossier. Puis je lance `python .\run_charts.py 03` pour montrer la même logique sur l'autre cible, avec le même principe de lecture des sources et de génération des sorties.
 
-Petite note pratique à dire pendant la démo. Si un fichier `experiment_YYYYMMDD.csv` existe déjà pour la même date, le script écrit automatiquement `experiment_YYYYMMDD_1.csv`, puis `experiment_YYYYMMDD_2.csv`. C'est simplement une protection pour éviter l'écrasement d'un résultat précédent.
-
-Je lance ensuite `python scripts/run_charts.py 01` pour exécuter la cible orientée débit.
-
-À l'écran, on voit d'abord `Sources x86 (...)`, ce qui permet d'identifier immédiatement toutes les sources utilisées côté laptop Windows. Ensuite, on voit `Sources Raspberry Pi (...)`, ce qui confirme les sources utilisées pour la comparaison inter-plateformes. Enfin, on voit les fichiers enregistrés avec leurs chemins complets, ce qui confirme exactement où les sorties orientées débit sont écrites.
-
-Je lance ensuite `python .\run_charts.py 03` pour exécuter la cible orientée modes de chiffrement. Là encore, le terminal affiche les sources utilisées et les fichiers générés, ce qui permet de vérifier que cette deuxième cible active bien le bon sous-ensemble du pipeline.
-
-Au final, cette démonstration montre la chaîne complète: mesure d'abord, export CSV ensuite, génération des figures enfin.
+Le point important, c'est que cette démonstration ne refait pas la mesure. Elle montre seulement le rôle de `run_charts.py`, qui prend les CSV disponibles, choisit la bonne cible et écrit les figures correspondantes. C'est exactement ce qu'on veut vérifier ici.
