@@ -208,17 +208,16 @@ Je vais maintenant passer à une vérification en conditions réelles, dans le t
 
 ```bash
 cd crypto-experiments
-python scripts/experiment.py
 python scripts/run_charts.py 01
 python scripts/run_charts.py 03
 ```
 
 **Texte à lire pendant la commande**
-Dans le terminal, je me place d'abord dans le dossier `crypto-experiments` avec la commande `cd crypto-experiments`. Ensuite, je lance `python scripts/experiment.py` pour exécuter la campagne de mesure et générer les CSV.
+Dans le terminal, je me place d'abord dans le dossier `crypto-experiments` avec la commande `cd crypto-experiments`. Ensuite, je lance `python scripts/run_charts.py 01` pour générer les figures de débit à partir des CSV déjà présents dans `data/results`.
 
-À l'écran, on voit d'abord les lignes `Running ...`. Par exemple, on peut lire `AES-GCM key=128bit msg=16384B`, puis le temps de chiffrement `enc=0.635ms`, le débit `thr=24.60MB/s` et le score d'avalanche `avalanche=0.500`. C'est utile, parce que chaque ligne nous dit exactement quelle configuration a été exécutée et quelles mesures ont été obtenues pour ce cas précis. Ensuite, on voit d'autres lignes du même type, avec les clés `192bit` et `256bit`, et des tailles de message différentes, ce qui montre bien que la campagne parcourt plusieurs configurations de façon systématique.
+À l'écran, on voit d'abord les lignes `Sources x86 (...)`. Ici, on comprend immédiatement quels fichiers ont été lus pour construire les graphiques. C'est intéressant à montrer, parce que cela permet de vérifier, en direct, que le pipeline part bien des bonnes sources avant de tracer quoi que ce soit.
 
-Après ça, on arrive au tableau `Run summary by algorithm`. Là, on ne relit plus chaque mesure une par une, on regarde plutôt si tous les algorithmes prévus ont bien été exécutés et s'il y a eu des échecs ou des sauts. Enfin, le terminal affiche le chemin du fichier CSV exporté. Cette dernière ligne confirme que toutes ces mesures ont bien été écrites dans un fichier exploitable pour la suite du pipeline.
+Après cela, le terminal affiche les images enregistrées avec leurs chemins complets. Cette sortie confirme que le graphe a bien été construit et sauvegardé dans le bon dossier. Puis je lance `python scripts/run_charts.py 03` pour montrer la même logique sur l'autre cible, toujours avec les mêmes sources déjà préparées.
 
 Petite note pratique à dire pendant la démo. Si un fichier `experiment_YYYYMMDD.csv` existe déjà pour la même date, le script écrit automatiquement `experiment_YYYYMMDD_1.csv`, puis `experiment_YYYYMMDD_2.csv`. C'est simplement une protection pour éviter l'écrasement d'un résultat précédent.
 
