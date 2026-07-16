@@ -15,7 +15,7 @@ Sur cette diapo, on lit le pipeline de gauche à droite.
 
 Au centre, on regarde les blocs de calcul performance et robustesse. La flèche `retourne` indique que ces fonctions renvoient un résultat structuré après chaque mesure. Le bloc performance correspond à la méthode `run_performance()`, qui calcule notamment le débit et l'intervalle de confiance à 95 %. Le bloc robustesse correspond aux méthodes `measure_avalanche()` et `measure_key_avalanche()`, qui mesurent l'effet d'une inversion d'un seul bit, de 0 vers 1 ou de 1 vers 0, côté texte clair et côté clé.
 
-À droite, on regarde le bloc d'export. Les résultats renvoyés sont écrits dans un fichier CSV `experiment_YYYYMMDD.csv`, via la structure `ExperimentResult`, avec une ligne par configuration mesurée.
+À droite, on regarde le bloc d'export. Les résultats renvoyés sont écrits dans un fichier CSV `experiment_YYYYMMDD.csv`, via `ExperimentResult` qui est une classe de données, avec une ligne par configuration mesurée.
 
 Donc la logique de la diapo est simple et traçable: on lance, on mesure, puis on exporte.
 
@@ -77,9 +77,9 @@ all_algorithms_ok = _print_run_summary(run_stats)
 out_path = _output_path()
 ```
 
-Ici, `EXPERIMENT_MATRIX` est une variable de configuration au niveau du fichier `scripts/experiment.py`. Cette liste définit explicitement les algorithmes, les modes et les tailles de clé qui doivent être exécutés. Cette structure fixe le périmètre de mesure avant même de parler de graphiques.
+Ici, à la ligne 55 de `scripts/experiment.py`, `EXPERIMENT_MATRIX` est une variable de configuration. Cette liste définit explicitement les algorithmes, les modes et les tailles de clé qui doivent être exécutés. Cette structure fixe le périmètre de mesure avant même de parler de graphiques.
 
-Ensuite, la boucle principale parcourt cette variable de configuration et appelle `controller.run_performance(...)`, qui est une méthode de l'objet `controller` de la classe `ExperimentController`. Chaque mesure est ajoutée à la variable liste `results`, ce qui construit progressivement le jeu de données brut.
+Ensuite, à la ligne 209, la boucle principale parcourt cette configuration. Puis, à la ligne 237, elle appelle `controller.run_performance(...)`, qui est une méthode de l'objet `controller` de la classe `ExperimentController`. Chaque mesure est ajoutée à la variable liste `results`, ce qui construit progressivement le jeu de données brut.
 
 ```python
 with open(out_path, "w", newline="", encoding="utf-8") as f:
@@ -89,21 +89,21 @@ with open(out_path, "w", newline="", encoding="utf-8") as f:
         writer.writerow(asdict(r))
 ```
 
-Finalement, ce bloc écrit les résultats dans un CSV traçable. `csv.DictWriter` est une classe de la bibliothèque standard, `writeheader()` et `writerow()` sont des méthodes d'écriture CSV, et `asdict()` est une fonction qui convertit un objet de données en dictionnaire. On montre ce passage pour ancrer l'idée clé de la vidéo: les figures ne viennent pas d'une saisie manuelle, elles viennent d'un export mesuré.
+Finalement, à la ligne 261, ce bloc écrit les résultats dans un CSV traçable. `csv.DictWriter` est une classe de la bibliothèque standard, `writeheader()` et `writerow()` sont des méthodes d'écriture CSV, et `asdict()` est une fonction qui convertit un objet de données en dictionnaire. On montre ce passage pour ancrer l'idée clé de la vidéo: les figures ne viennent pas d'une saisie manuelle, elles viennent d'un export mesuré.
 
 ```python
 if not all_algorithms_ok:
     return 1
 ```
 
-Enfin, on montre cette condition pour rendre explicite la robustesse d'exécution: `all_algorithms_ok` est une variable booléenne calculée par la fonction `_print_run_summary()`, et `return 1` est le code de sortie d'échec du script.
+Enfin, à la ligne 268, on montre cette condition pour rendre explicite la robustesse d'exécution: `all_algorithms_ok` est une variable booléenne calculée par la fonction `_print_run_summary()`, et `return 1` est le code de sortie d'échec du script.
 
 Au final, `experiment.py` joue bien le rôle de producteur de vérité expérimentale, car il exécute, contrôle et exporte les mesures sources.
 
 ## Code 2 - Calcul des métriques dans le contrôleur
-Deuxièmement, je vais vous montrer un extrait du fichier `application/ExperimentController.py`, parce que c'est lui qui calcule les métriques de performance et de robustesse utilisées ensuite dans les CSV.
+Deuxièmement, on revient brièvement dans `ExperimentController.py`, non pas pour répéter toute la logique déjà vue, mais pour faire le lien clair entre le calcul interne et ce qu'on observe ensuite dans les graphes.
 
-On commence par montrer le bloc de `run_performance`, qui est une méthode de la classe `ExperimentController`, parce qu'il contient le chronométrage et le calcul du débit.
+Le point clé est la méthode `run_performance`, à la ligne 77 de `application/ExperimentController.py`, parce que c'est exactement à cet endroit que la mesure brute devient une métrique exploitable.
 
 ```python
 # application/ExperimentController.py
@@ -116,9 +116,7 @@ def run_performance(...):
     throughput_encrypt_mbps = mb / avg_enc
 ```
 
-Ici, `time.perf_counter()` est une fonction du module standard `time` qui sert au chronométrage précis et encadre uniquement l'appel cryptographique. Dans ce bloc, `self._engine.encrypt(...)` est une méthode de l'objet moteur de chiffrement, et `throughput_encrypt_mbps` est une variable numérique calculée en MB/s à partir du temps moyen, pour obtenir une métrique comparable entre tailles de messages et plateformes.
-
-On montre ce code pour relier directement le graphe de débit à sa formule de calcul, pas seulement à son affichage.
+Dans ce bloc, l'idée centrale est que le temps est mesuré autour de l'opération cryptographique elle-même. Aux lignes 108 et 117, `time.perf_counter()` qui est une fonction du module `time` encadre le chiffrement de façon précise. Puis, à la ligne 150, `throughput_encrypt_mbps` qui est une variable numérique transforme ce temps en débit. Autrement dit, la valeur affichée dans la figure n'est pas décorative et elle vient d'une formule directement ancrée dans ce code.
 
 ```python
 return ExperimentResult(
@@ -129,17 +127,13 @@ return ExperimentResult(
 )
 ```
 
-Ensuite, ce retour de `ExperimentResult` regroupe toutes les métriques clés dans une structure unique. Ici, `ExperimentResult` est une classe de données définie dans `application/ExperimentController.py`, et `measure_avalanche()` ainsi que `measure_key_avalanche()` sont des méthodes de la même classe. Cela simplifie l'export CSV et garantit une correspondance stable avec les colonnes de sortie.
+Ensuite, à la ligne 142, le retour `ExperimentResult` rassemble les métriques dans une structure unique, et cette structure part ensuite vers le CSV. Ici, `ExperimentResult` est une classe de données. Les appels à `measure_avalanche()` et `measure_key_avalanche()`, qui sont deux méthodes de la classe `ExperimentController`, montrent que la robustesse est calculée dans la même étape que la performance, avec des définitions aux lignes 162 et 213.
 
-Enfin, on montre ce passage pour souligner que l'avalanche, la sensibilité clé et l'intervalle de confiance à 95 % sont produits au moment de la mesure, et non ajoutés plus tard dans la phase de visualisation.
-
-Au final, `ExperimentController.py` joue bien le rôle de noyau scientifique, car il transforme les exécutions cryptographiques en métriques exploitables.
+Concrètement, il faut retenir que les graphes ne créent pas de nouvelles valeurs et qu'ils visualisent des métriques déjà calculées pendant la mesure. Ce passage fait la transition entre la logique de calcul et la phase de génération des figures.
 
 ## Code 3 - Orchestration et rendu des graphiques
 
-Troisièmement, je vais vous montrer la partie pipeline de rendu, parce qu'elle prend les CSV mesurés et les transforme en figures traçables.
-
-Ce troisième extrait joue le rôle de couche de transformation et de sortie. Son objectif est simple, sélectionner les bonnes sources, agréger proprement, puis enregistrer les figures de façon standardisée.
+Troisièmement, on va ouvrir `run_charts.py` ensemble, parce que c'est le fichier script qui pilote toute la génération des graphes quand on lance une commande dans le terminal.
 
 ```python
 # scripts/run_charts.py
@@ -148,7 +142,13 @@ def _generate_01_debit() -> None:
     platform_cmp.generate_groups(["01-debit"])
 ```
 
-Ici, `_generate_01_debit()` est une fonction d'orchestration dans le fichier `scripts/run_charts.py`. Elle appelle `generate_groups(...)`, qui est une fonction exposée par les modules `perf` et `platform_cmp`, pour déclencher les figures de débit x86 et les comparaisons inter-plateformes. On montre ce bloc pour rappeler où la génération des graphes est pilotée.
+Regardez la logique de lecture pendant la vidéo. À la ligne 33, `_generate_01_debit()` est une fonction et son rôle est de lancer le groupe de graphes débit. À la ligne 54, `TARGETS` est une variable dictionnaire qui associe une clé de commande à une fonction. Puis, à la ligne 84, `TARGETS[key]()` exécute réellement la fonction choisie.
+
+Pourquoi on insiste sur ce passage. Parce que c'est lui qui garantit que la commande tapée dans le terminal déclenche le bon sous pipeline, sans ambiguïté et sans intervention manuelle. Quand vous dites à l'écran `python scripts/run_charts.py 01`, vous pouvez expliquer de façon fluide que la clé `01` est lue, qu'elle pointe vers une fonction précise, puis que cette fonction lance exactement les graphes attendus.
+
+## Code 4 - Script `data_` (sélection et agrégation)
+
+Quatrièmement, on passe au script `data_` dans `scripts/chart_pipeline/data_performance.py`, parce que c'est ici que la qualité des graphes se joue vraiment. Avant de tracer quoi que ce soit, on décide d'abord quelles sources sont acceptées, puis on prépare les lignes dans un format stable.
 
 ```python
 # scripts/chart_pipeline/data_performance.py
@@ -161,24 +161,46 @@ def x86_results_csvs() -> list[Path]:
     return csvs
 ```
 
-Ensuite, cette fonction `x86_results_csvs()` centralise la sélection des sources x86. C'est une fonction utilitaire du fichier `data_performance.py`; elle lit le dossier indiqué par la variable de chemin `RESULTS_DIR`, applique une règle explicite de filtrage et retourne une liste ordonnée. On montre ce bloc pour prouver que la lecture des CSV est déterministe et traçable.
+Maintenant, regardons la ligne 48. `x86_results_csvs()` est une fonction, et son rôle est de sélectionner les fichiers CSV x86 avec une règle explicite. Ce point est important dans la narration, parce qu'on peut expliquer que la figure ne part pas d'un dossier lu au hasard, elle part d'une sélection contrôlée.
+
+```python
+def load_latest_rows() -> tuple[list[Path], list[Row]]:
+    paths = x86_results_csvs()
+    ...
+    return paths, _average_rows(all_rows)
+```
+
+Ensuite, on va à la ligne 85. `load_latest_rows()` est une fonction qui lit les fichiers, convertit les valeurs, puis homogénéise les lignes. Et juste après, à la ligne 110, le retour `return paths, _average_rows(all_rows)` nous donne deux sorties complémentaires. `paths` est une variable liste qui garde la trace des fichiers lus. `_average_rows(all_rows)` est l'appel d'une fonction d'agrégation qui stabilise les mesures avant le tracé.
+
+Ce passage est intéressant à dire à voix haute, parce qu'il raconte une vraie logique de projet. D'abord on prouve les sources, ensuite on nettoie les données, puis on agrège. Donc quand on voit un graphe final, on sait exactement d'où il vient et comment il a été préparé.
+
+## Code 5 - Script `build_` (construction et export)
+
+Cinquièmement, on ouvre le script `build_` dans `scripts/chart_pipeline/build_performance.py`, et cette fois on montre comment les données préparées deviennent une image finale cohérente.
 
 ```python
 # scripts/chart_pipeline/build_performance.py
 CSV_PATHS, rows = load_latest_rows()
-print(f"Fichiers x86 lus ({len(CSV_PATHS)}) : {', '.join(p.name for p in CSV_PATHS)}")
+print(f"Sources x86 ({len(CSV_PATHS)}) : {', '.join(p.name for p in CSV_PATHS)}")
 ```
 
-Dans ce bloc, `CSV_PATHS` est une variable qui contient la liste des chemins réellement lus et `rows` est une variable liste des données prêtes à tracer, tous deux retournés par la fonction `load_latest_rows()`. La fonction `print()` écrit ces sources dans le terminal.
+On commence avec les lignes 54 et 55. Ici, on montre cet extrait de code parce qu'il permet de voir directement quelles sources sont lues. `CSV_PATHS` est une variable liste de chemins, `rows` est une variable liste de lignes prêtes pour le tracé, et `print()` est une fonction standard qui envoie dans le terminal le nom des sources réellement chargées. Ce passage nous permet donc de vérifier, en direct, que le script lit bien les bons fichiers avant de construire le graphe.
 
 ```python
+def fig1_throughput_4096():
+    target_size = 4096
+    data = [r for r in rows if r["message_size_bytes"] == target_size]
+    ...
+
 def savefig(name: str):
     save_figure(plt.gcf(), CHARTS_DIR, name, facecolor=BG_COLOR)
 ```
 
-Ici, `savefig()` est une fonction locale d'export qui appelle `save_figure()`, une fonction utilitaire de sauvegarde. `plt.gcf()` est une fonction de l'API Matplotlib qui récupère la figure courante, `CHARTS_DIR` est une variable de chemin du dossier de sortie, et `BG_COLOR` est une variable de style qui fixe la couleur de fond.
+Puis on avance vers la ligne 76. `fig1_throughput_4096()` est une fonction qui construit un graphe concret de débit pour 4096 octets. C'est là que la donnée agrégée devient vraiment un objet visuel.
 
-Concrètement, ces blocs montrent que chaque figure suit le même chemin, des CSV mesurés jusqu'à l'enregistrement final. C'est ce qui rend le rapport cohérent d'une figure à l'autre.
+Enfin, on revient à la ligne 62. `savefig()` est une fonction locale qui appelle `save_figure()`, et `save_figure()` est une fonction utilitaire d'export. Dans cet appel, `CHARTS_DIR` est une variable de chemin qui fixe le dossier de sortie. En narration, c'est utile de dire que le pipeline ne s'arrête pas au tracé et qu'il va jusqu'à une sortie standardisée, donc facile à retrouver et à comparer.
+
+Au final, ce qu'on retient ici, c'est le rôle précis du script `build_` dans la chaîne. Il prend les données déjà préparées, construit la figure, puis l'exporte dans un dossier de sortie bien défini. On montre ce bloc parce qu'il clôt proprement la génération du graphe et qu'il rend visible la dernière étape du pipeline.
 
 
 ## Démo - Exécution complète et validation des sorties
@@ -195,6 +217,8 @@ python scripts/run_charts.py 03
 Dans le terminal, je me place d'abord dans le dossier `crypto-experiments` avec la commande `cd crypto-experiments`. Ensuite, je lance `python scripts/experiment.py` pour exécuter la campagne de mesure et générer les CSV.
 
 À l'écran, on voit les lignes `Running ...`, puis le tableau `Run summary by algorithm`, puis le chemin du fichier CSV exporté. Cette étape confirme que les données sources sont effectivement produites par le protocole.
+
+Petite note pratique à dire pendant la démo. Si un fichier `experiment_YYYYMMDD.csv` existe déjà pour la même date, le script écrit automatiquement `experiment_YYYYMMDD_1.csv`, puis `experiment_YYYYMMDD_2.csv`. C'est simplement une protection pour éviter l'écrasement d'un résultat précédent.
 
 Je lance ensuite `python scripts/run_charts.py 01` pour exécuter la cible orientée débit.
 

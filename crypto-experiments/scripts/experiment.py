@@ -11,7 +11,8 @@ Lancer depuis le répertoire racine crypto-experiments/ :
 Le script itère sur toutes les combinaisons algorithme / mode / taille de clé /
 taille de message définies dans EXPERIMENT_MATRIX, exécute les mesures de
 performance + avalanche via ExperimentController, et écrit les résultats dans
-data/results/experiment_<horodatage>.csv.
+data/results/experiment_YYYYMMDD.csv. Si le fichier existe déjà pour la date,
+le script écrit experiment_YYYYMMDD_1.csv, puis _2, etc.
 
 Aucune logique cryptographique ne se trouve ici — ce fichier ne fait que
 cabler les couches domaine et application et gérer les E/S.
@@ -83,13 +84,24 @@ def _make_key(size: int) -> bytes:
 
 
 def _output_path() -> str:
-    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    ts = datetime.now().strftime("%Y%m%d")
     out_dir = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "data", "results",
     )
     os.makedirs(out_dir, exist_ok=True)
-    return os.path.join(out_dir, f"experiment_{ts}.csv")
+
+    base_name = f"experiment_{ts}.csv"
+    candidate = os.path.join(out_dir, base_name)
+    if not os.path.exists(candidate):
+        return candidate
+
+    index = 1
+    while True:
+        candidate = os.path.join(out_dir, f"experiment_{ts}_{index}.csv")
+        if not os.path.exists(candidate):
+            return candidate
+        index += 1
 
 
 def _twofish_import_error() -> str | None:
