@@ -216,7 +216,9 @@ python scripts/run_charts.py 03
 **Texte à lire pendant la commande**
 Dans le terminal, je me place d'abord dans le dossier `crypto-experiments` avec la commande `cd crypto-experiments`. Ensuite, je lance `python scripts/experiment.py` pour exécuter la campagne de mesure et générer les CSV.
 
-À l'écran, on voit les lignes `Running ...`, puis le tableau `Run summary by algorithm`, puis le chemin du fichier CSV exporté. Cette étape confirme que les données sources sont effectivement produites par le protocole.
+À l'écran, on voit d'abord les lignes `Running ...`. Par exemple, on peut lire `AES-GCM key=128bit msg=16384B`, puis le temps de chiffrement `enc=0.635ms`, le débit `thr=24.60MB/s` et le score d'avalanche `avalanche=0.500`. C'est utile, parce que chaque ligne nous dit exactement quelle configuration a été exécutée et quelles mesures ont été obtenues pour ce cas précis. Ensuite, on voit d'autres lignes du même type, avec les clés `192bit` et `256bit`, et des tailles de message différentes, ce qui montre bien que la campagne parcourt plusieurs configurations de façon systématique.
+
+Après ça, on arrive au tableau `Run summary by algorithm`. Là, on ne relit plus chaque mesure une par une, on regarde plutôt si tous les algorithmes prévus ont bien été exécutés et s'il y a eu des échecs ou des sauts. Enfin, le terminal affiche le chemin du fichier CSV exporté. Cette dernière ligne confirme que toutes ces mesures ont bien été écrites dans un fichier exploitable pour la suite du pipeline.
 
 Petite note pratique à dire pendant la démo. Si un fichier `experiment_YYYYMMDD.csv` existe déjà pour la même date, le script écrit automatiquement `experiment_YYYYMMDD_1.csv`, puis `experiment_YYYYMMDD_2.csv`. C'est simplement une protection pour éviter l'écrasement d'un résultat précédent.
 
