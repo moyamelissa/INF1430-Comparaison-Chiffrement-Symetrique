@@ -5,17 +5,15 @@
 Présentation PowerPoint - Diapo de transition Démo complète
 
 **Texte à lire**
-Dans cette vidéo, on fait une démonstration complète du pipeline, du début à la fin, sur Windows puis sur Raspberry Pi.
+Dans cette vidéo, on ne fait pas de théorie. On montre directement le code en exécution, d'abord sur Windows, puis sur Raspberry Pi.
 
-Le but ici est de montrer que la chaîne est exécutable, traçable et reproductible dans les deux environnements.
+On va lancer quatre commandes dans le même ordre sur les deux machines. D'abord `python -m pytest`, pour vérifier les tests et la couverture. Ensuite `run_kat.py`, pour valider la conformité cryptographique. Puis `experiment.py`, pour exécuter la campagne de mesure et produire le CSV de résultats. Enfin `run_charts.py`, pour générer les figures à partir des CSV présents.
 
-On commence par un correctif important lié à la vidéo 1, puis on déroule les exécutions en conditions réelles.
-
-On met aussi l'accent sur les tests KAT, parce qu'on veut confirmer le signal final `ALL KAT SUITES PASSED`, qui valide les fonctions, les sorties et la conformité cryptographique. Si ce signal n'apparaît pas, l'échec remonte pendant le push via le pipeline, ce qui permet de détecter immédiatement une exécution incomplète.
+Le but est simplement de montrer que la chaîne s'exécute réellement de bout en bout, avec les mêmes étapes, les mêmes contrôles et les mêmes types de sorties sur les deux plateformes.
 
 ## Section 1 - Retour sur l'erreur de la vidéo 1 et correctif Twofish
 **Où sommes-nous**
-Présentation PowerPoint - Diapo de correction, puis `scripts/experiment.py`
+VIDÉO YOUTUBE, puis `scripts/experiment.py`
 
 **Texte à lire**
 Avant de lancer la démo complète, je corrige un point important observé pendant la démo de la vidéo 1.
@@ -35,33 +33,36 @@ Terminal Windows + VS Code
 **Texte à lire**
 Maintenant, on passe à la démo Windows.
 
-Dans ce bloc, on va exécuter trois scripts dans un ordre fixe. D'abord `experiment.py`, ensuite `run_kat.py`, puis `run_charts.py`.
+Les commandes sont lancées depuis `crypto-experiments`, avec l'environnement virtuel du projet déjà activé.
+
+Dans ce bloc, on va exécuter quatre commandes dans un ordre fixe. D'abord `python -m pytest`, ensuite `run_kat.py`, puis `experiment.py`, puis `run_charts.py`.
 
 Le but est de montrer l'exécution réelle, puis de lire les sorties importantes juste après chaque commande.
 
-## Section 3 - Exécution des mesures sur Windows
+## Section 3 - Exécution des tests sur Windows
 **Où sommes-nous**
-`scripts/experiment.py`
+`pytest`
 
 **Texte à lire avant la commande**
-On commence par `experiment.py`, qui est le script de campagne de mesure. Il exécute la matrice expérimentale et écrit un CSV de résultats.
+On commence par `pytest`, pour vérifier que la base logicielle est saine avant de lancer le pipeline. Ici, on veut confirmer que les tests passent et que la couverture atteint bien 100 %.
 
 ```bash
 cd crypto-experiments
-python scripts/experiment.py
+python -m pytest
 ```
 
 **Texte à lire après la commande**
-Dans la sortie terminal, on vérifie trois points. Premièrement, les lignes de type `Running ...` qui confirment les exécutions par configuration. Deuxièmement, le tableau `Run summary by algorithm` qui confirme la couverture des algorithmes. Troisièmement, le chemin du fichier CSV exporté dans `data/results/`.
+Dans la sortie, on vérifie deux signaux. D'abord le total de tests exécutés. Ensuite le message de couverture finale, qui doit confirmer 100 % sur le périmètre testé.
 
 ## Section 4 - Exécution KAT sur Windows
 **Où sommes-nous**
 `scripts/run_kat.py`
 
 **Texte à lire avant la commande**
-Ensuite, on lance `run_kat.py`, qui est le script de validation cryptographique. Il vérifie que les implémentations produisent les sorties attendues par les vecteurs de référence.
+On commence par `run_kat.py`, qui est le script de validation cryptographique. Il vérifie que les implémentations produisent les sorties attendues par les vecteurs de référence.
 
 ```bash
+cd crypto-experiments
 python scripts/run_kat.py
 ```
 
@@ -70,7 +71,23 @@ Dans la sortie, on vérifie le signal `ALL KAT SUITES PASSED`. C'est cette étap
 
 Si ce signal n'apparaît pas, l'échec n'est pas silencieux: il remonte lors du push via le pipeline, ce qui signale immédiatement qu'une partie de la validation n'est pas passée.
 
-## Section 5 - Génération des graphes sur Windows
+## Section 5 - Exécution des mesures sur Windows
+**Où sommes-nous**
+`scripts/experiment.py`
+
+**Texte à lire avant la commande**
+Ensuite, on lance `experiment.py`, qui est le script de campagne de mesure. Il exécute la matrice expérimentale et écrit un CSV de résultats.
+
+```bash
+python scripts/experiment.py
+```
+
+**Texte à lire après la commande**
+Dans la sortie terminal, on vérifie trois points. Premièrement, les lignes de type `Running ...` qui confirment les exécutions par configuration. Deuxièmement, le tableau `Run summary by algorithm` qui confirme la couverture des algorithmes. Troisièmement, le chemin du fichier CSV exporté dans `data/results/`.
+
+Si plusieurs campagnes sont exécutées le même jour, le fichier de sortie est suffixé automatiquement en `_1`, `_2`, et ainsi de suite. Il faut donc lire le chemin affiché dans le terminal, et pas seulement supposer un nom de fichier unique.
+
+## Section 6 - Génération des graphes sur Windows
 **Où sommes-nous**
 `scripts/run_charts.py`
 
@@ -87,7 +104,7 @@ Dans la sortie, on valide quatre signaux dans l'ordre. D'abord `[run_charts] Sé
 
 La commande `04` montre un cas ciblé de synthèse, puis la commande `all` montre la vue système complète sur `01`, `02`, `03` et `04`.
 
-## Section 6 - Vérification des sorties Windows
+## Section 7 - Vérification des sorties Windows
 **Où sommes-nous**
 `data/results/` et `data/charts/`
 
@@ -96,42 +113,43 @@ Pour fermer la partie Windows, on ouvre les dossiers de sortie.
 
 On vérifie la présence du CSV horodaté dans `data/results/`, puis la présence des images dans `data/charts/`. Cette vérification confirme que la chaîne Windows est complète de bout en bout.
 
-## Section 7 - Préparation de la démo Raspberry Pi
+## Section 8 - Préparation de la démo Raspberry Pi
 **Où sommes-nous**
 Terminal Raspberry Pi + VS Code (remote)
 
 **Texte à lire**
 Maintenant, on reproduit exactement la même séquence sur Raspberry Pi.
 
-Même ordre, mêmes scripts, même logique de vérification. D'abord `experiment.py`, ensuite `run_kat.py`, puis `run_charts.py`.
+Les commandes sont lancées depuis `crypto-experiments`, avec l'environnement virtuel du projet déjà activé.
+
+Même ordre, mêmes scripts, même logique de vérification. D'abord `python -m pytest`, ensuite `run_kat.py`, puis `experiment.py`, puis `run_charts.py`.
 
 Cette répétition contrôlée permet de comparer les deux plateformes avec une méthode identique.
 
-## Section 8 - Exécution des mesures sur Raspberry Pi
+## Section 9 - Exécution des tests sur Raspberry Pi
 **Où sommes-nous**
-`scripts/experiment.py`
+`pytest`
 
 **Texte à lire avant la commande**
-On commence par `experiment.py` sur le Pi, pour produire les mesures de la plateforme ARM.
+On commence par `pytest` sur le Pi, pour vérifier que les tests et la couverture passent aussi dans cet environnement.
 
 ```bash
 cd crypto-experiments
-python scripts/experiment.py
+python -m pytest
 ```
 
 **Texte à lire après la commande**
-Dans la sortie, on vérifie les lignes d'exécution, le résumé final par algorithme et le fichier CSV exporté.
+On vérifie le total de tests exécutés, puis le message final de couverture. Le point important ici, c'est que la validation logicielle est rejouée sur ARM, pas seulement sur Windows.
 
-Si Twofish n'est pas disponible dans l'environnement Python actif du Pi, on doit voir le warning explicite prévu par le correctif.
-
-## Section 9 - Exécution KAT sur Raspberry Pi
+## Section 10 - Exécution KAT sur Raspberry Pi
 **Où sommes-nous**
 `scripts/run_kat.py`
 
 **Texte à lire avant la commande**
-Ensuite, on exécute `run_kat.py` sur le Pi pour valider la conformité cryptographique dans cet environnement.
+On commence par `run_kat.py` sur le Pi pour valider la conformité cryptographique dans cet environnement.
 
 ```bash
+cd crypto-experiments
 python scripts/run_kat.py
 ```
 
@@ -140,7 +158,25 @@ On confirme le signal `ALL KAT SUITES PASSED`. Le point important ici, c'est que
 
 Et si ce signal n'apparaît pas, l'échec remonte aussi au moment du push via le pipeline, pour éviter de laisser passer une version invalide.
 
-## Section 10 - Génération des graphes sur Raspberry Pi
+## Section 11 - Exécution des mesures sur Raspberry Pi
+**Où sommes-nous**
+`scripts/experiment.py`
+
+**Texte à lire avant la commande**
+Ensuite, on lance `experiment.py` sur le Pi, pour produire les mesures de la plateforme ARM.
+
+```bash
+python scripts/experiment.py
+```
+
+**Texte à lire après la commande**
+Dans la sortie, on vérifie les lignes d'exécution, le résumé final par algorithme et le fichier CSV exporté.
+
+Si Twofish n'est pas disponible dans l'environnement Python actif du Pi, on doit voir le warning explicite prévu par le correctif.
+
+Là aussi, si plusieurs campagnes sont exécutées le même jour, il faut suivre le chemin exact affiché dans le terminal, parce que le script peut écrire `experiment_YYYYMMDD.csv`, puis `experiment_YYYYMMDD_1.csv`, `experiment_YYYYMMDD_2.csv`, et ainsi de suite.
+
+## Section 12 - Génération des graphes sur Raspberry Pi
 **Où sommes-nous**
 `scripts/run_charts.py`
 
@@ -155,7 +191,7 @@ python scripts/run_charts.py all
 **Texte à lire après la commande**
 On vérifie les mêmes quatre signaux que sur Windows: sélection de la cible, génération du dossier, sources lues, puis images enregistrées. Cette symétrie de lecture est importante, parce qu'elle montre que le pipeline de visualisation est opérationnel sur le Pi avec la même méthode de validation.
 
-## Section 11 - Vérification des sorties Raspberry Pi
+## Section 13 - Vérification des sorties Raspberry Pi
 **Où sommes-nous**
 `data/results/` et `data/charts/`
 
@@ -164,7 +200,7 @@ Pour clôturer la partie Raspberry Pi, on vérifie les artefacts générés.
 
 On confirme la présence du CSV Pi dans `data/results/`, puis la présence des graphes dans `data/charts/`.
 
-## Section 12 - Comparaison finale Windows vs Raspberry Pi
+## Section 14 - Comparaison finale Windows vs Raspberry Pi
 **Où sommes-nous**
 `data/results/` + graphes de comparaison inter-plateformes
 
