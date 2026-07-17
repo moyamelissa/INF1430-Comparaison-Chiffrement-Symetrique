@@ -100,9 +100,15 @@ python scripts/run_charts.py all
 ```
 
 **Texte à lire après la commande**
-Dans la sortie, on valide quatre signaux dans l'ordre. D'abord `[run_charts] Sélection: ...`, qui confirme la cible demandée. Ensuite `[run_charts] Génération du dossier ...`, qui confirme la fonction cible exécutée. Puis `Sources x86 (...)`, qui confirme les CSV effectivement lus. Enfin `Enregistré: ...`, qui confirme l'écriture des images dans `data/charts/`.
+Dans la sortie, on lit d'abord les sources effectivement utilisées. On voit ici trois CSV côté x86 et trois CSV côté Raspberry Pi. C'est ce bloc qui confirme quels fichiers servent réellement à construire les graphes.
 
-Ici, on peut aussi noter un point d'amélioration. Le script `experiment.py` enregistre déjà automatiquement un fichier daté, donc la sortie est traçable et non écrasée. En revanche, le nom reste générique, et `run_charts.py` relit aujourd'hui les fichiers de référence déjà reconnus par le pipeline. La prochaine amélioration consistera à intégrer automatiquement dans le nom des informations fonctionnelles comme la plateforme, par exemple x86 ou Raspberry Pi, pour que le fichier soit directement exploitable par `run_charts` sans renommage manuel. Cette amélioration sera faite pour la remise du TN4, où l'accent sera davantage mis sur les sorties de données.
+Ensuite, le script affiche la sélection `01, 02, 03, 04`, puis il génère chaque dossier dans l'ordre. Les lignes `Enregistré:` confirment à chaque fois l'écriture réelle des figures dans `data/charts/`.
+
+Au final, cette commande montre bien que toute la chaîne de visualisation fonctionne en une seule exécution, depuis la lecture des CSV jusqu'à l'écriture des figures finales.
+
+On peut aussi noter un point d'amélioration. Le nouveau CSV généré juste avant par `experiment.py` n'apparaît pas encore dans les sources relues par `run_charts.py`, parce que le pipeline reconnaît actuellement les fichiers selon une convention de nommage explicite, comme `laptop-windows-x86_experienceX.csv` ou `raspberry-pi_experienceX.csv`.
+
+Pour l'instant, ce nommage est encore ajusté manuellement. La prochaine amélioration sera donc d'automatiser directement ce format de nom de fichier dans `experiment.py`, pour que chaque nouvelle campagne soit immédiatement exploitable par `run_charts.py` sans renommage manuel.
 
 La commande `04` montre un cas ciblé de synthèse, puis la commande `all` montre la vue système complète sur `01`, `02`, `03` et `04`.
 
