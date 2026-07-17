@@ -189,7 +189,9 @@ python scripts/experiment.py
 **Texte à lire après la commande**
 Dans la sortie, on vérifie les lignes d'exécution, le résumé final par algorithme et le fichier CSV exporté.
 
-Ici, on mentionne le changement récent de nommage: le fichier inclut maintenant la plateforme pour éviter toute confusion entre machines, par exemple `experiment_raspberry-pi_YYYYMMDD.csv`, puis `experiment_raspberry-pi_YYYYMMDD_1.csv` si on relance le même jour.
+Ici, on mentionne le changement récent de nommage: le fichier suit maintenant le format `<plateforme>_experienceX_YYYYMMDD`, par exemple `raspberry-pi_experience4_20260717.csv`.
+
+Et ce point est maintenant corrigé de bout en bout: `run_charts.py` reconnaît automatiquement ce nouveau format, donc il n'y a plus de renommage manuel à faire avant la génération des graphes.
 
 Si Twofish n'est pas disponible dans l'environnement Python actif du Pi, on doit voir le warning explicite prévu par le correctif.
 

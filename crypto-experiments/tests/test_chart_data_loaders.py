@@ -34,9 +34,9 @@ def test_data_performance_load_latest_rows_averages_and_handles_bom(monkeypatch,
         'AES,ECB,16,64,100,3.0,4.0,30.0,40.0,0.70,0.90'
     ]
 
-    _write_csv(tmp_path / "laptop-windows-x86_experience1.csv", header_bom, rows_1)
+    _write_csv(tmp_path / "experiment_windows-x86-64_20260717.csv", header_bom, rows_1)
     _write_csv(tmp_path / "laptop-windows-x86_experience2.csv", header_std, rows_2)
-    _write_csv(tmp_path / "raspberry-pi_experience1.csv", header_std, rows_2)
+    _write_csv(tmp_path / "experiment_raspberry-pi_20260717.csv", header_std, rows_2)
 
     monkeypatch.setattr(dp, "RESULTS_DIR", tmp_path)
     paths, rows = dp.load_latest_rows()
@@ -67,10 +67,10 @@ def test_data_platform_load_platform_rows_averages_both_platforms(monkeypatch, t
     pi_r1 = ['AES,ECB,16,64,100,1.0,2.0,5.0,10.0,0.40,0.50,0.5']
     pi_r2 = ['AES,ECB,16,64,100,1.0,2.0,15.0,20.0,0.60,0.70,1.5']
 
-    _write_csv(tmp_path / "laptop-windows-x86_experience1.csv", header, x86_r1)
-    _write_csv(tmp_path / "laptop-windows-x86_experience2.csv", header, x86_r2)
-    _write_csv(tmp_path / "raspberry-pi_experience1.csv", header, pi_r1)
-    _write_csv(tmp_path / "raspberry-pi_experience2.csv", header, pi_r2)
+    _write_csv(tmp_path / "experiment_windows-x86-64_20260717.csv", header, x86_r1)
+    _write_csv(tmp_path / "experiment_windows-x86-64_20260717_1.csv", header, x86_r2)
+    _write_csv(tmp_path / "experiment_raspberry-pi_20260717.csv", header, pi_r1)
+    _write_csv(tmp_path / "experiment_raspberry-pi_20260717_1.csv", header, pi_r2)
 
     monkeypatch.setattr(dplat, "RESULTS_DIR", tmp_path)
     x86_paths, pi_paths, x86_rows, pi_rows = dplat.load_platform_rows()

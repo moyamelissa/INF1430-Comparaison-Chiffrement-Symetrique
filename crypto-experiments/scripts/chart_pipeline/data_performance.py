@@ -9,6 +9,7 @@ des campagnes d'expérience.
 from __future__ import annotations
 
 import csv
+import re
 from pathlib import Path
 
 from chart_pipeline.shared_paths import RESULTS_DIR
@@ -16,6 +17,7 @@ from chart_pipeline.shared_paths import RESULTS_DIR
 
 # Type simple utilisé par les scripts de rendu pour manipuler librement les mesures.
 Row = dict[str, object]
+_EXPERIMENT_NAME_RE = re.compile(r"^experiment_([a-z0-9-]+)_\d{8}(?:_\d+)?\.csv$")
 
 
 def _row_value(row: dict[str, str], key: str) -> str:
@@ -45,12 +47,25 @@ def _to_float_optional(value: str) -> float | None:
         return None
 
 
+def _is_x86_csv(path: Path) -> bool:
+    """Détermine si un CSV appartient à une plateforme x86 (ancien ou nouveau nommage)."""
+    name = path.name.lower()
+    if "x86" in name or "laptop-windows" in name:
+        return True
+
+    match = _EXPERIMENT_NAME_RE.match(name)
+    if not match:
+        return False
+    platform_label = match.group(1)
+    return "x86" in platform_label and "raspberry" not in platform_label
+
+
 def x86_results_csvs() -> list[Path]:
     """Retourne tous les CSV x86 disponibles dans data/results/, triés."""
     csvs = sorted(
         f for f in RESULTS_DIR.iterdir()
         if f.suffix == ".csv" and f.name != ".gitkeep"
-        and ("x86" in f.name or "laptop-windows" in f.name)
+        and _is_x86_csv(f)
     )
     if not csvs:
         raise FileNotFoundError("Aucun CSV x86 trouvé dans data/results/.")

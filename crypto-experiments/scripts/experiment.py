@@ -11,9 +11,9 @@ Lancer depuis le répertoire racine crypto-experiments/ :
 Le script itère sur toutes les combinaisons algorithme / mode / taille de clé /
 taille de message définies dans EXPERIMENT_MATRIX, exécute les mesures de
 performance + avalanche via ExperimentController, et écrit les résultats dans
-data/results/experiment_<plateforme>_YYYYMMDD.csv. Si le fichier existe déjà
-pour la date, le script écrit experiment_<plateforme>_YYYYMMDD_1.csv,
-puis _2, etc.
+data/results/<plateforme>_experienceX_YYYYMMDD.csv, par exemple
+``laptop-windows-x86_experience4_20260717.csv``. L'index ``X`` est incrémenté
+automatiquement pour chaque nouvelle campagne d'une même plateforme.
 
 Aucune logique cryptographique ne se trouve ici — ce fichier ne fait que
 cabler les couches domaine et application et gérer les E/S.
@@ -109,26 +109,38 @@ def _platform_label() -> str:
     return slug or "unknown-platform"
 
 
+def _platform_results_prefix() -> str:
+    """Retourne le préfixe utilisé dans data/results pour la plateforme courante."""
+    label = _platform_label()
+    aliases = {
+        "windows-x86-64": "laptop-windows-x86",
+        "windows-x86": "laptop-windows-x86",
+        "raspberry-pi": "raspberry-pi",
+    }
+    return aliases.get(label, label)
+
+
 def _output_path() -> str:
     ts = datetime.now().strftime("%Y%m%d")
-    platform_label = _platform_label()
+    prefix = _platform_results_prefix()
     out_dir = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "data", "results",
     )
     os.makedirs(out_dir, exist_ok=True)
 
-    base_name = f"experiment_{platform_label}_{ts}.csv"
-    candidate = os.path.join(out_dir, base_name)
-    if not os.path.exists(candidate):
-        return candidate
+    pattern = re.compile(
+        rf"^{re.escape(prefix)}_experience(?P<idx>\d+)(?:_\d{{8}})?\.csv$"
+    )
+    max_index = 0
+    for name in os.listdir(out_dir):
+        match = pattern.match(name)
+        if not match:
+            continue
+        max_index = max(max_index, int(match.group("idx")))
 
-    index = 1
-    while True:
-        candidate = os.path.join(out_dir, f"experiment_{platform_label}_{ts}_{index}.csv")
-        if not os.path.exists(candidate):
-            return candidate
-        index += 1
+    next_index = max_index + 1
+    return os.path.join(out_dir, f"{prefix}_experience{next_index}_{ts}.csv")
 
 
 def _twofish_import_error() -> str | None:
