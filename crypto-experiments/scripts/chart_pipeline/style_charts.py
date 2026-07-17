@@ -55,7 +55,7 @@ def setup_matplotlib(title_pad: int = 12, hatch_linewidth: float | None = None) 
         "legend.facecolor": "#FFFFFF",
         "legend.edgecolor": "#C0C0C0",
         "legend.labelcolor": TEXT_COLOR,
-        "font.family": "Arial",
+        "font.family": "DejaVu Sans",
         "axes.titlepad": title_pad,
     })
     if hatch_linewidth is not None:
