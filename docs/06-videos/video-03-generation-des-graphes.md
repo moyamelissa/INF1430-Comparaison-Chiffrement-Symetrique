@@ -85,7 +85,7 @@ def x86_results_csvs() -> list[Path]:
     return csvs
 ```
 
-Maintenant, regardons la ligne 48. `x86_results_csvs()` est une fonction et son rôle consiste à sélectionner les fichiers CSV x86 avec une règle explicite. Ce point est important dans la narration parce qu'on peut expliquer que la figure ne part pas d'un dossier lu au hasard et qu'elle part d'une sélection contrôlée.
+Maintenant, regardons la ligne 48. `x86_results_csvs()` est une fonction et son rôle consiste à sélectionner les fichiers CSV x86 avec une règle explicite. Ce point est important dans la narration parce qu'on peut expliquer que la figure ne part pas d'un dossier lu au hasard et qu'elle part d'une sélection contrôlée. On peut aussi insister sur le fait que cette sélection est triée, donc que l'ordre de lecture reste stable d'une exécution à l'autre.
 
 ```python
 def load_latest_rows() -> tuple[list[Path], list[Row]]:
@@ -94,9 +94,9 @@ def load_latest_rows() -> tuple[list[Path], list[Row]]:
     return paths, _average_rows(all_rows)
 ```
 
-Ensuite, on va à la ligne 85. `load_latest_rows()` est une fonction qui lit les fichiers, convertit les valeurs, puis homogénéise les lignes. Juste après, à la ligne 110, l'instruction `return paths, _average_rows(all_rows)` donne deux sorties complémentaires. `paths` est une variable de type liste qui garde la trace des fichiers lus. `_average_rows(all_rows)` est l'appel d'une fonction d'agrégation qui stabilise les mesures avant le tracé.
+Ensuite, on va à la ligne 85. `load_latest_rows()` est une fonction qui lit les fichiers, convertit les valeurs, puis homogénéise les lignes. Concrètement, les colonnes du CSV deviennent des valeurs directement exploitables pour le tracé, par exemple pour les tailles, les temps et les débits. Juste après, à la ligne 110, l'instruction `return paths, _average_rows(all_rows)` donne deux sorties complémentaires. `paths` est une variable de type liste qui garde la trace des fichiers lus. `_average_rows(all_rows)` est l'appel d'une fonction d'agrégation qui stabilise les mesures avant le tracé.
 
-Ce passage est intéressant à dire à voix haute, parce qu'il raconte une vraie logique de projet. D'abord on prouve les sources, ensuite on nettoie les données, puis on agrège. Donc quand on voit un graphe final, on sait exactement d'où il vient et comment il a été préparé.
+Dans la narration, ce bloc est fort parce qu'il montre une préparation méthodique des données. Le script commence par identifier les bons fichiers, puis il lit chaque ligne et transforme les colonnes du CSV en valeurs cohérentes pour le traitement. Ensuite, il regroupe les mesures qui décrivent la même configuration expérimentale, donc le même algorithme, le même mode, la même taille de clé et la même taille de message. Enfin, il calcule une moyenne sur les champs numériques pour produire une base de comparaison plus stable. Autrement dit, le graphe final ne repose pas sur une lecture brute ni sur une mesure isolée, mais sur des données filtrées, converties et agrégées de façon contrôlée.
 
 ## Code 3 - Script `build_` (construction et export)
 
@@ -108,23 +108,35 @@ CSV_PATHS, rows = load_latest_rows()
 print(f"Sources x86 ({len(CSV_PATHS)}) : {', '.join(p.name for p in CSV_PATHS)}")
 ```
 
-On commence avec les lignes 54 et 55. Ici, on montre cet extrait de code parce qu'il permet de voir directement quelles sources sont lues. `CSV_PATHS` est une variable liste de chemins, `rows` est une variable liste de lignes prêtes pour le tracé, et `print()` est une fonction standard qui envoie dans le terminal le nom des sources réellement chargées. Ce passage nous permet donc de vérifier, en direct, que le script lit bien les bons fichiers avant de construire le graphe.
+On commence avec les lignes 54 et 55. À la ligne 54, l'appel `load_latest_rows()` est une fonction de préparation, et son rôle est de renvoyer les lignes déjà nettoyées et agrégées pour le tracé. À la ligne 55, l'appel `print(...)` est une fonction standard qui affiche les sources effectivement lues. Ce passage sert donc à vérifier, en direct, que le graphe part des bons fichiers.
 
 ```python
 def fig1_throughput_4096():
     target_size = 4096
     data = [r for r in rows if r["message_size_bytes"] == target_size]
+    groups = defaultdict(list)
+    for r in data:
+        label = f"{r['mode']}\n{r['key_size_bits']}b"
+        groups[r["algorithm"]].append((label, r["throughput_enc_mbps"]))
     ...
+    ax.bar(...)
+    _style_ax(ax)
+    plt.tight_layout()
+    savefig("01-debit/debit-40960-x86.png")
 
 def savefig(name: str):
     save_figure(plt.gcf(), CHARTS_DIR, name, facecolor=BG_COLOR)
 ```
 
-Puis on avance vers la ligne 76. `fig1_throughput_4096()` est une fonction qui construit un graphe concret de débit pour 4096 octets. C'est à cet endroit que la donnée agrégée devient un objet visuel.
+Puis on avance vers la ligne 76 avec `fig1_throughput_4096()`. C'est une fonction de construction de graphe, et son rôle est de produire la figure de débit pour le cas 4096 octets.
 
-Enfin, on revient à la ligne 62. `savefig()` est une fonction locale qui appelle `save_figure()`, puis `save_figure()` est une fonction utilitaire d'export. Dans cet appel, `CHARTS_DIR` est une variable de chemin qui fixe le dossier de sortie. En narration, c'est utile de rappeler que le pipeline ne s'arrête pas au tracé et qu'il va jusqu'à une sortie standardisée qui reste facile à retrouver et à comparer.
+À la ligne 81, `defaultdict(list)` est un constructeur de dictionnaire depuis `collections`, et son rôle est de créer automatiquement une liste vide par algorithme pour regrouper les mesures. À la ligne 100, l'appel `ax.bar(...)` est une méthode Matplotlib, et son rôle est de transformer ces valeurs en barres affichables.
 
-Au final, ce qu'on retient ici, c'est le rôle précis du script `build_` dans la chaîne. Il prend les données déjà préparées, construit la figure, puis l'exporte dans un dossier de sortie bien défini. On montre ce bloc parce qu'il clôt proprement la génération du graphe et qu'il rend visible la dernière étape du pipeline.
+Pour la finition, à la ligne 134, `_style_ax(ax)` est une fonction locale définie à la ligne 58, et son rôle est d'appliquer le style commun en relayant vers `style_ax(...)` importée depuis `style_charts.py`. À la ligne 135, `plt.tight_layout()` est une fonction Matplotlib qui ajuste l'espacement de la figure pour éviter les chevauchements de texte.
+
+À la ligne 136, `savefig("01-debit/debit-40960-x86.png")` est une fonction locale définie à la ligne 62, et son rôle est de centraliser l'export. Cette fonction appelle `save_figure(...)` avec `CHARTS_DIR` pour écrire l'image dans le bon dossier. Ces deux éléments sont importés depuis les modules communs `style_charts.py` et `shared_paths.py`.
+
+Au final, ce bloc montre clairement la responsabilité de `build_` avec un exemple concret et traçable: il organise les données, trace la figure, applique le style commun, puis délègue l'export à l'utilitaire partagé avec un chemin de sortie centralisé.
 
 
 ## Démo - Exécution complète et validation des sorties
