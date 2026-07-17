@@ -9,6 +9,8 @@ Dans cette vidéo, on ne fait pas de théorie. On montre directement le code en 
 
 On va lancer quatre commandes dans le même ordre sur les deux machines. D'abord `python -m pytest`, pour vérifier les tests et la couverture. Ensuite `run_kat.py`, pour valider la conformité cryptographique. Puis `experiment.py`, pour exécuter la campagne de mesure et produire le CSV de résultats. Enfin `run_charts.py`, pour générer les figures à partir des CSV présents.
 
+Après ça, on fait une vérification data visible en terminal. L'objectif est de prouver à l'écran que les fichiers ont bien été écrits localement.
+
 Le but est simplement de montrer que la chaîne s'exécute réellement de bout en bout, avec les mêmes étapes, les mêmes contrôles et les mêmes types de sorties sur les deux plateformes.
 
 ## Section 1 - Retour sur l'erreur de la vidéo 1 et correctif Twofish
@@ -85,7 +87,7 @@ python scripts/experiment.py
 **Texte à lire après la commande**
 Dans la sortie terminal, on vérifie trois points. Premièrement, les lignes de type `Running ...` qui confirment les exécutions par configuration. Deuxièmement, le tableau `Run summary by algorithm` qui confirme la couverture des algorithmes. Troisièmement, le chemin du fichier CSV exporté dans `data/results/`.
 
-Si plusieurs campagnes sont exécutées le même jour, le fichier de sortie est suffixé automatiquement en `_1`, `_2`, et ainsi de suite. Il faut donc lire le chemin affiché dans le terminal, et pas seulement supposer un nom de fichier unique.
+Si plusieurs campagnes sont exécutées le même jour, le fichier est suffixé automatiquement en `_1`, `_2`, et ainsi de suite. Il faut donc lire le chemin affiché dans le terminal.
 
 ## Section 6 - Génération des graphes sur Windows
 **Où sommes-nous**
@@ -106,9 +108,7 @@ Ensuite, le script affiche la sélection `01, 02, 03, 04`, puis il génère chaq
 
 Au final, cette commande montre bien que toute la chaîne de visualisation fonctionne en une seule exécution, depuis la lecture des CSV jusqu'à l'écriture des figures finales.
 
-On peut aussi noter un point d'amélioration. Le nouveau CSV généré juste avant par `experiment.py` n'apparaît pas encore dans les sources relues par `run_charts.py`, parce que le pipeline reconnaît actuellement les fichiers selon une convention de nommage explicite, comme `laptop-windows-x86_experienceX.csv` ou `raspberry-pi_experienceX.csv`.
-
-Pour l'instant, ce nommage est encore ajusté manuellement. La prochaine amélioration sera donc d'automatiser directement ce format de nom de fichier dans `experiment.py`, pour que chaque nouvelle campagne soit immédiatement exploitable par `run_charts.py` sans renommage manuel.
+Le point important pour la lecture des logs, c'est que `run_charts.py` affiche explicitement les sources utilisées. Pendant la démo, on lit ces lignes à voix haute pour confirmer que les CSV attendus sont bien pris en compte.
 
 La commande `04` montre un cas ciblé de synthèse, puis la commande `all` montre la vue système complète sur `01`, `02`, `03` et `04`.
 
@@ -120,6 +120,15 @@ La commande `04` montre un cas ciblé de synthèse, puis la commande `all` montr
 Pour fermer la partie Windows, on ouvre les dossiers de sortie.
 
 On vérifie la présence du CSV horodaté dans `data/results/`, puis la présence des images dans `data/charts/`. Cette vérification confirme que la chaîne Windows est complète de bout en bout.
+
+Pour le montrer clairement en terminal, on peut exécuter:
+
+```bash
+Get-ChildItem data/results/*.csv | Sort-Object LastWriteTime -Descending | Select-Object -First 5 Name, LastWriteTime
+Get-ChildItem data/charts -Recurse -File *.png | Sort-Object LastWriteTime -Descending | Select-Object -First 10 FullName, LastWriteTime
+```
+
+Avec ces deux commandes, on voit immédiatement les fichiers créés récemment et leur horodatage local.
 
 ## Section 8 - Préparation de la démo Raspberry Pi
 **Où sommes-nous**
@@ -180,9 +189,9 @@ python scripts/experiment.py
 **Texte à lire après la commande**
 Dans la sortie, on vérifie les lignes d'exécution, le résumé final par algorithme et le fichier CSV exporté.
 
-Si Twofish n'est pas disponible dans l'environnement Python actif du Pi, on doit voir le warning explicite prévu par le correctif.
+Ici, on mentionne le changement récent de nommage: le fichier inclut maintenant la plateforme pour éviter toute confusion entre machines, par exemple `experiment_raspberry-pi_YYYYMMDD.csv`, puis `experiment_raspberry-pi_YYYYMMDD_1.csv` si on relance le même jour.
 
-Là aussi, si plusieurs campagnes sont exécutées le même jour, il faut suivre le chemin exact affiché dans le terminal, parce que le script peut écrire `experiment_YYYYMMDD.csv`, puis `experiment_YYYYMMDD_1.csv`, `experiment_YYYYMMDD_2.csv`, et ainsi de suite.
+Si Twofish n'est pas disponible dans l'environnement Python actif du Pi, on doit voir le warning explicite prévu par le correctif.
 
 ## Section 12 - Génération des graphes sur Raspberry Pi
 **Où sommes-nous**
@@ -207,6 +216,16 @@ On vérifie les mêmes quatre signaux que sur Windows: sélection de la cible, g
 Pour clôturer la partie Raspberry Pi, on vérifie les artefacts générés.
 
 On confirme la présence du CSV Pi dans `data/results/`, puis la présence des graphes dans `data/charts/`.
+
+Pour une preuve simple en terminal Linux:
+
+```bash
+ls -lh data/results | head
+find data/results -maxdepth 1 -type f -name "*.csv" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 5
+find data/charts -type f -name "*.png" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 10
+```
+
+Ces commandes montrent les artefacts générés localement avec date et heure, donc la preuve d'exécution est directe.
 
 ## Section 14 - Comparaison finale Windows vs Raspberry Pi
 **Où sommes-nous**
