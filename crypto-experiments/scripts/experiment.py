@@ -11,8 +11,9 @@ Lancer depuis le répertoire racine crypto-experiments/ :
 Le script itère sur toutes les combinaisons algorithme / mode / taille de clé /
 taille de message définies dans EXPERIMENT_MATRIX, exécute les mesures de
 performance + avalanche via ExperimentController, et écrit les résultats dans
-data/results/experiment_YYYYMMDD.csv. Si le fichier existe déjà pour la date,
-le script écrit experiment_YYYYMMDD_1.csv, puis _2, etc.
+data/results/experiment_<plateforme>_YYYYMMDD.csv. Si le fichier existe déjà
+pour la date, le script écrit experiment_<plateforme>_YYYYMMDD_1.csv,
+puis _2, etc.
 
 Aucune logique cryptographique ne se trouve ici — ce fichier ne fait que
 cabler les couches domaine et application et gérer les E/S.
@@ -21,6 +22,7 @@ cabler les couches domaine et application et gérer les E/S.
 import csv
 import os
 import platform
+import re
 import sys
 from collections import defaultdict
 from dataclasses import asdict
@@ -83,22 +85,47 @@ def _make_key(size: int) -> bytes:
     return os.urandom(size)
 
 
+def _platform_label() -> str:
+    """Construit un identifiant plateforme lisible pour le nom de CSV."""
+    if _is_raspberry_pi():
+        return "raspberry-pi"
+
+    system = platform.system().lower() or "unknown"
+    machine = platform.machine().lower() or "unknown"
+
+    aliases = {
+        "amd64": "x86_64",
+        "x64": "x86_64",
+        "i386": "x86",
+        "i686": "x86",
+        "aarch64": "arm64",
+        "armv7l": "arm",
+    }
+    machine = aliases.get(machine, machine)
+
+    # Garder un slug stable: lettres/chiffres seulement, séparés par des tirets.
+    raw = f"{system}-{machine}"
+    slug = re.sub(r"[^a-z0-9]+", "-", raw).strip("-")
+    return slug or "unknown-platform"
+
+
 def _output_path() -> str:
     ts = datetime.now().strftime("%Y%m%d")
+    platform_label = _platform_label()
     out_dir = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "data", "results",
     )
     os.makedirs(out_dir, exist_ok=True)
 
-    base_name = f"experiment_{ts}.csv"
+    base_name = f"experiment_{platform_label}_{ts}.csv"
     candidate = os.path.join(out_dir, base_name)
     if not os.path.exists(candidate):
         return candidate
 
     index = 1
     while True:
-        candidate = os.path.join(out_dir, f"experiment_{ts}_{index}.csv")
+        candidate = os.path.join(out_dir, f"experiment_{platform_label}_{ts}_{index}.csv")
         if not os.path.exists(candidate):
             return candidate
         index += 1
