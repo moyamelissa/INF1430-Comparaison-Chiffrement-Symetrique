@@ -20,8 +20,7 @@ import math
 import os
 import secrets
 import time
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 from domain.engine.EncryptionEngine import EncryptionEngine
 
@@ -43,7 +42,6 @@ class ExperimentResult:
     key_avalanche_score: float  # flip d'un bit de clé → taux de changement en sortie
     ci95_encrypt_mbps: float    # demi-largeur de l'intervalle de confiance à 95 % (chiffrement)
     ci95_decrypt_mbps: float    # demi-largeur de l'intervalle de confiance à 95 % (déchiffrement)
-    extra: dict = field(default_factory=dict)
 
 
 class ExperimentController:

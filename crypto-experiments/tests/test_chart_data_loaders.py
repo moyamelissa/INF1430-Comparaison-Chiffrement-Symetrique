@@ -18,20 +18,20 @@ def test_data_performance_load_latest_rows_averages_and_handles_bom(monkeypatch,
     header_bom = (
         '"algorithm","mode","key_size_bytes","message_size_bytes","repetitions",'
         '"avg_encrypt_time_s","avg_decrypt_time_s","throughput_encrypt_mbps",'
-        '"throughput_decrypt_mbps","avalanche_score","key_avalanche_score","extra"'
+        '"throughput_decrypt_mbps","avalanche_score","key_avalanche_score"'
     )
     header_std = (
         'algorithm,mode,key_size_bytes,message_size_bytes,repetitions,'
         'avg_encrypt_time_s,avg_decrypt_time_s,throughput_encrypt_mbps,'
-        'throughput_decrypt_mbps,avalanche_score,key_avalanche_score,extra'
+        'throughput_decrypt_mbps,avalanche_score,key_avalanche_score'
     )
 
     # key_avalanche_score manquant dans un fichier ("{}") : ne doit pas casser.
     rows_1 = [
-        '"AES","ECB","16","64","100","1.0","2.0","10.0","20.0","0.50","{}","{}"'
+        '"AES","ECB","16","64","100","1.0","2.0","10.0","20.0","0.50","{}"'
     ]
     rows_2 = [
-        'AES,ECB,16,64,100,3.0,4.0,30.0,40.0,0.70,0.90,{}'
+        'AES,ECB,16,64,100,3.0,4.0,30.0,40.0,0.70,0.90'
     ]
 
     _write_csv(tmp_path / "laptop-windows-x86_experience1.csv", header_bom, rows_1)
@@ -60,12 +60,12 @@ def test_data_platform_load_platform_rows_averages_both_platforms(monkeypatch, t
     header = (
         'algorithm,mode,key_size_bytes,message_size_bytes,repetitions,'
         'avg_encrypt_time_s,avg_decrypt_time_s,throughput_encrypt_mbps,'
-        'throughput_decrypt_mbps,avalanche_score,key_avalanche_score,ci95_encrypt_mbps,extra'
+        'throughput_decrypt_mbps,avalanche_score,key_avalanche_score,ci95_encrypt_mbps'
     )
-    x86_r1 = ['AES,ECB,16,64,100,1.0,2.0,10.0,20.0,0.50,0.60,1.0,{}']
-    x86_r2 = ['AES,ECB,16,64,100,1.0,2.0,30.0,40.0,0.70,0.80,3.0,{}']
-    pi_r1 = ['AES,ECB,16,64,100,1.0,2.0,5.0,10.0,0.40,0.50,0.5,{}']
-    pi_r2 = ['AES,ECB,16,64,100,1.0,2.0,15.0,20.0,0.60,0.70,1.5,{}']
+    x86_r1 = ['AES,ECB,16,64,100,1.0,2.0,10.0,20.0,0.50,0.60,1.0']
+    x86_r2 = ['AES,ECB,16,64,100,1.0,2.0,30.0,40.0,0.70,0.80,3.0']
+    pi_r1 = ['AES,ECB,16,64,100,1.0,2.0,5.0,10.0,0.40,0.50,0.5']
+    pi_r2 = ['AES,ECB,16,64,100,1.0,2.0,15.0,20.0,0.60,0.70,1.5']
 
     _write_csv(tmp_path / "laptop-windows-x86_experience1.csv", header, x86_r1)
     _write_csv(tmp_path / "laptop-windows-x86_experience2.csv", header, x86_r2)

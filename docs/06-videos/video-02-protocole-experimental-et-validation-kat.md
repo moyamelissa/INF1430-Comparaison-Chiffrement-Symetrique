@@ -1,4 +1,4 @@
-# Vidéo 2 - Protocole expérimental
+# Vidéo 2 - Protocole expérimental et validation KAT
 
 ## Introduction (ouverture caméra)
 **Texte à lire :**
