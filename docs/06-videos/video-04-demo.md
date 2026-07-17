@@ -87,6 +87,8 @@ Dans la sortie terminal, on vérifie trois points. Premièrement, les lignes de 
 
 Si plusieurs campagnes sont exécutées le même jour, le fichier de sortie est suffixé automatiquement en `_1`, `_2`, et ainsi de suite. Il faut donc lire le chemin affiché dans le terminal, et pas seulement supposer un nom de fichier unique.
 
+Ici, on peut aussi noter un point d'amélioration. Le script enregistre déjà automatiquement un fichier daté, donc la sortie est traçable et non écrasée. En revanche, le nom reste générique. La prochaine amélioration consistera à intégrer automatiquement dans le nom des informations fonctionnelles comme la plateforme, par exemple x86 ou Raspberry Pi, pour que le fichier soit directement exploitable par le pipeline `run_charts` sans renommage manuel. Cette amélioration sera faite pour la remise du TN4, où l'accent sera davantage mis sur les sorties de données.
+
 ## Section 6 - Génération des graphes sur Windows
 **Où sommes-nous**
 `scripts/run_charts.py`
