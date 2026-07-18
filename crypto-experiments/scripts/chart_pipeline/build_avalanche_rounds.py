@@ -59,7 +59,7 @@ def generate_rounds_avalanche_chart():
     plt.tight_layout()
 
     aval_dir = ensure_chart_dir("02-effet-avalanche")
-    out = aval_dir / "convergence-avalanche-par-tours.png"
+    out = aval_dir / "avalanche-convergence-des-rounds.png"
     fig.savefig(out, dpi=150, bbox_inches="tight", facecolor=BG_COLOR)
     plt.close(fig)
     print(f"\nGraphique enregistré: {out}")

@@ -15,7 +15,7 @@ from chart_pipeline.shared_paths import RESULTS_DIR
 
 # Même convention que data_performance.py : un dictionnaire simple par ligne.
 Row = dict[str, object]
-_EXPERIMENT_NAME_RE = re.compile(r"^experiment_([a-z0-9-]+)_\d{8}(?:_\d+)?\.csv$")
+_RESULT_NAME_RE = re.compile(r"^(?P<platform>[a-z0-9-]+)_experience(?P<idx>\d+)_(?P<date>\d{8})\.csv$")
 
 
 def _row_value(row: dict[str, str], key: str) -> str:
@@ -46,28 +46,22 @@ def _to_float_optional(value: str) -> float | None:
 
 
 def _is_x86_csv(path: Path) -> bool:
-    """Détermine si un CSV appartient à une plateforme x86 (ancien ou nouveau nommage)."""
+    """Détermine si un CSV appartient à une plateforme x86 (nommage strict)."""
     name = path.name.lower()
-    if "x86" in name or "laptop-windows" in name:
-        return True
-
-    match = _EXPERIMENT_NAME_RE.match(name)
+    match = _RESULT_NAME_RE.match(name)
     if not match:
         return False
-    platform_label = match.group(1)
+    platform_label = match.group("platform")
     return "x86" in platform_label and "raspberry" not in platform_label
 
 
 def _is_pi_csv(path: Path) -> bool:
-    """Détermine si un CSV appartient à Raspberry Pi (ancien ou nouveau nommage)."""
+    """Détermine si un CSV appartient à Raspberry Pi (nommage strict)."""
     name = path.name.lower()
-    if "raspberry" in name or "raspberry-pi" in name:
-        return True
-
-    match = _EXPERIMENT_NAME_RE.match(name)
+    match = _RESULT_NAME_RE.match(name)
     if not match:
         return False
-    platform_label = match.group(1)
+    platform_label = match.group("platform")
     return "raspberry" in platform_label
 
 

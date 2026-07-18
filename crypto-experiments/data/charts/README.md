@@ -19,51 +19,51 @@ data/charts/
 
 | Fichier | Description | Script source |
 |---|---|---|
-| `debit-40960-x86.png` | Débit de chiffrement par algo et mode — 4096 octets (x86 uniquement) | `scripts/run_charts.py 01` |
-| `debit-40960-pi.png` | Débit de chiffrement par algo et mode — 4096 octets (Raspberry Pi uniquement) | `scripts/run_charts.py 01` |
-| `debit-vs-taille-message.png` | Débit ECB selon la taille du message (x86) | `scripts/run_charts.py 01` |
-| `comparaison-debit-global.png` | Débit x86 vs ARM — tous algos, 4096 octets | `scripts/run_charts.py 01` |
-| `comparaison-debit-vs-taille-message.png` | Scalabilité x86 vs ARM — débit selon taille (ECB forcé) | `scripts/run_charts.py 01` |
-| `comparaison-ratio-acceleration.png` | Ratio x86/ARM par algorithme | `scripts/run_charts.py 01` |
-| `chacha20-comparaison-plateformes.png` | ChaCha20 x86 vs ARM — débit selon taille | `scripts/run_charts.py 01` |
-| `comparaison-debit-vs-taille-message-all-algorithms.png` | Scalabilité x86 vs ARM — tous algorithmes (inclut ChaCha20 en Stream) | `scripts/run_charts.py 01` |
-| `stabilite-ic95.png` | Intervalle de confiance 95% — stabilité des mesures | `scripts/run_charts.py 01` |
+| `throughput-by-algo-mode-x86-4kb.png` | Débit de chiffrement par algo et mode — 4096 octets (x86 uniquement) | `scripts/run_charts.py 01` |
+| `throughput-by-algo-mode-arm-4kb.png` | Débit de chiffrement par algo et mode — 4096 octets (Raspberry Pi uniquement) | `scripts/run_charts.py 01` |
+| `throughput-vs-message-size-x86.png` | Débit ECB selon la taille du message (x86) | `scripts/run_charts.py 01` |
+| `throughput-by-algo-x86-vs-arm-4kb.png` | Débit x86 vs ARM — tous algos, 4096 octets | `scripts/run_charts.py 01` |
+| `throughput-vs-message-size-x86-vs-arm-ecb.png` | Scalabilité x86 vs ARM — débit selon taille (ECB forcé) | `scripts/run_charts.py 01` |
+| `speedup-ratio-x86-over-arm-by-algo.png` | Ratio x86/ARM par algorithme | `scripts/run_charts.py 01` |
+| `throughput-vs-message-size-chacha20-x86-vs-arm.png` | ChaCha20 x86 vs ARM — débit selon taille | `scripts/run_charts.py 01` |
+| `throughput-vs-message-size-x86-vs-arm-all-algos.png` | Scalabilité x86 vs ARM — tous algorithmes (inclut ChaCha20 en Stream) | `scripts/run_charts.py 01` |
+| `ci95-throughput-stability-x86-vs-arm-4kb.png` | Intervalle de confiance 95% — stabilité des mesures | `scripts/run_charts.py 01` |
 
 ### 02-effet-avalanche
 
 | Fichier | Description | Script source |
 |---|---|---|
-| `avalanche-par-algorithme.png` | Score d'avalanche moyen par algorithme | `scripts/run_charts.py 02` |
-| `avalanche-texte-vs-cle.png` | Flip texte clair vs flip clé | `scripts/run_charts.py 02` |
-| `comparaison-avalanche.png` | Scores d'avalanche x86 vs ARM | `scripts/run_charts.py 02` |
-| `convergence-avalanche-par-tours.png` | Convergence de l'effet d'avalanche DES par tours | `scripts/run_charts.py 02` |
+| `avalanche-score-by-algo.png` | Score d'avalanche moyen par algorithme | `scripts/run_charts.py 02` |
+| `avalanche-plaintext-vs-key.png` | Flip texte clair vs flip clé | `scripts/run_charts.py 02` |
+| `avalanche-score-x86-vs-arm.png` | Scores d'avalanche x86 vs ARM | `scripts/run_charts.py 02` |
+| `avalanche-convergence-des-rounds.png` | Convergence de l'effet d'avalanche DES par tours | `scripts/run_charts.py 02` |
 
 ### 03-modes-chiffrement
 
 | Fichier | Description | Script source |
 |---|---|---|
-| `aes-comparaison-modes.png` | AES-128 — débit par mode (ECB/CBC/CTR/GCM) | `scripts/run_charts.py 03` |
-| `aes-securite-vs-performance.png` | AES-128 — compromis sécurité/perf selon le mode | `scripts/run_charts.py 03` |
-| `aes-impact-taille-cle.png` | Impact de la taille de clé AES sur le débit | `scripts/run_charts.py 03` |
-| `chiffrement-vs-dechiffrement-ecb.png` | Symétrie chiffrement / déchiffrement (ECB) | `scripts/run_charts.py 03` |
-| `vulnerabilite-mode-ecb.png` | Démonstration visuelle — ECB vs CBC sur image | `scripts/run_charts.py 03` |
+| `aes-throughput-by-mode-128bit.png` | AES-128 — débit par mode (ECB/CBC/CTR/GCM) | `scripts/run_charts.py 03` |
+| `aes-security-vs-performance-by-mode.png` | AES-128 — compromis sécurité/perf selon le mode | `scripts/run_charts.py 03` |
+| `aes-throughput-by-key-size.png` | Impact de la taille de clé AES sur le débit | `scripts/run_charts.py 03` |
+| `throughput-encrypt-vs-decrypt-ecb.png` | Symétrie chiffrement / déchiffrement (ECB) | `scripts/run_charts.py 03` |
+| `ecb-visual-pattern-leakage-demo.png` | Démonstration visuelle — ECB vs CBC sur image | `scripts/run_charts.py 03` |
 
 ### 03-modes-chiffrement/demo-ecb
 
-Fichiers BMP utilisés pour construire `vulnerabilite-mode-ecb.png`.
+Fichiers BMP utilisés pour construire `ecb-visual-pattern-leakage-demo.png`.
 
 | Fichier | Description |
 |---|---|
-| `image-originale.bmp` | Image synthétique de test (régions uniformes) |
-| `image-chiffree-ecb.bmp` | Image chiffrée ECB (patterns visibles) |
-| `image-chiffree-cbc.bmp` | Image chiffrée CBC (visuellement aléatoire) |
+| `image-original.bmp` | Image synthétique de test (régions uniformes) |
+| `image-encrypted-ecb.bmp` | Image chiffrée ECB (patterns visibles) |
+| `image-encrypted-cbc.bmp` | Image chiffrée CBC (visuellement aléatoire) |
 
 ### 04-synthese
 
 | Fichier | Description | Script source |
 |---|---|---|
-| `multicriteria-heatmap.png` | Scores normalisés par métrique (débit, latence, avalanche) | `scripts/run_charts.py 04` |
-| `algorithm-profile-radar.png` | Radar multi-critères — débit, portabilité, avalanche | `scripts/run_charts.py 04` |
+| `multicriteria-score-heatmap.png` | Scores normalisés par métrique (débit, latence, avalanche) | `scripts/run_charts.py 04` |
+| `algorithm-profile-radar-chart.png` | Radar multi-critères — débit, portabilité, avalanche | `scripts/run_charts.py 04` |
 
 ---
 
@@ -97,7 +97,7 @@ scripts/chart_pipeline/build_ecb_demo.py
 
 ## Notes
 
-- Nommage : kebab-case français, minuscules, sans accents dans les noms de fichiers.
+- Nommage : kebab-case anglais, minuscules, explicite sur la portée (x86, arm, x86-vs-arm) et la condition (4kb, ecb, all-algos).
 - Dossiers numérotés pour un ordre de lecture logique.
 - Palette officielle INF1430 TN3 — fond blanc `#FFFFFF`, noir `#0A0A0A`, or `#C9A84C`.
 

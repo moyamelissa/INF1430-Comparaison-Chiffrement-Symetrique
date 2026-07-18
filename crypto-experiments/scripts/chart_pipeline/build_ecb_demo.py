@@ -32,9 +32,9 @@ def generate_ecb_demo_chart():
     images = build_demo_images()
 
     ecb_demo_dir = ensure_chart_dir("03-modes-chiffrement/demo-ecb")
-    orig_path = ecb_demo_dir / "image-originale.bmp"
-    ecb_path = ecb_demo_dir / "image-chiffree-ecb.bmp"
-    cbc_path = ecb_demo_dir / "image-chiffree-cbc.bmp"
+    orig_path = ecb_demo_dir / "image-original.bmp"
+    ecb_path = ecb_demo_dir / "image-encrypted-ecb.bmp"
+    cbc_path = ecb_demo_dir / "image-encrypted-cbc.bmp"
 
     write_bmp(orig_path, images["original"])
     write_bmp(ecb_path, images["ecb"])
@@ -69,7 +69,7 @@ def generate_ecb_demo_chart():
     plt.tight_layout()
 
     mode_dir = ensure_chart_dir("03-modes-chiffrement")
-    out = mode_dir / "vulnerabilite-mode-ecb.png"
+    out = mode_dir / "ecb-visual-pattern-leakage-demo.png"
     fig.savefig(out, dpi=180, bbox_inches="tight", facecolor=BG_COLOR)
     plt.close(fig)
     print(f"  Enregistré: {out}")

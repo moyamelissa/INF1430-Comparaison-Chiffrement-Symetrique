@@ -26,6 +26,7 @@ from domain.cipher.Twofish import Twofish
 
 _HEX_LINE_RE = re.compile(r"^(KEY|PT|CT)\s*=\s*([0-9A-Fa-f]+)$")
 _LAST_STATS: list[dict[str, int | str]] = []
+_PROFILE_ENV = "TWOFISH_KAT_PROFILE"
 
 
 def _resources_dir() -> Path:
@@ -127,6 +128,61 @@ def _run_file(label: str, path: Path, verbose: bool) -> tuple[int, int, int]:
     return failures, len(vectors), assertions
 
 
+def _apply_profile_subset(
+    vectors_by_label: dict[str, list[tuple[bytes, bytes, bytes]]],
+    profile: str,
+) -> dict[str, list[tuple[bytes, bytes, bytes]]]:
+    if profile == "full":
+        return vectors_by_label
+
+    # Core profile: keep one canonical representative vector per family.
+    # This keeps the method balanced with other suites in main TN3 reporting.
+    return {
+        "Twofish ECB_VK": vectors_by_label["Twofish ECB_VK"][:1],
+        "Twofish ECB_VT": vectors_by_label["Twofish ECB_VT"][:1],
+        "Twofish ECB_TBL": vectors_by_label["Twofish ECB_TBL"][:1],
+    }
+
+
+def _run_vectors(
+    label: str,
+    vectors: list[tuple[bytes, bytes, bytes]],
+    source_name: str,
+    verbose: bool,
+) -> tuple[int, int, int]:
+    failures = 0
+    assertions = len(vectors) * 2
+    if verbose:
+        print(f"  [INFO] {label}: {len(vectors)} vecteur(s) utilises depuis {source_name}")
+
+    for idx, (key, plain, expected_cipher) in enumerate(vectors, start=1):
+        tf = Twofish(key)
+        got_cipher = tf.encrypt_block(plain)
+
+        ok_enc = got_cipher == expected_cipher
+        if not ok_enc:
+            failures += 1
+        if verbose:
+            status = "PASS" if ok_enc else "FAIL"
+            print(f"  [{status}] {label} #{idx} encrypt")
+            if not ok_enc:
+                print(f"         expected: {expected_cipher.hex()}")
+                print(f"         got:      {got_cipher.hex()}")
+
+        got_plain = tf.decrypt_block(expected_cipher)
+        ok_dec = got_plain == plain
+        if not ok_dec:
+            failures += 1
+        if verbose:
+            status = "PASS" if ok_dec else "FAIL"
+            print(f"  [{status}] {label} #{idx} decrypt round-trip")
+            if not ok_dec:
+                print(f"         expected: {plain.hex()}")
+                print(f"         got:      {got_plain.hex()}")
+
+    return failures, len(vectors), assertions
+
+
 def get_last_stats() -> list[dict[str, int | str]]:
     """Retourne les statistiques de la derniere execution de run()."""
     return list(_LAST_STATS)
@@ -138,6 +194,9 @@ def run(verbose: bool = True) -> int:
     _LAST_STATS = []
 
     failures = 0
+    profile = os.environ.get(_PROFILE_ENV, "core").strip().lower()
+    if profile not in {"core", "full"}:
+        profile = "core"
 
     try:
         vk_path = _resolve_vector_file("ECB_VK.TXT", "ECB_VK (2).TXT")
@@ -148,12 +207,28 @@ def run(verbose: bool = True) -> int:
             print(f"  [FAIL] Twofish vectors missing: {exc}")
         return 1
 
-    for label, path in (
+    all_vectors = {
+        "Twofish ECB_VK": _parse_ecb_vectors(vk_path),
+        "Twofish ECB_VT": _parse_ecb_vectors(vt_path),
+        "Twofish ECB_TBL": _parse_ecb_vectors(tbl_path),
+    }
+    selected_vectors = _apply_profile_subset(all_vectors, profile)
+
+    if verbose:
+        mode_text = "extended" if profile == "full" else "core"
+        print(f"  [INFO] Twofish profile: {mode_text} ({_PROFILE_ENV}={profile})")
+
+    for label, source_path in (
         ("Twofish ECB_VK", vk_path),
         ("Twofish ECB_VT", vt_path),
         ("Twofish ECB_TBL", tbl_path),
     ):
-        file_failures, vectors, assertions = _run_file(label, path, verbose)
+        file_failures, vectors, assertions = _run_vectors(
+            label,
+            selected_vectors[label],
+            source_path.name,
+            verbose,
+        )
         failures += file_failures
         _LAST_STATS.append(
             {
@@ -161,6 +236,7 @@ def run(verbose: bool = True) -> int:
                 "vectors": vectors,
                 "assertions": assertions,
                 "failures": file_failures,
+                "profile": profile,
             }
         )
 

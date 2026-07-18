@@ -87,7 +87,7 @@ python scripts/experiment.py
 **Texte à lire après la commande**
 Dans la sortie terminal, on vérifie trois points. Premièrement, les lignes de type `Running ...` qui confirment les exécutions par configuration. Deuxièmement, le tableau `Run summary by algorithm` qui confirme la couverture des algorithmes. Troisièmement, le chemin du fichier CSV exporté dans `data/results/`.
 
-Le nom de sortie suit maintenant le format `<plateforme>_experienceX_YYYYMMDD`, avec un index `X` incrémenté automatiquement à chaque nouvelle campagne de la même plateforme. Il faut donc lire le chemin affiché dans le terminal.
+Si plusieurs campagnes sont exécutées le même jour, le fichier est suffixé automatiquement en `_1`, `_2`, et ainsi de suite. Il faut donc lire le chemin affiché dans le terminal.
 
 ## Section 6 - Génération des graphes sur Windows
 **Où sommes-nous**

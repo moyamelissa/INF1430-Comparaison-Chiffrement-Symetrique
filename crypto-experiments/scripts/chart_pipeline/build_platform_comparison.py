@@ -96,7 +96,7 @@ def savefig(name: str):
 
 
 # ===========================================================================
-# Graphique 1 — 01-debit/comparaison-debit-global.png
+# Graphique 1 — 01-debit/throughput-by-algo-x86-vs-arm-4kb.png
 # Barres de débit côte-à-côte (ECB, 4096 o, meilleure clé par algo)
 # ===========================================================================
 def cmp1_throughput_all():
@@ -147,11 +147,11 @@ def cmp1_throughput_all():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/comparaison-debit-global.png")
+    savefig("01-debit/throughput-by-algo-x86-vs-arm-4kb.png")
 
 
 # ===========================================================================
-# Graphique 1b — 01-debit/debit-40960-pi.png
+# Graphique 1b — 01-debit/throughput-by-algo-mode-arm-4kb.png
 # Comparaison du débit à 4 096 octets (Raspberry Pi uniquement)
 # Une barre par combinaison algorithme+mode, regroupées par algorithme.
 # ===========================================================================
@@ -235,11 +235,11 @@ def cmp1b_throughput_4096_pi():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/debit-40960-pi.png")
+    savefig("01-debit/throughput-by-algo-mode-arm-4kb.png")
 
 
 # ===========================================================================
-# Graphique 2 — 01-debit/comparaison-ratio-acceleration.png
+# Graphique 2 — 01-debit/speedup-ratio-x86-over-arm-by-algo.png
 # Rapport d'accélération x86/Pi par algorithme (ECB, 4096 o)
 # Montre dans quelle mesure x86 est plus rapide que le Pi pour chaque algorithme.
 # ===========================================================================
@@ -286,11 +286,11 @@ def cmp2_speedup_ratio():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/comparaison-ratio-acceleration.png")
+    savefig("01-debit/speedup-ratio-x86-over-arm-by-algo.png")
 
 
 # ===========================================================================
-# Graphique 3 — 01-debit/comparaison-debit-vs-taille-message.png
+# Graphique 3 — 01-debit/throughput-vs-message-size-x86-vs-arm-ecb.png
 # Débit selon la taille du message : les deux plateformes, ECB, meilleure clé par algo
 # ===========================================================================
 def cmp3_throughput_vs_size():
@@ -351,11 +351,11 @@ def cmp3_throughput_vs_size():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/comparaison-debit-vs-taille-message.png")
+    savefig("01-debit/throughput-vs-message-size-x86-vs-arm-ecb.png")
 
 
 # ===========================================================================
-# Graphique 4 — 01-debit/chacha20-comparaison-plateformes.png
+# Graphique 4 — 01-debit/throughput-vs-message-size-chacha20-x86-vs-arm.png
 # Performance ChaCha20 : x86 vs Pi sur toutes les tailles de message
 # Intéressant car le Pi ne dispose pas d'AES-NI mais ChaCha20 n'a pas d'accélération
 # matérielle sur aucune des deux plateformes — l'écart devrait être plus faible qu'avec AES.
@@ -401,11 +401,11 @@ def cmp5_chacha20():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/chacha20-comparaison-plateformes.png")
+    savefig("01-debit/throughput-vs-message-size-chacha20-x86-vs-arm.png")
 
 
 # ===========================================================================
-# Graphique 5 — 01-debit/stabilite-ic95.png
+# Graphique 5 — 01-debit/ci95-throughput-stability-x86-vs-arm-4kb.png
 # Stabilité des mesures : CI95 x86 vs Pi (ECB, 4096 o, meilleure clé)
 # Montre lequel des deux environnements est le plus déterministe.
 # ===========================================================================
@@ -461,11 +461,11 @@ def cmp6_ci95_stability():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/stabilite-ic95.png")
+    savefig("01-debit/ci95-throughput-stability-x86-vs-arm-4kb.png")
 
 
 # ===========================================================================
-# Graphique 6 — 01-debit/comparaison-debit-vs-taille-message-all-algorithms.png
+# Graphique 6 — 01-debit/throughput-vs-message-size-x86-vs-arm-all-algos.png
 # Scalabilité tous algos : x86 (—) et Pi (- -) sur les mêmes axes
 # ===========================================================================
 def cmp8_scalability_all_algos():
@@ -524,7 +524,7 @@ def cmp8_scalability_all_algos():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/comparaison-debit-vs-taille-message-all-algorithms.png")
+    savefig("01-debit/throughput-vs-message-size-x86-vs-arm-all-algos.png")
 
 
 # ===========================================================================
@@ -533,7 +533,7 @@ def cmp8_scalability_all_algos():
 
 
 # ===========================================================================
-# Graphique 7 — 02-effet-avalanche/comparaison-avalanche.png
+# Graphique 7 — 02-effet-avalanche/avalanche-score-x86-vs-arm.png
 # Scores d'avalanche : les deux plateformes (doivent être identiques — aucun effet matériel)
 # ===========================================================================
 def cmp4_avalanche():
@@ -577,7 +577,7 @@ def cmp4_avalanche():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("02-effet-avalanche/comparaison-avalanche.png")
+    savefig("02-effet-avalanche/avalanche-score-x86-vs-arm.png")
 
 
 # ===========================================================================
@@ -586,7 +586,7 @@ def cmp4_avalanche():
 
 
 # ===========================================================================
-# Graphique 8 — 04-synthese/algorithm-profile-radar.png
+# Graphique 8 — 04-synthese/algorithm-profile-radar-chart.png
 # Radar synthèse : tous algos sur 4 axes normalisés
 # Débit x86 · Débit Pi · Avalanche · Portabilité (ratio Pi/x86)
 # ===========================================================================
@@ -649,7 +649,7 @@ def cmp7_radar():
     )
     ax.legend(loc="upper right", bbox_to_anchor=(1.28, 1.12), fontsize=9)
     plt.tight_layout()
-    savefig("04-synthese/algorithm-profile-radar.png")
+    savefig("04-synthese/algorithm-profile-radar-chart.png")
 
 
 CHART_GROUPS = {
@@ -673,15 +673,15 @@ CHART_GROUPS = {
 # Correspondance explicite: fonction de tracé -> fichier PNG de sortie.
 # Utile pour vérifier rapidement comment chaque graphique est produit.
 GRAPH_OUTPUTS = {
-    cmp1_throughput_all: "01-debit/comparaison-debit-global.png",
-    cmp1b_throughput_4096_pi: "01-debit/debit-40960-pi.png",
-    cmp2_speedup_ratio: "01-debit/comparaison-ratio-acceleration.png",
-    cmp3_throughput_vs_size: "01-debit/comparaison-debit-vs-taille-message.png",
-    cmp4_avalanche: "02-effet-avalanche/comparaison-avalanche.png",
-    cmp5_chacha20: "01-debit/chacha20-comparaison-plateformes.png",
-    cmp6_ci95_stability: "01-debit/stabilite-ic95.png",
-    cmp7_radar: "04-synthese/algorithm-profile-radar.png",
-    cmp8_scalability_all_algos: "01-debit/comparaison-debit-vs-taille-message-all-algorithms.png",
+    cmp1_throughput_all: "01-debit/throughput-by-algo-x86-vs-arm-4kb.png",
+    cmp1b_throughput_4096_pi: "01-debit/throughput-by-algo-mode-arm-4kb.png",
+    cmp2_speedup_ratio: "01-debit/speedup-ratio-x86-over-arm-by-algo.png",
+    cmp3_throughput_vs_size: "01-debit/throughput-vs-message-size-x86-vs-arm-ecb.png",
+    cmp4_avalanche: "02-effet-avalanche/avalanche-score-x86-vs-arm.png",
+    cmp5_chacha20: "01-debit/throughput-vs-message-size-chacha20-x86-vs-arm.png",
+    cmp6_ci95_stability: "01-debit/ci95-throughput-stability-x86-vs-arm-4kb.png",
+    cmp7_radar: "04-synthese/algorithm-profile-radar-chart.png",
+    cmp8_scalability_all_algos: "01-debit/throughput-vs-message-size-x86-vs-arm-all-algos.png",
 }
 
 
