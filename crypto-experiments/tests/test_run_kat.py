@@ -25,6 +25,7 @@ def test_run_kat_main_success(monkeypatch):
     monkeypatch.setattr(module.kat_modes, "run", lambda verbose=True: 0)
     monkeypatch.setattr(module.kat_gcm, "run", lambda verbose=True: 0)
     monkeypatch.setattr(module.kat_chacha20, "run", lambda verbose=True: 0)
+    monkeypatch.setattr(module.kat_twofish, "run", lambda verbose=True: 0)
 
     with pytest.raises(SystemExit) as exc:
         module.main()
@@ -41,6 +42,7 @@ def test_run_kat_main_failure(monkeypatch):
     monkeypatch.setattr(module.kat_modes, "run", lambda verbose=True: 0)
     monkeypatch.setattr(module.kat_gcm, "run", lambda verbose=True: 0)
     monkeypatch.setattr(module.kat_chacha20, "run", lambda verbose=True: 0)
+    monkeypatch.setattr(module.kat_twofish, "run", lambda verbose=True: 0)
 
     with pytest.raises(SystemExit) as exc:
         module.main()
