@@ -49,7 +49,7 @@ from chart_pipeline.shared_paths import CHARTS_DIR as OUT_DIR, ensure_chart_dir
 
 
 setup_matplotlib(title_pad=14)
-for subdir in ["01-debit", "02-effet-avalanche", "04-synthese"]:
+for subdir in ["01-throughput", "02-avalanche-effect", "04-decision-support"]:
     ensure_chart_dir(subdir)
 
 # Mode de référence par algorithme pour la comparaison inter-plateformes.
@@ -91,12 +91,12 @@ def savefig(name: str):
 
 
 # ===========================================================================
-# Dossier 01 — debit
+# Dossier 01 — throughput
 # ===========================================================================
 
 
 # ===========================================================================
-# Graphique 1 — 01-debit/throughput-by-algo-x86-vs-arm-4kb.png
+# Graphique 1 — 01-throughput/throughput-by-algo-x86-vs-arm-4kb.png
 # Barres de débit côte-à-côte (ECB, 4096 o, meilleure clé par algo)
 # ===========================================================================
 def cmp1_throughput_all():
@@ -147,11 +147,11 @@ def cmp1_throughput_all():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/throughput-by-algo-x86-vs-arm-4kb.png")
+    savefig("01-throughput/throughput-by-algo-x86-vs-arm-4kb.png")
 
 
 # ===========================================================================
-# Graphique 1b — 01-debit/throughput-by-algo-mode-arm-4kb.png
+# Graphique 1b — 01-throughput/throughput-by-algo-mode-arm-4kb.png
 # Comparaison du débit à 4 096 octets (Raspberry Pi uniquement)
 # Une barre par combinaison algorithme+mode, regroupées par algorithme.
 # ===========================================================================
@@ -235,11 +235,11 @@ def cmp1b_throughput_4096_pi():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/throughput-by-algo-mode-arm-4kb.png")
+    savefig("01-throughput/throughput-by-algo-mode-arm-4kb.png")
 
 
 # ===========================================================================
-# Graphique 2 — 01-debit/speedup-ratio-x86-over-arm-by-algo.png
+# Graphique 2 — 01-throughput/speedup-ratio-x86-over-arm-by-algo.png
 # Rapport d'accélération x86/Pi par algorithme (ECB, 4096 o)
 # Montre dans quelle mesure x86 est plus rapide que le Pi pour chaque algorithme.
 # ===========================================================================
@@ -286,11 +286,11 @@ def cmp2_speedup_ratio():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/speedup-ratio-x86-over-arm-by-algo.png")
+    savefig("01-throughput/speedup-ratio-x86-over-arm-by-algo.png")
 
 
 # ===========================================================================
-# Graphique 3 — 01-debit/throughput-vs-message-size-x86-vs-arm-ecb.png
+# Graphique 3 — 01-throughput/throughput-vs-message-size-x86-vs-arm-ecb.png
 # Débit selon la taille du message : les deux plateformes, ECB, meilleure clé par algo
 # ===========================================================================
 def cmp3_throughput_vs_size():
@@ -351,11 +351,11 @@ def cmp3_throughput_vs_size():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/throughput-vs-message-size-x86-vs-arm-ecb.png")
+    savefig("01-throughput/throughput-vs-message-size-x86-vs-arm-ecb.png")
 
 
 # ===========================================================================
-# Graphique 4 — 01-debit/throughput-vs-message-size-chacha20-x86-vs-arm.png
+# Graphique 4 — 01-throughput/throughput-vs-message-size-chacha20-x86-vs-arm.png
 # Performance ChaCha20 : x86 vs Pi sur toutes les tailles de message
 # Intéressant car le Pi ne dispose pas d'AES-NI mais ChaCha20 n'a pas d'accélération
 # matérielle sur aucune des deux plateformes — l'écart devrait être plus faible qu'avec AES.
@@ -401,11 +401,11 @@ def cmp5_chacha20():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/throughput-vs-message-size-chacha20-x86-vs-arm.png")
+    savefig("01-throughput/throughput-vs-message-size-chacha20-x86-vs-arm.png")
 
 
 # ===========================================================================
-# Graphique 5 — 01-debit/ci95-throughput-stability-x86-vs-arm-4kb.png
+# Graphique 5 — 01-throughput/ci95-throughput-stability-x86-vs-arm-4kb.png
 # Stabilité des mesures : CI95 x86 vs Pi (ECB, 4096 o, meilleure clé)
 # Montre lequel des deux environnements est le plus déterministe.
 # ===========================================================================
@@ -461,11 +461,11 @@ def cmp6_ci95_stability():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/ci95-throughput-stability-x86-vs-arm-4kb.png")
+    savefig("01-throughput/ci95-throughput-stability-x86-vs-arm-4kb.png")
 
 
 # ===========================================================================
-# Graphique 6 — 01-debit/throughput-vs-message-size-x86-vs-arm-all-algos.png
+# Graphique 6 — 01-throughput/throughput-vs-message-size-x86-vs-arm-all-algos.png
 # Scalabilité tous algos : x86 (—) et Pi (- -) sur les mêmes axes
 # ===========================================================================
 def cmp8_scalability_all_algos():
@@ -524,16 +524,16 @@ def cmp8_scalability_all_algos():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-debit/throughput-vs-message-size-x86-vs-arm-all-algos.png")
+    savefig("01-throughput/throughput-vs-message-size-x86-vs-arm-all-algos.png")
 
 
 # ===========================================================================
-# Dossier 02 — effet-avalanche
+# Dossier 02 — avalanche-effect
 # ===========================================================================
 
 
 # ===========================================================================
-# Graphique 7 — 02-effet-avalanche/avalanche-score-x86-vs-arm.png
+# Graphique 7 — 02-avalanche-effect/avalanche-score-x86-vs-arm.png
 # Scores d'avalanche : les deux plateformes (doivent être identiques — aucun effet matériel)
 # ===========================================================================
 def cmp4_avalanche():
@@ -577,16 +577,16 @@ def cmp4_avalanche():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("02-effet-avalanche/avalanche-score-x86-vs-arm.png")
+    savefig("02-avalanche-effect/avalanche-score-x86-vs-arm.png")
 
 
 # ===========================================================================
-# Dossier 04 — synthese
+# Dossier 04 — decision-support
 # ===========================================================================
 
 
 # ===========================================================================
-# Graphique 8 — 04-synthese/algorithm-profile-radar-chart.png
+# Graphique 8 — 04-decision-support/algorithm-profile-radar-chart.png
 # Radar synthèse : tous algos sur 4 axes normalisés
 # Débit x86 · Débit Pi · Avalanche · Portabilité (ratio Pi/x86)
 # ===========================================================================
@@ -649,11 +649,11 @@ def cmp7_radar():
     )
     ax.legend(loc="upper right", bbox_to_anchor=(1.28, 1.12), fontsize=9)
     plt.tight_layout()
-    savefig("04-synthese/algorithm-profile-radar-chart.png")
+    savefig("04-decision-support/algorithm-profile-radar-chart.png")
 
 
 CHART_GROUPS = {
-    "01-debit": [
+    "01-throughput": [
         cmp1_throughput_all,
         cmp1b_throughput_4096_pi,
         cmp2_speedup_ratio,
@@ -662,10 +662,10 @@ CHART_GROUPS = {
         cmp6_ci95_stability,
         cmp8_scalability_all_algos,
     ],
-    "02-effet-avalanche": [
+    "02-avalanche-effect": [
         cmp4_avalanche,
     ],
-    "04-synthese": [
+    "04-decision-support": [
         cmp7_radar,
     ],
 }
@@ -673,15 +673,15 @@ CHART_GROUPS = {
 # Correspondance explicite: fonction de tracé -> fichier PNG de sortie.
 # Utile pour vérifier rapidement comment chaque graphique est produit.
 GRAPH_OUTPUTS = {
-    cmp1_throughput_all: "01-debit/throughput-by-algo-x86-vs-arm-4kb.png",
-    cmp1b_throughput_4096_pi: "01-debit/throughput-by-algo-mode-arm-4kb.png",
-    cmp2_speedup_ratio: "01-debit/speedup-ratio-x86-over-arm-by-algo.png",
-    cmp3_throughput_vs_size: "01-debit/throughput-vs-message-size-x86-vs-arm-ecb.png",
-    cmp4_avalanche: "02-effet-avalanche/avalanche-score-x86-vs-arm.png",
-    cmp5_chacha20: "01-debit/throughput-vs-message-size-chacha20-x86-vs-arm.png",
-    cmp6_ci95_stability: "01-debit/ci95-throughput-stability-x86-vs-arm-4kb.png",
-    cmp7_radar: "04-synthese/algorithm-profile-radar-chart.png",
-    cmp8_scalability_all_algos: "01-debit/throughput-vs-message-size-x86-vs-arm-all-algos.png",
+    cmp1_throughput_all: "01-throughput/throughput-by-algo-x86-vs-arm-4kb.png",
+    cmp1b_throughput_4096_pi: "01-throughput/throughput-by-algo-mode-arm-4kb.png",
+    cmp2_speedup_ratio: "01-throughput/speedup-ratio-x86-over-arm-by-algo.png",
+    cmp3_throughput_vs_size: "01-throughput/throughput-vs-message-size-x86-vs-arm-ecb.png",
+    cmp4_avalanche: "02-avalanche-effect/avalanche-score-x86-vs-arm.png",
+    cmp5_chacha20: "01-throughput/throughput-vs-message-size-chacha20-x86-vs-arm.png",
+    cmp6_ci95_stability: "01-throughput/ci95-throughput-stability-x86-vs-arm-4kb.png",
+    cmp7_radar: "04-decision-support/algorithm-profile-radar-chart.png",
+    cmp8_scalability_all_algos: "01-throughput/throughput-vs-message-size-x86-vs-arm-all-algos.png",
 }
 
 
@@ -698,7 +698,7 @@ def generate_groups(groups=None):
     """Génère des groupes de graphiques selon le nom du dossier de sortie.
 
     Paramètres:
-        groups: liste de dossiers, ex. ["01-debit", "04-synthese"].
+        groups: liste de dossiers, ex. ["01-throughput", "04-decision-support"].
                 Si None, tous les groupes sont générés.
 
     Voir GRAPH_OUTPUTS pour la correspondance fonction -> PNG.

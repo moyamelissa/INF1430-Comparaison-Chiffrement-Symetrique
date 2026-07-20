@@ -64,12 +64,12 @@ def savefig(name: str):
 
 
 # ===========================================================================
-# Dossier 01 — debit
+# Dossier 01 — throughput
 # ===========================================================================
 
 
 # ===========================================================================
-# Graphique 1 — 01-debit/throughput-by-algo-mode-x86-4kb.png
+# Graphique 1 — 01-throughput/throughput-by-algo-mode-x86-4kb.png
 # Comparaison du débit à 4 096 octets (point médian représentatif)
 # Une barre par combinaison algorithme+mode, regroupées par algorithme.
 # ===========================================================================
@@ -133,11 +133,11 @@ def fig1_throughput_4096():
     ax.set_ylim(bottom=0)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("01-debit/throughput-by-algo-mode-x86-4kb.png")
+    savefig("01-throughput/throughput-by-algo-mode-x86-4kb.png")
 
 
 # ===========================================================================
-# Graphique 2 — 01-debit/throughput-vs-message-size-x86.png
+# Graphique 2 — 01-throughput/throughput-vs-message-size-x86.png
 # Débit en fonction de la taille du message (courbe, mode ECB uniquement)
 # Montre la scalabilité de chaque algorithme selon la taille des données.
 # ===========================================================================
@@ -177,14 +177,14 @@ def fig2_throughput_vs_size():
     ax.legend(fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("01-debit/throughput-vs-message-size-x86.png")
+    savefig("01-throughput/throughput-vs-message-size-x86.png")
 
 
 # ===========================================================================
-# Dossier 02 — effet-avalanche
+# Dossier 02 — avalanche-effect
 # ===========================================================================
 # ===========================================================================
-# Graphique 3 — 02-effet-avalanche/avalanche-score-by-algo.png
+# Graphique 3 — 02-avalanche-effect/avalanche-score-by-algo.png
 # Score d'avalanche par algorithme (barres, moyenne de tous les modes)
 # Valeur attendue ≈ 0,50 (diffusion idéale)
 # ===========================================================================
@@ -223,11 +223,11 @@ def fig4_avalanche():
 
     _style_ax(ax)
     plt.tight_layout()
-    savefig("02-effet-avalanche/avalanche-score-by-algo.png")
+    savefig("02-avalanche-effect/avalanche-score-by-algo.png")
 
 
 # ===========================================================================
-# Graphique 4 — 02-effet-avalanche/avalanche-plaintext-vs-key.png
+# Graphique 4 — 02-avalanche-effect/avalanche-plaintext-vs-key.png
 # Comparaison avalanche texte clair vs avalanche clé
 # Montre que tous les algorithmes répondent de façon égale aux deux types de flip.
 # ===========================================================================
@@ -274,16 +274,16 @@ def fig4b_key_avalanche():
                 f"{m_pct:.1f}%", ha="center", va="bottom", fontsize=8, color=c)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("02-effet-avalanche/avalanche-plaintext-vs-key.png")
+    savefig("02-avalanche-effect/avalanche-plaintext-vs-key.png")
 
 
 # ===========================================================================
-# Dossier 03 — modes-chiffrement
+# Dossier 03 — encryption-modes
 # ===========================================================================
 
 
 # ===========================================================================
-# Graphique 5 — 03-modes-chiffrement/aes-throughput-by-mode-128bit.png
+# Graphique 5 — 03-encryption-modes/aes-throughput-by-mode-128bit.png
 # Comparaison des modes pour AES-128 sur toutes les tailles de message
 # Débit de chiffrement : ECB / CBC / CTR / GCM
 # ===========================================================================
@@ -318,11 +318,11 @@ def fig3_aes_mode_comparison():
     ax.legend(title="Mode", fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("03-modes-chiffrement/aes-throughput-by-mode-128bit.png")
+    savefig("03-encryption-modes/aes-throughput-by-mode-128bit.png")
 
 
 # ===========================================================================
-# Graphique 6 — 03-modes-chiffrement/throughput-encrypt-vs-decrypt-ecb.png
+# Graphique 6 — 03-encryption-modes/throughput-encrypt-vs-decrypt-ecb.png
 # Débit chiffrement vs déchiffrement (barres pairées, 4096 o, mode ECB)
 # ===========================================================================
 def fig5_enc_vs_dec():
@@ -358,11 +358,11 @@ def fig5_enc_vs_dec():
     ax.legend(fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("03-modes-chiffrement/throughput-encrypt-vs-decrypt-ecb.png")
+    savefig("03-encryption-modes/throughput-encrypt-vs-decrypt-ecb.png")
 
 
 # ===========================================================================
-# Graphique 7 — 03-modes-chiffrement/aes-throughput-by-key-size.png
+# Graphique 7 — 03-encryption-modes/aes-throughput-by-key-size.png
 # Impact de la taille de clé sur le débit AES (ECB, 4096 o)
 # ===========================================================================
 def fig6_key_size_impact():
@@ -397,7 +397,7 @@ def fig6_key_size_impact():
     ax.legend(title="Mode", fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("03-modes-chiffrement/aes-throughput-by-key-size.png")
+    savefig("03-encryption-modes/aes-throughput-by-key-size.png")
 
 
 # ===========================================================================
@@ -521,7 +521,7 @@ def algo_profile(algo_name):
 
 
 # ===========================================================================
-# Graphique 8 — 03-modes-chiffrement/aes-security-vs-performance-by-mode.png
+# Graphique 8 — 03-encryption-modes/aes-security-vs-performance-by-mode.png
 # AES : sécurité vs performance — ECB / GCM / CTR
 # ===========================================================================
 def fig7_ecb_vs_gcm():
@@ -556,17 +556,17 @@ def fig7_ecb_vs_gcm():
     ax.legend(fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("03-modes-chiffrement/aes-security-vs-performance-by-mode.png")
+    savefig("03-encryption-modes/aes-security-vs-performance-by-mode.png")
 
 
 # ===========================================================================
 # ===========================================================================
-# Dossier 04 — synthese
+# Dossier 04 — decision-support
 # ===========================================================================
 
 
 # ===========================================================================
-# Graphique 9 — 04-synthese/multicriteria-score-heatmap.png
+# Graphique 9 — 04-decision-support/multicriteria-score-heatmap.png
 # Heatmap synthèse : algos × métriques (scores normalisés 0→1)
 # ===========================================================================
 def fig9_synthesis_heatmap():
@@ -624,25 +624,25 @@ def fig9_synthesis_heatmap():
         fontsize=11, color=TEXT_COLOR,
     )
     plt.tight_layout()
-    savefig("04-synthese/multicriteria-score-heatmap.png")
+    savefig("04-decision-support/multicriteria-score-heatmap.png")
 
 
 CHART_GROUPS = {
-    "01-debit": [
+    "01-throughput": [
         fig1_throughput_4096,
         fig2_throughput_vs_size,
     ],
-    "02-effet-avalanche": [
+    "02-avalanche-effect": [
         fig4_avalanche,
         fig4b_key_avalanche,
     ],
-    "03-modes-chiffrement": [
+    "03-encryption-modes": [
         fig3_aes_mode_comparison,
         fig5_enc_vs_dec,
         fig6_key_size_impact,
         fig7_ecb_vs_gcm,
     ],
-    "04-synthese": [
+    "04-decision-support": [
         fig9_synthesis_heatmap,
     ],
 }
@@ -650,15 +650,15 @@ CHART_GROUPS = {
 # Correspondance explicite: fonction de tracé -> fichier PNG de sortie.
 # Utile pour vérifier rapidement comment chaque graphique est produit.
 GRAPH_OUTPUTS = {
-    fig1_throughput_4096: "01-debit/throughput-by-algo-mode-x86-4kb.png",
-    fig2_throughput_vs_size: "01-debit/throughput-vs-message-size-x86.png",
-    fig3_aes_mode_comparison: "03-modes-chiffrement/aes-throughput-by-mode-128bit.png",
-    fig4_avalanche: "02-effet-avalanche/avalanche-score-by-algo.png",
-    fig4b_key_avalanche: "02-effet-avalanche/avalanche-plaintext-vs-key.png",
-    fig5_enc_vs_dec: "03-modes-chiffrement/throughput-encrypt-vs-decrypt-ecb.png",
-    fig6_key_size_impact: "03-modes-chiffrement/aes-throughput-by-key-size.png",
-    fig7_ecb_vs_gcm: "03-modes-chiffrement/aes-security-vs-performance-by-mode.png",
-    fig9_synthesis_heatmap: "04-synthese/multicriteria-score-heatmap.png",
+    fig1_throughput_4096: "01-throughput/throughput-by-algo-mode-x86-4kb.png",
+    fig2_throughput_vs_size: "01-throughput/throughput-vs-message-size-x86.png",
+    fig3_aes_mode_comparison: "03-encryption-modes/aes-throughput-by-mode-128bit.png",
+    fig4_avalanche: "02-avalanche-effect/avalanche-score-by-algo.png",
+    fig4b_key_avalanche: "02-avalanche-effect/avalanche-plaintext-vs-key.png",
+    fig5_enc_vs_dec: "03-encryption-modes/throughput-encrypt-vs-decrypt-ecb.png",
+    fig6_key_size_impact: "03-encryption-modes/aes-throughput-by-key-size.png",
+    fig7_ecb_vs_gcm: "03-encryption-modes/aes-security-vs-performance-by-mode.png",
+    fig9_synthesis_heatmap: "04-decision-support/multicriteria-score-heatmap.png",
 }
 
 
@@ -675,7 +675,7 @@ def generate_groups(groups=None):
     """Génère des groupes de graphiques selon le nom du dossier de sortie.
 
     Paramètres:
-        groups: liste de dossiers, ex. ["01-debit", "04-synthese"].
+        groups: liste de dossiers, ex. ["01-throughput", "04-decision-support"].
                 Si None, tous les groupes sont générés.
 
     Voir GRAPH_OUTPUTS pour la correspondance fonction -> PNG.

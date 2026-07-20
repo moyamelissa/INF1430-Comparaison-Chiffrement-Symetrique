@@ -18,7 +18,7 @@ Otherwise, keep it as secondary support in the same numbered folders.
 
 ## Priority charts (recommended)
 
-### 01-debit
+### 01-throughput
 
 - throughput-by-algo-mode-x86-4kb.png
 - throughput-by-algo-mode-arm-4kb.png
@@ -29,7 +29,7 @@ Otherwise, keep it as secondary support in the same numbered folders.
 
 Why: these six cover absolute performance, platform gap, scalability, and measurement stability.
 
-### 02-effet-avalanche
+### 02-avalanche-effect
 
 - avalanche-score-by-algo.png
 - avalanche-score-x86-vs-arm.png
@@ -37,7 +37,7 @@ Why: these six cover absolute performance, platform gap, scalability, and measur
 
 Why: these three cover correctness and platform consistency of avalanche behavior.
 
-### 03-modes-chiffrement
+### 03-encryption-modes
 
 - aes-throughput-by-mode-128bit.png
 - aes-security-vs-performance-by-mode.png
@@ -45,7 +45,7 @@ Why: these three cover correctness and platform consistency of avalanche behavio
 
 Why: these three clearly communicate mode impact and security/performance trade-off.
 
-### 04-synthese
+### 04-decision-support
 
 - multicriteria-score-heatmap.png
 - algorithm-profile-radar-chart.png
@@ -54,13 +54,13 @@ Why: these two are final decision visuals and should stay in the priority set.
 
 ## Secondary charts (recommended)
 
-- 01-debit/throughput-vs-message-size-x86.png
-- 01-debit/throughput-vs-message-size-x86-vs-arm-ecb.png
-- 01-debit/throughput-vs-message-size-chacha20-x86-vs-arm.png
-- 02-effet-avalanche/avalanche-convergence-des-rounds.png
-- 03-modes-chiffrement/aes-throughput-by-key-size.png
-- 03-modes-chiffrement/throughput-encrypt-vs-decrypt-ecb.png
-- 03-modes-chiffrement/demo-ecb/* (technical assets)
+- 01-throughput/throughput-vs-message-size-x86.png
+- 01-throughput/throughput-vs-message-size-x86-vs-arm-ecb.png
+- 01-throughput/throughput-vs-message-size-chacha20-x86-vs-arm.png
+- 02-avalanche-effect/avalanche-convergence-des-rounds.png
+- 03-encryption-modes/aes-throughput-by-key-size.png
+- 03-encryption-modes/throughput-encrypt-vs-decrypt-ecb.png
+- 03-encryption-modes/demo-ecb/* (technical assets)
 
 These are useful for backup discussion but not essential for the main story.
 

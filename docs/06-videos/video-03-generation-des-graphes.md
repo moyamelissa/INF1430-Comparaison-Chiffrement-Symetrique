@@ -15,7 +15,7 @@ Sur cette diapo, on lit le pipeline de gauche à droite.
 
 Au centre, on voit les blocs de préparation, de construction, de style et de gestion des chemins. Les fichiers `data_*.py` lisent et normalisent les résultats, les fichiers `build_*.py` transforment ces données en graphiques, le fichier `style_charts.py` applique un rendu cohérent sur toutes les figures, puis le fichier `shared_paths.py` centralise les chemins d'entrée et de sortie.
 
-À droite, on regarde le bloc d'export. Les graphiques finaux sont écrits dans `data/charts/`, avec un dossier de sortie adapté à chaque cible de génération, par exemple `01-debit`, `02-effet-avalanche`, `03-modes-chiffrement` ou `04-synthese`.
+À droite, on regarde le bloc d'export. Les graphiques finaux sont écrits dans `data/charts/`, avec un dossier de sortie adapté à chaque cible de génération, par exemple `01-throughput`, `02-avalanche-effect`, `03-encryption-modes` ou `04-decision-support`.
 
 Donc la logique de la diapo reste simple et traçable, puisqu'on lance une commande, on lit des données, on construit des figures, puis on écrit les sorties dans le bon dossier.
 
@@ -62,8 +62,8 @@ Premièrement, on va ouvrir `run_charts.py` ensemble, parce que c'est le fichier
 ```python
 # scripts/run_charts.py
 def _generate_01_debit() -> None:
-    perf.generate_groups(["01-debit"])
-    platform_cmp.generate_groups(["01-debit"])
+    perf.generate_groups(["01-throughput"])
+    platform_cmp.generate_groups(["01-throughput"])
 ```
 
 Regardez la logique de lecture pendant la vidéo. À la ligne 33, `_generate_01_debit()` est une fonction et son rôle consiste à lancer le groupe de graphes de débit. À la ligne 54, `TARGETS` est une variable dictionnaire qui associe une clé de commande à une fonction. Puis, à la ligne 84, l'appel `TARGETS[key]()` exécute réellement la fonction choisie.
@@ -122,7 +122,7 @@ def fig1_throughput_4096():
     ax.bar(...)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("01-debit/throughput-by-algo-mode-x86-4kb.png")
+    savefig("01-throughput/throughput-by-algo-mode-x86-4kb.png")
 
 def savefig(name: str):
     save_figure(plt.gcf(), CHARTS_DIR, name, facecolor=BG_COLOR)
@@ -134,7 +134,7 @@ Puis on avance vers la ligne 76 avec `fig1_throughput_4096()`. C'est une fonctio
 
 Pour la finition, à la ligne 134, `_style_ax(ax)` est une fonction locale définie à la ligne 58, et son rôle est d'appliquer le style commun en relayant vers `style_ax(...)` importée depuis `style_charts.py`. À la ligne 135, `plt.tight_layout()` est une fonction Matplotlib qui ajuste l'espacement de la figure pour éviter les chevauchements de texte.
 
-À la ligne 136, `savefig("01-debit/throughput-by-algo-mode-x86-4kb.png")` est une fonction locale définie à la ligne 62, et son rôle est de centraliser l'export. Cette fonction appelle `save_figure(...)` avec `CHARTS_DIR` pour écrire l'image dans le bon dossier. Ces deux éléments sont importés depuis les modules communs `style_charts.py` et `shared_paths.py`.
+À la ligne 136, `savefig("01-throughput/throughput-by-algo-mode-x86-4kb.png")` est une fonction locale définie à la ligne 62, et son rôle est de centraliser l'export. Cette fonction appelle `save_figure(...)` avec `CHARTS_DIR` pour écrire l'image dans le bon dossier. Ces deux éléments sont importés depuis les modules communs `style_charts.py` et `shared_paths.py`.
 
 Au final, ce bloc montre clairement la responsabilité de `build_` avec un exemple concret et traçable: il organise les données, trace la figure, applique le style commun, puis délègue l'export à l'utilitaire partagé avec un chemin de sortie centralisé.
 

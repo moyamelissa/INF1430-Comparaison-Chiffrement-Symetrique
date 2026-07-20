@@ -58,7 +58,7 @@ def generate_rounds_avalanche_chart():
     ax.set_axisbelow(True)
     plt.tight_layout()
 
-    aval_dir = ensure_chart_dir("02-effet-avalanche")
+    aval_dir = ensure_chart_dir("02-avalanche-effect")
     out = aval_dir / "avalanche-convergence-des-rounds.png"
     fig.savefig(out, dpi=150, bbox_inches="tight", facecolor=BG_COLOR)
     plt.close(fig)

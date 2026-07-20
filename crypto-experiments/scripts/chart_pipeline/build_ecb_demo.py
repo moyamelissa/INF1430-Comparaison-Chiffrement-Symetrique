@@ -31,7 +31,7 @@ def generate_ecb_demo_chart():
     print("Génération de la démonstration de vulnérabilité ECB…")
     images = build_demo_images()
 
-    ecb_demo_dir = ensure_chart_dir("03-modes-chiffrement/demo-ecb")
+    ecb_demo_dir = ensure_chart_dir("03-encryption-modes/demo-ecb")
     orig_path = ecb_demo_dir / "image-original.bmp"
     ecb_path = ecb_demo_dir / "image-encrypted-ecb.bmp"
     cbc_path = ecb_demo_dir / "image-encrypted-cbc.bmp"
@@ -68,7 +68,7 @@ def generate_ecb_demo_chart():
     fig.suptitle("Visibilité des motifs en fonction du mode de chiffrement", fontsize=11, color=TEXT_COLOR, y=1.02)
     plt.tight_layout()
 
-    mode_dir = ensure_chart_dir("03-modes-chiffrement")
+    mode_dir = ensure_chart_dir("03-encryption-modes")
     out = mode_dir / "ecb-visual-pattern-leakage-demo.png"
     fig.savefig(out, dpi=180, bbox_inches="tight", facecolor=BG_COLOR)
     plt.close(fig)

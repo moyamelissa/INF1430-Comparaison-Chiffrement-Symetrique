@@ -132,11 +132,11 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 │   └── data/
        ├── results/                     # CSV bruts — x86 et Raspberry Pi
        └── charts/
-           ├── 01-debit/                # Débits absolus, comparaisons plateformes, IC95
-           ├── 02-effet-avalanche/      # Scores d'avalanche par algorithme
-           ├── 03-modes-chiffrement/    # Impact des modes AES + demo ECB
+           ├── 01-throughput/           # Débits absolus, comparaisons plateformes, IC95
+           ├── 02-avalanche-effect/     # Scores d'avalanche par algorithme
+           ├── 03-encryption-modes/     # Impact des modes AES + demo ECB
            │   └── demo-ecb/            # BMP de la demo visuelle ECB/CBC
-           └── 04-synthese/             # Heatmap et radar multi-critères
+           └── 04-decision-support/     # Heatmap et radar multi-critères orientés décision
 ├── docs/
 │   ├── 01-project-instructions/
 │   ├── 02-deliverables/

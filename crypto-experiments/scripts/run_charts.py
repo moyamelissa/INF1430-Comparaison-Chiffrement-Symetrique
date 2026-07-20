@@ -31,24 +31,24 @@ from chart_pipeline import build_platform_comparison as platform_cmp
 
 
 def _generate_01_debit() -> None:
-    perf.generate_groups(["01-debit"])
-    platform_cmp.generate_groups(["01-debit"])
+    perf.generate_groups(["01-throughput"])
+    platform_cmp.generate_groups(["01-throughput"])
 
 
 def _generate_02_effet_avalanche() -> None:
-    perf.generate_groups(["02-effet-avalanche"])
-    platform_cmp.generate_groups(["02-effet-avalanche"])
+    perf.generate_groups(["02-avalanche-effect"])
+    platform_cmp.generate_groups(["02-avalanche-effect"])
     rounds.generate_rounds_avalanche_chart()
 
 
 def _generate_03_modes_chiffrement() -> None:
-    perf.generate_groups(["03-modes-chiffrement"])
+    perf.generate_groups(["03-encryption-modes"])
     ecb_demo.generate_ecb_demo_chart()
 
 
 def _generate_04_synthese() -> None:
-    perf.generate_groups(["04-synthese"])
-    platform_cmp.generate_groups(["04-synthese"])
+    perf.generate_groups(["04-decision-support"])
+    platform_cmp.generate_groups(["04-decision-support"])
 
 
 TARGETS = {
@@ -63,6 +63,12 @@ def main(argv: list[str]) -> int:
     selection = argv[1].lower() if len(argv) > 1 else "all"
 
     aliases = {
+        "01-throughput": "01",
+        "02-avalanche-effect": "02",
+        "03-encryption-modes": "03",
+        "04-decision-support": "04",
+        "04-synthesis": "04",
+        # Compat aliases (legacy French folder names)
         "01-debit": "01",
         "02-effet-avalanche": "02",
         "03-modes-chiffrement": "03",

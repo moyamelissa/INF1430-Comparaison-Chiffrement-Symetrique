@@ -6,16 +6,16 @@ Tous les graphiques d'analyse générés à partir des données CSV de benchmark
 
 ```
 data/charts/
-├── 01-debit/                    # Débits absolus, comparaisons plateformes et stabilité IC95
-├── 02-effet-avalanche/          # Scores d'avalanche par algorithme
-├── 03-modes-chiffrement/        # Impact des modes sur AES + démo ECB
+├── 01-throughput/               # Débits absolus, comparaisons plateformes et stabilité IC95
+├── 02-avalanche-effect/         # Scores d'avalanche par algorithme
+├── 03-encryption-modes/         # Impact des modes sur AES + démo ECB
 │   └── demo-ecb/                # Démonstration visuelle vulnérabilité ECB (BMP)
-└── 04-synthese/                 # Heatmap et radar multi-critères
+└── 04-decision-support/         # Heatmap et radar pour l'aide à la décision
 ```
 
 ---
 
-### 01-debit
+### 01-throughput
 
 | Fichier | Description | Script source |
 |---|---|---|
@@ -29,7 +29,7 @@ data/charts/
 | `throughput-vs-message-size-x86-vs-arm-all-algos.png` | Scalabilité x86 vs ARM — tous algorithmes (inclut ChaCha20 en Stream) | `scripts/run_charts.py 01` |
 | `ci95-throughput-stability-x86-vs-arm-4kb.png` | Intervalle de confiance 95% — stabilité des mesures | `scripts/run_charts.py 01` |
 
-### 02-effet-avalanche
+### 02-avalanche-effect
 
 | Fichier | Description | Script source |
 |---|---|---|
@@ -38,7 +38,7 @@ data/charts/
 | `avalanche-score-x86-vs-arm.png` | Scores d'avalanche x86 vs ARM | `scripts/run_charts.py 02` |
 | `avalanche-convergence-des-rounds.png` | Convergence de l'effet d'avalanche DES par tours | `scripts/run_charts.py 02` |
 
-### 03-modes-chiffrement
+### 03-encryption-modes
 
 | Fichier | Description | Script source |
 |---|---|---|
@@ -48,7 +48,7 @@ data/charts/
 | `throughput-encrypt-vs-decrypt-ecb.png` | Symétrie chiffrement / déchiffrement (ECB) | `scripts/run_charts.py 03` |
 | `ecb-visual-pattern-leakage-demo.png` | Démonstration visuelle — ECB vs CBC sur image | `scripts/run_charts.py 03` |
 
-### 03-modes-chiffrement/demo-ecb
+### 03-encryption-modes/demo-ecb
 
 Fichiers BMP utilisés pour construire `ecb-visual-pattern-leakage-demo.png`.
 
@@ -58,7 +58,7 @@ Fichiers BMP utilisés pour construire `ecb-visual-pattern-leakage-demo.png`.
 | `image-encrypted-ecb.bmp` | Image chiffrée ECB (patterns visibles) |
 | `image-encrypted-cbc.bmp` | Image chiffrée CBC (visuellement aléatoire) |
 
-### 04-synthese
+### 04-decision-support
 
 | Fichier | Description | Script source |
 |---|---|---|
