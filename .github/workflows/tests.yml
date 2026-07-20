@@ -29,7 +29,8 @@ jobs:
       - name: Install test dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pycryptodome twofish pytest pytest-cov
+          python -m pip install -r requirements.txt
+          python -m pip install pytest pytest-cov
 
       - name: Run tests with coverage
         run: python -m pytest
