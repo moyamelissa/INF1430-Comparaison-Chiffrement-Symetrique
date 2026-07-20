@@ -51,6 +51,6 @@ def test_generate_rounds_avalanche_chart_writes_file(monkeypatch, tmp_path):
 
     bar.generate_rounds_avalanche_chart()
 
-    out = tmp_path / "convergence-avalanche-par-tours.png"
+    out = tmp_path / "avalanche-convergence-des-rounds.png"
     assert out.exists()
     assert out.stat().st_size > 0
