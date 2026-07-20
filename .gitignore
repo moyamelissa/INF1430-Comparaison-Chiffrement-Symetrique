@@ -6,3 +6,11 @@ __pycache__/
 .env
 .pytest_cache/
 data/logs/
+
+# Test/coverage artifacts
+.coverage
+coverage.xml
+htmlcov/
+crypto-experiments/.coverage
+crypto-experiments/coverage.xml
+crypto-experiments/htmlcov/
