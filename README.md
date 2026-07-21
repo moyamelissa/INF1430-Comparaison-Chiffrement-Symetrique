@@ -7,6 +7,7 @@
 ![Plateformes](https://img.shields.io/badge/Plateformes-Windows%20x86%20%7C%20Raspberry%20Pi%20ARM-5C6BC0)
 ![Validation](https://img.shields.io/badge/Validation-KAT%20NIST%20int%C3%A9gr%C3%A9s-2E7D32)
 ![Tests KAT](https://img.shields.io/badge/Tests%20KAT-100%25%20pass%C3%A9s-2E7D32)
+![Audit IC95](https://img.shields.io/badge/Audit%20IC95-Gates%20CI%20actifs-2E7D32)
 
 > Projet académique — Université TÉLUQ · INF1430
 
@@ -23,10 +24,11 @@
 7. [Installation](#installation)
 8. [Exécution rapide](#exécution-rapide)
 9. [Validation et tests](#validation-et-tests)
-10. [Résultats clés](#résultats-clés)
-11. [Données brutes](#données-brutes)
-12. [Reproductibilité](#reproductibilité)
-13. [Références](#références)
+10. [Audit IC95 en CI](#audit-ic95-en-ci)
+11. [Résultats clés](#résultats-clés)
+12. [Données brutes](#données-brutes)
+13. [Reproductibilité](#reproductibilité)
+14. [Références](#références)
 
 ---
 
@@ -245,6 +247,21 @@ python scripts/run_kat.py
 ```
 
 > Objectif : garantir que les résultats de performance sont produits par des implémentations conformes aux standards.
+
+## Audit IC95 en CI
+
+Le workflow CI inclut un contrôle statistique automatique des intervalles de confiance (IC95), exécuté dans un job dédié (`ic95-audit`) du pipeline.
+
+Commande utilisée :
+
+```bash
+python scripts/audit/audit_ic95.py --enforce-gates
+```
+
+Le job échoue si les gates de qualité ne sont pas respectés, et publie deux artefacts CSV :
+
+- `crypto-experiments/data/results/audit/ic95_raw_rows.csv`
+- `crypto-experiments/data/results/audit/ic95_audit_report.csv`
 
 Mesures à 4 096 octets, meilleure clé, ECB (sauf ChaCha20 → Stream), 100 répétitions.
 
