@@ -10,6 +10,9 @@ Usage (from crypto-experiments/):
     py scripts/audit/audit_ic95.py
     py scripts/audit/audit_ic95.py --threshold-rel 10
     py scripts/audit/audit_ic95.py --out data/results/audit/ic95_audit_report.csv
+
+Usage (from repository root):
+    py crypto-experiments/scripts/audit/audit_ic95.py
 """
 
 from __future__ import annotations
@@ -21,6 +24,7 @@ from pathlib import Path
 
 
 GroupKey = tuple[str, str, str, int, int]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _to_float_optional(value: object) -> float | None:
@@ -244,19 +248,19 @@ def main() -> int:
     parser.add_argument(
         "--results-dir",
         type=Path,
-        default=Path("data/results"),
+        default=PROJECT_ROOT / "data" / "results",
         help="Directory containing experiment CSV files",
     )
     parser.add_argument(
         "--out",
         type=Path,
-        default=Path("data/results/audit/ic95_audit_report.csv"),
+        default=PROJECT_ROOT / "data" / "results" / "audit" / "ic95_audit_report.csv",
         help="Output CSV path for grouped IC95 audit",
     )
     parser.add_argument(
         "--raw-out",
         type=Path,
-        default=Path("data/results/audit/ic95_raw_rows.csv"),
+        default=PROJECT_ROOT / "data" / "results" / "audit" / "ic95_raw_rows.csv",
         help="Output CSV path for row-level IC95 calculations",
     )
     parser.add_argument(
