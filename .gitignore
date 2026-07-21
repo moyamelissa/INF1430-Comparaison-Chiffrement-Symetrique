@@ -3,9 +3,11 @@ __pycache__/
 *.pyo
 *.pyd
 .venv/
+crypto-experiments/.ci-debug-venv/
 .env
 .pytest_cache/
-data/logs/
+crypto-experiments/data/logs/
+.tmp_kat_latest.txt
 
 # Test/coverage artifacts
 .coverage
