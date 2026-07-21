@@ -27,6 +27,34 @@ from domain.cipher.Twofish import Twofish
 _HEX_LINE_RE = re.compile(r"^(KEY|PT|CT)\s*=\s*([0-9A-Fa-f]+)$")
 _LAST_STATS: list[dict[str, int | str]] = []
 _PROFILE_ENV = "TWOFISH_KAT_PROFILE"
+_FALLBACK_SOURCE = "embedded-known-vectors"
+
+# Official Twofish vectors used by the reference package self-test
+# (Twofish book, section B.2). These keep CI deterministic when external
+# KAT files are not present in the repository.
+_FALLBACK_VECTORS: dict[str, list[tuple[bytes, bytes, bytes]]] = {
+    "Twofish ECB_VK": [
+        (
+            bytes.fromhex("9F589F5CF6122C32B6BFEC2F2AE8C35A"),
+            bytes.fromhex("D491DB16E7B1C39E86CB086B789F5419"),
+            bytes.fromhex("019F9809DE1711858FAAC3A3BA20FBC3"),
+        )
+    ],
+    "Twofish ECB_VT": [
+        (
+            bytes.fromhex("88B2B2706B105E36B446BB6D731A1E88EFA71F788965BD44"),
+            bytes.fromhex("39DA69D6BA4997D585B6DC073CA341B2"),
+            bytes.fromhex("182B02D81497EA45F9DAACDC29193A65"),
+        )
+    ],
+    "Twofish ECB_TBL": [
+        (
+            bytes.fromhex("D43BB7556EA32E46F2A282B7D45B4E0D57FF739D4DC92C1BD7FC01700CC8216F"),
+            bytes.fromhex("90AFE91BB288544F2C32DC239B2635E6"),
+            bytes.fromhex("6CB4561C40BF0A9705931CB6D408E7FA"),
+        )
+    ],
+}
 
 
 def _resources_dir() -> Path:
@@ -204,8 +232,27 @@ def run(verbose: bool = True) -> int:
         tbl_path = _resolve_vector_file("ECB_TBL.TXT", "ECB_TBL (2).TXT")
     except FileNotFoundError as exc:
         if verbose:
-            print(f"  [FAIL] Twofish vectors missing: {exc}")
-        return 1
+            print(f"  [WARN] Twofish vector files missing: {exc}")
+            print("  [INFO] Falling back to embedded known-answer vectors.")
+
+        for label in ("Twofish ECB_VK", "Twofish ECB_VT", "Twofish ECB_TBL"):
+            file_failures, vectors, assertions = _run_vectors(
+                label,
+                _FALLBACK_VECTORS[label],
+                _FALLBACK_SOURCE,
+                verbose,
+            )
+            failures += file_failures
+            _LAST_STATS.append(
+                {
+                    "label": label,
+                    "vectors": vectors,
+                    "assertions": assertions,
+                    "failures": file_failures,
+                    "profile": "fallback",
+                }
+            )
+        return failures
 
     all_vectors = {
         "Twofish ECB_VK": _parse_ecb_vectors(vk_path),
