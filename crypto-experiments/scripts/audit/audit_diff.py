@@ -13,11 +13,11 @@ from collections import defaultdict
 from pathlib import Path
 import sys
 
-# Allow imports from scripts/plotting when executed from scripts/audit/
+# Allow imports from scripts/charts when executed from scripts/audit/
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from plotting.data_performance import load_latest_rows
-from plotting.data_platform import load_platform_rows
+from charts.data_performance import load_latest_rows
+from charts.data_platform import load_platform_rows
 
 
 GroupKey = tuple[str, str, int, int]
@@ -275,4 +275,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 

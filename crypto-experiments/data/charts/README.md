@@ -85,17 +85,18 @@ python scripts/run_charts.py 04
 Scripts de construction réutilisables :
 
 ```bash
-scripts/plotting/build_performance.py
-scripts/plotting/build_platform_comparison.py
-scripts/plotting/build_avalanche_rounds.py
-scripts/plotting/build_ecb_demo.py
+scripts/charts/build_performance.py
+scripts/charts/build_platform_comparison.py
+scripts/charts/build_avalanche_rounds.py
+scripts/charts/build_ecb_demo.py
 ```
 
-> `scripts/plotting/build_platform_comparison.py` s'appuie sur un fichier `laptop-windows-x86_*.csv` **et** un `raspberry-pi_*.csv` dans `data/results/`.
+> `scripts/charts/build_platform_comparison.py` s'appuie sur un fichier `laptop-windows-x86_*.csv` **et** un `raspberry-pi_*.csv` dans `data/results/`.
 
 ---
 
 ## Notes
+
 
 
 

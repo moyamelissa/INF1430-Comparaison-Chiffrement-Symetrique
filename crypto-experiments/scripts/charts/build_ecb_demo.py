@@ -2,7 +2,7 @@
 
 Structure
 ---------
-1. plotting.data_ecb_demo prépare les pixels et les BMP intermédiaires.
+1. charts.data_ecb_demo prépare les pixels et les BMP intermédiaires.
 2. Ce module construit la figure finale.
 """
 
@@ -19,9 +19,9 @@ if SCRIPTS_DIR not in sys.path:
 
 import matplotlib.pyplot as plt
 
-from plotting.style_charts import BG_COLOR, PANEL_COLOR, TEXT_COLOR, setup_matplotlib
-from plotting.data_ecb_demo import build_demo_images, read_bmp_as_array, write_bmp
-from plotting.shared_paths import CHARTS_DIR, ensure_chart_dir
+from charts.style_charts import BG_COLOR, PANEL_COLOR, TEXT_COLOR, setup_matplotlib
+from charts.data_ecb_demo import build_demo_images, read_bmp_as_array, write_bmp
+from charts.shared_paths import CHARTS_DIR, ensure_chart_dir
 
 
 setup_matplotlib(title_pad=8)
@@ -78,5 +78,6 @@ def generate_ecb_demo_chart():
 
 if __name__ == "__main__":
     generate_ecb_demo_chart()
+
 
 

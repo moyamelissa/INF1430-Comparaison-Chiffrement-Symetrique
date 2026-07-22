@@ -16,11 +16,11 @@ import csv
 from pathlib import Path
 import sys
 
-# Permet d'importer plotting depuis scripts/audit/
+# Permet d'importer charts depuis scripts/audit/
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from plotting.data_performance import load_latest_rows
-from plotting.data_platform import load_platform_rows
+from charts.data_performance import load_latest_rows
+from charts.data_platform import load_platform_rows
 
 
 def _report_rows() -> list[dict[str, object]]:
@@ -128,4 +128,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 
