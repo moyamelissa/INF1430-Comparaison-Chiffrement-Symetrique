@@ -25,11 +25,15 @@ python -m pytest
 ```
 
 **Texte à lire après la commande**
-On peut lire plusieurs signaux importants. Je montre d’abord la ligne de commande `python -m pytest` pour rappeler ce qui vient d’être lancé.
+Le résultat à retenir est simple : les 102 tests passent tous et la couverture atteint 100 %.
 
-Dans la sortie, je souligne ensuite `collected 102 items`, puis `102 passed in 9.08s`, et enfin `Required test coverage of 100% reached. Total coverage: 100.00%`.
+**Note perso pour le tournage**
+- Surbrillance à montrer : `python -m pytest`
+- Surbrillance à montrer : `collected 102 items`
+- Surbrillance à montrer : `102 passed in 9.08s`
+- Surbrillance à montrer : `Required test coverage of 100% reached. Total coverage: 100.00%`
 
-Le point important, c’est que ces lignes prouvent deux choses à la fois : les tests fonctionnels passent tous, et la couverture de code est complète sur le périmètre évalué.
+Ces lignes prouvent deux choses à la fois : les tests fonctionnels passent tous, et la couverture de code est complète sur le périmètre évalué.
 
 C’est important parce que ces tests valident toute la chaîne logique du projet : les primitives de chiffrement, les modes, les KAT, les scripts de mesure et les scripts d’audit. Avant de présenter les résultats expérimentaux, je peux donc dire que le socle logiciel est déjà vérifié.
 
@@ -40,14 +44,25 @@ C’est important parce que ces tests valident toute la chaîne logique du proje
 Terminal Windows + `scripts/run_kat.py`
 
 **Texte à lire avant la commande**
-J’enchaîne avec la validation KAT. Cette étape vérifie que les implémentations produisent bien les sorties attendues par les vecteurs de référence.
+J’enchaîne avec la validation KAT. Ici, je vérifie que chaque algorithme produit bien les résultats attendus par ses vecteurs de référence.
 
 ```powershell
 python scripts/run_kat.py
 ```
 
 **Texte à lire après la commande**
-Le signal principal à relever est `ALL KAT SUITES PASSED`. C’est la confirmation que la conformité cryptographique est bonne pour toutes les suites testées.
+Le résultat principal, c’est que toutes les suites passent.
+
+**Note perso pour le tournage**
+- Surbrillance à montrer : `python scripts/run_kat.py`
+- Surbrillance à montrer : `[WARN] Twofish vector files missing`
+- Surbrillance à montrer : `[INFO] Falling back to embedded known-answer vectors.`
+- Surbrillance à montrer : `TOTAL | 60 | 60 | 0 | PASS`
+- Surbrillance à montrer : `ALL KAT SUITES PASSED`
+
+Le petit avertissement sur Twofish n’est pas un échec. Il indique simplement que le script utilise les vecteurs intégrés de secours, donc la validation continue normalement.
+
+Ce que je veux faire ressortir, c’est que la suite KAT couvre tout le cœur cryptographique du projet, et que le bilan final est propre : 60 assertions, 60 réussites, 0 échec.
 
 ---
 
