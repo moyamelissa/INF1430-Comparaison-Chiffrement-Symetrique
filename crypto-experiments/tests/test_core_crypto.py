@@ -1,5 +1,6 @@
 import sys
 import types
+import importlib
 
 import pytest
 
@@ -130,6 +131,103 @@ def test_twofish_import_error_missing_package(monkeypatch):
     monkeypatch.setattr(builtins, "__import__", fake_builtin_import)
     with pytest.raises(ImportError, match="required for Twofish support"):
         Twofish(bytes(range(16)))
+
+
+def test_twofish_imp_compat_injected_when_missing(monkeypatch):
+    import builtins
+
+    twofish_module = importlib.import_module("domain.cipher.Twofish")
+    original_import = builtins.__import__
+
+    def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "imp":
+            raise ModuleNotFoundError("No module named imp")
+        return original_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.delitem(sys.modules, "imp", raising=False)
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+
+    twofish_module._ensure_imp_compat_module()
+
+    imp_mod = sys.modules.get("imp")
+    assert imp_mod is not None
+    assert hasattr(imp_mod, "find_module")
+    assert hasattr(imp_mod, "get_suffixes")
+    assert hasattr(imp_mod, "load_module")
+    assert imp_mod.load_module("sys") is sys
+    # Exercise legacy load path when target is not already in sys.modules.
+    sentinel = object()
+    monkeypatch.setattr(importlib, "import_module", lambda name: sentinel)
+    assert imp_mod.load_module("_module_not_in_sys_modules") is sentinel
+    assert imp_mod.get_suffixes()
+
+    with pytest.raises(ImportError):
+        imp_mod.find_module("definitely_missing_module_for_twofish_tests")
+
+
+def test_twofish_imp_compat_uses_existing_import(monkeypatch):
+    import builtins
+
+    twofish_module = importlib.import_module("domain.cipher.Twofish")
+    original_import = builtins.__import__
+    fake_imp = types.ModuleType("imp")
+
+    def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "imp":
+            return fake_imp
+        return original_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.delitem(sys.modules, "imp", raising=False)
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+
+    twofish_module._ensure_imp_compat_module()
+    assert "imp" not in sys.modules
+
+
+def test_twofish_imp_find_module_descriptor_branches(monkeypatch):
+    import builtins
+
+    twofish_module = importlib.import_module("domain.cipher.Twofish")
+    original_import = builtins.__import__
+
+    def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "imp":
+            raise ModuleNotFoundError("No module named imp")
+        return original_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.delitem(sys.modules, "imp", raising=False)
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+    twofish_module._ensure_imp_compat_module()
+    imp_mod = sys.modules["imp"]
+
+    class _Spec:
+        def __init__(self, origin: str, pkg=None):
+            self.origin = origin
+            self.submodule_search_locations = pkg
+
+    def fake_find_spec(name, path=None):
+        mapping = {
+            "builtin_case": _Spec("built-in"),
+            "frozen_case": _Spec("frozen"),
+            "pkg_case": _Spec("pkg/__init__.py", pkg=[]),
+            "ext_case": _Spec("module" + importlib.machinery.EXTENSION_SUFFIXES[0]),
+            "pyc_case": _Spec("module.pyc"),
+            "py_case": _Spec("module.py"),
+            "none_case": _Spec(None),
+        }
+        return mapping.get(name)
+
+    monkeypatch.setattr(importlib.machinery.PathFinder, "find_spec", staticmethod(fake_find_spec))
+
+    assert imp_mod.find_module("builtin_case")[2][2] == imp_mod.C_BUILTIN
+    assert imp_mod.find_module("frozen_case")[2][2] == imp_mod.PY_FROZEN
+    assert imp_mod.find_module("pkg_case")[2][2] == imp_mod.PKG_DIRECTORY
+    assert imp_mod.find_module("ext_case")[2][2] == imp_mod.C_EXTENSION
+    assert imp_mod.find_module("pyc_case")[2][2] == imp_mod.PY_COMPILED
+    assert imp_mod.find_module("py_case")[2][2] == imp_mod.PY_SOURCE
+
+    with pytest.raises(ImportError):
+        imp_mod.find_module("none_case")
 
 
 def test_chacha20_roundtrip_and_validation():
