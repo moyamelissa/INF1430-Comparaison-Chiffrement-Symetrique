@@ -8,6 +8,7 @@ crypto-experiments/.ci-debug-venv/
 .pytest_cache/
 crypto-experiments/data/logs/
 .tmp_kat_latest.txt
+.tmp_pptx/
 
 # Test/coverage artifacts
 .coverage
