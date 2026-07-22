@@ -28,8 +28,14 @@ Run all commands from the repository root unless noted.
 ### Generate an evidence bundle
 Use the bundle script to export logs, artifacts, and commit metadata in one folder.
 
+From repository root
 ```powershell
 python crypto-experiments/scripts/validation_bundle.py
+```
+
+From crypto-experiments
+```powershell
+python scripts/validation_bundle.py
 ```
 
 Bundle output location
