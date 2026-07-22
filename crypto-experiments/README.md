@@ -1,40 +1,40 @@
 # crypto-experiments
 
-Paquet principal d'experiences pour la comparaison des chiffrements symetriques INF1430.
+Paquet principal d'expériences pour la comparaison des chiffrements symétriques INF1430.
 
 ## Structure des dossiers
 
-| Element | Role |
+| Élément | Rôle |
 |---|---|
-| `application/` | Couche d'orchestration (controleur d'experiences). |
+| `application/` | Couche d'orchestration (contrôleur d'expériences). |
 | `domain/` | Primitives de chiffrement, modes et moteur de chiffrement. |
 | `validation/` | Suites de validation KAT. |
-| `scripts/` | Points d'entree executables et pipelines. |
-| `data/` | Artefacts generes (resultats, graphiques, validation). |
-| `tests/` | Tests unitaires et d'integration. |
+| `scripts/` | Points d'entrée exécutables et pipelines. |
+| `data/` | Artefacts générés (résultats, graphiques, validation). |
+| `tests/` | Tests unitaires et d'intégration. |
 
 ### Scripts principaux
 
-| Script / Dossier | Role |
+| Script / Dossier | Rôle |
 |---|---|
-| `scripts/experiment.py` | Genere les CSV de benchmark. |
-| `scripts/run_kat.py` | Execute les verifications cryptographiques KAT. |
-| `scripts/run_charts.py` | Genere les ensembles de graphiques depuis les resultats. |
-| `scripts/validation_bundle.py` | Genere un dossier de preuves de validation. |
-| `scripts/audit/` | Audits IC95 et coherence des agregats. |
-| `scripts/charts/` | Modules de generation de graphiques (`build_*`, `data_*`, style). |
+| `scripts/experiment.py` | Génère les CSV de benchmark. |
+| `scripts/run_kat.py` | Exécute les vérifications cryptographiques KAT. |
+| `scripts/run_charts.py` | Génère les ensembles de graphiques à partir des résultats. |
+| `scripts/validation_bundle.py` | Génère un dossier de preuves de validation. |
+| `scripts/audit/` | Audits IC95 et cohérence des agrégats. |
+| `scripts/charts/` | Modules de génération de graphiques (`build_*`, `data_*`, style). |
 
 ### Fichiers de configuration suivis
 
-| Fichier | Pourquoi il est versionne |
+| Fichier | Pourquoi il est versionné |
 |---|---|
-| `requirements.txt` | Fige les dependances Python necessaires pour reproduire l'environnement et les resultats. |
-| `pytest.ini` | Centralise la configuration de tests et de couverture pour des executions coherentes en local et CI. |
-| `mutmut.ini` | Definit la ligne de base des tests de mutation (qualite avancee) pour reproductibilite et CI. |
+| `requirements.txt` | Fige les dépendances Python nécessaires pour reproduire l'environnement et les résultats. |
+| `pytest.ini` | Centralise la configuration des tests et de la couverture pour des exécutions cohérentes en local et en CI. |
+| `mutmut.ini` | Définit la ligne de base des tests de mutation (qualité avancée) pour la reproductibilité et la CI. |
 
-## Demarrage rapide
+## Démarrage rapide
 
-Depuis la racine du depot :
+Depuis la racine du dépôt :
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
@@ -51,5 +51,5 @@ python scripts/run_charts.py all
 
 ## Notes
 
-- Les artefacts de couverture et de tests (`.coverage`, `htmlcov/`, `coverage.xml`) sont des fichiers generes.
+- Les artefacts de couverture et de tests (`.coverage`, `htmlcov/`, `coverage.xml`) sont des fichiers générés.
 - Les principales sorties de validation reproductible sont dans `data/validation/`.
