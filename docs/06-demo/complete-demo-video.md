@@ -18,14 +18,16 @@ Je vais suivre une séquence simple. Je lance les tests, puis la validation cryp
 Terminal Windows + `pytest`
 
 **Texte à lire avant la commande**
-Je commence par les tests automatiques. Cette étape valide le code avant de produire les résultats expérimentaux.
+Je commence par les tests automatiques. Ici, l’idée est de montrer que la base du projet est saine avant de parler des mesures ou des graphes.
 
 ```powershell
 python -m pytest
 ```
 
 **Texte à lire après la commande**
-Je lis deux éléments dans la sortie : le nombre total de tests exécutés et le message de couverture. Le résultat attendu est que tous les tests passent et que la couverture atteigne 100 % sur le périmètre évalué.
+On peut lire plusieurs signaux importants. D’abord, il y a 102 tests exécutés, et ils passent tous. Ensuite, la couverture est à 100 %, ce qui veut dire que le périmètre testé est entièrement couvert.
+
+C’est important parce que ces tests valident toute la chaîne logique du projet : les primitives de chiffrement, les modes, les KAT, les scripts de mesure et les scripts d’audit. Avant de présenter les résultats expérimentaux, je peux donc dire que le socle logiciel est déjà vérifié.
 
 ---
 
