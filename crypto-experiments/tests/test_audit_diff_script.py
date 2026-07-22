@@ -122,7 +122,7 @@ def test_load_append_build_export_and_main(tmp_path: Path, monkeypatch):
 
     perf_csv = tmp_path / "windows_experience3_20990101.csv"
     x86_csv = tmp_path / "windows_experience2_20990101.csv"
-    pi_csv = tmp_path / "raspberry-pi_experience3_20990101.csv"
+    pi_csv = tmp_path / "raspberry_experience3_20990101.csv"
 
     _write_raw_csv(perf_csv)
     _write_raw_csv(x86_csv)

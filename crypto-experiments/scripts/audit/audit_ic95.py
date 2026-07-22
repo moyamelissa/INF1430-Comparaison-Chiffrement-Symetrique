@@ -42,7 +42,7 @@ def _detect_platform(filename: str) -> str:
     lower = filename.lower()
     if "x86" in lower or lower.startswith("windows_"):
         return "x86"
-    if "raspberry-pi" in lower or "raspberry_pi" in lower or "arm" in lower:
+    if "raspberry" in lower or "arm" in lower:
         return "arm"
     return "unknown"
 
@@ -76,7 +76,7 @@ def _discover_result_files(results_dir: Path) -> list[Path]:
         and (
             "x86" in p.name.lower()
             or p.name.lower().startswith("windows_")
-            or "raspberry-pi" in p.name.lower()
+            or "raspberry" in p.name.lower()
             or "arm" in p.name.lower()
         )
     )

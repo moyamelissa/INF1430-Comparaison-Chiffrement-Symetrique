@@ -219,7 +219,7 @@ python scripts/run_charts.py 04
 
 ### 5) Comparaison multi-plateformes
 
-> **Prérequis** : deux fichiers CSV doivent être présents dans `data/results/` — un nommé `windows_*.csv` et un `raspberry-pi_*.csv`. Sans les deux, ce script quitte avec un avertissement.
+> **Prérequis** : deux fichiers CSV doivent être présents dans `data/results/` — un nommé `windows_*.csv` et un `raspberry_*.csv`. Sans les deux, ce script quitte avec un avertissement.
 
 ```bash
 python scripts/run_charts.py
@@ -286,7 +286,7 @@ Mesures à 4 096 octets, meilleure clé, ECB (sauf ChaCha20 → Stream), 100 ré
 Les CSV sont versionnés dans `crypto-experiments/data/results/` :
 
 - `windows_experience3.csv` — campagne de référence x86
-- `raspberry-pi_experience3.csv` — campagne de référence ARM
+- `raspberry_experience3.csv` — campagne de référence ARM
 
 > Les expériences 1 et 2 sont conservées pour traçabilité historique.
 

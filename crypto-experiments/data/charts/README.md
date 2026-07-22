@@ -91,7 +91,7 @@ scripts/charts/build_avalanche_rounds.py
 scripts/charts/build_ecb_demo.py
 ```
 
-> `scripts/charts/build_platform_comparison.py` s'appuie sur un fichier `windows_*.csv` **et** un `raspberry-pi_*.csv` dans `data/results/`.
+> `scripts/charts/build_platform_comparison.py` s'appuie sur un fichier `windows_*.csv` **et** un `raspberry_*.csv` dans `data/results/`.
 
 ---
 

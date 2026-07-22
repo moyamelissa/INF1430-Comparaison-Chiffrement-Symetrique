@@ -38,7 +38,7 @@ def test_data_performance_load_latest_rows_averages_and_handles_bom(monkeypatch,
     _write_csv(tmp_path / "windows_experience2_20260717.csv", header_std, rows_2)
     # Legacy name: should be ignored by strict loader
     _write_csv(tmp_path / "experiment_windows-x86-64_20260717.csv", header_std, rows_2)
-    _write_csv(tmp_path / "raspberry-pi_experience1_20260717.csv", header_std, rows_2)
+    _write_csv(tmp_path / "raspberry_experience1_20260717.csv", header_std, rows_2)
 
     monkeypatch.setattr(dp, "RESULTS_DIR", tmp_path)
     paths, rows = dp.load_latest_rows()
@@ -71,8 +71,8 @@ def test_data_platform_load_platform_rows_averages_both_platforms(monkeypatch, t
 
     _write_csv(tmp_path / "windows_experience1_20260717.csv", header, x86_r1)
     _write_csv(tmp_path / "windows_experience2_20260717.csv", header, x86_r2)
-    _write_csv(tmp_path / "raspberry-pi_experience1_20260717.csv", header, pi_r1)
-    _write_csv(tmp_path / "raspberry-pi_experience2_20260717.csv", header, pi_r2)
+    _write_csv(tmp_path / "raspberry_experience1_20260717.csv", header, pi_r1)
+    _write_csv(tmp_path / "raspberry_experience2_20260717.csv", header, pi_r2)
     # Legacy names should not be picked anymore.
     _write_csv(tmp_path / "experiment_windows-x86-64_20260717.csv", header, x86_r1)
     _write_csv(tmp_path / "experiment_raspberry-pi_20260717.csv", header, pi_r1)

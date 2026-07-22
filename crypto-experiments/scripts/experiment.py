@@ -88,7 +88,7 @@ def _make_key(size: int) -> bytes:
 def _platform_label() -> str:
     """Construit un identifiant plateforme lisible pour le nom de CSV."""
     if _is_raspberry_pi():
-        return "raspberry-pi"
+        return "raspberry"
 
     system = platform.system().lower() or "unknown"
     machine = platform.machine().lower() or "unknown"
@@ -115,7 +115,8 @@ def _platform_results_prefix() -> str:
     aliases = {
         "windows-x86-64": "windows",
         "windows-x86": "windows",
-        "raspberry-pi": "raspberry-pi",
+        "raspberry-pi": "raspberry",
+        "raspberry": "raspberry",
     }
     return aliases.get(label, label)
 

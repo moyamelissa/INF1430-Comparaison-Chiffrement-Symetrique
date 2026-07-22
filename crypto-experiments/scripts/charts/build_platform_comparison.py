@@ -68,7 +68,7 @@ except FileNotFoundError as exc:
     message = str(exc)
     if "Raspberry Pi" in message:
         print("\n⚠  Aucun CSV Raspberry Pi trouvé dans data/results/")
-        print("   Fichier attendu: raspberry-pi_experience*.csv")
+        print("   Fichier attendu: raspberry_experience*.csv")
         print("   Exécute experiment.py sur le Pi, copie le CSV ici, puis relance le script.")
         sys.exit(0)
     print(f"ERREUR: {message}")
