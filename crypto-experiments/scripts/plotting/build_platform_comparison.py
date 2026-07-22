@@ -33,7 +33,7 @@ SCRIPTS_DIR = os.path.dirname(SCRIPT_DIR)
 if SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, SCRIPTS_DIR)
 
-from chart_pipeline.style_charts import (
+from plotting.style_charts import (
     ALGO_COLORS,
     BG_COLOR,
     FIG_W,
@@ -44,8 +44,8 @@ from chart_pipeline.style_charts import (
     save_figure,
     setup_matplotlib,
 )
-from chart_pipeline.data_platform import load_platform_rows
-from chart_pipeline.shared_paths import CHARTS_DIR as OUT_DIR, ensure_chart_dir
+from plotting.data_platform import load_platform_rows
+from plotting.shared_paths import CHARTS_DIR as OUT_DIR, ensure_chart_dir
 
 
 setup_matplotlib(title_pad=14)
@@ -721,6 +721,7 @@ if __name__ == "__main__":
     print("\nGénération des graphiques de comparaison...")
     generate_groups()
     print(f"\nTerminé. Graphiques enregistrés dans: {os.path.abspath(OUT_DIR)}")
+
 
 
 

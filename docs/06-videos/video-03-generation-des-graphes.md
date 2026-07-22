@@ -32,14 +32,14 @@ Ensuite, on va explorer les blocs de code qui réalisent cette chaîne, puis on 
 
 ### Architecture - Traçabilité et séparation des rôles
 **Où sommes-nous**
-VS Code sur `scripts/run_charts.py`, puis `scripts/chart_pipeline/`, `data/results/` et `data/charts/`.
+VS Code sur `scripts/run_charts.py`, puis `scripts/plotting/`, `data/results/` et `data/charts/`.
 
 **Texte à lire**
 Avant d'explorer le code ligne par ligne, on va d'abord lire l'architecture pour voir comment `run_charts.py` fonctionne réellement. Cette vue montre la chaîne complète et la commande est lancée, puis la bonne cible est choisie, les CSV sont lus, puis les figures sont écrites dans le dossier de sortie.
 
 Le point d'entrée est le fichier `scripts/run_charts.py`. Ce script reçoit une clé comme `01` ou `03`, il la cherche dans la variable dictionnaire `TARGETS`, puis il appelle la fonction associée.
 
-À partir de là, la fonction choisie s'appuie sur les modules du dossier `scripts/chart_pipeline/` pour faire le travail concret.
+À partir de là, la fonction choisie s'appuie sur les modules du dossier `scripts/plotting/` pour faire le travail concret.
 
 Les fichiers `build_` contiennent la logique de tracé. C'est dans ces fichiers que chaque graphique est construit depuis le choix des données jusqu'à l'export de l'image. Par exemple, le fichier `build_performance.py` génère les graphiques de débit et de modes, tandis que le fichier `build_platform_comparison.py` produit les comparaisons entre x86 et ARM.
 
@@ -72,10 +72,10 @@ Pourquoi on insiste sur ce passage. Parce que ce bloc garantit que la commande t
 
 ## Code 2 - Script `data_` (sélection et agrégation)
 
-Deuxièmement, on passe au script `data_` dans `scripts/chart_pipeline/data_performance.py`, parce que c'est ici que la qualité des graphes se joue vraiment. Avant de tracer quoi que ce soit, on décide d'abord quelles sources sont acceptées, puis on prépare les lignes dans un format stable.
+Deuxièmement, on passe au script `data_` dans `scripts/plotting/data_performance.py`, parce que c'est ici que la qualité des graphes se joue vraiment. Avant de tracer quoi que ce soit, on décide d'abord quelles sources sont acceptées, puis on prépare les lignes dans un format stable.
 
 ```python
-# scripts/chart_pipeline/data_performance.py
+# scripts/plotting/data_performance.py
 def x86_results_csvs() -> list[Path]:
     csvs = sorted(
         f for f in RESULTS_DIR.iterdir()
@@ -100,10 +100,10 @@ Dans la narration, ce bloc est fort parce qu'il montre une préparation méthodi
 
 ## Code 3 - Script `build_` (construction et export)
 
-Troisièmement, on ouvre le script `build_` dans `scripts/chart_pipeline/build_performance.py`, et cette fois on montre comment les données préparées deviennent une image finale cohérente.
+Troisièmement, on ouvre le script `build_` dans `scripts/plotting/build_performance.py`, et cette fois on montre comment les données préparées deviennent une image finale cohérente.
 
 ```python
-# scripts/chart_pipeline/build_performance.py
+# scripts/plotting/build_performance.py
 CSV_PATHS, rows = load_latest_rows()
 print(f"Sources x86 ({len(CSV_PATHS)}) : {', '.join(p.name for p in CSV_PATHS)}")
 ```
@@ -158,3 +158,4 @@ Après cela, le terminal affiche les images enregistrées avec leurs chemins com
 Le point important est que cette démonstration ne refait pas la mesure. Elle montre seulement le rôle de `run_charts.py`, qui prend les CSV disponibles, choisit la bonne cible et écrit les figures correspondantes. C'est exactement ce qu'on veut vérifier ici.
 
 Pour conclure cette partie, `run_charts.py` est bien le point d'entrée qu'on veut montrer dans la vidéo. Il ne calcule rien lui-même, il prend des résultats déjà produits, il les transforme en graphiques, puis il les enregistre dans le bon dossier. C'est ça qui démontre clairement la chaîne de génération et le travail de préparation qui a été fait avant.
+

@@ -180,7 +180,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 
 ## Slide 15 — Vulnérabilité ECB
 
-**Images générées par** : [build_ecb_demo.py](../../crypto-experiments/scripts/chart_pipeline/build_ecb_demo.py)
+**Images générées par** : [build_ecb_demo.py](../../crypto-experiments/scripts/plotting/build_ecb_demo.py)
 
 | Fichier | Description |
 |---------|-------------|
@@ -218,4 +218,5 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 | [raspberry-pi_experience1.csv](../../crypto-experiments/data/results/raspberry-pi_experience1.csv) | Pi ARM | Débit + avalanche |
 | [raspberry-pi_experience2.csv](../../crypto-experiments/data/results/raspberry-pi_experience2.csv) | Pi ARM | Débit + avalanche + key_avalanche |
 | [raspberry-pi_experience3.csv](../../crypto-experiments/data/results/raspberry-pi_experience3.csv) | Pi ARM | Débit + avalanche + key_avalanche + ci95 ← **utilisé** |
+
 

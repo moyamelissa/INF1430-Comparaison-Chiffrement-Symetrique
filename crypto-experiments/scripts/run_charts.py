@@ -4,7 +4,7 @@ Rôle dans la chaîne
 -------------------
 1. scripts/experiment.py calcule les mesures et écrit les CSV.
 2. Ce script orchestre la génération des figures.
-3. Les modules scripts/chart_pipeline/build_*.py contiennent la logique de tracé.
+3. Les modules scripts/plotting/build_*.py contiennent la logique de tracé.
 4. Ce script orchestre les dossiers 01, 02, 03 et 04.
 
 Utilisation (depuis crypto-experiments/):
@@ -24,10 +24,10 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
-from chart_pipeline import build_avalanche_rounds as rounds
-from chart_pipeline import build_ecb_demo as ecb_demo
-from chart_pipeline import build_performance as perf
-from chart_pipeline import build_platform_comparison as platform_cmp
+from plotting import build_avalanche_rounds as rounds
+from plotting import build_ecb_demo as ecb_demo
+from plotting import build_performance as perf
+from plotting import build_platform_comparison as platform_cmp
 
 
 def _generate_01_debit() -> None:
@@ -95,4 +95,5 @@ def main(argv: list[str]) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv))
+
 

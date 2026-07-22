@@ -260,8 +260,8 @@ python scripts/audit/audit_ic95.py --enforce-gates
 
 Le job échoue si les gates de qualité ne sont pas respectés, et publie deux artefacts CSV :
 
-- `crypto-experiments/data/results/audit/ic95_raw_rows.csv`
-- `crypto-experiments/data/results/audit/ic95_audit_report.csv`
+- `crypto-experiments/data/validation/audit/ic95_raw_rows.csv`
+- `crypto-experiments/data/validation/audit/ic95_audit_report.csv`
 
 Mesures à 4 096 octets, meilleure clé, ECB (sauf ChaCha20 → Stream), 100 répétitions.
 

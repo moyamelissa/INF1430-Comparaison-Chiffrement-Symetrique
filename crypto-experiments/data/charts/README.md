@@ -85,19 +85,17 @@ python scripts/run_charts.py 04
 Scripts de construction réutilisables :
 
 ```bash
-scripts/chart_pipeline/build_performance.py
-scripts/chart_pipeline/build_platform_comparison.py
-scripts/chart_pipeline/build_avalanche_rounds.py
-scripts/chart_pipeline/build_ecb_demo.py
+scripts/plotting/build_performance.py
+scripts/plotting/build_platform_comparison.py
+scripts/plotting/build_avalanche_rounds.py
+scripts/plotting/build_ecb_demo.py
 ```
 
-> `scripts/chart_pipeline/build_platform_comparison.py` s'appuie sur un fichier `laptop-windows-x86_*.csv` **et** un `raspberry-pi_*.csv` dans `data/results/`.
+> `scripts/plotting/build_platform_comparison.py` s'appuie sur un fichier `laptop-windows-x86_*.csv` **et** un `raspberry-pi_*.csv` dans `data/results/`.
 
 ---
 
 ## Notes
 
-- Nommage : kebab-case anglais, minuscules, explicite sur la portée (x86, arm, x86-vs-arm) et la condition (4kb, ecb, all-algos).
-- Dossiers numérotés pour un ordre de lecture logique.
-- Palette officielle INF1430 TN3 — fond blanc `#FFFFFF`, noir `#0A0A0A`, or `#C9A84C`.
+
 

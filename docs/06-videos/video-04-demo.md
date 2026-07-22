@@ -121,7 +121,7 @@ Pour fermer la partie Windows, je montre les artefacts generes localement.
 
 ```powershell
 Get-ChildItem data/results/*.csv | Sort-Object LastWriteTime -Descending | Select-Object -First 8 Name, LastWriteTime
-Get-ChildItem data/results/audit/*.csv | Sort-Object LastWriteTime -Descending | Select-Object Name, LastWriteTime
+Get-ChildItem data/validation/audit/*.csv | Sort-Object LastWriteTime -Descending | Select-Object Name, LastWriteTime
 Get-ChildItem data/charts -Recurse -File *.png | Sort-Object LastWriteTime -Descending | Select-Object -First 12 FullName, LastWriteTime
 ```
 
@@ -238,7 +238,7 @@ Je montre enfin les artefacts cote Pi pour fermer la demonstration de reproducti
 
 ```bash
 find data/results -maxdepth 1 -type f -name "*.csv" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 8
-find data/results/audit -maxdepth 1 -type f -name "*.csv" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 4
+find data/validation/audit -maxdepth 1 -type f -name "*.csv" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 4
 find data/charts -type f -name "*.png" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 12
 ```
 

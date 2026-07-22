@@ -39,7 +39,7 @@ python scripts/validation_bundle.py
 ```
 
 Emplacement de sortie du dossier de preuves
-- crypto-experiments/data/results/validation-bundles/bundle-<timestamp>
+- crypto-experiments/data/validation/bundle/bundle-<timestamp>
 
 Le dossier de preuves inclut
 - journal pytest
@@ -95,7 +95,7 @@ Ressources requises pour le mode strict
 
 3. IC95
 - Le terminal contient Quality gate enforcement PASS.
-- Les artefacts sont écrits sous data/results/audit.
+- Les artefacts sont écrits sous data/validation/audit.
 
 ## Politique GitHub de protection de branche
 Appliquer cette politique à la branche main.

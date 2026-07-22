@@ -10,7 +10,7 @@ import csv
 import re
 from pathlib import Path
 
-from chart_pipeline.shared_paths import RESULTS_DIR
+from plotting.shared_paths import RESULTS_DIR
 
 
 # Même convention que data_performance.py : un dictionnaire simple par ligne.
@@ -139,4 +139,5 @@ def load_platform_rows() -> tuple[list[Path], list[Path], list[Row], list[Row]]:
     """
     x86_paths, pi_paths = discover_platform_csvs()
     return x86_paths, pi_paths, load_averaged_rows(x86_paths), load_averaged_rows(pi_paths)
+
 

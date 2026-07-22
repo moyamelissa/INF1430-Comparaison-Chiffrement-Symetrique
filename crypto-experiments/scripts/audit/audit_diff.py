@@ -1,8 +1,8 @@
-"""Export a CSV diff report between raw values and chart aggregation outputs.
+﻿"""Export a CSV diff report between raw values and chart aggregation outputs.
 
 Usage (from crypto-experiments/):
     python scripts/audit/audit_diff.py
-    python scripts/audit/audit_diff.py --out data/results/audit_diff_report.csv
+    python scripts/audit/audit_diff.py --out data/validation/audit/audit_diff_report.csv
 """
 
 from __future__ import annotations
@@ -13,11 +13,11 @@ from collections import defaultdict
 from pathlib import Path
 import sys
 
-# Allow imports from scripts/chart_pipeline when executed from scripts/audit/
+# Allow imports from scripts/plotting when executed from scripts/audit/
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from chart_pipeline.data_performance import load_latest_rows
-from chart_pipeline.data_platform import load_platform_rows
+from plotting.data_performance import load_latest_rows
+from plotting.data_platform import load_platform_rows
 
 
 GroupKey = tuple[str, str, int, int]
@@ -259,7 +259,7 @@ def main() -> int:
     parser.add_argument(
         "--out",
         type=Path,
-        default=Path("data/results/audit_diff_report.csv"),
+        default=Path("data/validation/audit/audit_diff_report.csv"),
         help="Output CSV path",
     )
     args = parser.parse_args()
@@ -275,3 +275,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

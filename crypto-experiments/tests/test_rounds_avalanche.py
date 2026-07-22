@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 import sys
 
 
@@ -9,7 +9,7 @@ if str(SCRIPTS_DIR) not in sys.path:
 
 
 def test_measure_rounds_series_shape_and_bounds():
-    from chart_pipeline import data_avalanche_rounds as dar
+    from plotting import data_avalanche_rounds as dar
 
     series = dar.measure_rounds_series(trials=30)
 
@@ -23,7 +23,7 @@ def test_measure_rounds_series_shape_and_bounds():
 
 
 def test_measure_avalanche_at_rounds_is_deterministic_with_shared_trials():
-    from chart_pipeline import data_avalanche_rounds as dar
+    from plotting import data_avalanche_rounds as dar
 
     key, trial_set = dar._build_trial_set(40)
     score_8 = dar.measure_avalanche_at_rounds(8, trials=40, key=key, trial_set=trial_set)
@@ -33,7 +33,7 @@ def test_measure_avalanche_at_rounds_is_deterministic_with_shared_trials():
 
 
 def test_generate_rounds_avalanche_chart_writes_file(monkeypatch, tmp_path):
-    from chart_pipeline import build_avalanche_rounds as bar
+    from plotting import build_avalanche_rounds as bar
 
     fake_series = [
         {

@@ -9,7 +9,7 @@ This script reads all platform CSV files in data/results and computes:
 Usage (from crypto-experiments/):
     py scripts/audit/audit_ic95.py
     py scripts/audit/audit_ic95.py --threshold-rel 10
-    py scripts/audit/audit_ic95.py --out data/results/audit/ic95_audit_report.csv
+    py scripts/audit/audit_ic95.py --out data/validation/audit/ic95_audit_report.csv
 
 Usage (from repository root):
     py crypto-experiments/scripts/audit/audit_ic95.py
@@ -254,13 +254,13 @@ def main() -> int:
     parser.add_argument(
         "--out",
         type=Path,
-        default=PROJECT_ROOT / "data" / "results" / "audit" / "ic95_audit_report.csv",
+        default=PROJECT_ROOT / "data" / "validation" / "audit" / "ic95_audit_report.csv",
         help="Output CSV path for grouped IC95 audit",
     )
     parser.add_argument(
         "--raw-out",
         type=Path,
-        default=PROJECT_ROOT / "data" / "results" / "audit" / "ic95_raw_rows.csv",
+        default=PROJECT_ROOT / "data" / "validation" / "audit" / "ic95_raw_rows.csv",
         help="Output CSV path for row-level IC95 calculations",
     )
     parser.add_argument(

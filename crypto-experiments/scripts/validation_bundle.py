@@ -7,7 +7,7 @@ Usage from crypto-experiments:
     py scripts/validation_bundle.py
 
 The script runs validation commands, captures outputs, and copies key artifacts
-into a timestamped bundle directory under data/results/validation-bundles.
+into a timestamped bundle directory under data/validation/bundle.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = PROJECT_ROOT.parent
-BUNDLES_DIR = PROJECT_ROOT / "data" / "results" / "validation-bundles"
+BUNDLES_DIR = PROJECT_ROOT / "data" / "validation" / "bundle"
 
 
 @dataclass
@@ -127,11 +127,11 @@ def build_bundle(skip_run: bool) -> int:
     copied_artifacts: dict[str, bool] = {
         "coverage_xml": _copy_if_exists(PROJECT_ROOT / "coverage.xml", artifacts_dir / "coverage.xml"),
         "ic95_raw_rows": _copy_if_exists(
-            PROJECT_ROOT / "data" / "results" / "audit" / "ic95_raw_rows.csv",
+            PROJECT_ROOT / "data" / "validation" / "audit" / "ic95_raw_rows.csv",
             artifacts_dir / "ic95_raw_rows.csv",
         ),
         "ic95_audit_report": _copy_if_exists(
-            PROJECT_ROOT / "data" / "results" / "audit" / "ic95_audit_report.csv",
+            PROJECT_ROOT / "data" / "validation" / "audit" / "ic95_audit_report.csv",
             artifacts_dir / "ic95_audit_report.csv",
         ),
     }

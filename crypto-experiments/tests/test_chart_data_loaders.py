@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 import sys
 
 
@@ -13,7 +13,7 @@ def _write_csv(path: Path, header: str, rows: list[str]) -> None:
 
 
 def test_data_performance_load_latest_rows_averages_and_handles_bom(monkeypatch, tmp_path):
-    from chart_pipeline import data_performance as dp
+    from plotting import data_performance as dp
 
     header_bom = (
         '"algorithm","mode","key_size_bytes","message_size_bytes","repetitions",'
@@ -57,7 +57,7 @@ def test_data_performance_load_latest_rows_averages_and_handles_bom(monkeypatch,
 
 
 def test_data_platform_load_platform_rows_averages_both_platforms(monkeypatch, tmp_path):
-    from chart_pipeline import data_platform as dplat
+    from plotting import data_platform as dplat
 
     header = (
         'algorithm,mode,key_size_bytes,message_size_bytes,repetitions,'

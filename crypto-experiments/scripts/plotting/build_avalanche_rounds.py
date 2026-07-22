@@ -2,7 +2,7 @@
 
 Structure
 ---------
-1. chart_pipeline.data_avalanche_rounds prépare les mesures.
+1. plotting.data_avalanche_rounds prépare les mesures.
 2. Ce module construit le graphique final et l'affichage console.
 """
 
@@ -19,9 +19,9 @@ if SCRIPTS_DIR not in sys.path:
 
 import matplotlib.pyplot as plt
 
-from chart_pipeline.data_avalanche_rounds import TRIALS, measure_rounds_series
-from chart_pipeline.style_charts import BG_COLOR, TEXT_COLOR, setup_matplotlib
-from chart_pipeline.shared_paths import CHARTS_DIR, ensure_chart_dir
+from plotting.data_avalanche_rounds import TRIALS, measure_rounds_series
+from plotting.style_charts import BG_COLOR, TEXT_COLOR, setup_matplotlib
+from plotting.shared_paths import CHARTS_DIR, ensure_chart_dir
 
 
 setup_matplotlib(title_pad=12)
@@ -67,4 +67,5 @@ def generate_rounds_avalanche_chart():
 
 if __name__ == "__main__":
     generate_rounds_avalanche_chart()
+
 

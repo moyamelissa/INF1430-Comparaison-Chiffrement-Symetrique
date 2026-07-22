@@ -34,7 +34,7 @@ SCRIPTS_DIR = os.path.dirname(SCRIPT_DIR)
 if SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, SCRIPTS_DIR)
 
-from chart_pipeline.style_charts import (
+from plotting.style_charts import (
     ALGO_COLORS,
     BG_COLOR,
     FIG_W,
@@ -45,8 +45,8 @@ from chart_pipeline.style_charts import (
     setup_matplotlib,
     style_ax,
 )
-from chart_pipeline.data_performance import load_latest_rows
-from chart_pipeline.shared_paths import CHARTS_DIR
+from plotting.data_performance import load_latest_rows
+from plotting.shared_paths import CHARTS_DIR
 
 
 setup_matplotlib(title_pad=12, hatch_linewidth=1.0)
@@ -699,6 +699,7 @@ if __name__ == "__main__":
     generate_groups()
 
     print(f"\nTerminé. Graphiques enregistrés dans: {os.path.abspath(CHARTS_DIR)}")
+
 
 
 

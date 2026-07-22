@@ -12,7 +12,7 @@ import csv
 import re
 from pathlib import Path
 
-from chart_pipeline.shared_paths import RESULTS_DIR
+from plotting.shared_paths import RESULTS_DIR
 
 
 # Type simple utilisé par les scripts de rendu pour manipuler librement les mesures.
@@ -120,4 +120,5 @@ def load_latest_rows() -> tuple[list[Path], list[Row]]:
                     "key_avalanche_score": _to_float_optional(_row_value(row, "key_avalanche_score")),
                 })
     return paths, _average_rows(all_rows)
+
 
