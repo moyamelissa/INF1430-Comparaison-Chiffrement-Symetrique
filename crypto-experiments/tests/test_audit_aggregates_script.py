@@ -19,8 +19,8 @@ def _load_module():
 
 
 def _fake_inputs(tmp_path: Path):
-    perf_path = tmp_path / "laptop-windows-x86_experience3_20990101.csv"
-    x86_path = tmp_path / "laptop-windows-x86_experience2_20990101.csv"
+    perf_path = tmp_path / "windows_experience3_20990101.csv"
+    x86_path = tmp_path / "windows_experience2_20990101.csv"
     pi_path = tmp_path / "raspberry-pi_experience3_20990101.csv"
 
     perf_path.write_text("x\n", encoding="utf-8")

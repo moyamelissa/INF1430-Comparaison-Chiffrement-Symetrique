@@ -12,7 +12,7 @@ Le script itère sur toutes les combinaisons algorithme / mode / taille de clé 
 taille de message définies dans EXPERIMENT_MATRIX, exécute les mesures de
 performance + avalanche via ExperimentController, et écrit les résultats dans
 data/results/<plateforme>_experienceX_YYYYMMDD.csv, par exemple
-``laptop-windows-x86_experience4_20260717.csv``. L'index ``X`` est incrémenté
+``windows_experience4_20260717.csv``. L'index ``X`` est incrémenté
 automatiquement pour chaque nouvelle campagne d'une même plateforme.
 
 Aucune logique cryptographique ne se trouve ici — ce fichier ne fait que
@@ -113,8 +113,8 @@ def _platform_results_prefix() -> str:
     """Retourne le préfixe utilisé dans data/results pour la plateforme courante."""
     label = _platform_label()
     aliases = {
-        "windows-x86-64": "laptop-windows-x86",
-        "windows-x86": "laptop-windows-x86",
+        "windows-x86-64": "windows",
+        "windows-x86": "windows",
         "raspberry-pi": "raspberry-pi",
     }
     return aliases.get(label, label)

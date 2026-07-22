@@ -9,7 +9,7 @@ Sources
   - ECB_VT.TXT : variable text
   - ECB_TBL.TXT : table checks
 
-Les fichiers sont lus depuis Resources/KAT/Twofish-kat.
+Les fichiers sont lus depuis resources/KAT/Twofish-kat.
 """
 
 from __future__ import annotations
@@ -62,7 +62,7 @@ _FALLBACK_VECTORS: dict[str, list[tuple[bytes, bytes, bytes]]] = {
 
 def _resources_dir() -> Path:
     # validation/kat_twofish.py -> crypto-experiments -> repository root
-    return Path(__file__).resolve().parents[2] / "Resources" / "KAT" / "Twofish-kat"
+    return Path(__file__).resolve().parents[2] / "resources" / "KAT" / "Twofish-kat"
 
 
 def _resolve_vector_file(*names: str) -> Path:

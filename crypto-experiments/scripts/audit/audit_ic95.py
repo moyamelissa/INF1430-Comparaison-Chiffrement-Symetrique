@@ -9,7 +9,7 @@ This script reads all platform CSV files in data/results and computes:
 Usage (from crypto-experiments/):
     py scripts/audit/audit_ic95.py
     py scripts/audit/audit_ic95.py --threshold-rel 10
-    py scripts/audit/audit_ic95.py --out data/validation/audit/ic95_audit_report.csv
+    py scripts/audit/audit_ic95.py --out data/evidence/audit/ic95_audit_report.csv
 
 Usage (from repository root):
     py crypto-experiments/scripts/audit/audit_ic95.py
@@ -40,7 +40,7 @@ def _to_float_optional(value: object) -> float | None:
 
 def _detect_platform(filename: str) -> str:
     lower = filename.lower()
-    if "x86" in lower:
+    if "x86" in lower or lower.startswith("windows_"):
         return "x86"
     if "raspberry-pi" in lower or "raspberry_pi" in lower or "arm" in lower:
         return "arm"
@@ -73,7 +73,12 @@ def _discover_result_files(results_dir: Path) -> list[Path]:
         p
         for p in results_dir.glob("*.csv")
         if "audit" not in p.name.lower()
-        and ("x86" in p.name.lower() or "raspberry-pi" in p.name.lower() or "arm" in p.name.lower())
+        and (
+            "x86" in p.name.lower()
+            or p.name.lower().startswith("windows_")
+            or "raspberry-pi" in p.name.lower()
+            or "arm" in p.name.lower()
+        )
     )
 
 
@@ -254,13 +259,13 @@ def main() -> int:
     parser.add_argument(
         "--out",
         type=Path,
-        default=PROJECT_ROOT / "data" / "validation" / "audit" / "ic95_audit_report.csv",
+        default=PROJECT_ROOT / "data" / "evidence" / "audit" / "ic95_audit_report.csv",
         help="Output CSV path for grouped IC95 audit",
     )
     parser.add_argument(
         "--raw-out",
         type=Path,
-        default=PROJECT_ROOT / "data" / "validation" / "audit" / "ic95_raw_rows.csv",
+        default=PROJECT_ROOT / "data" / "evidence" / "audit" / "ic95_raw_rows.csv",
         help="Output CSV path for row-level IC95 calculations",
     )
     parser.add_argument(

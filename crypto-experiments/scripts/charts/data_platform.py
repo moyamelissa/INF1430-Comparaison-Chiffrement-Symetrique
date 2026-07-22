@@ -52,7 +52,10 @@ def _is_x86_csv(path: Path) -> bool:
     if not match:
         return False
     platform_label = match.group("platform")
-    return "x86" in platform_label and "raspberry" not in platform_label
+    return (
+        "raspberry" not in platform_label
+        and ("x86" in platform_label or platform_label.startswith("windows"))
+    )
 
 
 def _is_pi_csv(path: Path) -> bool:

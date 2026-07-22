@@ -2,7 +2,7 @@
 
 Usage (from crypto-experiments/):
     python scripts/audit/audit_diff.py
-    python scripts/audit/audit_diff.py --out data/validation/audit/audit_diff_report.csv
+    python scripts/audit/audit_diff.py --out data/evidence/audit/audit_diff_report.csv
 """
 
 from __future__ import annotations
@@ -259,7 +259,7 @@ def main() -> int:
     parser.add_argument(
         "--out",
         type=Path,
-        default=Path("data/validation/audit/audit_diff_report.csv"),
+        default=Path("data/evidence/audit/audit_diff_report.csv"),
         help="Output CSV path",
     )
     args = parser.parse_args()

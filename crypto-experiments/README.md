@@ -20,7 +20,7 @@ Paquet principal d'expériences pour la comparaison des chiffrements symétrique
 | `scripts/experiment.py` | Génère les CSV de benchmark. |
 | `scripts/run_kat.py` | Exécute les vérifications cryptographiques KAT. |
 | `scripts/run_charts.py` | Génère les ensembles de graphiques à partir des résultats. |
-| `scripts/validation_bundle.py` | Génère un dossier de preuves de validation. |
+| `scripts/audit/audit_bundle.py` | Génère un dossier de preuves. |
 | `scripts/audit/` | Audits IC95 et cohérence des agrégats. |
 | `scripts/charts/` | Modules de génération de graphiques (`build_*`, `data_*`, style). |
 
@@ -52,4 +52,4 @@ python scripts/run_charts.py all
 ## Notes
 
 - Les artefacts de couverture et de tests (`.coverage`, `htmlcov/`, `coverage.xml`) sont des fichiers générés.
-- Les principales sorties de validation reproductible sont dans `data/validation/`.
+- Les principales sorties d’evidence reproductible sont dans `data/evidence/`.

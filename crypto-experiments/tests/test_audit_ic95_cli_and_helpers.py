@@ -61,6 +61,7 @@ def test_helpers_cover_header_variants_and_optionals(tmp_path: Path):
     assert module._to_float_optional("2.5") == 2.5
 
     assert module._detect_platform("laptop-x86.csv") == "x86"
+    assert module._detect_platform("windows_experience1_20990101.csv") == "x86"
     assert module._detect_platform("raspberry-pi.csv") == "arm"
     assert module._detect_platform("unknown.csv") == "unknown"
 
@@ -76,13 +77,13 @@ def test_helpers_cover_header_variants_and_optionals(tmp_path: Path):
     with pytest.raises(KeyError):
         module._get_value({}, "missing")
 
-    _write_result_csv(tmp_path, platform_tag="laptop-windows-x86")
+    _write_result_csv(tmp_path, platform_tag="windows")
     _write_result_csv(tmp_path, platform_tag="raspberry-pi")
     (tmp_path / "audit_report.csv").write_text("context\n", encoding="utf-8")
 
     files = module._discover_result_files(tmp_path)
     names = [p.name for p in files]
-    assert any("x86" in name for name in names)
+    assert any("x86" in name or name.startswith("windows_") for name in names)
     assert any("raspberry-pi" in name for name in names)
     assert all("audit" not in name.lower() for name in names)
 
@@ -95,7 +96,7 @@ def test_main_success_writes_outputs_and_passes_gates(tmp_path: Path, monkeypatc
     raw_out_path = tmp_path / "audit" / "ic95_raw_rows.csv"
     results_dir.mkdir(parents=True, exist_ok=True)
 
-    _write_result_csv(results_dir, platform_tag="laptop-windows-x86", throughput=100.0, ci95=5.0, reps=100)
+    _write_result_csv(results_dir, platform_tag="windows", throughput=100.0, ci95=5.0, reps=100)
     _write_result_csv(results_dir, platform_tag="raspberry-pi", throughput=95.0, ci95=4.0, reps=100)
 
     monkeypatch.setattr(
@@ -128,7 +129,7 @@ def test_main_returns_2_when_enforced_gates_fail(tmp_path: Path, monkeypatch: py
     results_dir.mkdir(parents=True, exist_ok=True)
 
     # Deliberately unstable ratios and low repetitions to fail gates.
-    _write_result_csv(results_dir, platform_tag="laptop-windows-x86", throughput=1.0, ci95=10.0, reps=10)
+    _write_result_csv(results_dir, platform_tag="windows", throughput=1.0, ci95=10.0, reps=10)
 
     monkeypatch.setattr(
         sys,
@@ -157,7 +158,7 @@ def test_main_success_without_enforce_gates(tmp_path: Path, monkeypatch: pytest.
     raw_out_path = tmp_path / "audit" / "ic95_raw_rows.csv"
     results_dir.mkdir(parents=True, exist_ok=True)
 
-    _write_result_csv(results_dir, platform_tag="laptop-windows-x86", throughput=100.0, ci95=4.0, reps=100)
+    _write_result_csv(results_dir, platform_tag="windows", throughput=100.0, ci95=4.0, reps=100)
 
     monkeypatch.setattr(
         sys,

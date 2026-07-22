@@ -6,7 +6,10 @@ __pycache__/
 crypto-experiments/.ci-debug-venv/
 .env
 .pytest_cache/
+.hypothesis/
 crypto-experiments/data/logs/
+crypto-experiments/data/evidence/*
+!crypto-experiments/data/evidence/README.md
 .tmp_kat_latest.txt
 .tmp_pptx/
 

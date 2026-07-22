@@ -219,7 +219,7 @@ python scripts/run_charts.py 04
 
 ### 5) Comparaison multi-plateformes
 
-> **Prérequis** : deux fichiers CSV doivent être présents dans `data/results/` — un nommé `laptop-windows-x86_*.csv` et un `raspberry-pi_*.csv`. Sans les deux, ce script quitte avec un avertissement.
+> **Prérequis** : deux fichiers CSV doivent être présents dans `data/results/` — un nommé `windows_*.csv` et un `raspberry-pi_*.csv`. Sans les deux, ce script quitte avec un avertissement.
 
 ```bash
 python scripts/run_charts.py
@@ -260,8 +260,8 @@ python scripts/audit/audit_ic95.py --enforce-gates
 
 Le job échoue si les gates de qualité ne sont pas respectés, et publie deux artefacts CSV :
 
-- `crypto-experiments/data/validation/audit/ic95_raw_rows.csv`
-- `crypto-experiments/data/validation/audit/ic95_audit_report.csv`
+- `crypto-experiments/data/evidence/audit/ic95_raw_rows.csv`
+- `crypto-experiments/data/evidence/audit/ic95_audit_report.csv`
 
 Mesures à 4 096 octets, meilleure clé, ECB (sauf ChaCha20 → Stream), 100 répétitions.
 
@@ -285,7 +285,7 @@ Mesures à 4 096 octets, meilleure clé, ECB (sauf ChaCha20 → Stream), 100 ré
 
 Les CSV sont versionnés dans `crypto-experiments/data/results/` :
 
-- `laptop-windows-x86_experience3.csv` — campagne de référence x86
+- `windows_experience3.csv` — campagne de référence x86
 - `raspberry-pi_experience3.csv` — campagne de référence ARM
 
 > Les expériences 1 et 2 sont conservées pour traçabilité historique.

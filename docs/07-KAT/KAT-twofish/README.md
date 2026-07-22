@@ -23,5 +23,5 @@ La structure a été simplifiée pour garder un seul dossier `KAT-twofish` sans 
 ## Référence de provenance
 
 - Corpus Twofish public (soumission d'algorithme par Schneier et al., historique AES).
-- Les tests du projet lisent les vecteurs Twofish depuis `Resources/KAT/Twofish-kat/`.
+- Les tests du projet lisent les vecteurs Twofish depuis `resources/KAT/Twofish-kat/`.
 

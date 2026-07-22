@@ -257,4 +257,4 @@ L'anomalie d'avalanche de ChaCha20 (~0.594) mérite une mention dans un contexte
 
 ---
 
-*Rapport généré à partir des données expérimentales de l'expérience 3 — laptop-windows-x86 et raspberry-pi — INF1430, Mai 2026.*
+*Rapport généré à partir des données expérimentales de l'expérience 3 — windows et raspberry-pi — INF1430, Mai 2026.*

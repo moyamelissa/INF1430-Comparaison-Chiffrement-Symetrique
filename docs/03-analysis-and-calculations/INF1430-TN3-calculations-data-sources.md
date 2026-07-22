@@ -2,7 +2,7 @@
 ### Traçabilité des valeurs présentées dans [INF1430_PPT_TN3.pptx](INF1430_PPT_TN3.pptx)
 
 **Fichiers de données principaux :**
-- x86 : [laptop-windows-x86_experience3.csv](../../crypto-experiments/data/results/laptop-windows-x86_experience3.csv)
+- x86 : [windows_experience3.csv](../../crypto-experiments/data/results/windows_experience3.csv)
 - Pi  : [raspberry-pi_experience3.csv](../../crypto-experiments/data/results/raspberry-pi_experience3.csv)
 
 Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contraire.
@@ -16,7 +16,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 | 5 paliers de taille | CSV : colonnes `message_size_bytes` | `{64, 256, 1024, 4096, 16384}` — union des valeurs distinctes dans experience3 |
 | 64 octets → 16 384 octets | CSV | Min et max de `message_size_bytes` |
 | n = 100 répétitions | CSV : colonne `repetitions` | Valeur constante dans toutes les lignes |
-| IC₉₅ = 1,96 × σ / √n | Formule statistique | z-score de la loi normale à 95 % · n=100 → IC₉₅ disponible dans colonne `ci95_encrypt_mbps` de [experience3](../../crypto-experiments/data/results/laptop-windows-x86_experience3.csv) |
+| IC₉₅ = 1,96 × σ / √n | Formule statistique | z-score de la loi normale à 95 % · n=100 → IC₉₅ disponible dans colonne `ci95_encrypt_mbps` de [experience3](../../crypto-experiments/data/results/windows_experience3.csv) |
 | CPU x86 : Intel Core i5-10300H | Matériel (vérifié physiquement) | — |
 | CPU Pi : ARM Cortex-A72 | Matériel Raspberry Pi 4 (vérifié physiquement) | — |
 | 32 Go RAM x86 | Matériel | — |
@@ -32,7 +32,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 | Blocs de 128 bits | NIST FIPS 197 | Standard AES |
 | Clés 128/192/256 bits → 10/12/14 tours | NIST FIPS 197 | Standard AES |
 | AES-NI depuis 2010 | Intel Architecture Reference | — |
-| x86 est 5,58× plus rapide | [x86 CSV](../../crypto-experiments/data/results/laptop-windows-x86_experience3.csv) · [Pi CSV](../../crypto-experiments/data/results/raspberry-pi_experience3.csv) | AES-256 ECB 16384B : x86=417,07 MB/s ÷ Pi=74,73 MB/s = **5,58×** |
+| x86 est 5,58× plus rapide | [x86 CSV](../../crypto-experiments/data/results/windows_experience3.csv) · [Pi CSV](../../crypto-experiments/data/results/raspberry-pi_experience3.csv) | AES-256 ECB 16384B : x86=417,07 MB/s ÷ Pi=74,73 MB/s = **5,58×** |
 
 > **Note :** le ratio 5,58× est calculé sur les valeurs de pic (16 384 octets, AES-256 ECB).
 
@@ -212,9 +212,9 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 
 | Fichier | Plateforme | Contenu |
 |---------|-----------|---------|
-| [laptop-windows-x86_experience1.csv](../../crypto-experiments/data/results/laptop-windows-x86_experience1.csv) | x86 | Débit + avalanche (sans key_avalanche ni ci95) |
-| [laptop-windows-x86_experience2.csv](../../crypto-experiments/data/results/laptop-windows-x86_experience2.csv) | x86 | Débit + avalanche + key_avalanche |
-| [laptop-windows-x86_experience3.csv](../../crypto-experiments/data/results/laptop-windows-x86_experience3.csv) | x86 | Débit + avalanche + key_avalanche + ci95 ← **utilisé** |
+| [windows_experience1.csv](../../crypto-experiments/data/results/windows_experience1.csv) | x86 | Débit + avalanche (sans key_avalanche ni ci95) |
+| [windows_experience2.csv](../../crypto-experiments/data/results/windows_experience2.csv) | x86 | Débit + avalanche + key_avalanche |
+| [windows_experience3.csv](../../crypto-experiments/data/results/windows_experience3.csv) | x86 | Débit + avalanche + key_avalanche + ci95 ← **utilisé** |
 | [raspberry-pi_experience1.csv](../../crypto-experiments/data/results/raspberry-pi_experience1.csv) | Pi ARM | Débit + avalanche |
 | [raspberry-pi_experience2.csv](../../crypto-experiments/data/results/raspberry-pi_experience2.csv) | Pi ARM | Débit + avalanche + key_avalanche |
 | [raspberry-pi_experience3.csv](../../crypto-experiments/data/results/raspberry-pi_experience3.csv) | Pi ARM | Débit + avalanche + key_avalanche + ci95 ← **utilisé** |

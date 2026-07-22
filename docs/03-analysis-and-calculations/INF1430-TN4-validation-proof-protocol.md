@@ -30,16 +30,16 @@ Utiliser le script de génération pour exporter les journaux, les artefacts et 
 
 Depuis la racine du dépôt
 ```powershell
-python crypto-experiments/scripts/validation_bundle.py
+python crypto-experiments/scripts/audit/audit_bundle.py
 ```
 
 Depuis crypto-experiments
 ```powershell
-python scripts/validation_bundle.py
+python scripts/audit/audit_bundle.py
 ```
 
 Emplacement de sortie du dossier de preuves
-- crypto-experiments/data/validation/bundle/bundle-<timestamp>
+- crypto-experiments/data/evidence/bundle/bundle-<timestamp>
 
 Le dossier de preuves inclut
 - journal pytest
@@ -79,9 +79,9 @@ python scripts/run_kat.py \
 ```
 
 Ressources requises pour le mode strict
-- Resources/KAT/Twofish-kat/ECB_VK.TXT
-- Resources/KAT/Twofish-kat/ECB_VT.TXT
-- Resources/KAT/Twofish-kat/ECB_TBL.TXT
+- resources/KAT/Twofish-kat/ECB_VK.TXT
+- resources/KAT/Twofish-kat/ECB_VT.TXT
+- resources/KAT/Twofish-kat/ECB_TBL.TXT
 - Les fichiers compagnons .sha256 correspondants pour chaque fichier
 
 ## Signaux attendus
@@ -95,7 +95,7 @@ Ressources requises pour le mode strict
 
 3. IC95
 - Le terminal contient Quality gate enforcement PASS.
-- Les artefacts sont écrits sous data/validation/audit.
+- Les artefacts sont écrits sous data/evidence/audit.
 
 ## Politique GitHub de protection de branche
 Appliquer cette politique à la branche main.

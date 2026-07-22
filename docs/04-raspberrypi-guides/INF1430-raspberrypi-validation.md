@@ -951,8 +951,8 @@ ls data/results
 ```text
 benchmark_output_experience1.txt  benchmark_output_experience3.txt  kat_results.txt
 benchmark_output_experience2.txt  dependencies_check.txt            pip_install.txt
-laptop-windows-x86_experience1.csv  laptop-windows-x86_experience3.csv  raspberry-pi_experience2.csv
-laptop-windows-x86_experience2.csv  raspberry-pi_experience1.csv        raspberry-pi_experience3.csv
+windows_experience1.csv             windows_experience3.csv             raspberry-pi_experience2.csv
+windows_experience2.csv             raspberry-pi_experience1.csv        raspberry-pi_experience3.csv
 ```
 
 ### Conclusion

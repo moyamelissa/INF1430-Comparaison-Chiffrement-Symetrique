@@ -266,14 +266,14 @@ Ce message final me confirme que toute la génération des graphes s’est bien 
 
 ## Section 6 - Vérification des artefacts (Windows)
 **Où sommes-nous ?**
-Terminal Windows + dossiers `data/results/`, `data/validation/audit/` et `data/charts/`
+Terminal Windows + dossiers `data/results/`, `data/evidence/audit/` et `data/charts/`
 
 **Texte à lire avant la commande**
 Pour fermer la partie Windows, je montre les artefacts générés localement.
 
 ```powershell
 Get-ChildItem data/results/*.csv | Sort-Object LastWriteTime -Descending | Select-Object -First 8 Name, LastWriteTime
-Get-ChildItem data/validation/audit/*.csv | Sort-Object LastWriteTime -Descending | Select-Object Name, LastWriteTime
+Get-ChildItem data/evidence/audit/*.csv | Sort-Object LastWriteTime -Descending | Select-Object Name, LastWriteTime
 Get-ChildItem data/charts -Recurse -File *.png | Sort-Object LastWriteTime -Descending | Select-Object -First 12 FullName, LastWriteTime
 ```
 
@@ -285,13 +285,13 @@ Get-ChildItem data/charts -Recurse -File *.png | Sort-Object LastWriteTime -Desc
 Ici, je montre les CSV de résultats. Ça prouve que la campagne de mesures a bien produit des données exploitables.
 
 **Fichier à montrer**
-`data/validation/audit/ic95_raw_rows.csv`
+`data/evidence/audit/ic95_raw_rows.csv`
 
 **Texte à dire**
 Ce fichier contient les lignes brutes de l’audit IC95. C’est la trace directe des mesures avant regroupement.
 
 **Fichier à montrer**
-`data/validation/audit/ic95_audit_report.csv`
+`data/evidence/audit/ic95_audit_report.csv`
 
 **Texte à dire**
 Ce rapport montre que l’audit a été regroupé et validé. Il me sert de preuve pour la partie statistique.
@@ -475,14 +475,14 @@ Le script a fini correctement et les graphes sont prêts.
 
 ## Section 12 - Vérification des artefacts (Raspberry Pi)
 **Où sommes-nous ?**
-Terminal Raspberry Pi + dossiers `data/results/`, `data/validation/audit/` et `data/charts/`
+Terminal Raspberry Pi + dossiers `data/results/`, `data/evidence/audit/` et `data/charts/`
 
 **Texte à lire avant la commande**
 Je termine en montrant les artefacts côté Raspberry Pi. C’est la dernière preuve de reproductibilité.
 
 ```bash
 find data/results -maxdepth 1 -type f -name "*.csv" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 8
-find data/validation/audit -maxdepth 1 -type f -name "*.csv" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 4
+find data/evidence/audit -maxdepth 1 -type f -name "*.csv" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 4
 find data/charts -type f -name "*.png" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 12
 ```
 
@@ -494,7 +494,7 @@ find data/charts -type f -name "*.png" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort
 Je montre que les résultats de mesures existent aussi sur Pi.
 
 **Fichier à montrer**
-`data/validation/audit/*.csv`
+`data/evidence/audit/*.csv`
 
 **Texte à dire**
 Je montre les exports de l’audit statistique.

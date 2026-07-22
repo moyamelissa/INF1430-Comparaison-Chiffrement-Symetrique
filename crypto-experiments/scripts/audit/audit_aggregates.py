@@ -6,7 +6,7 @@ Le rapport combine:
 
 Usage (depuis crypto-experiments/):
     python scripts/audit/audit_aggregates.py
-    python scripts/audit/audit_aggregates.py --out data/validation/audit/audit_aggregates_report.csv
+    python scripts/audit/audit_aggregates.py --out data/evidence/audit/audit_aggregates_report.csv
 """
 
 from __future__ import annotations
@@ -116,7 +116,7 @@ def main() -> int:
     parser.add_argument(
         "--out",
         type=Path,
-        default=Path("data/validation/audit/audit_aggregates_report.csv"),
+        default=Path("data/evidence/audit/audit_aggregates_report.csv"),
         help="Chemin de sortie du rapport CSV",
     )
     args = parser.parse_args()

@@ -13,7 +13,7 @@ AUDIT_DIR = PROJECT_ROOT / "scripts" / "audit"
 
 
 def _write_result_csv(path: Path) -> None:
-    file_path = path / "laptop-windows-x86_experience3_20990101.csv"
+    file_path = path / "windows_experience3_20990101.csv"
     with file_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(
             handle,

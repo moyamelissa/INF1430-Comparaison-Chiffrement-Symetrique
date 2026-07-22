@@ -34,12 +34,12 @@ jobs:
       - name: Detect strict Twofish vector assets
         id: twofish_assets
         run: |
-          if [ -f ../Resources/KAT/Twofish-kat/ECB_VK.TXT ] && \
-             [ -f ../Resources/KAT/Twofish-kat/ECB_VT.TXT ] && \
-             [ -f ../Resources/KAT/Twofish-kat/ECB_TBL.TXT ] && \
-             [ -f ../Resources/KAT/Twofish-kat/ECB_VK.TXT.sha256 ] && \
-             [ -f ../Resources/KAT/Twofish-kat/ECB_VT.TXT.sha256 ] && \
-             [ -f ../Resources/KAT/Twofish-kat/ECB_TBL.TXT.sha256 ]; then
+           if [ -f ../resources/KAT/Twofish-kat/ECB_VK.TXT ] && \
+             [ -f ../resources/KAT/Twofish-kat/ECB_VT.TXT ] && \
+             [ -f ../resources/KAT/Twofish-kat/ECB_TBL.TXT ] && \
+             [ -f ../resources/KAT/Twofish-kat/ECB_VK.TXT.sha256 ] && \
+             [ -f ../resources/KAT/Twofish-kat/ECB_VT.TXT.sha256 ] && \
+             [ -f ../resources/KAT/Twofish-kat/ECB_TBL.TXT.sha256 ]; then
             echo "run_strict=true" >> "$GITHUB_OUTPUT"
           else
             echo "run_strict=false" >> "$GITHUB_OUTPUT"
