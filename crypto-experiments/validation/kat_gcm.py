@@ -10,7 +10,7 @@ Sources
   Cas de test 3 : AES-128, texte clair de 16 octets, AAD vide
   Cas de test 4 : AES-128, texte clair de 16 octets, AAD de 20 octets
 
-Seuls les cas exercçant nos chemins de code sont inclus (texte clair non vide).
+Les vecteurs incluent des cas vide et non vide pour couvrir les chemins limites.
 """
 import sys
 import os
@@ -27,6 +27,19 @@ def _h(hex_str: str) -> bytes:
 def run(verbose: bool = True) -> int:
     """Exécute tous les vecteurs KAT AES-GCM. Retourne le nombre d'échecs."""
     failures = 0
+
+    # ------------------------------------------------------------------
+    # NIST SP 800-38D Annexe B, Cas de test 1
+    # AES-128, texte clair vide, IV de 12 octets à zéro, sans AAD
+    # ------------------------------------------------------------------
+    tc1 = {
+        "label":  "SP800-38D TC1 AES-128-GCM empty plain",
+        "key":    "00000000000000000000000000000000",
+        "nonce":  "000000000000000000000000",
+        "plain":  "",
+        "cipher": "",
+        "tag":    "58e2fccefa7e3061367f1d57a4e7455a",
+    }
 
     # ------------------------------------------------------------------
     # NIST SP 800-38D Annexe B, Cas de test 3
@@ -68,7 +81,7 @@ def run(verbose: bool = True) -> int:
         "tag":    "5bc94fbc3221a5db94fae95ae7121a47",
     }
 
-    for vec in (tc3, tc4):
+    for vec in (tc1, tc3, tc4):
         key    = _h(vec["key"])
         nonce  = _h(vec["nonce"])
         plain  = _h(vec["plain"])
@@ -131,5 +144,19 @@ def run(verbose: bool = True) -> int:
         if verbose:
             status = "PASS" if tamper_caught else "FAIL"
             print(f"  [{status}] {label} tamper detection")
+
+    # Payload malformed: nonce implicite incomplet (moins de 12 octets)
+    malformed_caught = False
+    try:
+        gcm = GCM(AES(_h(tc1["key"])))
+        gcm.decrypt(b"\x00" * 11, nonce=None, aad=b"")
+    except ValueError:
+        malformed_caught = True
+
+    if not malformed_caught:
+        failures += 1
+    if verbose:
+        status = "PASS" if malformed_caught else "FAIL"
+        print(f"  [{status}] malformed payload rejection")
 
     return failures

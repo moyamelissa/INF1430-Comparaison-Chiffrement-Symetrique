@@ -15,6 +15,7 @@ Les fichiers sont lus depuis Resources/KAT/Twofish-kat.
 from __future__ import annotations
 
 from pathlib import Path
+import hashlib
 import re
 import sys
 import os
@@ -27,6 +28,8 @@ from domain.cipher.Twofish import Twofish
 _HEX_LINE_RE = re.compile(r"^(KEY|PT|CT)\s*=\s*([0-9A-Fa-f]+)$")
 _LAST_STATS: list[dict[str, int | str]] = []
 _PROFILE_ENV = "TWOFISH_KAT_PROFILE"
+_ALLOW_FALLBACK_ENV = "TWOFISH_KAT_ALLOW_FALLBACK"
+_CHECKSUM_MODE_ENV = "TWOFISH_KAT_CHECKSUM"
 _FALLBACK_SOURCE = "embedded-known-vectors"
 
 # Official Twofish vectors used by the reference package self-test
@@ -128,6 +131,11 @@ def _run_file(label: str, path: Path, verbose: bool) -> tuple[int, int, int]:
     if verbose:
         print(f"  [INFO] {label}: {len(vectors)} vecteur(s) charges depuis {path.name}")
 
+    if not vectors:
+        if verbose:
+            print(f"  [FAIL] {label}: no usable vectors found in {path.name}")
+        return 1, 0, 0
+
     for idx, (key, plain, expected_cipher) in enumerate(vectors, start=1):
         tf = Twofish(key)
         got_cipher = tf.encrypt_block(plain)
@@ -183,6 +191,11 @@ def _run_vectors(
     if verbose:
         print(f"  [INFO] {label}: {len(vectors)} vecteur(s) utilises depuis {source_name}")
 
+    if not vectors:
+        if verbose:
+            print(f"  [FAIL] {label}: no vectors selected from {source_name}")
+        return 1, 0, 0
+
     for idx, (key, plain, expected_cipher) in enumerate(vectors, start=1):
         tf = Twofish(key)
         got_cipher = tf.encrypt_block(plain)
@@ -216,6 +229,71 @@ def get_last_stats() -> list[dict[str, int | str]]:
     return list(_LAST_STATS)
 
 
+def _allow_fallback() -> bool:
+    """True when embedded fallback vectors are allowed."""
+    raw = os.environ.get(_ALLOW_FALLBACK_ENV, "1").strip().lower()
+    return raw not in {"0", "false", "no", "off"}
+
+
+def _checksum_mode() -> str:
+    """Checksum policy for external vectors: off, warn, enforce."""
+    raw = os.environ.get(_CHECKSUM_MODE_ENV, "warn").strip().lower()
+    if raw not in {"off", "warn", "enforce"}:
+        return "warn"
+    return raw
+
+
+def _sha256_hex(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(8192), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _read_expected_sha256(sidecar: Path) -> str | None:
+    if not sidecar.exists():
+        return None
+    text = sidecar.read_text(encoding="utf-8", errors="ignore").strip()
+    if not text:
+        return None
+    token = text.split()[0].strip().lower()
+    if re.fullmatch(r"[0-9a-f]{64}", token):
+        return token
+    return None
+
+
+def _verify_vector_integrity(paths: list[Path], verbose: bool) -> int:
+    """Verifies SHA256 sidecars (.sha256) for external vector files."""
+    mode = _checksum_mode()
+    failures = 0
+
+    if mode == "off":
+        return 0
+
+    for path in paths:
+        sidecar = Path(f"{path}.sha256")
+        expected = _read_expected_sha256(sidecar)
+        if expected is None:
+            if mode == "enforce":
+                failures += 1
+                if verbose:
+                    print(f"  [FAIL] Missing or invalid checksum sidecar: {sidecar.name}")
+            elif verbose:
+                print(f"  [WARN] No checksum sidecar found for {path.name}")
+            continue
+
+        actual = _sha256_hex(path)
+        if actual != expected:
+            failures += 1
+            if verbose:
+                print(f"  [FAIL] SHA256 mismatch for {path.name}")
+                print(f"         expected: {expected}")
+                print(f"         got:      {actual}")
+
+    return failures
+
+
 def run(verbose: bool = True) -> int:
     """Execute les vecteurs KAT Twofish ECB. Retourne le nombre d'echecs."""
     global _LAST_STATS
@@ -231,6 +309,21 @@ def run(verbose: bool = True) -> int:
         vt_path = _resolve_vector_file("ECB_VT.TXT", "ECB_VT (2).TXT")
         tbl_path = _resolve_vector_file("ECB_TBL.TXT", "ECB_TBL (2).TXT")
     except FileNotFoundError as exc:
+        if not _allow_fallback():
+            if verbose:
+                print(f"  [FAIL] Twofish vector files missing: {exc}")
+                print("  [INFO] Embedded fallback disabled by TWOFISH_KAT_ALLOW_FALLBACK.")
+            _LAST_STATS.append(
+                {
+                    "label": "Twofish vectors availability",
+                    "vectors": 0,
+                    "assertions": 0,
+                    "failures": 1,
+                    "profile": "strict-missing",
+                }
+            )
+            return 1
+
         if verbose:
             print(f"  [WARN] Twofish vector files missing: {exc}")
             print("  [INFO] Falling back to embedded known-answer vectors.")
@@ -259,6 +352,20 @@ def run(verbose: bool = True) -> int:
         "Twofish ECB_VT": _parse_ecb_vectors(vt_path),
         "Twofish ECB_TBL": _parse_ecb_vectors(tbl_path),
     }
+
+    integrity_failures = _verify_vector_integrity([vk_path, vt_path, tbl_path], verbose)
+    if integrity_failures > 0:
+        _LAST_STATS.append(
+            {
+                "label": "Twofish vectors integrity",
+                "vectors": 0,
+                "assertions": 0,
+                "failures": integrity_failures,
+                "profile": f"integrity-{_checksum_mode()}",
+            }
+        )
+        return integrity_failures
+
     selected_vectors = _apply_profile_subset(all_vectors, profile)
 
     if verbose:

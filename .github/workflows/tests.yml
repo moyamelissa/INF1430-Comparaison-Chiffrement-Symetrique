@@ -1,6 +1,7 @@
+---
 name: Tests
 
-on:
+'on':
   push:
     branches:
       - main
@@ -67,7 +68,10 @@ jobs:
           python -m pip install pycryptodome twofish pytest pytest-cov
 
       - name: Run KAT suite
-        run: python scripts/run_kat.py
+        run: |
+          python scripts/run_kat.py \
+            --twofish-profile full \
+            --twofish-checksum warn
 
   ic95-audit:
     runs-on: ubuntu-latest

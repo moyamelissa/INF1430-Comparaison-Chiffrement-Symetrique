@@ -8,6 +8,7 @@ Usage
 
 Sortie avec le code 0 si tous les tests passent, 1 sinon.
 """
+import argparse
 import sys
 import os
 
@@ -23,6 +24,39 @@ from validation import (
     kat_chacha20,
     kat_twofish,
 )
+
+
+def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run known-answer test (KAT) suites.")
+    parser.add_argument(
+        "--twofish-profile",
+        choices=("core", "full"),
+        default="core",
+        help="Twofish vector profile: core (fast, default) or full.",
+    )
+    parser.add_argument(
+        "--strict-twofish-vectors",
+        action="store_true",
+        help="Fail if external Twofish vector files are missing (disable embedded fallback).",
+    )
+    parser.add_argument(
+        "--twofish-checksum",
+        choices=("off", "warn", "enforce"),
+        default="warn",
+        help="Checksum policy for external Twofish vectors (.sha256 sidecars).",
+    )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Reduce suite-level verbosity.",
+    )
+    return parser.parse_args(argv)
+
+
+def _configure_twofish_env(profile: str, strict_vectors: bool, checksum_mode: str) -> None:
+    os.environ["TWOFISH_KAT_PROFILE"] = profile
+    os.environ["TWOFISH_KAT_ALLOW_FALLBACK"] = "0" if strict_vectors else "1"
+    os.environ["TWOFISH_KAT_CHECKSUM"] = checksum_mode
 
 
 def _format_summary_row(
@@ -118,12 +152,15 @@ def _print_summary_table(rows: list[dict[str, int | str]]) -> None:
     print(f"{'═' * table_width}")
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    args = _parse_args(argv)
+    _configure_twofish_env(args.twofish_profile, args.strict_twofish_vectors, args.twofish_checksum)
+
     suites = [
         {
             "name": "AES  (FIPS 197)",
             "runner": kat_aes.run,
-            "assertions": 8,
+            "assertions": 10,
         },
         {
             "name": "DES  (SP 800-17)",
@@ -143,7 +180,7 @@ def main() -> None:
         {
             "name": "AES-GCM (SP 800-38D)",
             "runner": kat_gcm.run,
-            "assertions": 6,
+            "assertions": 10,
         },
         {
             "name": "ChaCha20 (RFC 8439)",
@@ -166,7 +203,7 @@ def main() -> None:
         print(f"\n{'─' * 55}")
         print(f"  {name}")
         print(f"{'─' * 55}")
-        failures = run_fn(verbose=True)
+        failures = run_fn(verbose=not args.quiet)
         total_failures += failures
 
         if name == "Twofish ECB KAT":
@@ -215,4 +252,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

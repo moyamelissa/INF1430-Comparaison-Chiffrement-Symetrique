@@ -38,6 +38,12 @@ def run(verbose: bool = True) -> int:
             "plain": "32 43 f6 a8 88 5a 30 8d 31 31 98 a2 e0 37 07 34",
             "cipher":"39 25 84 1d 02 dc 09 fb dc 11 85 97 19 6a 0b 32",
         },
+        {
+            "label": "SP800-38A F.1 AES-128 block-1",
+            "key":   "2b7e151628aed2a6abf7158809cf4f3c",
+            "plain": "6bc1bee22e409f96e93d7e117393172a",
+            "cipher":"3ad77bb40d7a3660a89ecaf32466ef97",
+        },
         # Première étape Monte-Carlo NIST AES-128 ECB (FIPS 197 Annexe A.1)
         {
             "label": "FIPS197 App-A.1 AES-128 zero-key zero-plain",

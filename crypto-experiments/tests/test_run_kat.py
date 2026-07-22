@@ -28,7 +28,7 @@ def test_run_kat_main_success(monkeypatch):
     monkeypatch.setattr(module.kat_twofish, "run", lambda verbose=True: 0)
 
     with pytest.raises(SystemExit) as exc:
-        module.main()
+        module.main([])
 
     assert exc.value.code == 0
 
@@ -45,6 +45,37 @@ def test_run_kat_main_failure(monkeypatch):
     monkeypatch.setattr(module.kat_twofish, "run", lambda verbose=True: 0)
 
     with pytest.raises(SystemExit) as exc:
-        module.main()
+        module.main([])
 
     assert exc.value.code == 1
+
+
+def test_run_kat_cli_configures_twofish_env(monkeypatch):
+    module = _load_run_kat_module()
+
+    monkeypatch.setenv("TWOFISH_KAT_PROFILE", "core")
+    monkeypatch.setenv("TWOFISH_KAT_ALLOW_FALLBACK", "1")
+    monkeypatch.setenv("TWOFISH_KAT_CHECKSUM", "warn")
+
+    monkeypatch.setattr(module.kat_aes, "run", lambda verbose=True: 0)
+    monkeypatch.setattr(module.kat_des, "run", lambda verbose=True: 0)
+    monkeypatch.setattr(module.kat_3des, "run", lambda verbose=True: 0)
+    monkeypatch.setattr(module.kat_modes, "run", lambda verbose=True: 0)
+    monkeypatch.setattr(module.kat_gcm, "run", lambda verbose=True: 0)
+    monkeypatch.setattr(module.kat_chacha20, "run", lambda verbose=True: 0)
+    monkeypatch.setattr(module.kat_twofish, "run", lambda verbose=True: 0)
+
+    with pytest.raises(SystemExit) as exc:
+        module.main([
+            "--twofish-profile",
+            "full",
+            "--strict-twofish-vectors",
+            "--twofish-checksum",
+            "enforce",
+            "--quiet",
+        ])
+
+    assert exc.value.code == 0
+    assert module.os.environ["TWOFISH_KAT_PROFILE"] == "full"
+    assert module.os.environ["TWOFISH_KAT_ALLOW_FALLBACK"] == "0"
+    assert module.os.environ["TWOFISH_KAT_CHECKSUM"] == "enforce"

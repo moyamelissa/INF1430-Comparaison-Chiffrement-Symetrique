@@ -42,6 +42,14 @@ def _write_vector_file(path: Path, vector: tuple[str, str, str]) -> None:
     )
 
 
+def _write_sha256_sidecar(path: Path) -> None:
+    digest = kat_twofish._sha256_hex(path)
+    path.with_suffix(path.suffix + ".sha256").write_text(
+        f"{digest}  {path.name}\n",
+        encoding="utf-8",
+    )
+
+
 def test_resolve_parse_run_file_and_profile(tmp_path: Path, monkeypatch):
     base = tmp_path / "Twofish-kat"
     base.mkdir(parents=True, exist_ok=True)
@@ -213,6 +221,9 @@ def test_run_with_real_files_and_profile_variants(tmp_path: Path, monkeypatch):
     _write_vector_file(base / "ECB_TBL.TXT", V3)
 
     monkeypatch.setattr(kat_twofish, "_resources_dir", lambda: base)
+    _write_sha256_sidecar(base / "ECB_VK.TXT")
+    _write_sha256_sidecar(base / "ECB_VT.TXT")
+    _write_sha256_sidecar(base / "ECB_TBL.TXT")
 
     monkeypatch.setenv("TWOFISH_KAT_PROFILE", "full")
     assert kat_twofish.run(verbose=True) == 0
@@ -231,12 +242,159 @@ def test_run_with_missing_vectors_verbose_false(monkeypatch):
     assert kat_twofish.run(verbose=False) == 0
 
 
+def test_run_with_missing_vectors_strict_mode_fails(monkeypatch):
+    missing_base = Path("this/path/does/not/exist")
+    monkeypatch.setattr(kat_twofish, "_resources_dir", lambda: missing_base)
+    monkeypatch.setenv("TWOFISH_KAT_ALLOW_FALLBACK", "0")
+    assert kat_twofish.run(verbose=False) == 1
+    stats = kat_twofish.get_last_stats()
+    assert stats and str(stats[0]["profile"]) == "strict-missing"
+
+
+def test_run_with_missing_vectors_strict_mode_verbose(monkeypatch):
+    missing_base = Path("this/path/does/not/exist")
+    monkeypatch.setattr(kat_twofish, "_resources_dir", lambda: missing_base)
+    monkeypatch.setenv("TWOFISH_KAT_ALLOW_FALLBACK", "0")
+    assert kat_twofish.run(verbose=True) == 1
+
+
 def test_run_with_real_files_verbose_false(tmp_path: Path, monkeypatch):
     base = tmp_path / "Twofish-kat"
     base.mkdir(parents=True, exist_ok=True)
     _write_vector_file(base / "ECB_VK.TXT", V1)
     _write_vector_file(base / "ECB_VT.TXT", V2)
     _write_vector_file(base / "ECB_TBL.TXT", V3)
+    _write_sha256_sidecar(base / "ECB_VK.TXT")
+    _write_sha256_sidecar(base / "ECB_VT.TXT")
+    _write_sha256_sidecar(base / "ECB_TBL.TXT")
     monkeypatch.setattr(kat_twofish, "_resources_dir", lambda: base)
     monkeypatch.setenv("TWOFISH_KAT_PROFILE", "full")
     assert kat_twofish.run(verbose=False) == 0
+
+
+def test_checksum_mode_invalid_defaults_to_warn(monkeypatch):
+    monkeypatch.setenv("TWOFISH_KAT_CHECKSUM", "invalid")
+    assert kat_twofish._checksum_mode() == "warn"
+
+
+def test_verify_vector_integrity_off(tmp_path: Path, monkeypatch):
+    path = tmp_path / "ECB_VK.TXT"
+    _write_vector_file(path, V1)
+    monkeypatch.setenv("TWOFISH_KAT_CHECKSUM", "off")
+    assert kat_twofish._verify_vector_integrity([path], verbose=True) == 0
+
+
+def test_verify_vector_integrity_warn_missing_sidecar(tmp_path: Path, monkeypatch):
+    path = tmp_path / "ECB_VK.TXT"
+    _write_vector_file(path, V1)
+    monkeypatch.setenv("TWOFISH_KAT_CHECKSUM", "warn")
+    assert kat_twofish._verify_vector_integrity([path], verbose=True) == 0
+
+
+def test_verify_vector_integrity_warn_missing_sidecar_silent(tmp_path: Path, monkeypatch):
+    path = tmp_path / "ECB_VK.TXT"
+    _write_vector_file(path, V1)
+    monkeypatch.setenv("TWOFISH_KAT_CHECKSUM", "warn")
+    assert kat_twofish._verify_vector_integrity([path], verbose=False) == 0
+
+
+def test_verify_vector_integrity_enforce_missing_sidecar(tmp_path: Path, monkeypatch):
+    path = tmp_path / "ECB_VK.TXT"
+    _write_vector_file(path, V1)
+    monkeypatch.setenv("TWOFISH_KAT_CHECKSUM", "enforce")
+    assert kat_twofish._verify_vector_integrity([path], verbose=True) == 1
+
+
+def test_verify_vector_integrity_enforce_missing_sidecar_silent(tmp_path: Path, monkeypatch):
+    path = tmp_path / "ECB_VK.TXT"
+    _write_vector_file(path, V1)
+    monkeypatch.setenv("TWOFISH_KAT_CHECKSUM", "enforce")
+    assert kat_twofish._verify_vector_integrity([path], verbose=False) == 1
+
+
+def test_verify_vector_integrity_enforce_bad_hash(tmp_path: Path, monkeypatch):
+    path = tmp_path / "ECB_VK.TXT"
+    _write_vector_file(path, V1)
+    sidecar = path.with_suffix(path.suffix + ".sha256")
+    sidecar.write_text("0" * 64 + "  ECB_VK.TXT\n", encoding="utf-8")
+    monkeypatch.setenv("TWOFISH_KAT_CHECKSUM", "enforce")
+    assert kat_twofish._verify_vector_integrity([path], verbose=True) == 1
+
+
+def test_verify_vector_integrity_enforce_ok_hash(tmp_path: Path, monkeypatch):
+    path = tmp_path / "ECB_VK.TXT"
+    _write_vector_file(path, V1)
+    _write_sha256_sidecar(path)
+    monkeypatch.setenv("TWOFISH_KAT_CHECKSUM", "enforce")
+    assert kat_twofish._verify_vector_integrity([path], verbose=True) == 0
+
+
+def test_read_expected_sha256_missing_or_invalid(tmp_path: Path):
+    sidecar = tmp_path / "ECB_VK.TXT.sha256"
+    assert kat_twofish._read_expected_sha256(sidecar) is None
+    sidecar.write_text("\n", encoding="utf-8")
+    assert kat_twofish._read_expected_sha256(sidecar) is None
+    sidecar.write_text("not-a-hash\n", encoding="utf-8")
+    assert kat_twofish._read_expected_sha256(sidecar) is None
+
+
+def test_run_integrity_failure_is_reported(tmp_path: Path, monkeypatch):
+    base = tmp_path / "Twofish-kat"
+    base.mkdir(parents=True, exist_ok=True)
+    _write_vector_file(base / "ECB_VK.TXT", V1)
+    _write_vector_file(base / "ECB_VT.TXT", V2)
+    _write_vector_file(base / "ECB_TBL.TXT", V3)
+
+    # Deliberately wrong checksums to force integrity failure in run().
+    bad = "0" * 64 + "  bad\n"
+    (base / "ECB_VK.TXT.sha256").write_text(bad, encoding="utf-8")
+    (base / "ECB_VT.TXT.sha256").write_text(bad, encoding="utf-8")
+    (base / "ECB_TBL.TXT.sha256").write_text(bad, encoding="utf-8")
+
+    monkeypatch.setattr(kat_twofish, "_resources_dir", lambda: base)
+    monkeypatch.setenv("TWOFISH_KAT_CHECKSUM", "enforce")
+    assert kat_twofish.run(verbose=False) > 0
+    stats = kat_twofish.get_last_stats()
+    assert stats and str(stats[0]["profile"]).startswith("integrity-")
+
+
+def test_run_vectors_empty_fails():
+    failures, count, assertions = kat_twofish._run_vectors(
+        "Twofish ECB_VK",
+        [],
+        "source-name",
+        verbose=False,
+    )
+    assert failures == 1
+    assert count == 0
+    assert assertions == 0
+
+
+def test_run_vectors_empty_verbose_fails():
+    failures, count, assertions = kat_twofish._run_vectors(
+        "Twofish ECB_VK",
+        [],
+        "source-name",
+        verbose=True,
+    )
+    assert failures == 1
+    assert count == 0
+    assert assertions == 0
+
+
+def test_run_file_empty_fails(tmp_path: Path):
+    path = tmp_path / "EMPTY.TXT"
+    path.write_text("KEYSIZE=128\n", encoding="utf-8")
+    failures, count, assertions = kat_twofish._run_file("Twofish empty", path, verbose=False)
+    assert failures == 1
+    assert count == 0
+    assert assertions == 0
+
+
+def test_run_file_empty_verbose_fails(tmp_path: Path):
+    path = tmp_path / "EMPTY.TXT"
+    path.write_text("KEYSIZE=128\n", encoding="utf-8")
+    failures, count, assertions = kat_twofish._run_file("Twofish empty", path, verbose=True)
+    assert failures == 1
+    assert count == 0
+    assert assertions == 0

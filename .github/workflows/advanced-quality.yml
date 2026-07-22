@@ -7,6 +7,65 @@ name: Advanced Quality
     - cron: '0 8 * * 1'
 
 jobs:
+  kat-advanced:
+    name: KAT Advanced (strict/full)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: crypto-experiments
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: crypto-experiments/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Detect strict Twofish vector assets
+        id: twofish_assets
+        run: |
+          if [ -f ../Resources/KAT/Twofish-kat/ECB_VK.TXT ] && \
+             [ -f ../Resources/KAT/Twofish-kat/ECB_VT.TXT ] && \
+             [ -f ../Resources/KAT/Twofish-kat/ECB_TBL.TXT ] && \
+             [ -f ../Resources/KAT/Twofish-kat/ECB_VK.TXT.sha256 ] && \
+             [ -f ../Resources/KAT/Twofish-kat/ECB_VT.TXT.sha256 ] && \
+             [ -f ../Resources/KAT/Twofish-kat/ECB_TBL.TXT.sha256 ]; then
+            echo "run_strict=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_strict=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run strict full KAT validation
+        if: steps.twofish_assets.outputs.run_strict == 'true'
+        run: |
+          python scripts/run_kat.py \
+            --twofish-profile full \
+            --strict-twofish-vectors \
+            --twofish-checksum enforce
+
+      - name: Run full KAT with checksum warnings
+        if: steps.twofish_assets.outputs.run_strict != 'true'
+        run: |
+          python scripts/run_kat.py \
+            --twofish-profile full \
+            --twofish-checksum warn
+
+      - name: Explain non-strict fallback path
+        if: steps.twofish_assets.outputs.run_strict != 'true'
+        run: |
+          echo "Twofish strict assets not available in this checkout."
+          echo "Executed full-profile KAT with checksum warnings instead."
+
   cross-platform-pytest:
     name: >-
       Cross Platform Pytest
