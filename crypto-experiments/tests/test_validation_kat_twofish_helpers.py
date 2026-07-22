@@ -242,6 +242,12 @@ def test_run_with_missing_vectors_verbose_false(monkeypatch):
     assert kat_twofish.run(verbose=False) == 0
 
 
+def test_run_with_missing_vectors_verbose_true(monkeypatch):
+    missing_base = Path("this/path/does/not/exist")
+    monkeypatch.setattr(kat_twofish, "_resources_dir", lambda: missing_base)
+    assert kat_twofish.run(verbose=True) == 0
+
+
 def test_run_with_missing_vectors_strict_mode_fails(monkeypatch):
     missing_base = Path("this/path/does/not/exist")
     monkeypatch.setattr(kat_twofish, "_resources_dir", lambda: missing_base)
