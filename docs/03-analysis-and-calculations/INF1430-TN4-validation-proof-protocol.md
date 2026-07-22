@@ -25,8 +25,8 @@ Le projet s'appuie sur un modèle de preuve en couches.
 ## Étapes d'exécution reproductibles
 Exécuter toutes les commandes depuis la racine du dépôt, sauf indication contraire.
 
-### Générer un bundle de preuves
-Utiliser le script de bundle pour exporter les journaux, les artefacts et les métadonnées de commit dans un seul dossier.
+### Générer un dossier de preuves
+Utiliser le script de génération pour exporter les journaux, les artefacts et les métadonnées de commit dans un seul dossier.
 
 Depuis la racine du dépôt
 ```powershell
@@ -38,10 +38,10 @@ Depuis crypto-experiments
 python scripts/validation_bundle.py
 ```
 
-Emplacement de sortie du bundle
+Emplacement de sortie du dossier de preuves
 - crypto-experiments/data/results/validation-bundles/bundle-<timestamp>
 
-Le bundle inclut
+Le dossier de preuves inclut
 - journal pytest
 - journal KAT
 - journal des seuils IC95
@@ -69,7 +69,7 @@ python scripts/audit/audit_ic95.py --enforce-gates
 ```
 
 ## Mode strict d'intégrité Twofish
-Le mode strict est utilisé lorsque les fichiers officiels et les sommes de contrôle sidecar sont disponibles.
+Le mode strict est utilisé lorsque les fichiers officiels et les fichiers compagnons de somme de contrôle sont disponibles.
 
 ```bash
 python scripts/run_kat.py \
@@ -82,7 +82,7 @@ Ressources requises pour le mode strict
 - Resources/KAT/Twofish-kat/ECB_VK.TXT
 - Resources/KAT/Twofish-kat/ECB_VT.TXT
 - Resources/KAT/Twofish-kat/ECB_TBL.TXT
-- Les fichiers sidecar .sha256 correspondants pour chaque fichier
+- Les fichiers compagnons .sha256 correspondants pour chaque fichier
 
 ## Signaux attendus
 1. Tests
@@ -96,28 +96,6 @@ Ressources requises pour le mode strict
 3. IC95
 - Le terminal contient Quality gate enforcement PASS.
 - Les artefacts sont écrits sous data/results/audit.
-
-## Énoncés défendables
-Utiliser des formulations à haute confiance plutôt que des certitudes absolues.
-
-Formulations recommandées
-- Les résultats sont fortement appuyés par une validation automatisée reproductible.
-- La conformité est vérifiée à l'aide de vecteurs de référence et d'implémentations de référence.
-- Les seuils de qualité statistique sont appliqués avant l'acceptation des conclusions.
-
-Formulations à éviter
-- Parfaitement correct
-- Garanti sans bogue
-- Infaillible
-
-## Checklist du dossier de preuves
-Pour la remise TN4 ou la soutenance orale, inclure
-
-1. La dernière sortie pytest avec la section couverture
-2. La dernière sortie KAT avec le tableau récapitulatif
-3. La dernière sortie des seuils IC95
-4. Les artefacts CSV d'audit générés
-5. Les hashes de commit correspondant aux améliorations de validation
 
 ## Politique GitHub de protection de branche
 Appliquer cette politique à la branche main.

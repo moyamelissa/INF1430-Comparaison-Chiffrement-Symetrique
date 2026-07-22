@@ -19,7 +19,7 @@ Où:
 
 ### Conversion du temps en débit
 
-Le code mesure les temps en secondes, mais le résultat est exprimé en mégaoctets par seconde (Mo/s).
+Le code mesure les temps en secondes, mais le résultat est exprimé en mégaoctets par seconde (MB/s).
 La conversion de l'écart-type temporel en écart-type de débit utilise l'approximation:
 
 $$\sigma_{debit} \approx \frac{mb \times \sigma_t}{\bar{t}^2}$$
@@ -41,7 +41,7 @@ Où:
 
 **Calcul du débit moyen:**
 
-$$\bar{D} = \frac{0,00390625}{0,0008} = 4,88 \text{ Mo/s}$$
+$$\bar{D} = \frac{0,00390625}{0,0008} = 4,88 \text{ MB/s}$$
 
 **Calcul de l'écart-type du débit:**
 
@@ -49,13 +49,13 @@ $$\sigma_{debit} \approx \frac{0,00390625 \times 0,00008}{(0,0008)^2} = 0,488$$
 
 **Calcul de l'IC 95 %:**
 
-$$IC_{95} = 1,96 \times \frac{0,488}{\sqrt{100}} = 1,96 \times 0,0488 = 0,096 \text{ Mo/s}$$
+$$IC_{95} = 1,96 \times \frac{0,488}{\sqrt{100}} = 1,96 \times 0,0488 = 0,096 \text{ MB/s}$$
 
 **Résultat final:**
 
-$$\bar{D} \pm IC_{95} = 4,88 \pm 0,096 \text{ Mo/s} \Rightarrow [4,78 \, ; \, 4,97] \text{ Mo/s}$$
+$$\bar{D} \pm IC_{95} = 4,88 \pm 0,096 \text{ MB/s} \Rightarrow [4,78 \, ; \, 4,97] \text{ MB/s}$$
 
-Cela signifie: on est sûr à 95 % que le vrai débit de chiffrement se situe entre 4,78 et 4,97 Mo/s.
+Cela signifie que l'on est sûr à 95 % que le vrai débit de chiffrement se situe entre 4,78 et 4,97 MB/s.
 
 ---
 
@@ -65,11 +65,11 @@ La demi-largeur de l'IC diminue en $\frac{1}{\sqrt{n}}$.
 
 | Répétitions ($n$) | $\sqrt{n}$ | IC relatif (demi-largeur) |
 |---|---|---|
-| 25 | 5 | 0,192 Mo/s |
-| 50 | 7,07 | 0,136 Mo/s |
-| **100** | **10** | **0,096 Mo/s** |
-| 200 | 14,14 | 0,068 Mo/s |
-| 400 | 20 | 0,048 Mo/s |
+| 25 | 5 | 0,192 MB/s |
+| 50 | 7,07 | 0,136 MB/s |
+| **100** | **10** | **0,096 MB/s** |
+| 200 | 14,14 | 0,068 MB/s |
+| 400 | 20 | 0,048 MB/s |
 
 Passer de 25 à 100 répétitions divise la demi-largeur par 2.
 Passer de 100 à 400 répétitions ne la divise que par 2 à nouveau, pour 4x plus de temps d'exécution.

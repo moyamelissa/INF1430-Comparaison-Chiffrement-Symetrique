@@ -76,7 +76,7 @@ Fait notable : **3DES a le ratio le plus faible** (1.64×), ce qui signifie que 
 
 ### 2.5 Twofish — L'oublié de l'AES Contest
 
-Twofish est catastrophiquement lent : **2.82 MB/s** sur x86 et **1.29 MB/s** sur Pi. Pour référence, AES est 147× plus rapide sur x86. Twofish a participé à la finale du concours AES en 1998 et a perdu face à Rijndael (AES) — en grande partie à cause de sa complexité de mise en œuvre et de sa performance.
+Twofish est très lent : **2.82 MB/s** sur x86 et **1.29 MB/s** sur Pi. Pour référence, AES est 147× plus rapide sur x86. Twofish a participé à la finale du concours AES en 1998 et a perdu face à Rijndael (AES), notamment en raison de sa complexité de mise en œuvre et de sa performance.
 
 Son key schedule complexe, ses MDS matrices et ses permutations dépendantes de la clé le rendent intrinsèquement lent en logiciel. Le ratio 2.19× entre plateformes confirme qu'il n'existe aucune accélération matérielle dédiée nulle part.
 
@@ -150,13 +150,13 @@ Le résultat le plus élevé du benchmark est donc le moins sécurisé. C'est l'
 
 ### 🚨 Critique — DES : mort depuis 1998
 
-DES est présent dans les mesures, mais utiliser DES en production en 2026 est une faute professionnelle. Sa clé de 56 bits peut être brutée en quelques heures avec du matériel grand public.
+DES est présent dans les mesures, mais son usage en production en 2026 n'est pas recommandé. Sa clé de 56 bits peut être brutée en quelques heures avec du matériel grand public.
 
 ### ⚠️ Sérieux — AES-CBC : paralysie sur les petits messages
 
 Le débit de 0.73 MB/s pour AES-CBC-128 sur x86 à 4096 octets (contre 162.78 MB/s pour ECB) expose un risque d'implémentation : sous contrainte de performance, des développeurs moins avertis pourraient basculer vers ECB, désactiver l'IV, réutiliser des IVs, ou implémenter CBC incorrectement. La pression de performance est une cause réelle de régression de sécurité.
 
-### ⚠️ Sérieux — Timing side-channel sur x86
+### ⚠️ Sérieux — Risque de canal auxiliaire temporel sur x86
 
 Le CI95 élevé d'AES sur x86 (2.28 MB/s) révèle des variations temporelles exploitables. Des attaques de type **Flush+Reload** ou **Prime+Probe** sur les caches L1/L2 pourraient permettre à un processus attaquant coexécuté sur le même CPU de récupérer des bits de clé AES via des mesures temporelles. Sur le Pi, la faiblesse du cache et l'absence de SMT réduisent significativement cette surface d'attaque.
 
@@ -214,7 +214,7 @@ Un réseau de neurones convolutionnel (CNN) entraîné sur des données chiffré
 
 **8.2.2 Timing Side-Channel augmenté par IA**
 
-La variabilité temporelle observée dans nos données (CI95=2.28 pour AES x86) est exploitable par des attaques de timing classiques. L'IA amplifie cette menace : des modèles LSTM peuvent apprendre des profils de timing complexes sur des milliers de mesures et corriger le bruit de mesure par apprentissage, rendant des attaques timing pratiques qui nécessitaient auparavant une précision nanoseconde. Sur un système multitenant (cloud, VM partagées), la variance x86 observée crée une fenêtre réaliste pour ce type d'attaque.
+La variabilité temporelle observée dans nos données (CI95=2.28 pour AES x86) peut être exploitée par des attaques de timing classiques. L'IA peut amplifier cette menace : des modèles LSTM peuvent apprendre des profils de timing complexes sur des milliers de mesures et corriger le bruit de mesure par apprentissage, rendant des attaques timing plus pratiques qu'auparavant. Sur un système multitenant (cloud, VM partagées), la variance x86 observée peut créer une fenêtre favorable à ce type d'attaque.
 
 **8.2.3 Key Schedule Analysis**
 
@@ -230,7 +230,7 @@ L'anomalie d'avalanche de ChaCha20 (~0.594) mérite une mention dans un contexte
 |------------|:--------------:|:-----------:|:---------:|:---------------:|:------:|:--------------:|
 | DES        | 🚨 Trivial     | N/A         | ⚠️ Faible | 🚨 Élevé        | 🚨     | **Abandonner** |
 | 3DES       | ⚠️ Faisable    | N/A         | ⚠️ Faible | 🚨 Élevé        | 🚨     | **Abandonner** |
-| AES-128/ECB| ✅ Solide       | 🚨 Critique | 🚨 Élevé  | ✅ Bon          | ⚠️     | **Mode interdit** |
+| AES-128/ECB| ✅ Solide       | 🚨 Critique | 🚨 Élevé  | ✅ Bon          | ⚠️     | **Mode à proscrire** |
 | AES-128/CBC| ✅ Solide       | ✅ N/A      | 🚨 Élevé  | ✅ Bon          | ⚠️     | Déprécier     |
 | AES-128/GCM| ✅ Solide       | ✅ N/A      | ⚠️ Moyen  | ✅ Bon          | ⚠️     | Acceptable    |
 | AES-256/GCM| ✅ Solide       | ✅ N/A      | ⚠️ Moyen  | ✅ Bon          | ✅     | **Recommandé** |
@@ -248,7 +248,7 @@ L'anomalie d'avalanche de ChaCha20 (~0.594) mérite une mention dans un contexte
 → **ChaCha20-Poly1305** en priorité. Performances 9.5× supérieures à AES-GCM sur Pi, constant-time, résistant aux side-channels, résistant quantique avec clé 256 bits.
 
 **À bannir immédiatement :**
-→ DES, 3DES — aucune justification de sécurité en 2026.
+→ DES, 3DES — usage à éviter en 2026.
 → Tout mode ECB — sur n'importe quel algorithme.
 
 **À surveiller :**

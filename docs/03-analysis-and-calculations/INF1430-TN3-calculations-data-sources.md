@@ -1,9 +1,9 @@
-# Calculs & sources — INF1430 TN3
+﻿# Calculs & sources — INF1430 TN3
 ### Traçabilité des valeurs présentées dans [INF1430_PPT_TN3.pptx](INF1430_PPT_TN3.pptx)
 
 **Fichiers de données principaux :**
-- x86 : [laptop-windows-x86_experience3.csv](../crypto-experiments/data/results/laptop-windows-x86_experience3.csv)
-- Pi  : [raspberry-pi_experience3.csv](../crypto-experiments/data/results/raspberry-pi_experience3.csv)
+- x86 : [laptop-windows-x86_experience3.csv](../../crypto-experiments/data/results/laptop-windows-x86_experience3.csv)
+- Pi  : [raspberry-pi_experience3.csv](../../crypto-experiments/data/results/raspberry-pi_experience3.csv)
 
 Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contraire.
 
@@ -16,10 +16,10 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 | 5 paliers de taille | CSV : colonnes `message_size_bytes` | `{64, 256, 1024, 4096, 16384}` — union des valeurs distinctes dans experience3 |
 | 64 octets → 16 384 octets | CSV | Min et max de `message_size_bytes` |
 | n = 100 répétitions | CSV : colonne `repetitions` | Valeur constante dans toutes les lignes |
-| IC₉₅ = 1,96 × σ / √n | Formule statistique | z-score de la loi normale à 95 % · n=100 → IC₉₅ disponible dans colonne `ci95_encrypt_mbps` de [experience3](../crypto-experiments/data/results/laptop-windows-x86_experience3.csv) |
+| IC₉₅ = 1,96 × σ / √n | Formule statistique | z-score de la loi normale à 95 % · n=100 → IC₉₅ disponible dans colonne `ci95_encrypt_mbps` de [experience3](../../crypto-experiments/data/results/laptop-windows-x86_experience3.csv) |
 | CPU x86 : Intel Core i5-10300H | Matériel (vérifié physiquement) | — |
 | CPU Pi : ARM Cortex-A72 | Matériel Raspberry Pi 4 (vérifié physiquement) | — |
-| ~16 Go RAM x86 | Matériel | — |
+| 32 Go RAM x86 | Matériel | — |
 | 4 Go RAM Pi | Matériel Raspberry Pi 4 | — |
 | AES-NI ✓ x86 / ✗ Pi | Architecture | Intel depuis 2010 · ARM Cortex-A72 sans AES-NI hardware |
 
@@ -32,7 +32,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 | Blocs de 128 bits | NIST FIPS 197 | Standard AES |
 | Clés 128/192/256 bits → 10/12/14 tours | NIST FIPS 197 | Standard AES |
 | AES-NI depuis 2010 | Intel Architecture Reference | — |
-| x86 est 5,58× plus rapide | [x86 CSV](../crypto-experiments/data/results/laptop-windows-x86_experience3.csv) · [Pi CSV](../crypto-experiments/data/results/raspberry-pi_experience3.csv) | AES-256 ECB 16384B : x86=417,07 MB/s ÷ Pi=74,73 MB/s = **5,58×** |
+| x86 est 5,58× plus rapide | [x86 CSV](../../crypto-experiments/data/results/laptop-windows-x86_experience3.csv) · [Pi CSV](../../crypto-experiments/data/results/raspberry-pi_experience3.csv) | AES-256 ECB 16384B : x86=417,07 MB/s ÷ Pi=74,73 MB/s = **5,58×** |
 
 > **Note :** le ratio 5,58× est calculé sur les valeurs de pic (16 384 octets, AES-256 ECB).
 
@@ -53,7 +53,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 **Calcul ratio Twofish vs AES :**
 > 162,78 ÷ 2,82 = **57,7×** → arrondi **57×**
 
-**Graphique** : [comparison-throughput-all.png](../crypto-experiments/data/charts/01-throughput/comparison-throughput-all.png)
+**Graphique** : [comparison-throughput-all.png](../../crypto-experiments/data/charts/01-throughput/comparison-throughput-all.png)
 
 ---
 
@@ -69,7 +69,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 | Twofish | 2,82 | 1,25 | **2,26×** | Twofish ECB 256bit 4096B |
 | ChaCha20 | 93,90 | 58,12 | **1,61×** | ChaCha20 Stream 256bit 4096B |
 
-**Graphique** : [comparison-speedup-ratio.png](../crypto-experiments/data/charts/01-throughput/comparison-speedup-ratio.png)
+**Graphique** : [comparison-speedup-ratio.png](../../crypto-experiments/data/charts/01-throughput/comparison-speedup-ratio.png)
 
 ---
 
@@ -87,7 +87,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 **Calcul ratio ECB/CBC :**
 > 162,78 ÷ 0,73 = **223×**
 
-**Graphique** : [aes-mode-comparison.png](../crypto-experiments/data/charts/03-encryption-modes/aes-mode-comparison.png)
+**Graphique** : [aes-mode-comparison.png](../../crypto-experiments/data/charts/03-encryption-modes/aes-mode-comparison.png)
 
 ---
 
@@ -98,10 +98,10 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 | Débit ChaCha20 (pic) | Stream 256bit 16384B | **114,31 MB/s** | **61,27 MB/s** | Valeurs max dans experience3 |
 | Ratio x86/Pi (pic) | Stream 256bit 16384B | — | — | 114,31 ÷ 61,27 = **1,87×** |
 | Débit ChaCha20 (4096B) | Stream 256bit 4096B | 93,90 MB/s | **58,12 MB/s** | Ligne directe CSV |
-| Débit AES-GCM Pi | GCM 128bit 4096B | — | **6,41 MB/s** | [raspberry-pi_experience3.csv](../crypto-experiments/data/results/raspberry-pi_experience3.csv) |
+| Débit AES-GCM Pi | GCM 128bit 4096B | — | **6,41 MB/s** | [raspberry-pi_experience3.csv](../../crypto-experiments/data/results/raspberry-pi_experience3.csv) |
 | Avantage ChaCha20/AES-GCM sur Pi | — | — | — | 58,12 ÷ 6,41 = **9,07×** → arrondi **9,1×** |
 
-**Graphique** : [chacha20-comparison.png](../crypto-experiments/data/charts/05-algorithm-comparison/chacha20-comparison.png)
+**Graphique** : [chacha20-comparison.png](../../crypto-experiments/data/charts/05-algorithm-comparison/chacha20-comparison.png)
 
 ---
 
@@ -137,7 +137,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 | DES | 0,4982 | 0,50190 | 0,4982 | 0,500 |
 | ChaCha20 | 0,5948 | 0,5945 | 0,5948 | ⚠️ stream cipher |
 
-**Graphique** : [comparison-avalanche.png](../crypto-experiments/data/charts/02-avalanche-effect/comparison-avalanche.png)
+**Graphique** : [comparison-avalanche.png](../../crypto-experiments/data/charts/02-avalanche-effect/comparison-avalanche.png)
 
 ---
 
@@ -155,7 +155,7 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 
 **Note DES :** 64 clés "faibles" documentées depuis les années 1990 — NIST SP 800-67.
 
-**Graphique** : [key-avalanche-detailed.png](../crypto-experiments/data/charts/02-avalanche-effect/key-avalanche-detailed.png)
+**Graphique** : [key-avalanche-detailed.png](../../crypto-experiments/data/charts/02-avalanche-effect/key-avalanche-detailed.png)
 
 ---
 
@@ -174,19 +174,19 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 **Calcul ratio AES x86/Pi :**
 > 11,280 ÷ 2,060 = **5,47×** → arrondi **5,5×**
 
-**Graphique** : [ci95-stability.png](../crypto-experiments/data/charts/05-algorithm-comparison/ci95-stability.png)
+**Graphique** : [ci95-stability.png](../../crypto-experiments/data/charts/05-algorithm-comparison/ci95-stability.png)
 
 ---
 
 ## Slide 15 — Vulnérabilité ECB
 
-**Images générées par** : [render_ecb_demo.py](../crypto-experiments/scripts/charts/render_ecb_demo.py)
+**Images générées par** : [build_ecb_demo.py](../../crypto-experiments/scripts/chart_pipeline/build_ecb_demo.py)
 
 | Fichier | Description |
 |---------|-------------|
-| [original-image.bmp](../crypto-experiments/data/charts/04-ecb-visual-demo/original-image.bmp) | Image originale (régions uniformes visibles) |
-| [ecb-encrypted.bmp](../crypto-experiments/data/charts/04-ecb-visual-demo/ecb-encrypted.bmp) | Image chiffrée AES-ECB (patterns préservés) |
-| [cbc-encrypted.bmp](../crypto-experiments/data/charts/04-ecb-visual-demo/cbc-encrypted.bmp) | Image chiffrée AES-CBC (bruit uniforme) |
+| [image-original.bmp](../../crypto-experiments/data/charts/03-encryption-modes/demo-ecb/image-original.bmp) | Image originale (régions uniformes visibles) |
+| [image-encrypted-ecb.bmp](../../crypto-experiments/data/charts/03-encryption-modes/demo-ecb/image-encrypted-ecb.bmp) | Image chiffrée AES-ECB (patterns préservés) |
+| [image-encrypted-cbc.bmp](../../crypto-experiments/data/charts/03-encryption-modes/demo-ecb/image-encrypted-cbc.bmp) | Image chiffrée AES-CBC (bruit uniforme) |
 
 **Référence théorique** : Penguin ECB — démonstration classique de la faiblesse du mode ECB, documentée dans Stallings *Cryptography and Network Security* et NIST SP 800-38A.
 
@@ -212,9 +212,10 @@ Toutes les valeurs sont extraites de ces deux fichiers, sauf indication contrair
 
 | Fichier | Plateforme | Contenu |
 |---------|-----------|---------|
-| [laptop-windows-x86_experience1.csv](../crypto-experiments/data/results/laptop-windows-x86_experience1.csv) | x86 | Débit + avalanche (sans key_avalanche ni ci95) |
-| [laptop-windows-x86_experience2.csv](../crypto-experiments/data/results/laptop-windows-x86_experience2.csv) | x86 | Débit + avalanche + key_avalanche |
-| [laptop-windows-x86_experience3.csv](../crypto-experiments/data/results/laptop-windows-x86_experience3.csv) | x86 | Débit + avalanche + key_avalanche + ci95 ← **utilisé** |
-| [raspberry-pi_experience1.csv](../crypto-experiments/data/results/raspberry-pi_experience1.csv) | Pi ARM | Débit + avalanche |
-| [raspberry-pi_experience2.csv](../crypto-experiments/data/results/raspberry-pi_experience2.csv) | Pi ARM | Débit + avalanche + key_avalanche |
-| [raspberry-pi_experience3.csv](../crypto-experiments/data/results/raspberry-pi_experience3.csv) | Pi ARM | Débit + avalanche + key_avalanche + ci95 ← **utilisé** |
+| [laptop-windows-x86_experience1.csv](../../crypto-experiments/data/results/laptop-windows-x86_experience1.csv) | x86 | Débit + avalanche (sans key_avalanche ni ci95) |
+| [laptop-windows-x86_experience2.csv](../../crypto-experiments/data/results/laptop-windows-x86_experience2.csv) | x86 | Débit + avalanche + key_avalanche |
+| [laptop-windows-x86_experience3.csv](../../crypto-experiments/data/results/laptop-windows-x86_experience3.csv) | x86 | Débit + avalanche + key_avalanche + ci95 ← **utilisé** |
+| [raspberry-pi_experience1.csv](../../crypto-experiments/data/results/raspberry-pi_experience1.csv) | Pi ARM | Débit + avalanche |
+| [raspberry-pi_experience2.csv](../../crypto-experiments/data/results/raspberry-pi_experience2.csv) | Pi ARM | Débit + avalanche + key_avalanche |
+| [raspberry-pi_experience3.csv](../../crypto-experiments/data/results/raspberry-pi_experience3.csv) | Pi ARM | Débit + avalanche + key_avalanche + ci95 ← **utilisé** |
+
