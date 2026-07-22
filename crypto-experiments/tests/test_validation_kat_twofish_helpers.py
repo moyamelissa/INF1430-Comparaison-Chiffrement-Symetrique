@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import hashlib
 
 import pytest
 
@@ -310,6 +311,13 @@ def test_verify_vector_integrity_off(tmp_path: Path, monkeypatch):
     _write_vector_file(path, V1)
     monkeypatch.setenv("TWOFISH_KAT_CHECKSUM", "off")
     assert kat_twofish._verify_vector_integrity([path], verbose=True) == 0
+
+
+def test_sha256_hex_non_txt_file_no_newline_normalization(tmp_path: Path):
+    path = tmp_path / "sample.bin"
+    payload = b"a\r\nb\r\n"
+    path.write_bytes(payload)
+    assert kat_twofish._sha256_hex(path) == hashlib.sha256(payload).hexdigest()
 
 
 def test_verify_vector_integrity_warn_missing_sidecar(tmp_path: Path, monkeypatch):

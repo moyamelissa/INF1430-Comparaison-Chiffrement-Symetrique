@@ -244,11 +244,12 @@ def _checksum_mode() -> str:
 
 
 def _sha256_hex(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(8192), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+    data = path.read_bytes()
+    # Canonicalize line endings for text vectors so checksums stay stable
+    # across Windows (CRLF) and Linux (LF) checkouts.
+    if path.suffix.lower() == ".txt":
+        data = data.replace(b"\r\n", b"\n")
+    return hashlib.sha256(data).hexdigest()
 
 
 def _read_expected_sha256(sidecar: Path) -> str | None:
