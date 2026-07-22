@@ -81,6 +81,7 @@ Formulation recommandée pour TN3 : montrer la stratégie A dans le corps princi
 
 - Vecteurs retenus : 1 vecteur représentatif par famille ECB_VK, ECB_VT, ECB_TBL, chacun vérifié avec correspondance au chiffrement et aller-retour au déchiffrement.
 - Référence : Schneier et al. (1998), vecteurs de soumission Counterpane.
+- Référence détaillée : [docs/07-KAT/twofish-references.md](docs/07-KAT/twofish-references.md)
 - Méthode de sélection : un vecteur canonique par famille depuis le corpus public officiel.
 - Justification : garder une comparaison inter-suites équilibrée pour les résultats principaux TN3 tout en conservant une source externe de référence.
 - Assertions : 6.
