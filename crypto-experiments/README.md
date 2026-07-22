@@ -4,21 +4,33 @@ Paquet principal d'experiences pour la comparaison des chiffrements symetriques 
 
 ## Structure des dossiers
 
-- `application/` : couche d'orchestration (controleur d'experiences)
-- `domain/` : primitives de chiffrement, modes et moteur de chiffrement
-- `validation/` : suites de validation KAT
-- `scripts/` : points d'entree executables et pipelines
-  - `experiment.py` : genere les CSV de benchmark
-  - `run_kat.py` : execute les verifications cryptographiques KAT
-  - `run_charts.py` : genere les ensembles de graphiques depuis les resultats
-  - `validation_bundle.py` : collecte un dossier de preuves de validation
-  - `audit/` : audits IC95 et coherence des agregats
-  - `charts/` : modules de generation de graphiques (`build_*`, `data_*`, style)
-- `data/` : artefacts generes
-  - `results/` : sorties CSV brutes des experiences
-  - `charts/` : images et sorties des graphiques
-  - `validation/` : artefacts de validation (`audit/`, `bundle/`)
-- `tests/` : tests unitaires et d'integration
+| Element | Role |
+|---|---|
+| `application/` | Couche d'orchestration (controleur d'experiences). |
+| `domain/` | Primitives de chiffrement, modes et moteur de chiffrement. |
+| `validation/` | Suites de validation KAT. |
+| `scripts/` | Points d'entree executables et pipelines. |
+| `data/` | Artefacts generes (resultats, graphiques, validation). |
+| `tests/` | Tests unitaires et d'integration. |
+
+### Scripts principaux
+
+| Script / Dossier | Role |
+|---|---|
+| `scripts/experiment.py` | Genere les CSV de benchmark. |
+| `scripts/run_kat.py` | Execute les verifications cryptographiques KAT. |
+| `scripts/run_charts.py` | Genere les ensembles de graphiques depuis les resultats. |
+| `scripts/validation_bundle.py` | Genere un dossier de preuves de validation. |
+| `scripts/audit/` | Audits IC95 et coherence des agregats. |
+| `scripts/charts/` | Modules de generation de graphiques (`build_*`, `data_*`, style). |
+
+### Fichiers de configuration suivis
+
+| Fichier | Pourquoi il est versionne |
+|---|---|
+| `requirements.txt` | Fige les dependances Python necessaires pour reproduire l'environnement et les resultats. |
+| `pytest.ini` | Centralise la configuration de tests et de couverture pour des executions coherentes en local et CI. |
+| `mutmut.ini` | Definit la ligne de base des tests de mutation (qualite avancee) pour reproductibilite et CI. |
 
 ## Demarrage rapide
 
