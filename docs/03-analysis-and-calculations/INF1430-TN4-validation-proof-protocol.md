@@ -1,56 +1,56 @@
-# INF1430 TN4 Validation Proof Protocol
+# INF1430 TN4 Protocole de preuve de validation
 
-## Objective
-Provide auditable evidence that the implementation is correct enough for TN4 conclusions, with explicit limits and reproducibility steps.
+## Objectif
+Fournir des preuves vérifiables montrant que l'implémentation est suffisamment correcte pour soutenir les conclusions TN4, avec des limites explicites et des étapes de reproductibilité.
 
-## Proof Model
-The project uses a layered evidence model.
+## Modèle de preuve
+Le projet s'appuie sur un modèle de preuve en couches.
 
-1. Functional correctness evidence
-- Full automated test suite passes.
-- Coverage gate is strict at 100 percent lines and 100 percent branches.
+1. Preuve de correction fonctionnelle
+- La suite complète de tests automatisés réussit.
+- Le seuil de couverture est strict à 100 pour cent des lignes et 100 pour cent des branches.
 
-2. Cryptographic conformance evidence
-- KAT suites pass on all supported primitives and modes.
-- Twofish KAT supports strict external-vector policy and optional checksum enforcement.
+2. Preuve de conformité cryptographique
+- Les suites KAT réussissent sur toutes les primitives et tous les modes pris en charge.
+- Le KAT Twofish prend en charge une politique stricte sur les vecteurs externes et une vérification optionnelle des sommes de contrôle.
 
-3. Robustness evidence
-- Failure-path tests cover malformed input, tamper detection, and strict-mode failures.
-- Differential tests compare outputs to trusted reference implementations.
+3. Preuve de robustesse
+- Les tests de chemins d'échec couvrent les entrées malformées, la détection d'altération et les échecs en mode strict.
+- Les tests différentiels comparent les sorties à des implémentations de référence fiables.
 
-4. Statistical validity evidence
-- IC95 audit gates pass with explicit pass or fail outcome.
-- Audit artifacts are exported for review.
+4. Preuve de validité statistique
+- Les seuils d'audit IC95 sont validés avec un résultat explicite de succès ou d'échec.
+- Les artefacts d'audit sont exportés pour révision.
 
-## Reproducible Execution Steps
-Run all commands from the repository root unless noted.
+## Étapes d'exécution reproductibles
+Exécuter toutes les commandes depuis la racine du dépôt, sauf indication contraire.
 
-### Generate an evidence bundle
-Use the bundle script to export logs, artifacts, and commit metadata in one folder.
+### Générer un bundle de preuves
+Utiliser le script de bundle pour exporter les journaux, les artefacts et les métadonnées de commit dans un seul dossier.
 
-From repository root
+Depuis la racine du dépôt
 ```powershell
 python crypto-experiments/scripts/validation_bundle.py
 ```
 
-From crypto-experiments
+Depuis crypto-experiments
 ```powershell
 python scripts/validation_bundle.py
 ```
 
-Bundle output location
+Emplacement de sortie du bundle
 - crypto-experiments/data/results/validation-bundles/bundle-<timestamp>
 
-The bundle includes
-- pytest log
-- KAT log
-- IC95 gate log
+Le bundle inclut
+- journal pytest
+- journal KAT
+- journal des seuils IC95
 - coverage.xml
 - ic95_raw_rows.csv
 - ic95_audit_report.csv
-- bundle_manifest.json with commit hash and command return codes
+- bundle_manifest.json avec le hash de commit et les codes de retour des commandes
 
-### Windows local
+### Exécution locale Windows
 ```powershell
 cd crypto-experiments
 ..\.venv\Scripts\Activate.ps1
@@ -59,7 +59,7 @@ python scripts/run_kat.py --twofish-profile full --twofish-checksum warn
 python scripts/audit/audit_ic95.py --enforce-gates
 ```
 
-### Raspberry Pi local
+### Exécution locale Raspberry Pi
 ```bash
 cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
 source .venv/bin/activate
@@ -68,8 +68,8 @@ python scripts/run_kat.py --twofish-profile full --twofish-checksum warn
 python scripts/audit/audit_ic95.py --enforce-gates
 ```
 
-## Strict Twofish Integrity Mode
-Strict mode is used when official files and sidecar checksums are available.
+## Mode strict d'intégrité Twofish
+Le mode strict est utilisé lorsque les fichiers officiels et les sommes de contrôle sidecar sont disponibles.
 
 ```bash
 python scripts/run_kat.py \
@@ -78,60 +78,60 @@ python scripts/run_kat.py \
   --twofish-checksum enforce
 ```
 
-Required assets for strict mode
+Ressources requises pour le mode strict
 - Resources/KAT/Twofish-kat/ECB_VK.TXT
 - Resources/KAT/Twofish-kat/ECB_VT.TXT
 - Resources/KAT/Twofish-kat/ECB_TBL.TXT
-- Corresponding .sha256 sidecars for each file
+- Les fichiers sidecar .sha256 correspondants pour chaque fichier
 
-## Expected Signals
+## Signaux attendus
 1. Tests
-- All tests pass.
-- Coverage summary reports 100 percent lines and 100 percent branches.
+- Tous les tests réussissent.
+- Le résumé de couverture indique 100 pour cent des lignes et 100 pour cent des branches.
 
 2. KAT
-- Terminal ends with ALL KAT SUITES PASSED.
-- In strict mode, missing vectors or checksum mismatch must fail.
+- Le terminal se termine par ALL KAT SUITES PASSED.
+- Si le mode strict est activé, l'absence de vecteurs ou une somme de contrôle invalide doit provoquer un échec.
 
 3. IC95
-- Terminal includes Quality gate enforcement PASS.
-- Artifacts are written under data/results/audit.
+- Le terminal contient Quality gate enforcement PASS.
+- Les artefacts sont écrits sous data/results/audit.
 
-## Claims You Can Defend
-Use high-confidence wording instead of absolute certainty.
+## Énoncés défendables
+Utiliser des formulations à haute confiance plutôt que des certitudes absolues.
 
-Recommended wording
-- Results are strongly supported by reproducible automated validation.
-- Conformance is verified against known-answer vectors and reference implementations.
-- Statistical quality gates are enforced before conclusions are accepted.
+Formulations recommandées
+- Les résultats sont fortement appuyés par une validation automatisée reproductible.
+- La conformité est vérifiée à l'aide de vecteurs de référence et d'implémentations de référence.
+- Les seuils de qualité statistique sont appliqués avant l'acceptation des conclusions.
 
-Avoid wording
-- Perfectly correct
-- Guaranteed bug-free
-- Bulletproof
+Formulations à éviter
+- Parfaitement correct
+- Garanti sans bogue
+- Infaillible
 
-## Evidence Package Checklist
-For TN4 submission or oral defense, include
+## Checklist du dossier de preuves
+Pour la remise TN4 ou la soutenance orale, inclure
 
-1. Latest pytest output with coverage section
-2. Latest KAT run output with summary table
-3. Latest IC95 gate output
-4. Generated audit CSV artifacts
-5. Commit hashes corresponding to validation upgrades
+1. La dernière sortie pytest avec la section couverture
+2. La dernière sortie KAT avec le tableau récapitulatif
+3. La dernière sortie des seuils IC95
+4. Les artefacts CSV d'audit générés
+5. Les hashes de commit correspondant aux améliorations de validation
 
-## GitHub Branch Protection Policy
-Apply this policy to branch main.
+## Politique GitHub de protection de branche
+Appliquer cette politique à la branche main.
 
-1. Require a pull request before merging
-2. Require at least one approval review
-3. Dismiss stale approvals when new commits are pushed
-4. Require status checks to pass before merging
-5. Required checks
+1. Exiger une pull request avant fusion
+2. Exiger au moins une approbation de revue
+3. Annuler les approbations périmées lorsqu'un nouveau commit est poussé
+4. Exiger la réussite des vérifications de statut avant fusion
+5. Vérifications obligatoires
 - Tests / pytest
 - Tests / kat
 - Tests / ic95-audit
-6. Restrict direct pushes to main
-7. Keep administrators subject to these rules
+6. Restreindre les pushes directs vers main
+7. Soumettre aussi les administrateurs à ces règles
 
-This policy converts technical quality into governance quality, which is critical
-for defending result integrity in TN4.
+Cette politique transforme la qualité technique en qualité de gouvernance, ce qui est essentiel
+pour défendre l'intégrité des résultats en TN4.
