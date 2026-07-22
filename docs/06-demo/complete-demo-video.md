@@ -25,7 +25,11 @@ python -m pytest
 ```
 
 **Texte à lire après la commande**
-On peut lire plusieurs signaux importants. D’abord, il y a 102 tests exécutés, et ils passent tous. Ensuite, la couverture est à 100 %, ce qui veut dire que le périmètre testé est entièrement couvert.
+On peut lire plusieurs signaux importants. Je montre d’abord la ligne de commande `python -m pytest` pour rappeler ce qui vient d’être lancé.
+
+Dans la sortie, je souligne ensuite `collected 102 items`, puis `102 passed in 9.08s`, et enfin `Required test coverage of 100% reached. Total coverage: 100.00%`.
+
+Le point important, c’est que ces lignes prouvent deux choses à la fois : les tests fonctionnels passent tous, et la couverture de code est complète sur le périmètre évalué.
 
 C’est important parce que ces tests valident toute la chaîne logique du projet : les primitives de chiffrement, les modes, les KAT, les scripts de mesure et les scripts d’audit. Avant de présenter les résultats expérimentaux, je peux donc dire que le socle logiciel est déjà vérifié.
 
