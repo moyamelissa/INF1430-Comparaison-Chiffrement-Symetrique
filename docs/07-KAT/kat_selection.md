@@ -1,117 +1,117 @@
-# KAT Selection Method (TN3)
+# Méthode de sélection KAT (TN3)
 
-## Goal
+## Objectif
 
-This document explains how KAT vectors were selected in this project, with:
+Ce document explique comment les vecteurs KAT ont été sélectionnés dans ce projet, avec :
 
-- reference source used
-- vectors/scenarios selected
-- reason for selection
-- resulting assertion count
+- la source de référence utilisée
+- les vecteurs et scénarios retenus
+- la raison de la sélection
+- le nombre d'assertions obtenu
 
-It is meant to keep the method transparent and defensible in TN3.
+L'objectif est de conserver une méthode transparente et défendable pour TN3.
 
-## Two possible strategies
+## Deux stratégies possibles
 
-### Strategy A - Balanced core set (recommended for main TN3 slides)
+### Stratégie A - Noyau équilibré (recommandé pour les diapositives principales TN3)
 
-- Use a small representative subset for every suite.
-- Keep cross-suite comparison fair.
-- Report a compact total as the main KPI.
+- Utiliser un sous-ensemble réduit et représentatif pour chaque suite.
+- Garder une comparaison équitable entre suites.
+- Présenter un total compact comme indicateur principal.
 
-### Strategy B - Extended corpus (recommended for annex/demo)
+### Stratégie B - Corpus étendu (recommandé pour l'annexe et la démo)
 
-- Use full public corpora when available (for example Twofish ECB VK/VT/TBL files).
-- Better depth, but not symmetric with suites that currently use curated subsets.
-- Report separately as "extended validation".
+- Utiliser les corpus publics complets quand ils existent (par exemple les fichiers Twofish ECB VK, VT, TBL).
+- Obtenir une meilleure profondeur, mais moins de symétrie avec les suites qui reposent sur des sous-ensembles ciblés.
+- Présenter ce résultat séparément comme validation étendue.
 
-Recommended TN3 framing: show Strategy A in main slides, Strategy B in annex.
+Formulation recommandée pour TN3 : montrer la stratégie A dans le corps principal, et la stratégie B en annexe.
 
-## Per-suite selection details (default run)
+## Détails de sélection par suite (exécution par défaut)
 
 ### AES
 
-- Vectors chosen: 4 vectors total (2 for AES-128, 1 for AES-192, 1 for AES-256), each checked with encrypt match and decrypt round-trip.
-- Reference: NIST FIPS 197 (Appendices A, B, C).
-- How selected: one canonical known-answer vector per key size, plus AES-128 zero-key/zero-plain sanity vector.
-- Why this choice: cover all key sizes without running a very large corpus in the main TN3 run.
-- Assertions: 8.
+- Vecteurs retenus : 4 vecteurs au total (2 pour AES-128, 1 pour AES-192, 1 pour AES-256), chacun vérifié avec correspondance au chiffrement et aller-retour au déchiffrement.
+- Référence : NIST FIPS 197 (annexes A, B, C).
+- Méthode de sélection : un vecteur canonique de type known-answer par taille de clé, plus un cas de robustesse AES-128 clé nulle et texte nul.
+- Justification : couvrir toutes les tailles de clé sans exécuter un corpus trop volumineux dans l'exécution principale TN3.
+- Assertions : 8.
 
 ### DES
 
-- Vectors chosen: 9 plaintext/ciphertext pairs from SP 800-17 Table 1 subset, each checked with encrypt match and decrypt round-trip.
-- Reference: NIST SP 800-17, Table 1.
-- How selected: first 8 entries plus the last entry of the table.
-- Why this choice: preserve representative bit-position coverage while keeping runtime compact.
-- Assertions: 18.
+- Vecteurs retenus : 9 couples texte clair / texte chiffré tirés d'un sous-ensemble de la table 1 SP 800-17, chacun vérifié avec correspondance au chiffrement et aller-retour au déchiffrement.
+- Référence : NIST SP 800-17, table 1.
+- Méthode de sélection : les 8 premières entrées plus la dernière entrée de la table.
+- Justification : préserver une couverture représentative des positions de bits tout en gardant un temps d'exécution compact.
+- Assertions : 18.
 
 ### 3DES
 
-- Vectors chosen: 2 vectors (one 2-key TDEA and one 3-key TDEA), each checked with encrypt match and decrypt round-trip.
-- Reference: NIST SP 800-67 Rev.2 (EDE behavior), expected values cross-checked with a reference implementation.
-- How selected: one valid representative vector for each keying option.
-- Why this choice: guarantee coverage of both keying schemes with minimal overhead.
-- Assertions: 4.
+- Vecteurs retenus : 2 vecteurs (un cas TDEA à 2 clés et un cas TDEA à 3 clés), chacun vérifié avec correspondance au chiffrement et aller-retour au déchiffrement.
+- Référence : NIST SP 800-67 Rev.2 (comportement EDE), avec valeurs attendues recoupées par implémentation de référence.
+- Méthode de sélection : un vecteur représentatif valide pour chaque option de keying.
+- Justification : garantir la couverture des deux schémas de clés avec un surcoût minimal.
+- Assertions : 4.
 
 ### Modes (ECB, CBC, CTR)
 
-- Vectors chosen: ECB payload KAT + round-trip, CBC payload KAT + round-trip, CTR keystream spot-check + round-trip.
-- Reference: NIST SP 800-38A, Appendix F.
-- How selected: one focused test scenario per mode behavior that maps to the project implementation details.
-- Why this choice: validate each mode path (payload correctness + practical decryptability) without a combinatorial test set.
-- Assertions: 6.
+- Vecteurs retenus : KAT de charge utile ECB + aller-retour, KAT de charge utile CBC + aller-retour, vérification ciblée du flot CTR + aller-retour.
+- Référence : NIST SP 800-38A, annexe F.
+- Méthode de sélection : un scénario ciblé par comportement de mode, aligné sur les détails d'implémentation du projet.
+- Justification : valider chaque chemin de mode (exactitude de la charge utile et déchiffrabilité pratique) sans jeu combinatoire massif.
+- Assertions : 6.
 
 ### AES-GCM
 
-- Vectors chosen: TC3 and TC4 from NIST, each checked for encrypt output, decrypt/verify, and tamper detection.
-- Reference: NIST SP 800-38D, Appendix B.
-- How selected: non-empty plaintext cases that exercise core AEAD code paths.
-- Why this choice: verify confidentiality and integrity checks in a compact set.
-- Assertions: 6.
+- Vecteurs retenus : TC3 et TC4 issus du NIST, chacun vérifié sur la sortie de chiffrement, le déchiffrement avec vérification, et la détection de falsification.
+- Référence : NIST SP 800-38D, annexe B.
+- Méthode de sélection : cas de texte clair non vide qui exercent les chemins AEAD principaux.
+- Justification : vérifier confidentialité et intégrité dans un ensemble compact.
+- Assertions : 6.
 
 ### ChaCha20
 
-- Vectors chosen: RFC 8439 encryption known-answer test, plus wrapper round-trips (64B, 256B, odd length), plus tamper behavior and key-size validation.
-- Reference: RFC 8439.
-- How selected: mix one strict normative ciphertext vector with implementation-specific behavior checks.
-- Why this choice: ensure mathematical correctness and wrapper robustness.
-- Assertions: 6.
+- Vecteurs retenus : un KAT de chiffrement known-answer RFC 8439, plus des aller-retours du wrapper (64 B, 256 B, longueur impaire), plus un test de falsification et une validation de taille de clé.
+- Référence : RFC 8439.
+- Méthode de sélection : combinaison d'un vecteur normatif strict et de vérifications de robustesse spécifiques à l'implémentation.
+- Justification : assurer à la fois la justesse mathématique et la robustesse de l'enveloppe logicielle.
+- Assertions : 6.
 
-### Twofish (core profile, default)
+### Twofish (profil noyau, par défaut)
 
-- Vectors chosen: 1 representative vector from each family: ECB_VK, ECB_VT, ECB_TBL; each checked with encrypt match and decrypt round-trip.
-- Reference: Schneier et al. (1998), Counterpane submission vectors.
-- How selected: choose one canonical vector per family from the official public corpus.
-- Why this choice: keep cross-suite comparison balanced for TN3 main results while still using an external reference source.
-- Assertions: 6.
+- Vecteurs retenus : 1 vecteur représentatif par famille ECB_VK, ECB_VT, ECB_TBL, chacun vérifié avec correspondance au chiffrement et aller-retour au déchiffrement.
+- Référence : Schneier et al. (1998), vecteurs de soumission Counterpane.
+- Méthode de sélection : un vecteur canonique par famille depuis le corpus public officiel.
+- Justification : garder une comparaison inter-suites équilibrée pour les résultats principaux TN3 tout en conservant une source externe de référence.
+- Assertions : 6.
 
-Default run total (core profile): 54 assertions.
+Total exécution par défaut (profil noyau) : 54 assertions.
 
-## Optional Twofish extended profile
+## Profil Twofish étendu (optionnel)
 
-- Environment variable: `TWOFISH_KAT_PROFILE=full`
-- Effect: run full corpus (ECB_VK 576 vectors, ECB_VT 384 vectors, ECB_TBL 147 vectors)
-- Assertions in full profile: 2214 for Twofish, 2262 total
+- Variable d'environnement : `TWOFISH_KAT_PROFILE=full`
+- Effet : exécute le corpus complet (ECB_VK 576 vecteurs, ECB_VT 384 vecteurs, ECB_TBL 147 vecteurs)
+- Assertions en profil complet : 2214 pour Twofish, 2262 au total
 
-## Twofish details (extended corpus)
+## Détails Twofish (corpus étendu)
 
-- ECB_VK: 576 vectors, 1152 assertions.
-- ECB_VT: 384 vectors, 768 assertions.
-- ECB_TBL: 147 vectors, 294 assertions.
-- Total Twofish extended: 1107 vectors, 2214 assertions.
+- ECB_VK : 576 vecteurs, 1152 assertions.
+- ECB_VT : 384 vecteurs, 768 assertions.
+- ECB_TBL : 147 vecteurs, 294 assertions.
+- Total Twofish étendu : 1107 vecteurs, 2214 assertions.
 
-## If you choose balanced TN3 main slides
+## Si vous choisissez un TN3 principal équilibré
 
-Two clean options:
+Deux options propres :
 
-1. Keep current code and present:
-   - Main result: balanced subset totals (without extended Twofish)
-   - Annex result: extended Twofish (2214) as additional validation
+1. Conserver le code actuel et présenter :
+   - Résultat principal : total du sous-ensemble équilibré (sans Twofish étendu)
+   - Résultat annexe : Twofish étendu (2214) comme validation additionnelle
 
-2. Add a Twofish core subset for main comparison:
-   - Example: 1-2 vectors from each family (VK, VT, TBL), each with encrypt + decrypt
-   - Then keep the full corpus run as annex.
+2. Ajouter un sous-ensemble Twofish noyau pour la comparaison principale :
+   - Exemple : 1 à 2 vecteurs par famille (VK, VT, TBL), chacun avec chiffrement + déchiffrement
+   - Puis conserver l'exécution corpus complet en annexe
 
-## Suggested oral wording
+## Formulation orale suggérée
 
-"Notre resultat principal compare des sous-ensembles representatifs homogenes entre suites. En complement, nous executons une validation etendue Twofish sur le corpus public complet des auteurs (ECB_VK/VT/TBL), presentee separement comme stress test cryptographique."
+"Notre résultat principal compare des sous-ensembles représentatifs homogènes entre suites. En complément, nous exécutons une validation étendue Twofish sur le corpus public complet des auteurs (ECB_VK/VT/TBL), présentée séparément comme test de stress cryptographique."
