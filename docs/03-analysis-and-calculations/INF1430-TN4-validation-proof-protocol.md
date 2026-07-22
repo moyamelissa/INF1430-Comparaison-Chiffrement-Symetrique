@@ -25,6 +25,25 @@ The project uses a layered evidence model.
 ## Reproducible Execution Steps
 Run all commands from the repository root unless noted.
 
+### Generate an evidence bundle
+Use the bundle script to export logs, artifacts, and commit metadata in one folder.
+
+```powershell
+python crypto-experiments/scripts/validation_bundle.py
+```
+
+Bundle output location
+- crypto-experiments/data/results/validation-bundles/bundle-<timestamp>
+
+The bundle includes
+- pytest log
+- KAT log
+- IC95 gate log
+- coverage.xml
+- ic95_raw_rows.csv
+- ic95_audit_report.csv
+- bundle_manifest.json with commit hash and command return codes
+
 ### Windows local
 ```powershell
 cd crypto-experiments
@@ -93,3 +112,20 @@ For TN4 submission or oral defense, include
 3. Latest IC95 gate output
 4. Generated audit CSV artifacts
 5. Commit hashes corresponding to validation upgrades
+
+## GitHub Branch Protection Policy
+Apply this policy to branch main.
+
+1. Require a pull request before merging
+2. Require at least one approval review
+3. Dismiss stale approvals when new commits are pushed
+4. Require status checks to pass before merging
+5. Required checks
+- Tests / pytest
+- Tests / kat
+- Tests / ic95-audit
+6. Restrict direct pushes to main
+7. Keep administrators subject to these rules
+
+This policy converts technical quality into governance quality, which is critical
+for defending result integrity in TN4.
