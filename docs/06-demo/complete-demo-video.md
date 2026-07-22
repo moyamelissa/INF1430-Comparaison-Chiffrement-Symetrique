@@ -1,123 +1,105 @@
-# Vidéo de démonstration complète (Windows + Raspberry Pi)
+# Vidéo de démonstration complète
 
-## Intro - Objectif de la demonstration
-**Ou sommes-nous**
-Présentation PowerPoint - diapo de transition vers la démonstration complète
+## Objectif
+**Où sommes-nous ?**
+Présentation PowerPoint, diapo de transition vers la démonstration complète
 
-**Texte a lire**
-Dans cette video, on fait une demonstration unique de tout le pipeline. L'objectif est simple. On veut prouver a l'ecran que le projet s'execute reellement de bout en bout, avec les memes etapes sur Windows et sur Raspberry Pi.
+**Texte à lire**
+Dans cette vidéo, je montre tout le pipeline du projet de bout en bout. L’idée est de prouver à l’écran que le projet s’exécute réellement, avec les mêmes étapes sur Windows et sur Raspberry Pi.
 
-On va suivre une sequence claire. On commence par les tests, puis la validation cryptographique KAT, ensuite la campagne de mesures, la generation des graphes, et enfin la verification des fichiers generes.
+Je vais suivre une séquence simple. Je lance les tests, puis la validation cryptographique KAT, ensuite la campagne de mesures, l’audit statistique IC95, la génération des graphes, et enfin la vérification des artefacts produits.
 
-La logique de lecture reste la meme a chaque etape. Je lance la commande, puis je lis les signaux importants dans la sortie terminal.
-
----
-
-## Section 1 - Preparation de l'environnement (Windows)
-**Ou sommes-nous**
-Terminal Windows + VS Code
-
-**Texte a lire avant la commande**
-On commence sur Windows dans le dossier du projet. Je me place dans `crypto-experiments` et j'active l'environnement virtuel pour garantir que toutes les dependances utilisees sont celles du projet.
-
-```powershell
-cd crypto-experiments
-..\.venv\Scripts\Activate.ps1
-python --version
-```
-
-**Texte a lire apres la commande**
-Ici, je verifie que l'environnement est actif et que Python repond correctement. Cette verification evite les erreurs d'interpreteur avant le lancement du pipeline.
+À chaque étape, je lis surtout la sortie terminal. L’objectif est de faire ressortir les lignes importantes qui montrent que l’exécution a bien réussi et que les fichiers attendus ont été créés.
 
 ---
 
-## Section 2 - Validation logicielle (Windows)
-**Ou sommes-nous**
-`pytest`
+## Section 1 - Validation logicielle (Windows)
+**Où sommes-nous ?**
+Terminal Windows + `pytest`
 
-**Texte a lire avant la commande**
-Je lance d'abord les tests automatiques. Cette etape valide le code avant de produire des resultats experimentaux.
+**Texte à lire avant la commande**
+Je commence par les tests automatiques. Cette étape valide le code avant de produire les résultats expérimentaux.
 
 ```powershell
 python -m pytest
 ```
 
-**Texte a lire apres la commande**
-Dans la sortie, je lis deux signaux importants. Le premier est le total de tests executes. Le second est le message de couverture. Le resultat attendu est que tous les tests passent et que la couverture atteigne 100 % sur le perimetre evalue.
+**Texte à lire après la commande**
+Je lis deux éléments dans la sortie : le nombre total de tests exécutés et le message de couverture. Le résultat attendu est que tous les tests passent et que la couverture atteigne 100 % sur le périmètre évalué.
 
 ---
 
-## Section 3 - Validation cryptographique KAT (Windows)
-**Ou sommes-nous**
-`scripts/run_kat.py`
+## Section 2 - Validation cryptographique KAT (Windows)
+**Où sommes-nous ?**
+Terminal Windows + `scripts/run_kat.py`
 
-**Texte a lire avant la commande**
-Ensuite, je lance la validation KAT. Cette etape verifie que les implementations produisent les sorties attendues par les vecteurs de reference.
+**Texte à lire avant la commande**
+J’enchaîne avec la validation KAT. Cette étape vérifie que les implémentations produisent bien les sorties attendues par les vecteurs de référence.
 
 ```powershell
 python scripts/run_kat.py
 ```
 
-**Texte a lire apres la commande**
-Le signal que je confirme a l'ecran est `ALL KAT SUITES PASSED`. Cela valide la conformite cryptographique des algorithmes testes.
+**Texte à lire après la commande**
+Le signal principal à relever est `ALL KAT SUITES PASSED`. C’est la confirmation que la conformité cryptographique est bonne pour toutes les suites testées.
 
 ---
 
-## Section 4 - Campagne de mesures (Windows)
-**Ou sommes-nous**
-`scripts/experiment.py`
+## Section 3 - Campagne de mesures (Windows)
+**Où sommes-nous ?**
+Terminal Windows + `scripts/experiment.py`
 
-**Texte a lire avant la commande**
-Je lance maintenant la campagne de mesures. Le script execute la matrice experimentale et ecrit un CSV dans `data/results/`.
+**Texte à lire avant la commande**
+Je lance maintenant la campagne de mesures. Le script exécute la matrice expérimentale et écrit un CSV dans `data/results/`.
 
 ```powershell
 python scripts/experiment.py
 ```
 
-**Texte a lire apres la commande**
-Je lis trois elements dans la sortie. D'abord les lignes d'execution des configurations. Ensuite le resume final par algorithme. Enfin le chemin exact du CSV genere.
+**Texte à lire après la commande**
+Je commente trois choses : les lignes d’exécution des configurations, le résumé final par algorithme, et le chemin exact du CSV généré.
 
 ---
 
-## Section 5 - Audit IC95 (Windows)
-**Ou sommes-nous**
-`scripts/audit/audit_ic95.py`
+## Section 4 - Audit IC95 (Windows)
+**Où sommes-nous ?**
+Terminal Windows + `scripts/audit/audit_ic95.py`
 
-**Texte a lire avant la commande**
-Apres la generation des mesures, je lance l'audit statistique IC95. Cette etape controle la stabilite des mesures et applique les quality gates.
+**Texte à lire avant la commande**
+Après la génération des mesures, je lance l’audit statistique IC95. Cette étape contrôle la stabilité des mesures et applique les quality gates.
 
 ```powershell
 python scripts/audit/audit_ic95.py --enforce-gates
 ```
 
-**Texte a lire apres la commande**
-Je confirme a l'ecran les trois gates et le message final `Quality gate enforcement PASS`. Je montre aussi les deux fichiers produits, `ic95_raw_rows.csv` et `ic95_audit_report.csv`.
+**Texte à lire après la commande**
+Je montre le résultat des trois gates, puis le message final `Quality gate enforcement PASS`. Je souligne aussi les deux fichiers produits : `ic95_raw_rows.csv` et `ic95_audit_report.csv`.
 
 ---
 
-## Section 6 - Generation des graphes (Windows)
-**Ou sommes-nous**
-`scripts/run_charts.py`
+## Section 5 - Génération des graphes (Windows)
+**Où sommes-nous ?**
+Terminal Windows + `scripts/run_charts.py`
 
-**Texte a lire avant la commande**
-Je lance ensuite la generation des graphes. D'abord un cas cible avec la synthese, puis la generation complete.
+**Texte à lire avant la commande**
+Je passe ensuite à la génération des graphes. Je lance d’abord un cas ciblé avec la synthèse, puis la génération complète.
 
 ```powershell
 python scripts/run_charts.py 04
 python scripts/run_charts.py all
 ```
 
-**Texte a lire apres la commande**
-Dans la sortie, je lis les sources CSV utilisees, puis la selection des blocs `01, 02, 03, 04`. Je montre ensuite les lignes `Enregistre` qui prouvent l'ecriture effective des images dans `data/charts/`.
+**Texte à lire après la commande**
+Dans la sortie, je lis les sources CSV utilisées, puis la sélection des blocs `01, 02, 03, 04`. Je montre ensuite les lignes `Enregistré` qui prouvent l’écriture effective des images dans `data/charts/`.
 
 ---
 
-## Section 7 - Verification des artefacts (Windows)
-**Ou sommes-nous**
-`data/results/` et `data/charts/`
+## Section 6 - Vérification des artefacts (Windows)
+**Où sommes-nous ?**
+Terminal Windows + dossiers `data/results/`, `data/validation/audit/` et `data/charts/`
 
-**Texte a lire avant la commande**
-Pour fermer la partie Windows, je montre les artefacts generes localement.
+**Texte à lire avant la commande**
+Pour fermer la partie Windows, je montre les artefacts générés localement.
 
 ```powershell
 Get-ChildItem data/results/*.csv | Sort-Object LastWriteTime -Descending | Select-Object -First 8 Name, LastWriteTime
@@ -125,116 +107,98 @@ Get-ChildItem data/validation/audit/*.csv | Sort-Object LastWriteTime -Descendin
 Get-ChildItem data/charts -Recurse -File *.png | Sort-Object LastWriteTime -Descending | Select-Object -First 12 FullName, LastWriteTime
 ```
 
-**Texte a lire apres la commande**
-Ces listes montrent les fichiers reels crees par l'execution, avec leur horodatage local. C'est la preuve observable de la chaine complete.
+**Texte à lire après la commande**
+Ces listes montrent les fichiers réellement créés par l’exécution, avec leur horodatage local. C’est la preuve observable de la chaîne complète.
 
 ---
 
-## Section 8 - Preparation de l'environnement (Raspberry Pi)
-**Ou sommes-nous**
+## Section 7 - Validation logicielle (Raspberry Pi)
+**Où sommes-nous ?**
 Terminal Raspberry Pi + VS Code Remote
 
-**Texte a lire avant la commande**
-Je rejoue maintenant la meme sequence sur Raspberry Pi. Le but est de demontrer la reproductibilite de la methode sur une architecture differente.
-
-```bash
-cd ~/INF1430-Comparaison-Chiffrement-Symetrique/crypto-experiments
-source .venv/bin/activate
-python --version
-```
-
-**Texte a lire apres la commande**
-Je confirme que l'environnement Python du Pi est actif et pret pour la meme chaine d'execution.
-
----
-
-## Section 9 - Validation logicielle (Raspberry Pi)
-**Ou sommes-nous**
-`pytest`
-
-**Texte a lire avant la commande**
-Je relance les tests sur ARM, avec exactement la meme commande.
+**Texte à lire avant la commande**
+Je rejoue maintenant la même séquence sur Raspberry Pi. Le but est de montrer la reproductibilité de la méthode sur une architecture différente.
 
 ```bash
 python -m pytest
 ```
 
-**Texte a lire apres la commande**
-Je verifie le total des tests et le message de couverture. L'objectif est de montrer que la validation logicielle est bien rejouee sur la deuxieme plateforme.
+**Texte à lire après la commande**
+Je vérifie à nouveau le total des tests et le message de couverture. L’idée est de montrer que la validation logicielle est bien rejouée sur la deuxième plateforme.
 
 ---
 
-## Section 10 - Validation cryptographique KAT (Raspberry Pi)
-**Ou sommes-nous**
-`scripts/run_kat.py`
+## Section 8 - Validation cryptographique KAT (Raspberry Pi)
+**Où sommes-nous ?**
+Terminal Raspberry Pi + `scripts/run_kat.py`
 
-**Texte a lire avant la commande**
-Je lance la validation KAT sur Raspberry Pi pour confirmer la conformite cryptographique dans cet environnement aussi.
+**Texte à lire avant la commande**
+Je lance la validation KAT sur Raspberry Pi pour confirmer la conformité cryptographique dans cet environnement aussi.
 
 ```bash
 python scripts/run_kat.py
 ```
 
-**Texte a lire apres la commande**
-Je confirme a nouveau le signal `ALL KAT SUITES PASSED`.
+**Texte à lire après la commande**
+Je confirme à nouveau le signal `ALL KAT SUITES PASSED`.
 
 ---
 
-## Section 11 - Campagne de mesures (Raspberry Pi)
-**Ou sommes-nous**
-`scripts/experiment.py`
+## Section 9 - Campagne de mesures (Raspberry Pi)
+**Où sommes-nous ?**
+Terminal Raspberry Pi + `scripts/experiment.py`
 
-**Texte a lire avant la commande**
-Je lance ensuite la campagne de mesures ARM. Cette execution produit son propre CSV dans `data/results/`.
+**Texte à lire avant la commande**
+Je lance ensuite la campagne de mesures sur ARM. Cette exécution produit son propre CSV dans `data/results/`.
 
 ```bash
 python scripts/experiment.py
 ```
 
-**Texte a lire apres la commande**
-Je lis les lignes d'execution, le resume par algorithme et le nom du CSV exporte pour la plateforme Pi.
+**Texte à lire après la commande**
+Je lis les lignes d’exécution, le résumé par algorithme et le nom du CSV exporté pour la plateforme Pi.
 
 ---
 
-## Section 12 - Audit IC95 (Raspberry Pi)
-**Ou sommes-nous**
-`scripts/audit/audit_ic95.py`
+## Section 10 - Audit IC95 (Raspberry Pi)
+**Où sommes-nous ?**
+Terminal Raspberry Pi + `scripts/audit/audit_ic95.py`
 
-**Texte a lire avant la commande**
-Je rejoue le meme audit IC95 sur le Pi. Cette etape garantit que la verification statistique est appliquee de la meme maniere.
+**Texte à lire avant la commande**
+Je rejoue le même audit IC95 sur le Pi. Cette étape garantit que la vérification statistique est appliquée de la même manière.
 
 ```bash
 python scripts/audit/audit_ic95.py --enforce-gates
 ```
 
-**Texte a lire apres la commande**
-Je confirme les quality gates et le statut final. Le point important est la symetrie de methode entre Windows et ARM.
+**Texte à lire après la commande**
+Je confirme les quality gates et le statut final. Le point important est la symétrie de méthode entre Windows et ARM.
 
 ---
 
-## Section 13 - Generation des graphes (Raspberry Pi)
-**Ou sommes-nous**
-`scripts/run_charts.py`
+## Section 11 - Génération des graphes (Raspberry Pi)
+**Où sommes-nous ?**
+Terminal Raspberry Pi + `scripts/run_charts.py`
 
-**Texte a lire avant la commande**
-Je termine la partie Pi avec la generation des graphes, d'abord ciblee puis complete.
+**Texte à lire avant la commande**
+Je termine la partie Pi avec la génération des graphes, d’abord ciblée puis complète.
 
 ```bash
 python scripts/run_charts.py 04
 python scripts/run_charts.py all
 ```
 
-**Texte a lire apres la commande**
-Je verifie les memes signaux qu'avant. Je confirme les sources lues, les dossiers cibles et les figures enregistrees.
+**Texte à lire après la commande**
+Je vérifie les mêmes signaux qu’avant. Je confirme les sources lues, les dossiers cibles et les figures enregistrées.
 
 ---
 
-## Section 14 - Verification des artefacts (Raspberry Pi)
-**Ou sommes-nous**
-`data/results/` et `data/charts/`
+## Section 12 - Vérification des artefacts (Raspberry Pi)
+**Où sommes-nous ?**
+Terminal Raspberry Pi + dossiers `data/results/`, `data/validation/audit/` et `data/charts/`
 
-**Texte a lire avant la commande**
-Je montre enfin les artefacts cote Pi pour fermer la demonstration de reproductibilite.
+**Texte à lire avant la commande**
+Je montre enfin les artefacts côté Pi pour fermer la démonstration de reproductibilité.
 
 ```bash
 find data/results -maxdepth 1 -type f -name "*.csv" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 8
@@ -242,18 +206,18 @@ find data/validation/audit -maxdepth 1 -type f -name "*.csv" -printf "%TY-%Tm-%T
 find data/charts -type f -name "*.png" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 12
 ```
 
-**Texte a lire apres la commande**
-On voit les fichiers generes avec date et heure. La preuve d'execution est directe et verifiable.
+**Texte à lire après la commande**
+On voit les fichiers générés avec la date et l’heure. La preuve d’exécution est directe et vérifiable.
 
 ---
 
-## Conclusion - Message final a dire a l'enseignant
-**Ou sommes-nous**
-Slide de cloture
+## Conclusion
+**Où sommes-nous ?**
+Slide de clôture
 
-**Texte a lire**
-Cette demonstration montre une chaine complete et reproductible. On valide la partie logicielle, la partie cryptographique, les mesures, l'audit statistique IC95 et la generation des graphes.
+**Texte à lire**
+Cette démonstration montre une chaîne complète et reproductible. On valide la partie logicielle, la partie cryptographique, les mesures, l’audit statistique IC95 et la génération des graphes.
 
-Les memes commandes ont ete executees dans le meme ordre sur Windows et sur Raspberry Pi. Les sorties sont tracees, les artefacts sont visibles, et les controles de qualite sont explicites.
+Les mêmes commandes ont été exécutées dans le même ordre sur Windows et sur Raspberry Pi. Les sorties sont tracées, les artefacts sont visibles, et les contrôles de qualité sont explicites.
 
-La conclusion est que le pipeline est operationnel, verifiable, et suffisamment robuste pour soutenir l'analyse finale TN4.
+La conclusion est que le pipeline est opérationnel, vérifiable et suffisamment robuste pour soutenir l’analyse finale TN4.
