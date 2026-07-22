@@ -31,13 +31,6 @@ def _ensure_imp_compat_module() -> None:
     if "imp" in sys.modules:
         return
 
-    try:
-        import imp  # type: ignore  # noqa: F401
-
-        return
-    except ModuleNotFoundError:
-        pass
-
     imp_mod = ModuleType("imp")
 
     # Legacy constants expected by some old callers.

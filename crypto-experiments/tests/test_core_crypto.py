@@ -165,38 +165,18 @@ def test_twofish_imp_compat_injected_when_missing(monkeypatch):
         imp_mod.find_module("definitely_missing_module_for_twofish_tests")
 
 
-def test_twofish_imp_compat_uses_existing_import(monkeypatch):
-    import builtins
-
+def test_twofish_imp_compat_uses_existing_module(monkeypatch):
     twofish_module = importlib.import_module("domain.cipher.Twofish")
-    original_import = builtins.__import__
     fake_imp = types.ModuleType("imp")
-
-    def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
-        if name == "imp":
-            return fake_imp
-        return original_import(name, globals, locals, fromlist, level)
-
-    monkeypatch.delitem(sys.modules, "imp", raising=False)
-    monkeypatch.setattr(builtins, "__import__", fake_import)
+    monkeypatch.setitem(sys.modules, "imp", fake_imp)
 
     twofish_module._ensure_imp_compat_module()
-    assert "imp" not in sys.modules
+    assert sys.modules["imp"] is fake_imp
 
 
 def test_twofish_imp_find_module_descriptor_branches(monkeypatch):
-    import builtins
-
     twofish_module = importlib.import_module("domain.cipher.Twofish")
-    original_import = builtins.__import__
-
-    def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
-        if name == "imp":
-            raise ModuleNotFoundError("No module named imp")
-        return original_import(name, globals, locals, fromlist, level)
-
     monkeypatch.delitem(sys.modules, "imp", raising=False)
-    monkeypatch.setattr(builtins, "__import__", fake_import)
     twofish_module._ensure_imp_compat_module()
     imp_mod = sys.modules["imp"]
 
