@@ -1,0 +1,15 @@
+Raw IC95 rows exported: C:\Users\xmeli\OneDrive\Documents\GitHub\INF1430-Comparaison-Chiffrement-Symetrique\crypto-experiments\data\results\audit\ic95_raw_rows.csv
+Grouped IC95 audit exported: C:\Users\xmeli\OneDrive\Documents\GitHub\INF1430-Comparaison-Chiffrement-Symetrique\crypto-experiments\data\results\audit\ic95_audit_report.csv
+Threshold (relative IC95): <= 10.00%
+Summary: PASS=253 FAIL=57 TOTAL=310
+
+Quality gates:
+  Gate 1 - min repetitions >= 100: PASS (fail_count=0)
+  Gate 2 - message_size >= 1024B pass rate >= 90.00%: PASS (pass_rate=91.40%, pass=170/186)
+  Gate 3 - outliers (ic95_relative_pct_mean > 20.00%) <= 20: PASS (outliers=7)
+
+Quality gate enforcement: PASS
+
+
+--- STDERR ---
+

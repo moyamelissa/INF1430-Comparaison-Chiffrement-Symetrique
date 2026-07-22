@@ -1,0 +1,47 @@
+........................................................................ [ 70%]
+..............................                                           [100%]
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.14.0-final-0 _______________
+
+Name                                  Stmts   Miss Branch BrPart  Cover   Missing
+---------------------------------------------------------------------------------
+application\ExperimentController.py      81      0     10      0   100%
+application\__init__.py                   2      0      0      0   100%
+domain\__init__.py                        4      0      0      0   100%
+domain\cipher\AES.py                     29      0      6      0   100%
+domain\cipher\ChaCha20.py                32      0      4      0   100%
+domain\cipher\CipherPrimitive.py         30      0      8      0   100%
+domain\cipher\DES.py                     29      0      6      0   100%
+domain\cipher\TripleDES.py               29      0      6      0   100%
+domain\cipher\Twofish.py                 29      0      8      0   100%
+domain\cipher\__init__.py                 6      0      0      0   100%
+domain\engine\EncryptionEngine.py        20      0      2      0   100%
+domain\engine\__init__.py                 2      0      0      0   100%
+domain\mode\CBC.py                       41      0     12      0   100%
+domain\mode\CTR.py                       32      0      8      0   100%
+domain\mode\ECB.py                       20      0      2      0   100%
+domain\mode\GCM.py                       36      0     14      0   100%
+domain\mode\OperationMode.py             14      0      0      0   100%
+domain\mode\StreamMode.py                 6      0      0      0   100%
+domain\mode\__init__.py                   6      0      0      0   100%
+scripts\audit\audit_aggregates.py        40      0      8      0   100%
+scripts\audit\audit_diff.py             118      0     30      0   100%
+scripts\audit\audit_ic95.py             145      0     36      0   100%
+validation\__init__.py                    0      0      0      0   100%
+validation\kat_3des.py                   38      0     14      0   100%
+validation\kat_aes.py                    39      0     14      0   100%
+validation\kat_chacha20.py               59      0     12      0   100%
+validation\kat_des.py                    36      0     14      0   100%
+validation\kat_gcm.py                    77      0     26      0   100%
+validation\kat_modes.py                  91      0     36      0   100%
+validation\kat_twofish.py               219      0    108      0   100%
+---------------------------------------------------------------------------------
+TOTAL                                  1310      0    384      0   100%
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+Required test coverage of 100% reached. Total coverage: 100.00%
+102 passed in 10.60s
+
+
+--- STDERR ---
+
