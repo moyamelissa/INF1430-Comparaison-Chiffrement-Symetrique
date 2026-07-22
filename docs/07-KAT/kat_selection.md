@@ -11,21 +11,7 @@ Ce document explique comment les vecteurs KAT ont été sélectionnés dans ce p
 
 L'objectif est de conserver une méthode transparente et défendable pour TN3.
 
-## Deux stratégies possibles
-
-### Stratégie A - Noyau équilibré (recommandé pour les diapositives principales TN3)
-
-- Utiliser un sous-ensemble réduit et représentatif pour chaque suite.
-- Garder une comparaison équitable entre suites.
-- Présenter un total compact comme indicateur principal.
-
-### Stratégie B - Corpus étendu (recommandé pour l'annexe et la démo)
-
-- Utiliser les corpus publics complets quand ils existent (par exemple les fichiers Twofish ECB VK, VT, TBL).
-- Obtenir une meilleure profondeur, mais moins de symétrie avec les suites qui reposent sur des sous-ensembles ciblés.
-- Présenter ce résultat séparément comme validation étendue.
-
-Formulation recommandée pour TN3 : montrer la stratégie A dans le corps principal, et la stratégie B en annexe.
+En pratique, on a retenu pour chaque suite un petit ensemble de vecteurs connus, suffisant pour vérifier le comportement attendu sans alourdir l'exécution.
 
 ## Détails de sélection par suite (exécution par défaut)
 
@@ -81,9 +67,9 @@ Formulation recommandée pour TN3 : montrer la stratégie A dans le corps princi
 
 - Vecteurs retenus : 1 vecteur représentatif par famille ECB_VK, ECB_VT, ECB_TBL, chacun vérifié avec correspondance au chiffrement et aller-retour au déchiffrement.
 - Référence : Schneier et al. (1998), vecteurs de soumission Counterpane.
-- Référence détaillée : [docs/07-KAT/twofish-references.md](docs/07-KAT/twofish-references.md)
+- Référence détaillée : [docs/07-KAT/twofish-references.md](twofish-references.md)
 - Méthode de sélection : un vecteur canonique par famille depuis le corpus public officiel.
 - Justification : garder une comparaison inter-suites équilibrée pour les résultats principaux TN3 tout en conservant une source externe de référence.
 - Assertions : 6.
 
-Total exécution par défaut (profil noyau) : 54 assertions.
+Total exécution par défaut (profil noyau) : 60 assertions.
