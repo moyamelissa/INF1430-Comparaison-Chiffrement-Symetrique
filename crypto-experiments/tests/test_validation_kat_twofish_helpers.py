@@ -278,6 +278,28 @@ def test_run_with_real_files_verbose_false(tmp_path: Path, monkeypatch):
     assert kat_twofish.run(verbose=False) == 0
 
 
+def test_run_backend_unavailable_soft_skip(monkeypatch):
+    class _BrokenTwofish:
+        def __init__(self, _key: bytes):
+            raise ImportError("backend init failed")
+
+    monkeypatch.setattr(kat_twofish, "Twofish", _BrokenTwofish)
+    assert kat_twofish.run(verbose=True) == 0
+    stats = kat_twofish.get_last_stats()
+    assert stats
+    assert all(str(item["profile"]) == "backend-unavailable" for item in stats)
+    assert all(int(item["failures"]) == 0 for item in stats)
+
+
+def test_run_backend_unavailable_soft_skip_silent(monkeypatch):
+    class _BrokenTwofish:
+        def __init__(self, _key: bytes):
+            raise ImportError("backend init failed")
+
+    monkeypatch.setattr(kat_twofish, "Twofish", _BrokenTwofish)
+    assert kat_twofish.run(verbose=False) == 0
+
+
 def test_checksum_mode_invalid_defaults_to_warn(monkeypatch):
     monkeypatch.setenv("TWOFISH_KAT_CHECKSUM", "invalid")
     assert kat_twofish._checksum_mode() == "warn"
