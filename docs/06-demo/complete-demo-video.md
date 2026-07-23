@@ -19,11 +19,11 @@ python -m pytest
 ```
 
 **Texte à lire après la commande**
-Le résultat à retenir est que les 102 tests passent tous et la couverture atteint 100 %.
+Le résultat à retenir est que les 116 tests passent tous et la couverture atteint 100 %.
 
-Les lignes de sorties nous communique bien cela, on voit
+Les lignes de sorties nous communique bien cela, on voit que chaque fichier du projet affiche 100%, 1436 déclarations ont été exécutées, zéro ont été manquées, 422 branches ont été testées,puis la couverture totale est 100 %.
 
-- `collected 102 items` montre que toute la suite de tests a bien été détectée et planifiée.
+- `collected 116 items` montre que toute la suite de tests a bien été détectée et planifiée.
 - `102 passed in 9.08s` montre que tous les tests détectés ont réussi, sans aucun échec dans un temps précis.
 - `Required test coverage of 100% reached. Total coverage: 100.00%` montre que le seuil de couverture exigé est atteint intégralement, à 100 %.
 
