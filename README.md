@@ -120,19 +120,27 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 │   │   ├── experiment.py
 │   │   ├── run_kat.py
 │   │   ├── charts/
-│   │   │   ├── render_performance.py
-│   │   │   ├── render_platform_comparison.py
-│   │   │   ├── render_avalanche_rounds.py
-│   │   │   └── render_ecb_demo.py
+│   │   │   ├── build_performance.py
+│   │   │   ├── build_platform_comparison.py
+│   │   │   ├── build_avalanche_rounds.py
+│   │   │   └── build_ecb_demo.py
+│   │   └── audit/
+│   │       ├── audit_ic95.py
+│   │       ├── audit_aggregates.py
+│   │       ├── audit_diff.py
+│   │       └── audit_bundle.py
 │   ├── validation/
 │   │   ├── kat_aes.py
 │   │   ├── kat_des.py
 │   │   ├── kat_3des.py
 │   │   ├── kat_chacha20.py
 │   │   ├── kat_gcm.py
-│   │   └── kat_modes.py
+│   │   ├── kat_modes.py
+│   │   └── kat_twofish.py
 │   └── data/
-       ├── results/                     # CSV bruts — x86 et Raspberry Pi
+    ├── results/                     # CSV bruts — x86 et Raspberry Pi
+    ├── evidence/
+    │   └── audit/                   # Rapports IC95 et artefacts d'audit
        └── charts/
            ├── 01-throughput/           # Débits absolus, comparaisons plateformes, IC95
            ├── 02-avalanche-effect/     # Scores d'avalanche par algorithme
@@ -145,7 +153,8 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 │   ├── 03-analysis-and-calculations/
 │   ├── 04-raspberrypi-guides/
 │   ├── 05-feedback/
-│   └── 99-archive/
+│   ├── 06-demo/
+│   └── 07-KAT/
 └── README.md
 ```
 
@@ -239,6 +248,7 @@ Le projet inclut une suite de validation fonctionnelle basée sur des vecteurs s
 | ChaCha20 | RFC 8439 | `validation/kat_chacha20.py` |
 | GCM | NIST SP 800-38D | `validation/kat_gcm.py` |
 | Modes ECB/CBC/CTR | NIST SP 800-38A | `validation/kat_modes.py` |
+| Twofish (ECB KAT) | Schneier / Counterpane | `validation/kat_twofish.py` |
 
 Exécution globale :
 
@@ -263,6 +273,8 @@ Le job échoue si les gates de qualité ne sont pas respectés, et publie deux a
 - `crypto-experiments/data/evidence/audit/ic95_raw_rows.csv`
 - `crypto-experiments/data/evidence/audit/ic95_audit_report.csv`
 
+Les vecteurs Twofish (`ECB_VK.TXT`, `ECB_VT.TXT`, `ECB_TBL.TXT`) sont aussi protégés par des sidecars `.sha256` pour vérifier l'intégrité des données de test avant l'exécution KAT.
+
 Mesures à 4 096 octets, meilleure clé, ECB (sauf ChaCha20 → Stream), 100 répétitions.
 
 | Algorithme | Débit x86 (MB/s) | Débit ARM (MB/s) | Ratio x86/ARM |
@@ -285,8 +297,8 @@ Mesures à 4 096 octets, meilleure clé, ECB (sauf ChaCha20 → Stream), 100 ré
 
 Les CSV sont versionnés dans `crypto-experiments/data/results/` :
 
-- `windows_experience3.csv` — campagne de référence x86
-- `raspberry_experience3.csv` — campagne de référence ARM
+- `windows_experienceN_YYYYMMDD.csv` — campagnes Windows x86
+- `raspberry_experienceN_YYYYMMDD.csv` — campagnes Raspberry Pi ARM
 
 > Les expériences 1 et 2 sont conservées pour traçabilité historique.
 
