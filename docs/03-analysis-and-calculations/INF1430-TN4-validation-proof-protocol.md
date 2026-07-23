@@ -95,7 +95,7 @@ Ressources requises pour le mode strict
 
 3. IC95
 - Le terminal contient Quality gate enforcement PASS.
-- Les artefacts sont écrits sous data/evidence/audit.
+- Les artefacts sont écrits sous data/evidence.
 
 ## Politique GitHub de protection de branche
 Appliquer cette politique à la branche main.

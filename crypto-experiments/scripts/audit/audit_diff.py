@@ -2,7 +2,7 @@
 
 Usage (from crypto-experiments/):
     python scripts/audit/audit_diff.py
-    python scripts/audit/audit_diff.py --out data/evidence/audit/audit_diff_report.csv
+    python scripts/audit/audit_diff.py --out data/evidence/audit_diff_report.csv
 """
 
 from __future__ import annotations
@@ -21,6 +21,21 @@ from charts.data_platform import load_platform_rows
 
 
 GroupKey = tuple[str, str, int, int]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _ensure_not_results_output(path: Path) -> None:
+    """Reject audit outputs written under data/results."""
+    results_dir = (PROJECT_ROOT / "data" / "results").resolve()
+    resolved_path = path.resolve()
+    try:
+        resolved_path.relative_to(results_dir)
+    except ValueError:
+        return
+    raise SystemExit(
+        "Refusing to write audit output under data/results: "
+        f"{resolved_path}. Use data/evidence instead."
+    )
 
 
 def _row_value(row: dict[str, str], key: str) -> str:
@@ -259,10 +274,12 @@ def main() -> int:
     parser.add_argument(
         "--out",
         type=Path,
-        default=Path("data/evidence/audit/audit_diff_report.csv"),
+        default=PROJECT_ROOT / "data" / "evidence" / "audit_diff_report.csv",
         help="Output CSV path",
     )
     args = parser.parse_args()
+
+    _ensure_not_results_output(args.out)
 
     out_path, row_count, max_abs_diff, max_rel_diff, non_zero_count = export_report(args.out)
     print(f"Report exported: {out_path}")

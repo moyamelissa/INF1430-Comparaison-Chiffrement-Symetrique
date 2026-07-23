@@ -270,8 +270,8 @@ python scripts/audit/audit_ic95.py --enforce-gates
 
 Le job échoue si les gates de qualité ne sont pas respectés, et publie deux artefacts CSV :
 
-- `crypto-experiments/data/evidence/audit/ic95_raw_rows.csv`
-- `crypto-experiments/data/evidence/audit/ic95_audit_report.csv`
+- `crypto-experiments/data/evidence/ic95_raw_rows.csv`
+- `crypto-experiments/data/evidence/ic95_audit_report.csv`
 
 Les vecteurs Twofish (`ECB_VK.TXT`, `ECB_VT.TXT`, `ECB_TBL.TXT`) sont aussi protégés par des sidecars `.sha256` pour vérifier l'intégrité des données de test avant l'exécution KAT.
 

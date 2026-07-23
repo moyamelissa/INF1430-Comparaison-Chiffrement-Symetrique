@@ -102,5 +102,5 @@ jobs:
         with:
           name: ic95-audit-report
           path: |
-            crypto-experiments/data/results/audit/ic95_raw_rows.csv
-            crypto-experiments/data/results/audit/ic95_audit_report.csv
+            crypto-experiments/data/evidence/ic95_raw_rows.csv
+            crypto-experiments/data/evidence/ic95_audit_report.csv

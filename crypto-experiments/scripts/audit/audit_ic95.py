@@ -9,7 +9,7 @@ This script reads all platform CSV files in data/results and computes:
 Usage (from crypto-experiments/):
     py scripts/audit/audit_ic95.py
     py scripts/audit/audit_ic95.py --threshold-rel 10
-    py scripts/audit/audit_ic95.py --out data/evidence/audit/ic95_audit_report.csv
+    py scripts/audit/audit_ic95.py --out data/evidence/ic95_audit_report.csv
 
 Usage (from repository root):
     py crypto-experiments/scripts/audit/audit_ic95.py
@@ -25,6 +25,20 @@ from pathlib import Path
 
 GroupKey = tuple[str, str, str, int, int]
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _ensure_not_results_output(path: Path) -> None:
+    """Reject audit outputs written under data/results."""
+    results_dir = (PROJECT_ROOT / "data" / "results").resolve()
+    resolved_path = path.resolve()
+    try:
+        resolved_path.relative_to(results_dir)
+    except ValueError:
+        return
+    raise SystemExit(
+        "Refusing to write audit output under data/results: "
+        f"{resolved_path}. Use data/evidence instead."
+    )
 
 
 def _to_float_optional(value: object) -> float | None:
@@ -259,13 +273,13 @@ def main() -> int:
     parser.add_argument(
         "--out",
         type=Path,
-        default=PROJECT_ROOT / "data" / "evidence" / "audit" / "ic95_audit_report.csv",
+        default=PROJECT_ROOT / "data" / "evidence" / "ic95_audit_report.csv",
         help="Output CSV path for grouped IC95 audit",
     )
     parser.add_argument(
         "--raw-out",
         type=Path,
-        default=PROJECT_ROOT / "data" / "evidence" / "audit" / "ic95_raw_rows.csv",
+        default=PROJECT_ROOT / "data" / "evidence" / "ic95_raw_rows.csv",
         help="Output CSV path for row-level IC95 calculations",
     )
     parser.add_argument(
@@ -310,6 +324,9 @@ def main() -> int:
         help="Gate 3: maximum allowed outlier count",
     )
     args = parser.parse_args()
+
+    _ensure_not_results_output(args.out)
+    _ensure_not_results_output(args.raw_out)
 
     files = _discover_result_files(args.results_dir)
     if not files:

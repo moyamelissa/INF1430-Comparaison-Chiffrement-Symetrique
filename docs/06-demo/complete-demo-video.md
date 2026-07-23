@@ -148,17 +148,17 @@ Pour fermer la partie Windows, je montre finalement les artefacts générés loc
 
 ```powershell
 Get-ChildItem data/results/*.csv | Sort-Object LastWriteTime -Descending | Select-Object -First 8 Name, LastWriteTime
-Get-ChildItem data/evidence/audit/*.csv | Sort-Object LastWriteTime -Descending | Select-Object Name, LastWriteTime
+Get-ChildItem data/evidence/*.csv | Sort-Object LastWriteTime -Descending | Select-Object Name, LastWriteTime
 Get-ChildItem data/charts -Recurse -File *.png | Sort-Object LastWriteTime -Descending | Select-Object -First 12 FullName, LastWriteTime
 ```
 
 `data/results/*.csv`
 Ici, on confirme que les CSV ont bien ete generer et quil sont bien placer dans le dossier de résultats. Ça prouve que la campagne de mesures a bien produit des données exploitables et les as placer au bon endroit.
 
-`data/evidence/audit/ic95_raw_rows.csv`
+`data/evidence/ic95_raw_rows.csv`
 Ce fichier contient les lignes brutes de l’audit IC95. C’est la trace directe des mesures avant regroupement.
 
-`data/evidence/audit/ic95_audit_report.csv`
+`data/evidence/ic95_audit_report.csv`
 Ce rapport montre que l’audit a été regroupé et validé. Il me sert de preuve pour la partie statistique.
 
 `data/charts/01-throughput/`
@@ -237,7 +237,7 @@ Les quatre blocs graphiques se génèrent correctement. Le script consolide les 
 
 ```bash
 find data/results -maxdepth 1 -type f -name "*.csv" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 8
-find data/evidence/audit -maxdepth 1 -type f -name "*.csv" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 4
+find data/evidence -maxdepth 1 -type f -name "*.csv" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 4
 find data/charts -type f -name "*.png" -printf "%TY-%Tm-%Td %TH:%TM %p\n" | sort | tail -n 12
 ```
 

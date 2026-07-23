@@ -6,7 +6,7 @@ Le rapport combine:
 
 Usage (depuis crypto-experiments/):
     python scripts/audit/audit_aggregates.py
-    python scripts/audit/audit_aggregates.py --out data/evidence/audit/audit_aggregates_report.csv
+    python scripts/audit/audit_aggregates.py --out data/evidence/audit_aggregates_report.csv
 """
 
 from __future__ import annotations
@@ -21,6 +21,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from charts.data_performance import load_latest_rows
 from charts.data_platform import load_platform_rows
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _ensure_not_results_output(path: Path) -> None:
+    """Reject audit outputs written under data/results."""
+    results_dir = (PROJECT_ROOT / "data" / "results").resolve()
+    resolved_path = path.resolve()
+    try:
+        resolved_path.relative_to(results_dir)
+    except ValueError:
+        return
+    raise SystemExit(
+        "Refusing to write audit output under data/results: "
+        f"{resolved_path}. Use data/evidence instead."
+    )
 
 
 def _report_rows() -> list[dict[str, object]]:
@@ -116,10 +133,12 @@ def main() -> int:
     parser.add_argument(
         "--out",
         type=Path,
-        default=Path("data/evidence/audit/audit_aggregates_report.csv"),
+        default=PROJECT_ROOT / "data" / "evidence" / "audit_aggregates_report.csv",
         help="Chemin de sortie du rapport CSV",
     )
     args = parser.parse_args()
+
+    _ensure_not_results_output(args.out)
 
     out_path = export_report(args.out)
     print(f"Rapport exporte: {out_path.resolve()}")

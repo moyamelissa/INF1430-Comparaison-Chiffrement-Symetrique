@@ -77,14 +77,13 @@ def test_build_bundle_skip_run_collects_existing_artifacts(tmp_path: Path, monke
     project_root = tmp_path / "project"
     repo_root = tmp_path / "repo"
     bundles_dir = project_root / "data" / "evidence" / "bundle"
-    audit_dir = project_root / "data" / "evidence" / "audit"
     project_root.mkdir(parents=True, exist_ok=True)
     repo_root.mkdir(parents=True, exist_ok=True)
-    audit_dir.mkdir(parents=True, exist_ok=True)
+    (project_root / "data" / "evidence").mkdir(parents=True, exist_ok=True)
 
     (project_root / "coverage.xml").write_text("cov", encoding="utf-8")
-    (audit_dir / "ic95_raw_rows.csv").write_text("raw", encoding="utf-8")
-    (audit_dir / "ic95_audit_report.csv").write_text("report", encoding="utf-8")
+    (project_root / "data" / "evidence" / "ic95_raw_rows.csv").write_text("raw", encoding="utf-8")
+    (project_root / "data" / "evidence" / "ic95_audit_report.csv").write_text("report", encoding="utf-8")
 
     monkeypatch.setattr(module, "PROJECT_ROOT", project_root)
     monkeypatch.setattr(module, "REPO_ROOT", repo_root)
