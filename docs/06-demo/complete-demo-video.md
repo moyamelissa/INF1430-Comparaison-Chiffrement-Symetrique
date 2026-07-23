@@ -24,8 +24,7 @@ Pour cette section Windows, je lis exactement les indicateurs affichés dans la 
 Les lignes importantes à montrer sont celles-ci, avec les valeurs réellement observées à l'écran.
 
 - `collected <N> items` montre que toute la suite de tests a bien été détectée et planifiée sur Windows.
-- `<N> passed in <T>s` montre que tous les tests détectés ont réussi, sans aucun échec.
-- `Required test coverage of 100% reached. Total coverage: <P>%` confirme le niveau de couverture réellement mesuré pour ce run Windows.
+- Le rapport indique 1468 déclarations exécutées, aucune manquée, 422 branches testées, pour une couverture totale de 100 %
 
 Donc au final, ces lignes prouvent deux choses à la fois. Premièrement, les tests fonctionnels passent tous. Deuxièmement, la couverture affichée est conforme aux critères retenus pour cette exécution Windows.
 
@@ -142,41 +141,7 @@ En conclusionà, la génération des graphes confirme que nos données sont bien
 
 ---
 
-## Section 1.6 - Vérification des artefacts (Windows)
-
-Pour fermer la partie Windows, je montre finalement les artefacts générés localement.
-
-```powershell
-Get-ChildItem data/results/*.csv | Sort-Object LastWriteTime -Descending | Select-Object -First 8 Name, LastWriteTime
-Get-ChildItem data/evidence/*.csv | Sort-Object LastWriteTime -Descending | Select-Object Name, LastWriteTime
-Get-ChildItem data/charts -Recurse -File *.png | Sort-Object LastWriteTime -Descending | Select-Object -First 12 FullName, LastWriteTime
-```
-
-`data/results/*.csv`
-Ici, on confirme que les CSV ont bien ete generer et quil sont bien placer dans le dossier de résultats. Ça prouve que la campagne de mesures a bien produit des données exploitables et les as placer au bon endroit.
-
-`data/evidence/ic95_raw_rows.csv`
-Ce fichier contient les lignes brutes de l’audit IC95. C’est la trace directe des mesures avant regroupement.
-
-`data/evidence/ic95_audit_report.csv`
-Ce rapport montre que l’audit a été regroupé et validé. Il me sert de preuve pour la partie statistique.
-
-`data/charts/01-throughput/`
-Ce dossier contient les graphes de performance. Il montre les différences de débit entre algorithmes et plateformes.
-`data/charts/02-avalanche-effect/`
-Ici, je montre les graphes liés à l’effet d’avalanche. C’est important parce que ça parle du comportement cryptographique, pas seulement de la vitesse.
-`data/charts/03-encryption-modes/`
-Ce dossier regroupe les graphes sur les modes de chiffrement, y compris la démonstration ECB. C’est là qu’on voit pourquoi ECB n’est pas un bon choix pour certains usages.
-`data/charts/04-decision-support/`
-Ce dernier dossier sert à la synthèse et à la décision finale. Il résume les résultats pour qu’on puisse conclure plus simplement.
-
-Ces listes montrent les fichiers réellement créés par l’exécution, avec leur horodatage local. C’est la preuve observable de la chaîne complète.
-
-Donc maitnenat on peut dire que la demo pour windows est completer, car la vérification des artefacts nous a confirmerque chaque étape du pipeline laisse une trace concrète et vérifiable. Elle prouve que nos résultats sont bien produits, bien stockés et prêts pour l’analyse et la reproduction.
-
----
-
-## Section 1.7 - Création du bundle de preuves (Windows)
+## Section 1.6 - Création du bundle de preuves (Windows)
 
 Pour terminer la partie Windows, je regroupe maintenant les preuves dans un bundle. L’objectif n’est pas de produire de nouveaux résultats, mais de conserver une trace propre et vérifiable de tout ce qui a déjà été exécuté.
 
@@ -185,6 +150,12 @@ python scripts/audit/audit_bundle.py --skip-run
 ```
 
 Avec cette commande, le script crée un dossier horodaté dans `data/evidence/bundle/`. À l’intérieur, on retrouve le manifeste du run, les logs disponibles et les artefacts copiés comme `coverage.xml`.
+YYYY = année
+MM = mois
+DD = jour
+T = séparateur date/heure (format ISO)
+HHMMSS = heure minute seconde
+Z = UTC (temps universel)
 
 Le point important à dire ici, c’est que le bundle ne remplace pas les tests ou l’audit. Il sert à les documenter et à les rendre auditable. C’est une bonne pratique parce qu’on ne se contente pas d’affirmer que les résultats sont bons. On garde aussi les logs, les rapports et le contexte exact du run pour qu’une autre personne puisse les vérifier plus tard.
 
