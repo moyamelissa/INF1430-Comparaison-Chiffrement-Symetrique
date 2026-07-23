@@ -24,7 +24,7 @@ Le résultat à retenir est que les 116 tests passent tous et la couverture atte
 Les lignes de sorties nous communique bien cela, on voit que chaque fichier du projet affiche 100%, 1436 déclarations ont été exécutées, zéro ont été manquées, 422 branches ont été testées,puis la couverture totale est 100 %.
 
 - `collected 116 items` montre que toute la suite de tests a bien été détectée et planifiée.
-- `102 passed in 9.08s` montre que tous les tests détectés ont réussi, sans aucun échec dans un temps précis.
+- `116 passed in 15.71s` montre que tous les tests détectés ont réussi, sans aucun échec dans un temps précis.
 - `Required test coverage of 100% reached. Total coverage: 100.00%` montre que le seuil de couverture exigé est atteint intégralement, à 100 %.
 
 Donc au final, ces lignes prouvent deux choses à la fois. Premièrement, les tests fonctionnels passent tous, et  deuxièmement la couverture de code est complète sur le périmètre évalué.
@@ -188,7 +188,7 @@ Je rejoue maintenant la même séquence complète sur Raspberry Pi, architecture
 python -m pytest
 ```
 
-Sur Raspberry Pi, la suite de tests s'exécute sans régression. 102 tests passent, 100 % de couverture atteint. Cela valide que la logique du projet fonctionne de manière identique sur deux architectures distinctes, aucun problème de portabilité, aucune dépendance spécifique à x86.
+Sur Raspberry Pi, la suite de tests s'exécute sans régression. 116 tests passent, 99.84 % de couverture est mesurée actuellement. Cela valide que la logique du projet fonctionne de manière identique sur deux architectures distinctes, aucun problème de portabilité, aucune dépendance spécifique à x86.
 
 ---
 
