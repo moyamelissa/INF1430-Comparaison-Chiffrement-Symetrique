@@ -94,11 +94,11 @@ Puis on peut maintenant analyser la sortie. Dans mon cas de démonstration, je m
 * `Summary: PASS=232 FAIL=78 TOTAL=310`
   Ici, on voit qu’il existe des FAIL locaux sur certaines configurations, même si le pipeline s’est exécuté correctement.
 * `Gate 1 - min repetitions >= 100: PASS`
-  Les répétitions minimales sont suffisantes.
+  Condition lue à l’écran: chaque configuration doit avoir au moins 100 répétitions. Résultat observé: la condition est respectée partout, donc la gate passe.
 * `Gate 2 - message_size >= 1024B pass rate >= 90.00%: FAIL (pass_rate=86.56%, pass=161/186)`
-  Cette gate provoque l’échec global. Le taux passe sous 90 % pour les tailles importantes.
+  Condition lue à l’écran: sur les tailles importantes (>= 1024B), au moins 90% des configurations doivent être PASS. Résultat observé: 161 PASS sur 186, soit 86.56%, donc en dessous du seuil. Cette gate fait échouer le verdict global.
 * `Gate 3 - outliers (...) <= 20: PASS`
-  Le nombre d’outliers sévères reste dans la limite.
+  Condition lue à l’écran: le nombre d’outliers sévères doit rester <= 20. Résultat observé: 8 outliers, donc la gate passe.
 * `Quality gate enforcement: FAIL`
   Le verdict final est FAIL parce qu’une gate critique, ici Gate 2, est en échec.
 
