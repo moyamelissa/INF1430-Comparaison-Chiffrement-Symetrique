@@ -197,3 +197,11 @@ def test_load_append_build_export_and_main(tmp_path: Path, monkeypatch):
     monkeypatch.setattr(sys, "argv", ["audit_diff.py", "--out", str(tmp_path / "audit" / "audit_diff_main.csv")])
     rc = module.main()
     assert rc == 0
+
+
+def test_rejects_output_inside_results_directory():
+    module = _load_module()
+    forbidden = module.PROJECT_ROOT / "data" / "results" / "audit_diff_report.csv"
+
+    with pytest.raises(SystemExit, match="Refusing to write audit output under data/results"):
+        module._ensure_not_results_output(forbidden)

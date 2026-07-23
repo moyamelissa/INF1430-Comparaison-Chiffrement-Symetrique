@@ -5,6 +5,8 @@ import csv
 import importlib.util
 import sys
 
+import pytest
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_PATH = PROJECT_ROOT / "scripts" / "audit" / "audit_aggregates.py"
@@ -111,3 +113,11 @@ def test_main_writes_file(tmp_path: Path, monkeypatch):
     rc = module.main()
     assert rc == 0
     assert out.exists()
+
+
+def test_rejects_output_inside_results_directory():
+    module = _load_module()
+    forbidden = module.PROJECT_ROOT / "data" / "results" / "audit_aggregates_report.csv"
+
+    with pytest.raises(SystemExit, match="Refusing to write audit output under data/results"):
+        module._ensure_not_results_output(forbidden)

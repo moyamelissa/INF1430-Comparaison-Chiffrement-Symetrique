@@ -188,3 +188,11 @@ def test_main_raises_when_no_result_files(tmp_path: Path, monkeypatch: pytest.Mo
 
     with pytest.raises(SystemExit, match="No result CSV files found"):
         module.main()
+
+
+def test_rejects_output_inside_results_directory():
+    module = _load_audit_ic95_module()
+    forbidden = module.PROJECT_ROOT / "data" / "results" / "ic95_audit_report.csv"
+
+    with pytest.raises(SystemExit, match="Refusing to write audit output under data/results"):
+        module._ensure_not_results_output(forbidden)

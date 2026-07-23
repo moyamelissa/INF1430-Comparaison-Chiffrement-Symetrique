@@ -1,0 +1,13 @@
+{
+  "created_utc": "20260723T165813Z",
+  "repo_root": "C:\\Users\\xmeli\\OneDrive\\Documents\\GitHub\\INF1430-Comparaison-Chiffrement-Symetrique",
+  "project_root": "C:\\Users\\xmeli\\OneDrive\\Documents\\GitHub\\INF1430-Comparaison-Chiffrement-Symetrique\\crypto-experiments",
+  "commit": "ed0f29b1167891fc0ac589f7cace38bc67233512",
+  "skip_run": true,
+  "commands": [],
+  "artifacts": {
+    "coverage_xml": true,
+    "ic95_raw_rows": true,
+    "ic95_audit_report": true
+  }
+}

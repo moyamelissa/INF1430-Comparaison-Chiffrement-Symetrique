@@ -1,0 +1,49 @@
+{
+  "created_utc": "20260723T164323Z",
+  "repo_root": "C:\\Users\\xmeli\\OneDrive\\Documents\\GitHub\\INF1430-Comparaison-Chiffrement-Symetrique",
+  "project_root": "C:\\Users\\xmeli\\OneDrive\\Documents\\GitHub\\INF1430-Comparaison-Chiffrement-Symetrique\\crypto-experiments",
+  "commit": "42287fea9ad5a58c1d0a2db678c695fc25d4eb64",
+  "skip_run": false,
+  "commands": [
+    {
+      "name": "pytest",
+      "command": [
+        "C:\\Users\\xmeli\\OneDrive\\Documents\\GitHub\\INF1430-Comparaison-Chiffrement-Symetrique\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "returncode": 1,
+      "output_file": "pytest.log"
+    },
+    {
+      "name": "kat",
+      "command": [
+        "C:\\Users\\xmeli\\OneDrive\\Documents\\GitHub\\INF1430-Comparaison-Chiffrement-Symetrique\\.venv\\Scripts\\python.exe",
+        "scripts/run_kat.py",
+        "--twofish-profile",
+        "full",
+        "--twofish-checksum",
+        "warn",
+        "--quiet"
+      ],
+      "returncode": 0,
+      "output_file": "kat.log"
+    },
+    {
+      "name": "ic95",
+      "command": [
+        "C:\\Users\\xmeli\\OneDrive\\Documents\\GitHub\\INF1430-Comparaison-Chiffrement-Symetrique\\.venv\\Scripts\\python.exe",
+        "scripts/audit/audit_ic95.py",
+        "--enforce-gates"
+      ],
+      "returncode": 0,
+      "output_file": "ic95.log"
+    }
+  ],
+  "artifacts": {
+    "coverage_xml": true,
+    "ic95_raw_rows": true,
+    "ic95_audit_report": true
+  }
+}

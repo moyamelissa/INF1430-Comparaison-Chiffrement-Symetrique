@@ -19,15 +19,15 @@ python -m pytest
 ```
 
 **Texte à lire après la commande**
-Le résultat à retenir est que les 116 tests passent tous et la couverture atteint 100 %.
+Pour cette section Windows, je lis exactement les indicateurs affichés dans la sortie du terminal pour ce run précis.
 
-Les lignes de sorties nous communique bien cela, on voit que chaque fichier du projet affiche 100%, 1436 déclarations ont été exécutées, zéro ont été manquées, 422 branches ont été testées,puis la couverture totale est 100 %.
+Les lignes importantes à montrer sont celles-ci, avec les valeurs réellement observées à l'écran.
 
-- `collected 116 items` montre que toute la suite de tests a bien été détectée et planifiée.
-- `116 passed in 15.71s` montre que tous les tests détectés ont réussi, sans aucun échec dans un temps précis.
-- `Required test coverage of 100% reached. Total coverage: 100.00%` montre que le seuil de couverture exigé est atteint intégralement, à 100 %.
+- `collected <N> items` montre que toute la suite de tests a bien été détectée et planifiée sur Windows.
+- `<N> passed in <T>s` montre que tous les tests détectés ont réussi, sans aucun échec.
+- `Required test coverage of 100% reached. Total coverage: <P>%` confirme le niveau de couverture réellement mesuré pour ce run Windows.
 
-Donc au final, ces lignes prouvent deux choses à la fois. Premièrement, les tests fonctionnels passent tous, et  deuxièmement la couverture de code est complète sur le périmètre évalué.
+Donc au final, ces lignes prouvent deux choses à la fois. Premièrement, les tests fonctionnels passent tous. Deuxièmement, la couverture affichée est conforme aux critères retenus pour cette exécution Windows.
 
 C’est important parce que ces tests valident toute la chaîne logique du projet , donc les primitives de chiffrement, les modes, les KAT, les scripts de mesure et les scripts d’audit. Avant de présenter les résultats expérimentaux, je peux donc dire que le socle logiciel est déjà vérifié.
 
@@ -188,7 +188,7 @@ Je rejoue maintenant la même séquence complète sur Raspberry Pi, architecture
 python -m pytest
 ```
 
-Sur Raspberry Pi, la suite de tests s'exécute sans régression. 116 tests passent, 99.84 % de couverture est mesurée actuellement. Cela valide que la logique du projet fonctionne de manière identique sur deux architectures distinctes, aucun problème de portabilité, aucune dépendance spécifique à x86.
+Sur Raspberry Pi, je lis les mêmes indicateurs de sortie pour ce run Pi et je les compare à Windows. Le total `collected` et `passed` doit rester cohérent entre plateformes, tandis que le temps peut varier. La couverture affichée doit aussi être annoncée telle qu'elle apparaît dans la sortie Pi, afin de garder une conclusion factuelle et traçable.
 
 ---
 
