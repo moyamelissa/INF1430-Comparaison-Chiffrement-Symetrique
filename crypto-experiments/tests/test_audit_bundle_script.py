@@ -147,7 +147,8 @@ def test_main_passes_skip_run_flag(monkeypatch):
     assert seen == [True]
 
 
-def test_entrypoint_main_guard_skip_run(monkeypatch):
+def test_entrypoint_main_guard_skip_run(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("AUDIT_BUNDLE_DIR", str(tmp_path / "bundle"))
     monkeypatch.setattr(sys, "argv", [str(SCRIPT_PATH), "--skip-run"])
     with pytest.raises(SystemExit) as exc:
         runpy.run_path(str(SCRIPT_PATH), run_name="__main__")

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -24,7 +25,8 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 REPO_ROOT = PROJECT_ROOT.parent
-BUNDLES_DIR = PROJECT_ROOT / "data" / "evidence" / "bundle"
+_DEFAULT_BUNDLES_DIR = PROJECT_ROOT / "data" / "evidence" / "bundle"
+BUNDLES_DIR = Path(os.environ.get("AUDIT_BUNDLE_DIR", str(_DEFAULT_BUNDLES_DIR)))
 
 
 @dataclass
