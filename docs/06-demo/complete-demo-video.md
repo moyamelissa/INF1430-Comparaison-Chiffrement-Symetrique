@@ -71,7 +71,7 @@ python scripts/experiment.py
 * `[ok] All algorithms in the matrix completed successfully.`
   Ça veut dire que la campagne est complète et exploitable. Je peux ensuite passer à l’audit IC95 en sachant que les mesures ont bien été générées.
 
-Ce qui est important a retenir ici est que la validation KAT est essentielle, car elle confirme d’abord la conformité des implémentations aux vecteurs de référence. Elle donne ensuite un socle fiable pour interpréter les mesures de performance sans ambiguïté sur la justesse cryptographique
+Ce qui est important à retenir ici, c’est que la campagne de mesures a parcouru toute la matrice prévue, sans échec, et a généré des données exploitables pour la comparaison des performances. 
 
 ---
 
