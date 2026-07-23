@@ -100,6 +100,12 @@ Puis on peut maitenant analyser la sortie, on vois dabord
 * `Quality gate enforcement: PASS`
   Le message final confirme que tout l’audit est accepté. C’est important parce que je peux ensuite passer aux graphes avec des mesures déjà validées.
 
+Cas important à expliquer pendant la démo. Il peut arriver qu’un premier audit sorte en échec global, puis qu’un second passe juste après. Par exemple, j’ai obtenu une fois `PASS=220 FAIL=90` avec `Gate 2` en échec à `83.33%`, puis après nettoyage ou retrait d’un run instable j’ai obtenu `PASS=253 FAIL=57` avec `Gate 2` à `91.40%`, donc accepté.
+
+Pourquoi cela arrive. Le rapport `Summary` compte des PASS et FAIL locaux par configuration. Les quality gates, elles, jugent la qualité globale selon des règles précises. Gate 2 ne regarde que les tailles `>= 1024B`, et exige au moins `90%` de configurations PASS dans ce sous-ensemble. Donc un fichier d’expérience additionnel comme un `experience4` plus bruité peut faire baisser ce taux sous 90% et provoquer `Quality gate enforcement: FAIL`.
+
+Ce qu’on apprend ici est important pour l’analyse. L’audit n’est pas contradictoire. Il est sensible au jeu de données réellement présent dans `data/results/` au moment de l’exécution. Si on ajoute ou retire un run, les agrégats et les gates changent, ce qui est attendu. C’est justement cette transparence qui rend le contrôle crédible.
+
 En résumé, l’IC95 est notre garde-fou statistique. Il confirme que nos mesures sont stables, reproductibles et assez précises pour comparer sérieusement les algorithmes. Avec les tests et les KAT, on valide le quoi. Avec l’IC95, on valide la confiance dans les chiffres.
 
 ---
@@ -150,12 +156,6 @@ python scripts/audit/audit_bundle.py --skip-run
 ```
 
 Avec cette commande, le script crée un dossier horodaté dans `data/evidence/bundle/`. À l’intérieur, on retrouve le manifeste du run, les logs disponibles et les artefacts copiés comme `coverage.xml`.
-YYYY = année
-MM = mois
-DD = jour
-T = séparateur date/heure (format ISO)
-HHMMSS = heure minute seconde
-Z = UTC (temps universel)
 
 Le point important à dire ici, c’est que le bundle ne remplace pas les tests ou l’audit. Il sert à les documenter et à les rendre auditable. C’est une bonne pratique parce qu’on ne se contente pas d’affirmer que les résultats sont bons. On garde aussi les logs, les rapports et le contexte exact du run pour qu’une autre personne puisse les vérifier plus tard.
 
