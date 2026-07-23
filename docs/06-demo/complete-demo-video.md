@@ -24,8 +24,7 @@ Pour cette section Windows, je lis exactement les indicateurs affichés dans la 
 Les lignes importantes à montrer sont celles-ci, avec les valeurs réellement observées à l'écran.
 
 - `collected <N> items` montre que toute la suite de tests a bien été détectée et planifiée sur Windows.
-- `<N> passed in <T>s` montre que tous les tests détectés ont réussi, sans aucun échec.
-- `Required test coverage of 100% reached. Total coverage: <P>%` confirme le niveau de couverture réellement mesuré pour ce run Windows.
+- Le rapport indique 1468 déclarations exécutées, aucune manquée, 422 branches testées, pour une couverture totale de 100 %
 
 Donc au final, ces lignes prouvent deux choses à la fois. Premièrement, les tests fonctionnels passent tous. Deuxièmement, la couverture affichée est conforme aux critères retenus pour cette exécution Windows.
 
