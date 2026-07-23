@@ -83,28 +83,36 @@ L'étape suivante est l'audit statistique IC95. Cet audit traite les données br
 python scripts/audit/audit_ic95.py --enforce-gates
 ```
 
-Puis on peut maitenant analyser la sortie, on vois dabord
+Puis on peut maintenant analyser la sortie. Dans mon cas de démonstration, je montre d’abord une sortie en échec global pour expliquer la logique de décision.
 
 * `Raw IC95 rows exported`
-  Cette ligne montre que les mesures brutes ont bien été exportées. C’est la première preuve que l’audit travaille sur des données réelles.
+  Cette ligne confirme que les lignes brutes ont été recalculées et exportées. L’audit travaille bien sur des données réelles, pas sur un résultat en cache.
 * `Grouped IC95 audit exported`
-  Ici, l’audit regroupé est produit. Cela veut dire qu’on passe d’une sortie brute à une version structurée, plus facile à exploiter.
-* `Summary: PASS=281 FAIL=29 TOTAL=310`
-  Ce résumé me donne le volume total de contrôles effectués. Le point important, c’est qu’on voit tout de suite qu’il y a un vrai traitement statistique derrière l’audit.
+  Cette ligne confirme la création du rapport agrégé par configuration, qui sert aux verdicts PASS et FAIL.
+* `Included result CSV files (7)`
+  Ce tableau est important. Il montre exactement quels fichiers de `data/results/` sont inclus dans le calcul, dont `windows_experience4_20260723.csv`.
+* `Summary: PASS=232 FAIL=78 TOTAL=310`
+  Ici, on voit qu’il existe des FAIL locaux sur certaines configurations, même si le pipeline s’est exécuté correctement.
 * `Gate 1 - min repetitions >= 100: PASS`
-  Cette gate vérifie qu’il y a assez de répétitions pour que les mesures soient crédibles.
-* `Gate 2 - message_size >= 1024B pass rate >= 90.00%: PASS`
-  Cette gate montre que les grands messages passent à un taux suffisamment élevé. C’est important pour valider la stabilité sur les tailles qui comptent vraiment.
-* `Gate 3 - outliers (ic95_relative_pct_mean > 20.00%) <= 20: PASS`
-  Cette gate contrôle qu’il n’y a pas trop de valeurs aberrantes. Elle m’aide à montrer que les résultats sont cohérents et utilisables.
-* `Quality gate enforcement: PASS`
-  Le message final confirme que tout l’audit est accepté. C’est important parce que je peux ensuite passer aux graphes avec des mesures déjà validées.
+  Les répétitions minimales sont suffisantes.
+* `Gate 2 - message_size >= 1024B pass rate >= 90.00%: FAIL (pass_rate=86.56%, pass=161/186)`
+  Cette gate provoque l’échec global. Le taux passe sous 90 % pour les tailles importantes.
+* `Gate 3 - outliers (...) <= 20: PASS`
+  Le nombre d’outliers sévères reste dans la limite.
+* `Quality gate enforcement: FAIL`
+  Le verdict final est FAIL parce qu’une gate critique, ici Gate 2, est en échec.
 
-Cas important à expliquer pendant la démo. Il peut arriver qu’un premier audit sorte en échec global, puis qu’un second passe juste après. Par exemple, j’ai obtenu une fois `PASS=220 FAIL=90` avec `Gate 2` en échec à `83.33%`, puis après nettoyage ou retrait d’un run instable j’ai obtenu `PASS=253 FAIL=57` avec `Gate 2` à `91.40%`, donc accepté.
+Ensuite, pendant la démo, je retire temporairement `windows_experience4_20260723.csv` pour montrer l’impact d’un run plus bruité sur le verdict global, puis je relance le même audit IC95.
 
-Pourquoi cela arrive. Le rapport `Summary` compte des PASS et FAIL locaux par configuration. Les quality gates, elles, jugent la qualité globale selon des règles précises. Gate 2 ne regarde que les tailles `>= 1024B`, et exige au moins `90%` de configurations PASS dans ce sous-ensemble. Donc un fichier d’expérience additionnel comme un `experience4` plus bruité peut faire baisser ce taux sous 90% et provoquer `Quality gate enforcement: FAIL`.
+```powershell
+Rename-Item data/results/windows_experience4_20260723.csv tmp_experiment4_excluded.csv
+python scripts/audit/audit_ic95.py --enforce-gates
+Rename-Item data/results/tmp_experiment4_excluded.csv windows_experience4_20260723.csv
+```
 
-Ce qu’on apprend ici est important pour l’analyse. L’audit n’est pas contradictoire. Il est sensible au jeu de données réellement présent dans `data/results/` au moment de l’exécution. Si on ajoute ou retire un run, les agrégats et les gates changent, ce qui est attendu. C’est justement cette transparence qui rend le contrôle crédible.
+Après ce retrait temporaire, la sortie remonte à `PASS=253 FAIL=57 TOTAL=310` avec `Gate 2` à `91.40%` et `Quality gate enforcement: PASS`.
+
+Le message à retenir est simple. Le script n’est pas contradictoire. Il est sensible au jeu de fichiers réellement inclus dans l’audit. On n’est pas limité à trois expériences par machine. On peut ajouter un `experiment4` ou `experiment5`, mais chaque run doit respecter la qualité statistique exigée pour rester dans les gates.
 
 En résumé, l’IC95 est notre garde-fou statistique. Il confirme que nos mesures sont stables, reproductibles et assez précises pour comparer sérieusement les algorithmes. Avec les tests et les KAT, on valide le quoi. Avec l’IC95, on valide la confiance dans les chiffres.
 

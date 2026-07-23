@@ -385,6 +385,13 @@ def main() -> int:
 
     print(f"Raw IC95 rows exported: {args.raw_out.resolve()}")
     print(f"Grouped IC95 audit exported: {args.out.resolve()}")
+    file_names = [path.name for path in files]
+    name_width = max(len("file"), *(len(name) for name in file_names))
+    print(f"Included result CSV files ({len(files)}):")
+    print(f"   {'#':>2} | {'file':<{name_width}}")
+    print(f"   {'-' * 2}-+-{'-' * name_width}")
+    for index, name in enumerate(file_names, start=1):
+        print(f"   {index:>2} | {name:<{name_width}}")
     print(f"Threshold (relative IC95): <= {args.threshold_rel:.2f}%")
     print(f"Summary: PASS={passed} FAIL={failed} TOTAL={total}")
     print("\nQuality gates:")
