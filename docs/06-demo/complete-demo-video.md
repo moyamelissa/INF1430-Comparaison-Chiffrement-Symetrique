@@ -176,6 +176,24 @@ Donc maitnenat on peut dire que la demo pour windows est completer, car la véri
 
 ---
 
+## Section 1.7 - Création du bundle de preuves (Windows)
+
+Pour terminer la partie Windows, je regroupe maintenant les preuves dans un bundle. L’objectif n’est pas de produire de nouveaux résultats, mais de conserver une trace propre et vérifiable de tout ce qui a déjà été exécuté.
+
+```powershell
+python scripts/audit/audit_bundle.py --skip-run
+```
+
+Avec cette commande, le script crée un dossier horodaté dans `data/evidence/bundle/`. À l’intérieur, on retrouve le manifeste du run, les logs disponibles et les artefacts copiés comme `coverage.xml`.
+
+Le point important à dire ici, c’est que le bundle ne remplace pas les tests ou l’audit. Il sert à les documenter et à les rendre auditable. C’est une bonne pratique parce qu’on ne se contente pas d’affirmer que les résultats sont bons. On garde aussi les logs, les rapports et le contexte exact du run pour qu’une autre personne puisse les vérifier plus tard.
+
+En pratique, ça montre trois choses. D’abord, la reproductibilité, parce qu’on peut relier les preuves à une exécution précise. Ensuite, la transparence, parce que les artefacts sont regroupés au lieu d’être dispersés. Enfin, la rigueur, parce qu’on conserve une preuve structurée au lieu de s’appuyer seulement sur une explication orale ou sur une capture d’écran.
+
+Donc, si je veux montrer que le projet est développé de manière responsable, cette étape est importante. Elle montre que les résultats sont non seulement calculés correctement, mais aussi archivés de manière propre, traçable et facile à relire.
+
+---
+
 ## SECTION 2 - Validation sur Raspberry Pi
 
 Je rejoue maintenant la même séquence complète sur Raspberry Pi, architecture ARMv7. Les scripts, les seuils et les paramètres sont identiques à Windows. L'objectif est de démontrer que le pipeline entier est reproductible et portable sur une plateforme ARM.

@@ -80,8 +80,9 @@ def test_build_bundle_skip_run_collects_existing_artifacts(tmp_path: Path, monke
     project_root.mkdir(parents=True, exist_ok=True)
     repo_root.mkdir(parents=True, exist_ok=True)
     (project_root / "data" / "evidence").mkdir(parents=True, exist_ok=True)
+    (project_root / "data" / "evidence" / "test").mkdir(parents=True, exist_ok=True)
 
-    (project_root / "coverage.xml").write_text("cov", encoding="utf-8")
+    (project_root / "data" / "evidence" / "test" / "coverage.xml").write_text("cov", encoding="utf-8")
     (project_root / "data" / "evidence" / "ic95_raw_rows.csv").write_text("raw", encoding="utf-8")
     (project_root / "data" / "evidence" / "ic95_audit_report.csv").write_text("report", encoding="utf-8")
 
@@ -103,6 +104,36 @@ def test_build_bundle_skip_run_collects_existing_artifacts(tmp_path: Path, monke
     assert manifest["artifacts"]["coverage_xml"] is True
     assert manifest["artifacts"]["ic95_raw_rows"] is True
     assert manifest["artifacts"]["ic95_audit_report"] is True
+
+
+def test_build_bundle_skip_run_uses_legacy_coverage_fallback(tmp_path: Path, monkeypatch):
+    module = _load_module()
+
+    project_root = tmp_path / "project"
+    repo_root = tmp_path / "repo"
+    bundles_dir = project_root / "data" / "evidence" / "bundle"
+    project_root.mkdir(parents=True, exist_ok=True)
+    repo_root.mkdir(parents=True, exist_ok=True)
+    (project_root / "data" / "evidence").mkdir(parents=True, exist_ok=True)
+
+    (project_root / "coverage.xml").write_text("legacy-cov", encoding="utf-8")
+    (project_root / "data" / "evidence" / "ic95_raw_rows.csv").write_text("raw", encoding="utf-8")
+    (project_root / "data" / "evidence" / "ic95_audit_report.csv").write_text("report", encoding="utf-8")
+
+    monkeypatch.setattr(module, "PROJECT_ROOT", project_root)
+    monkeypatch.setattr(module, "REPO_ROOT", repo_root)
+    monkeypatch.setattr(module, "BUNDLES_DIR", bundles_dir)
+    monkeypatch.setattr(module, "_git_rev_parse_head", lambda _repo: "deadbeef")
+
+    rc = module.build_bundle(skip_run=True)
+    assert rc == 0
+
+    bundle_dirs = list(bundles_dir.glob("bundle-*"))
+    assert len(bundle_dirs) == 1
+    bundle_dir = bundle_dirs[0]
+
+    manifest = json.loads((bundle_dir / "bundle_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["artifacts"]["coverage_xml"] is True
 
 
 def test_build_bundle_with_failed_command_returns_2(tmp_path: Path, monkeypatch):

@@ -127,7 +127,10 @@ def build_bundle(skip_run: bool) -> int:
         )
 
     copied_artifacts: dict[str, bool] = {
-        "coverage_xml": _copy_if_exists(PROJECT_ROOT / "coverage.xml", artifacts_dir / "coverage.xml"),
+        "coverage_xml": _copy_if_exists(
+            PROJECT_ROOT / "data" / "evidence" / "test" / "coverage.xml",
+            artifacts_dir / "coverage.xml",
+        ) or _copy_if_exists(PROJECT_ROOT / "coverage.xml", artifacts_dir / "coverage.xml"),
         "ic95_raw_rows": _copy_if_exists(
             PROJECT_ROOT / "data" / "evidence" / "ic95_raw_rows.csv",
             artifacts_dir / "ic95_raw_rows.csv",
