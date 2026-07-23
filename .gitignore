@@ -18,3 +18,4 @@ htmlcov/
 crypto-experiments/.coverage
 crypto-experiments/coverage.xml
 crypto-experiments/htmlcov/
+!crypto-experiments/data/evidence/test/coverage.xml
