@@ -275,19 +275,19 @@ Le job échoue si les gates de qualité ne sont pas respectés, et publie deux a
 
 Les vecteurs Twofish (`ECB_VK.TXT`, `ECB_VT.TXT`, `ECB_TBL.TXT`) sont aussi protégés par des sidecars `.sha256` pour vérifier l'intégrité des données de test avant l'exécution KAT.
 
-Mesures à 4 096 octets, meilleure clé, ECB (sauf ChaCha20 → Stream), 100 répétitions.
+Mesures à 4 096 octets, meilleure clé, ECB (sauf ChaCha20 -> Stream), moyennes sur les campagnes CSV disponibles par plateforme.
 
 | Algorithme | Débit x86 (MB/s) | Débit ARM (MB/s) | Ratio x86/ARM |
 |---|---|---|---|
-| AES-256 | 162,6 | 39,9 | **4,1×** |
-| ChaCha20-256 | 93,9 | 58,1 | **1,6×** |
-| DES-56 | 34,6 | 17,5 | 2,0× |
-| 3DES-192 | 6,0 | 4,7 | 1,3× |
-| Twofish-256 | 2,8 | 1,3 | 2,3× |
+| AES-256 | 125,73 | 36,41 | **3,45×** |
+| ChaCha20-256 | 83,53 | 61,09 | **1,37×** |
+| DES-64 | 29,90 | 20,75 | 1,44× |
+| 3DES-192 | 8,01 | 6,40 | 1,25× |
+| Twofish-256 | 2,37 | 1,32 | 1,79× |
 
 **Observations clés :**
-- AES bénéficie massivement de l'accélération matérielle AES-NI sur x86 (ratio 4,1×).
-- ChaCha20 est l'algorithme le plus portable (ratio 1,6×) — aucune dépendance matérielle.
+- AES bénéficie massivement de l'accélération matérielle AES-NI sur x86 (ratio 3,45×).
+- ChaCha20 est l'algorithme le plus portable (ratio 1,37×), avec l'écart x86/ARM le plus faible.
 - Twofish est l'algorithme le plus lent sur les deux plateformes.
 - DES et 3DES produisent des résultats cohérents avec leur statut déprécié.
 
@@ -300,7 +300,7 @@ Les CSV sont versionnés dans `crypto-experiments/data/results/` :
 - `windows_experienceN_YYYYMMDD.csv` — campagnes Windows x86
 - `raspberry_experienceN_YYYYMMDD.csv` — campagnes Raspberry Pi ARM
 
-> Les expériences 1 et 2 sont conservées pour traçabilité historique.
+> Les campagnes successives sont conservées pour traçabilité historique.
 
 ---
 
