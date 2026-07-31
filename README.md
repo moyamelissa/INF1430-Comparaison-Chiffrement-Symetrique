@@ -243,7 +243,7 @@ Le projet inclut une suite de validation fonctionnelle basée sur des vecteurs s
 | Suite KAT | Norme | Fichier |
 |---|---|---|
 | AES | FIPS 197 | `validation/kat_aes.py` |
-| DES | NIST SP 800-67 | `validation/kat_des.py` |
+| DES | FIPS 46-3 + NIST SP 800-17 | `validation/kat_des.py` |
 | 3DES | NIST SP 800-67 | `validation/kat_3des.py` |
 | ChaCha20 | RFC 8439 | `validation/kat_chacha20.py` |
 | GCM | NIST SP 800-38D | `validation/kat_gcm.py` |
