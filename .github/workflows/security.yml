@@ -34,6 +34,10 @@ jobs:
     name: Bandit static analysis
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: crypto-experiments
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -52,12 +56,15 @@ jobs:
 
       - name: Run Bandit scan
         run: |
-          cd crypto-experiments
           python -m bandit -r application domain scripts --confidence high --severity high
 
   pip-audit:
     name: Dependency vulnerability scan
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: crypto-experiments
 
     steps:
       - name: Check out repository
@@ -77,5 +84,4 @@ jobs:
 
       - name: Run pip-audit
         run: |
-          cd crypto-experiments
           python -m pip_audit --requirements requirements.txt
