@@ -26,10 +26,11 @@
 8. [Exécution rapide](#exécution-rapide)
 9. [Validation et tests](#validation-et-tests)
 10. [Audit IC95 en CI](#audit-ic95-en-ci)
-11. [Résultats clés](#résultats-clés)
-12. [Données brutes](#données-brutes)
-13. [Reproductibilité](#reproductibilité)
-14. [Références](#références)
+11. [Approche SSDLC et DevSecOps](#approche-ssdlc-et-devsecops)
+12. [Résultats clés](#résultats-clés)
+13. [Données brutes](#données-brutes)
+14. [Reproductibilité](#reproductibilité)
+15. [Références](#références)
 
 ---
 
@@ -278,30 +279,31 @@ Les vecteurs Twofish (`ECB_VK.TXT`, `ECB_VT.TXT`, `ECB_TBL.TXT`) sont aussi prot
 
 Mesures à 4 096 octets, meilleure clé, ECB (sauf ChaCha20 -> Stream), moyennes sur les campagnes CSV disponibles par plateforme.
 
-## DevSecOps et pipeline de sécurité
+## Approche SSDLC et DevSecOps
 
-Ce dépôt est maintenant équipé d'une chaîne DevSecOps simple mais solide.
+Le projet applique une approche SSDLC (Secure Software Development Life Cycle) adaptée à un contexte académique orienté expérimentation cryptographique. L'objectif est de rendre la sécurité vérifiable, reproductible et continue, au même titre que la performance.
 
-Dans le cycle de vie logiciel (SDLC), nous avons relié les phases de validation, d'audit et de maintenance :
-- planification des expériences et des validations KAT,
-- mise en œuvre dans des scripts reproductibles,
-- validation automatique par tests et audits,
-- scan de sécurité des dépendances et du code,
-- mise à jour continue via Dependabot.
+Le cycle est structuré en cinq pratiques opérationnelles.
 
-Ce n'est pas seulement un workflow ; c'est une mentalité : intégrer la qualité et la sécurité dès la phase de développement et les conserver tout au long du projet.
+- Planifier les contrôles : définir en amont les exigences de conformité (KAT), les critères statistiques (IC95) et les points de contrôle de sécurité.
+- Construire de manière reproductible : centraliser l'exécution dans des scripts versionnés pour limiter les écarts entre exécution locale et CI.
+- Vérifier automatiquement : exécuter tests, audits statistiques et analyses de sécurité à chaque `push` et `pull_request`.
+- Réduire l'exposition : détecter les vulnérabilités connues des dépendances et les faiblesses de code tôt dans le pipeline.
+- Maintenir dans le temps : automatiser la mise à jour des dépendances et conserver des artefacts d'évidence pour la traçabilité.
 
-- CI de validation continue sur `push` et `pull_request` avec `python -m pytest`.
-- Détection de vulnérabilités de dépendances via `pip-audit`.
-- Analyse de sécurité de code Python par CodeQL.
-- Scan statique de sécurité Python avec `bandit`.
-- Mise à jour automatique des dépendances via Dependabot.
+Contrôles DevSecOps en place :
+
+- Validation continue via `pytest`.
+- Analyse de dépendances avec `pip-audit`.
+- Analyse statique de sécurité Python avec `bandit`.
+- Analyse CodeQL pour Python et workflows GitHub Actions.
+- Mises à jour automatiques via Dependabot.
 
 Fichiers CI concernés :
 
-- `.github/workflows/tests.yml` — tests et scan de dépendances
-- `.github/workflows/security.yml` — CodeQL + bandit + pip-audit
-- `.github/dependabot.yml` — mise à jour hebdomadaire des dépendances Python
+- `.github/workflows/tests.yml` : tests, couverture et audit IC95.
+- `.github/workflows/security.yml` : CodeQL, bandit et scan de dépendances.
+- `.github/dependabot.yml` : stratégie de mise à jour hebdomadaire des dépendances.
 
 ### Commandes de vérification locale
 
@@ -314,6 +316,8 @@ python -m bandit -r application domain scripts
 ```
 
 > En CI, `security.yml` exécute CodeQL et un scan de sécurité statique, tandis que `tests.yml` garde l’exécution de la suite et le scan de dépendances sur tous les PRs.
+
+## Résultats clés
 
 | Algorithme | Débit x86 (MB/s) | Débit ARM (MB/s) | Ratio x86/ARM |
 |---|---|---|---|
@@ -380,8 +384,10 @@ Pour la comparaison multi-plateformes, copier les CSV des deux machines dans `da
 - NIST SP 800-67 — *Recommendation for the Triple Data Encryption Algorithm (TDEA)*, 2017.
 - RFC 8439 — *ChaCha20 and Poly1305 for IETF Protocols*, 2018.
 - Schneier, B. et al. *Twofish: A 128-Bit Block Cipher*, 1998.
-- GitHub Actions — *Automate CI/CD pipelines with workflow files*, GitHub Docs.
-- GitHub Dependabot — *Automate dependency updates for Python projects*, GitHub Docs.
-- GitHub CodeQL — *Code scanning and security analysis for open source projects*, GitHub Docs.
-- pip-audit — *Python dependency vulnerability scanner*, Python Audit Working Group.
-- Bandit — *Python security analyzer from OpenStack Security*, Bandit docs.
+- [OWASP SAMM](https://owaspsamm.org/) — *Software Assurance Maturity Model*.
+- [NIST SP 800-218 (SSDF)](https://csrc.nist.gov/publications/detail/sp/800-218/final) — *Secure Software Development Framework*.
+- [GitHub Actions](https://docs.github.com/actions) — *Automate CI/CD pipelines with workflow files*.
+- [GitHub Dependabot](https://docs.github.com/code-security/dependabot) — *Automate dependency updates*.
+- [GitHub CodeQL](https://docs.github.com/code-security/code-scanning/introduction-to-code-scanning/about-code-scanning-with-codeql) — *Code scanning and security analysis*.
+- [pip-audit](https://github.com/pypa/pip-audit) — *Python dependency vulnerability scanner*.
+- [Bandit](https://bandit.readthedocs.io/) — *Python security analyzer*.
