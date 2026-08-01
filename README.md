@@ -309,7 +309,7 @@ Fichiers CI concernés :
 cd crypto-experiments
 python -m pytest
 python -m pip install pip-audit bandit
-python -m pip_audit --requirements requirements.txt
+python -m pip_audit -r requirements.txt
 python -m bandit -r application domain scripts
 ```
 

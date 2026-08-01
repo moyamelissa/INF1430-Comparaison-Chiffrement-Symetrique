@@ -56,7 +56,7 @@ jobs:
 
       - name: Run Bandit scan
         run: |
-          python -m bandit -r application domain scripts --confidence high --severity high
+          python -m bandit -r application domain scripts --confidence-level high --severity-level high
 
   pip-audit:
     name: Dependency vulnerability scan
@@ -84,4 +84,4 @@ jobs:
 
       - name: Run pip-audit
         run: |
-          python -m pip_audit --requirements requirements.txt
+          python -m pip_audit -r requirements.txt
