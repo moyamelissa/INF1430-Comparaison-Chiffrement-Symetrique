@@ -122,3 +122,34 @@ def test_measure_key_avalanche_normal_path(monkeypatch):
     score = controller.measure_key_avalanche(trials=2)
 
     assert 0.0 <= score <= 1.0
+
+
+def test_normalize_avalanche_ciphertext_keeps_block_sized_output():
+    controller = _make_controller()
+
+    ciphertext = b"\xAA\xBB\xCC\xDD"
+
+    normalized = controller._normalize_avalanche_ciphertext(ciphertext, block_size=4)
+
+    assert normalized == ciphertext
+
+
+def test_normalize_avalanche_ciphertext_strips_12_byte_prefix():
+    controller = _make_controller()
+
+    payload = b"\x10\x20\x30\x40"
+    prefixed = (b"\x00" * 12) + payload
+
+    normalized = controller._normalize_avalanche_ciphertext(prefixed, block_size=4)
+
+    assert normalized == payload
+
+
+def test_normalize_avalanche_ciphertext_keeps_unexpected_length():
+    controller = _make_controller()
+
+    ciphertext = b"\x01\x02\x03\x04\x05"
+
+    normalized = controller._normalize_avalanche_ciphertext(ciphertext, block_size=4)
+
+    assert normalized == ciphertext
