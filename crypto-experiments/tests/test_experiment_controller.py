@@ -45,6 +45,33 @@ class UnstablePrimitive(ToyPrimitive):
         super().__init__(key)
 
 
+class NoncedToyPrimitive(ToyPrimitive):
+    nonce_size = 2
+    observed_nonces: list[bytes] = []
+
+    def __init__(self, key: bytes) -> None:
+        super().__init__(key)
+        self.used_nonces: list[bytes] = []
+
+    def encrypt_block(self, block: bytes) -> bytes:
+        if len(block) != self.block_size:
+            raise ValueError("bad block")
+        return bytes(block[i] ^ self._key[i % len(self._key)] for i in range(self.block_size))
+
+    def encrypt_block_with_nonce(self, block: bytes, nonce: bytes) -> bytes:
+        self.used_nonces.append(nonce)
+        type(self).observed_nonces.append(nonce)
+        masked = bytes((b ^ nonce[0]) for b in block)
+        return nonce + masked
+
+
+class ChaCha20(ToyPrimitive):
+    nonce_size = 2
+
+    def encrypt_block_with_nonce(self, block: bytes, nonce: bytes) -> bytes:
+        return nonce + block
+
+
 def _make_controller(primitive_cls: type[ToyPrimitive] = ToyPrimitive) -> ExperimentController:
     primitive = primitive_cls(bytes([0, 1, 2, 3]))
     mode = ToyMode(primitive)
@@ -98,6 +125,39 @@ def test_measure_avalanche_range(monkeypatch):
     score = controller.measure_avalanche(trials=4)
 
     assert 0.0 <= score <= 1.0
+
+
+def test_measure_key_avalanche_reuses_nonce_with_supported_primitive(monkeypatch):
+    NoncedToyPrimitive.observed_nonces = []
+    primitive = NoncedToyPrimitive(bytes([0, 1, 2, 3]))
+    mode = ToyMode(primitive)
+    engine = EncryptionEngine(primitive, mode)
+    controller = ExperimentController(engine, "TOY", "MODE")
+    values = iter([0, 0] * 20)
+
+    monkeypatch.setattr(experiment_module.os, "urandom", lambda n: bytes([9]) * n)
+    monkeypatch.setattr(experiment_module.secrets, "randbelow", lambda n: next(values))
+
+    score = controller.measure_key_avalanche(trials=3)
+
+    assert 0.0 <= score <= 1.0
+    assert len(NoncedToyPrimitive.observed_nonces) == 6
+    assert NoncedToyPrimitive.observed_nonces[0] == NoncedToyPrimitive.observed_nonces[1]
+    assert NoncedToyPrimitive.observed_nonces[2] == NoncedToyPrimitive.observed_nonces[3]
+    assert NoncedToyPrimitive.observed_nonces[4] == NoncedToyPrimitive.observed_nonces[5]
+
+
+def test_measure_avalanche_delegates_to_key_for_chacha20_like(monkeypatch):
+    primitive = ChaCha20(bytes([0, 1, 2, 3]))
+    mode = ToyMode(primitive)
+    engine = EncryptionEngine(primitive, mode)
+    controller = ExperimentController(engine, "CHACHA20", "STREAM")
+
+    monkeypatch.setattr(controller, "measure_key_avalanche", lambda trials=200: 0.42)
+
+    score = controller.measure_avalanche(trials=7)
+
+    assert score == 0.42
 
 
 def test_measure_key_avalanche_handles_modified_key_failure(monkeypatch):

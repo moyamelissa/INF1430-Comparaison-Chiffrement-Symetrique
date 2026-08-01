@@ -75,6 +75,19 @@ class ChaCha20(CipherPrimitive):
     def key_size(self) -> int:
         return len(self._key)
 
+    @property
+    def nonce_size(self) -> int:
+        return _NONCE_SIZE
+
+    def encrypt_block_with_nonce(self, plaintext: bytes, nonce: bytes) -> bytes:
+        """Chiffre avec un nonce imposé (utilisé pour diagnostics reproductibles)."""
+        if len(nonce) != _NONCE_SIZE:
+            raise ValueError(
+                f"ChaCha20 nonce must be exactly {_NONCE_SIZE} bytes; got {len(nonce)}."
+            )
+        cipher = _ChaCha20.new(key=self._key, nonce=nonce)
+        return nonce + cipher.encrypt(plaintext)
+
     def encrypt_block(self, plaintext: bytes) -> bytes:
         """
         Chiffre des données de longueur arbitraire.
@@ -82,8 +95,7 @@ class ChaCha20(CipherPrimitive):
         Format de sortie : nonce (12 octets) || texte chiffré
         """
         nonce = os.urandom(_NONCE_SIZE)
-        cipher = _ChaCha20.new(key=self._key, nonce=nonce)
-        return nonce + cipher.encrypt(plaintext)
+        return self.encrypt_block_with_nonce(plaintext, nonce)
 
     def decrypt_block(self, data: bytes) -> bytes:
         """

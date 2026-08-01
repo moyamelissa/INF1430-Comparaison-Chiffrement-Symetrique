@@ -217,6 +217,7 @@ def test_chacha20_roundtrip_and_validation():
     chacha = ChaCha20(bytes(range(32)))
     assert chacha.block_size == 64
     assert chacha.key_size == 32
+    assert chacha.nonce_size == 12
     plaintext = b"hello stream cipher"
     ciphertext = chacha.encrypt_block(plaintext)
     assert chacha.decrypt_block(ciphertext) == plaintext
@@ -224,6 +225,21 @@ def test_chacha20_roundtrip_and_validation():
 
     with pytest.raises(ValueError):
         chacha.decrypt_block(b"tiny")
+
+
+def test_chacha20_encrypt_block_with_nonce_is_deterministic():
+    chacha = ChaCha20(bytes(range(32)))
+    plaintext = b"hello stream cipher"
+    nonce = bytes(range(12))
+
+    ct1 = chacha.encrypt_block_with_nonce(plaintext, nonce)
+    ct2 = chacha.encrypt_block_with_nonce(plaintext, nonce)
+
+    assert ct1 == ct2
+    assert chacha.decrypt_block(ct1) == plaintext
+
+    with pytest.raises(ValueError):
+        chacha.encrypt_block_with_nonce(plaintext, b"short")
 
 
 def test_ecb_mode_positive_and_negative():

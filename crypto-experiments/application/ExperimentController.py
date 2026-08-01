@@ -21,6 +21,7 @@ import os
 import secrets
 import time
 from dataclasses import dataclass
+from typing import Optional
 
 from domain.engine.EncryptionEngine import EncryptionEngine
 
@@ -183,6 +184,11 @@ class ExperimentController:
             Proportion moyenne de bits de sortie qui ont changé (0,0 – 1,0).
         """
         primitive = self._engine.primitive
+        if self._is_chacha20_primitive(primitive):
+            # Pour ChaCha20, le test d'avalanche sur le texte clair n'est pas
+            # pertinent (XOR linéaire). On mesure donc l'avalanche sur la clé.
+            return self.measure_key_avalanche(trials=trials)
+
         bs = primitive.block_size
         total_bits = bs * 8
         scores = []
@@ -210,6 +216,16 @@ class ExperimentController:
             scores.append(diff_bits / total_bits)
 
         return sum(scores) / len(scores)
+
+    def _encrypt_for_avalanche(self, primitive, block: bytes, fixed_nonce: Optional[bytes]) -> bytes:
+        """Chiffre un bloc pour l'avalanche, avec nonce fixé si la primitive le supporte."""
+        if fixed_nonce is not None and hasattr(primitive, "encrypt_block_with_nonce"):
+            return primitive.encrypt_block_with_nonce(block, fixed_nonce)
+        return primitive.encrypt_block(block)
+
+    def _is_chacha20_primitive(self, primitive) -> bool:
+        """Détecte explicitement ChaCha20 pour la méthodologie d'avalanche adaptée."""
+        return primitive.__class__.__name__ == "ChaCha20"
 
     def _normalize_avalanche_ciphertext(self, ciphertext: bytes, block_size: int) -> bytes:
         """Normalise la sortie encrypt_block() pour les mesures d'avalanche.
@@ -261,9 +277,13 @@ class ExperimentController:
 
         for _ in range(trials):
             block = os.urandom(bs)
+            fixed_nonce = None
+            nonce_size = getattr(primitive, "nonce_size", 0)
+            if hasattr(primitive, "encrypt_block_with_nonce") and isinstance(nonce_size, int) and nonce_size > 0:
+                fixed_nonce = os.urandom(nonce_size)
 
             # Référence : chiffrement avec la clé originale
-            ref_ct = primitive.encrypt_block(block)
+            ref_ct = self._encrypt_for_avalanche(primitive, block, fixed_nonce)
 
             # Inverser un bit aléatoire dans la clé
             key_bytes = bytearray(self._engine.primitive._key)
@@ -279,7 +299,7 @@ class ExperimentController:
                 scores.append(0.5)  # valeur idéale supposée si la clé est dégénérée
                 continue
 
-            mod_ct = modified_prim.encrypt_block(block)
+            mod_ct = self._encrypt_for_avalanche(modified_prim, block, fixed_nonce)
 
             ref_ct = self._normalize_avalanche_ciphertext(ref_ct, bs)
             mod_ct = self._normalize_avalanche_ciphertext(mod_ct, bs)
