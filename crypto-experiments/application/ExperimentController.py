@@ -199,6 +199,9 @@ class ExperimentController:
 
             mod_ct = primitive.encrypt_block(bytes(modified))
 
+            ref_ct = self._normalize_avalanche_ciphertext(ref_ct, bs)
+            mod_ct = self._normalize_avalanche_ciphertext(mod_ct, bs)
+
             # Distance de Hamming
             diff_bits = sum(
                 bin(a ^ b).count("1")
@@ -207,6 +210,22 @@ class ExperimentController:
             scores.append(diff_bits / total_bits)
 
         return sum(scores) / len(scores)
+
+    def _normalize_avalanche_ciphertext(self, ciphertext: bytes, block_size: int) -> bytes:
+        """Normalise la sortie encrypt_block() pour les mesures d'avalanche.
+
+        Certaines primitives de flux (ChaCha20) renvoient un nonce préfixé au
+        début du texte chiffré. Pour mesurer la variation due au texte clair
+        perturbé uniquement, on ignore ce préfixe aléatoire quand la sortie est
+        plus longue que la taille d'un bloc.
+        """
+        if len(ciphertext) == block_size:
+            return ciphertext
+
+        if len(ciphertext) == block_size + 12:
+            return ciphertext[12:]
+
+        return ciphertext
 
     def measure_key_avalanche(self, trials: int = 200) -> float:
         """
@@ -261,6 +280,9 @@ class ExperimentController:
                 continue
 
             mod_ct = modified_prim.encrypt_block(block)
+
+            ref_ct = self._normalize_avalanche_ciphertext(ref_ct, bs)
+            mod_ct = self._normalize_avalanche_ciphertext(mod_ct, bs)
 
             diff_bits = sum(
                 bin(a ^ b).count("1")

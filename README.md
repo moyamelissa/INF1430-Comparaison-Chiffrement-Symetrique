@@ -8,6 +8,7 @@
 ![Validation](https://img.shields.io/badge/Validation-KAT%20NIST%20int%C3%A9gr%C3%A9s-2E7D32)
 ![Tests KAT](https://img.shields.io/badge/Tests%20KAT-100%25%20pass%C3%A9s-2E7D32)
 ![Audit IC95](https://img.shields.io/badge/Audit%20IC95-Gates%20CI%20actifs-2E7D32)
+![Dependabot](https://img.shields.io/badge/Dependabot-activ%C3%A9-0366d6?logo=dependabot&logoColor=white)
 
 > Projet académique — Université TÉLUQ · INF1430
 
@@ -277,6 +278,43 @@ Les vecteurs Twofish (`ECB_VK.TXT`, `ECB_VT.TXT`, `ECB_TBL.TXT`) sont aussi prot
 
 Mesures à 4 096 octets, meilleure clé, ECB (sauf ChaCha20 -> Stream), moyennes sur les campagnes CSV disponibles par plateforme.
 
+## DevSecOps et pipeline de sécurité
+
+Ce dépôt est maintenant équipé d'une chaîne DevSecOps simple mais solide.
+
+Dans le cycle de vie logiciel (SDLC), nous avons relié les phases de validation, d'audit et de maintenance :
+- planification des expériences et des validations KAT,
+- mise en œuvre dans des scripts reproductibles,
+- validation automatique par tests et audits,
+- scan de sécurité des dépendances et du code,
+- mise à jour continue via Dependabot.
+
+Ce n'est pas seulement un workflow ; c'est une mentalité : intégrer la qualité et la sécurité dès la phase de développement et les conserver tout au long du projet.
+
+- CI de validation continue sur `push` et `pull_request` avec `python -m pytest`.
+- Détection de vulnérabilités de dépendances via `pip-audit`.
+- Analyse de sécurité de code Python par CodeQL.
+- Scan statique de sécurité Python avec `bandit`.
+- Mise à jour automatique des dépendances via Dependabot.
+
+Fichiers CI concernés :
+
+- `.github/workflows/tests.yml` — tests et scan de dépendances
+- `.github/workflows/security.yml` — CodeQL + bandit + pip-audit
+- `.github/dependabot.yml` — mise à jour hebdomadaire des dépendances Python
+
+### Commandes de vérification locale
+
+```bash
+cd crypto-experiments
+python -m pytest
+python -m pip install pip-audit bandit
+python -m pip_audit --requirements requirements.txt
+python -m bandit -r application domain scripts
+```
+
+> En CI, `security.yml` exécute CodeQL et un scan de sécurité statique, tandis que `tests.yml` garde l’exécution de la suite et le scan de dépendances sur tous les PRs.
+
 | Algorithme | Débit x86 (MB/s) | Débit ARM (MB/s) | Ratio x86/ARM |
 |---|---|---|---|
 | AES-256 | 125,73 | 36,41 | **3,45×** |
@@ -342,3 +380,8 @@ Pour la comparaison multi-plateformes, copier les CSV des deux machines dans `da
 - NIST SP 800-67 — *Recommendation for the Triple Data Encryption Algorithm (TDEA)*, 2017.
 - RFC 8439 — *ChaCha20 and Poly1305 for IETF Protocols*, 2018.
 - Schneier, B. et al. *Twofish: A 128-Bit Block Cipher*, 1998.
+- GitHub Actions — *Automate CI/CD pipelines with workflow files*, GitHub Docs.
+- GitHub Dependabot — *Automate dependency updates for Python projects*, GitHub Docs.
+- GitHub CodeQL — *Code scanning and security analysis for open source projects*, GitHub Docs.
+- pip-audit — *Python dependency vulnerability scanner*, Python Audit Working Group.
+- Bandit — *Python security analyzer from OpenStack Security*, Bandit docs.
