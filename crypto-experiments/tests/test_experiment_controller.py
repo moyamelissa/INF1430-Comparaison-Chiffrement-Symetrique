@@ -5,6 +5,8 @@ import pytest
 experiment_module = importlib.import_module("application.ExperimentController")
 from application.ExperimentController import ExperimentController, ExperimentResult
 from domain.cipher.CipherPrimitive import CipherPrimitive
+from domain.cipher.DES import DES
+from domain.cipher.TripleDES import TripleDES
 from domain.engine import EncryptionEngine
 from domain.mode.OperationMode import OperationMode
 
@@ -182,6 +184,42 @@ def test_measure_key_avalanche_normal_path(monkeypatch):
     score = controller.measure_key_avalanche(trials=2)
 
     assert 0.0 <= score <= 1.0
+
+
+def test_choose_key_bit_to_flip_skips_des_parity_bits(monkeypatch):
+    primitive = DES(bytes.fromhex("133457799BBCDFF1"))
+    controller = ExperimentController(EncryptionEngine(primitive, ToyMode(primitive)), "DES", "ECB")
+
+    monkeypatch.setattr(experiment_module.secrets, "randbelow", lambda n: 0)
+
+    flip_byte, flip_bit = controller._choose_key_bit_to_flip(primitive, primitive.key_size)
+
+    assert flip_byte == 0
+    assert flip_bit == 1
+
+
+def test_choose_key_bit_to_flip_skips_3des_parity_bits(monkeypatch):
+    primitive = TripleDES(bytes.fromhex("0123456789ABCDEFFEDCBA987654321089ABCDEF01234567"))
+    controller = ExperimentController(EncryptionEngine(primitive, ToyMode(primitive)), "3DES", "ECB")
+
+    monkeypatch.setattr(experiment_module.secrets, "randbelow", lambda n: 0)
+
+    flip_byte, flip_bit = controller._choose_key_bit_to_flip(primitive, primitive.key_size)
+
+    assert flip_byte == 0
+    assert flip_bit == 1
+
+
+def test_measure_key_avalanche_does_not_flip_des_parity_bits(monkeypatch):
+    primitive = DES(bytes.fromhex("133457799BBCDFF1"))
+    controller = ExperimentController(EncryptionEngine(primitive, ToyMode(primitive)), "DES", "ECB")
+
+    monkeypatch.setattr(experiment_module.os, "urandom", lambda n: b"ABCDEFGH" if n == 8 else b"\x00" * n)
+    monkeypatch.setattr(experiment_module.secrets, "randbelow", lambda n: 0)
+
+    score = controller.measure_key_avalanche(trials=1)
+
+    assert score > 0.0
 
 
 def test_normalize_avalanche_ciphertext_keeps_block_sized_output():

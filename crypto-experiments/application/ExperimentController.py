@@ -243,6 +243,22 @@ class ExperimentController:
 
         return ciphertext
 
+    def _choose_key_bit_to_flip(self, primitive, key_size_bytes: int) -> tuple[int, int]:
+        """Choisit un bit de clé effectif à inverser pour l'avalanche clé.
+
+        DES et 3DES transportent 1 bit de parité par octet, ignoré par le
+        chiffrement effectif. Les inclure dans l'échantillonnage biaise la
+        mesure vers le bas, car inverser ce bit ne modifie pas le texte chiffré.
+        """
+        if primitive.__class__.__name__ in {"DES", "TripleDES"}:
+            effective_bits_per_byte = 7
+            effective_index = secrets.randbelow(key_size_bytes * effective_bits_per_byte)
+            flip_byte = effective_index // effective_bits_per_byte
+            flip_bit = 1 + (effective_index % effective_bits_per_byte)
+            return flip_byte, flip_bit
+
+        return secrets.randbelow(key_size_bytes), secrets.randbelow(8)
+
     def measure_key_avalanche(self, trials: int = 200) -> float:
         """
         Estime le score d'avalanche clé de la primitive.
@@ -287,8 +303,7 @@ class ExperimentController:
 
             # Inverser un bit aléatoire dans la clé
             key_bytes = bytearray(self._engine.primitive._key)
-            flip_byte = secrets.randbelow(ks)
-            flip_bit  = secrets.randbelow(8)
+            flip_byte, flip_bit = self._choose_key_bit_to_flip(primitive, ks)
             key_bytes[flip_byte] ^= (1 << flip_bit)
 
             # Construction d'une nouvelle primitive avec la clé modifiée — les clés
