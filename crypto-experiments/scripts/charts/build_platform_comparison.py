@@ -129,13 +129,13 @@ def cmp1_throughput_all():
     for bar, val in zip(bars_x86, x86_vals):
         if val > 0:
             ax.text(bar.get_x() + bar.get_width() / 2, val + max(x86_vals) * 0.01,
-                    f"{val:.0f}", ha="center", va="bottom",
+                    f"{val:.2f}", ha="center", va="bottom",
                     fontsize=8, color=TEXT_COLOR, fontweight="bold")
 
     for bar, val in zip(bars_pi, pi_vals):
         if val > 0:
             ax.text(bar.get_x() + bar.get_width() / 2, val + max(pi_vals) * 0.01,
-                    f"{val:.0f}", ha="center", va="bottom",
+                    f"{val:.2f}", ha="center", va="bottom",
                     fontsize=8, color=TEXT_COLOR, fontweight="bold")
 
     ax.set_xticks(x)
