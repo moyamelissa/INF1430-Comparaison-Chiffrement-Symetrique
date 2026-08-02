@@ -1,24 +1,31 @@
 # KAT-twofish
 
-Ce dossier contient les vecteurs KAT Twofish utilisés pour la validation du projet.
+Ce dossier contient une copie documentaire des vecteurs KAT Twofish utilisés dans le projet.
 
 ## Pourquoi ce dossier existe
 
 - Assurer la traçabilité des vecteurs utilisés dans les tests.
 - Permettre une validation reproductible, même hors ligne.
-- Conserver une source de référence locale pour les profils `core` et `full`.
+- Conserver une source de référence locale pour consultation.
 
 ## Contenu
 
-- `ECB_VK (2).TXT` : famille de vecteurs variable key.
-- `ECB_VT (2).TXT` : famille de vecteurs variable text.
-- `ECB_TBL (2).TXT` : famille de vecteurs table.
+- `ECB_VK.TXT` : famille de vecteurs variable key.
+- `ECB_VT.TXT` : famille de vecteurs variable text.
+- `ECB_TBL.TXT` : famille de vecteurs table.
 - `ECB_E_M.TXT`, `ECB_D_M.TXT`, `ECB_IVAL.TXT`, `CBC_E_M.TXT`, `CBC_D_M.TXT` : fichiers complémentaires.
-- `README (2)` : fichier d'origine fourni avec le corpus.
+
+## Source active utilisée par les scripts
+
+Les scripts KAT exécutent la validation Twofish depuis :
+
+- `resources/KAT/Twofish-kat/`
+
+Ce dossier actif contient aussi les empreintes `ECB_VK.TXT.sha256`, `ECB_VT.TXT.sha256` et `ECB_TBL.TXT.sha256` pour la vérification d'intégrité avant exécution du profil strict.
 
 ## Note sur la structure
 
-La structure a été simplifiée pour garder un seul dossier `KAT-twofish` sans sous-dossier imbriqué.
+Cette copie documentaire est volontairement plate et sans sous-dossier imbriqué.
 
 ## Référence de provenance
 

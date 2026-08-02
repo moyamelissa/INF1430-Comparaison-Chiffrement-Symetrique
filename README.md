@@ -2,7 +2,7 @@
 
 ![CI](https://img.shields.io/github/actions/workflow/status/moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique/tests.yml?branch=main)
 ![Coverage](https://img.shields.io/badge/Couverture-100%25-2E7D32)
-![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![Cryptographie](https://img.shields.io/badge/Cryptographie-Sym%C3%A9trique-1F7A8C)
 ![Plateformes](https://img.shields.io/badge/Plateformes-Windows%20x86%20%7C%20Raspberry%20Pi%20ARM-5C6BC0)
 ![Validation](https://img.shields.io/badge/Validation-KAT%20NIST%20int%C3%A9gr%C3%A9s-2E7D32)
@@ -124,8 +124,8 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 │   │   ├── charts/
 │   │   │   ├── build_performance.py
 │   │   │   ├── build_platform_comparison.py
-│   │   │   ├── build_avalanche_rounds.py
-│   │   │   └── build_ecb_demo.py
+│   │   │   ├── build_ecb_demo.py
+│   │   │   └── ...
 │   │   └── audit/
 │   │       ├── audit_ic95.py
 │   │       ├── audit_aggregates.py
@@ -140,23 +140,23 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 │   │   ├── kat_modes.py
 │   │   └── kat_twofish.py
 │   └── data/
-    ├── results/                     # CSV bruts — x86 et Raspberry Pi
-    ├── evidence/
-    │   └── audit/                   # Rapports IC95 et artefacts d'audit
-       └── charts/
-           ├── 01-throughput/           # Débits absolus, comparaisons plateformes, IC95
-           ├── 02-avalanche-effect/     # Scores d'avalanche par algorithme
-           ├── 03-encryption-modes/     # Impact des modes AES + demo ECB
-           │   └── demo-ecb/            # BMP de la demo visuelle ECB/CBC
-           └── 04-decision-support/     # Heatmap et radar multi-critères orientés décision
+│       ├── results/                  # CSV bruts - x86 et Raspberry Pi
+│       ├── evidence/                 # Rapports d'audit IC95, bundles et preuves
+│       ├── charts/
+│       │   ├── 01-throughput/        # Graphiques 01 a 04
+│       │   ├── 02-avalanche-effect/  # Graphiques 05 et 06
+│       │   ├── 03-encryption-modes/  # Graphiques 07 et 08
+│       │   │   └── demo-ecb/         # BMP de la demo visuelle ECB/CBC
+│       │   └── 04-decision-support/  # Graphiques 09 et 10
+│       └── logs/
 ├── docs/
 │   ├── 01-project-instructions/
 │   ├── 02-deliverables/
-│   ├── 03-analysis-and-calculations/
+│   ├── 03-feedback/
 │   ├── 04-raspberrypi-guides/
-│   ├── 05-feedback/
+│   ├── 05-KAT/
 │   ├── 06-demo/
-│   └── 07-KAT/
+│   └── 07-analysis-and-calculations/
 └── README.md
 ```
 
@@ -178,7 +178,7 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 
 ### Prérequis
 
-- Python 3.9+
+- Python 3.11+
 - `pip`
 
 ### Dépendances
@@ -228,13 +228,9 @@ python scripts/run_charts.py 03
 python scripts/run_charts.py 04
 ```
 
-### 5) Comparaison multi-plateformes
+### 5) Prérequis comparaison multi-plateformes
 
-> **Prérequis** : deux fichiers CSV doivent être présents dans `data/results/` — un nommé `windows_*.csv` et un `raspberry_*.csv`. Sans les deux, ce script quitte avec un avertissement.
-
-```bash
-python scripts/run_charts.py
-```
+> Deux fichiers CSV doivent être présents dans `data/results/` : un `windows_*.csv` et un `raspberry_*.csv`.
 
 ---
 
@@ -270,7 +266,7 @@ Commande utilisée :
 python scripts/audit/audit_ic95.py --enforce-gates
 ```
 
-Le job échoue si les gates de qualité ne sont pas respectés, et publie deux artefacts CSV :
+Le job échoue si les seuils de qualité ne sont pas respectés et publie deux artefacts CSV :
 
 - `crypto-experiments/data/evidence/ic95_raw_rows.csv`
 - `crypto-experiments/data/evidence/ic95_audit_report.csv`
@@ -315,23 +311,25 @@ python -m pip_audit -r requirements.txt
 python -m bandit -r application domain scripts
 ```
 
-> En CI, `security.yml` exécute CodeQL et un scan de sécurité statique, tandis que `tests.yml` garde l’exécution de la suite et le scan de dépendances sur tous les PRs.
+> En CI, `security.yml` exécute CodeQL et un scan de sécurité statique, tandis que `tests.yml` exécute la suite de tests et le scan de dépendances sur tous les PRs.
 
 ## Résultats clés
 
 | Algorithme | Débit x86 (MB/s) | Débit ARM (MB/s) | Ratio x86/ARM |
 |---|---|---|---|
-| AES-256 | 125,73 | 36,41 | **3,45×** |
-| ChaCha20-256 | 83,53 | 61,09 | **1,37×** |
-| DES-64 | 29,90 | 20,75 | 1,44× |
-| 3DES-192 | 8,01 | 6,40 | 1,25× |
-| Twofish-256 | 2,37 | 1,32 | 1,79× |
+| AES | 398,55 | 69,05 | **5,77×** |
+| ChaCha20 | 144,55 | 89,35 | **1,62×** |
+| DES | 38,78 | 31,85 | 1,22× |
+| 3DES | 13,80 | 11,39 | 1,21× |
+| Twofish | 3,14 | 1,44 | 2,18× |
 
 **Observations clés :**
-- AES bénéficie massivement de l'accélération matérielle AES-NI sur x86 (ratio 3,45×).
-- ChaCha20 est l'algorithme le plus portable (ratio 1,37×), avec l'écart x86/ARM le plus faible.
+- AES bénéficie massivement de l'accélération matérielle AES-NI sur x86 (ratio 5,77× sur débit maximal).
+- ChaCha20 reste l'algorithme le plus portable dans les lectures à taille fixée.
 - Twofish est l'algorithme le plus lent sur les deux plateformes.
-- DES et 3DES produisent des résultats cohérents avec leur statut déprécié.
+- DES et 3DES produisent des résultats cohérents avec leur statut obsolète.
+
+Ces valeurs correspondent au tableau de synthèse de la campagne consolidée dans [docs/07-analysis-and-calculations/INF1430-TN4-Melissa-Moya.md](docs/07-analysis-and-calculations/INF1430-TN4-Melissa-Moya.md).
 
 ---
 

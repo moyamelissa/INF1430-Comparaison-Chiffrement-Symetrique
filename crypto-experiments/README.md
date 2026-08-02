@@ -46,10 +46,20 @@ Depuis `crypto-experiments/` :
 python scripts/experiment.py
 python scripts/run_kat.py --quiet
 python scripts/audit/audit_ic95.py --enforce-gates
-python scripts/run_charts.py all
+python scripts/run_charts.py
+```
+
+Génération ciblée par dossier :
+
+```powershell
+python scripts/run_charts.py 01
+python scripts/run_charts.py 02
+python scripts/run_charts.py 03
+python scripts/run_charts.py 04
 ```
 
 ## Notes
 
 - Les artefacts de couverture et de tests (`.coverage`, `htmlcov/`, `coverage.xml`) sont des fichiers générés.
-- Les principales sorties d’evidence reproductible sont dans `data/evidence/`.
+- Les principales sorties d'évidence reproductible sont dans `data/evidence/` (`ic95_raw_rows.csv`, `ic95_audit_report.csv`, `bundle/`).
+- Les graphiques du rapport sont générés directement sous la forme `graph-01` à `graph-10` dans `data/charts/`.

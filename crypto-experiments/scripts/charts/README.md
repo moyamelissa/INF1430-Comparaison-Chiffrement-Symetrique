@@ -3,7 +3,7 @@
 ## Objectif
 
 Ce répertoire regroupe la chaîne complète de génération des graphiques du projet INF1430.
-La structure est organisée pour séparer clairement:
+La structure est organisée pour séparer clairement :
 
 - la préparation des données,
 - la construction des figures,
@@ -12,7 +12,7 @@ La structure est organisée pour séparer clairement:
 
 ## Architecture
 
-Le dossier suit une convention de nommage stricte:
+Le dossier suit une convention de nommage stricte :
 
 - `data_*.py`: préparation et calcul des données d'entrée.
 - `build_*.py`: logique de construction des graphiques réutilisables.
@@ -34,8 +34,11 @@ Responsabilité:
 
 - `data_performance.py`
 - `data_platform.py`
-- `data_avalanche_rounds.py`
 - `data_ecb_demo.py`
+
+Module complémentaire conservé pour analyses exploratoires hors rapport :
+
+- `data_avalanche_rounds.py`
 
 Responsabilité:
 - charger les sources (`data/results/`),
@@ -55,13 +58,18 @@ Responsabilité:
 
 - `build_performance.py`
 - `build_platform_comparison.py`
-- `build_avalanche_rounds.py`
 - `build_ecb_demo.py`
+
+Module complémentaire conservé pour analyses exploratoires hors rapport :
+
+- `build_avalanche_rounds.py`
 
 Responsabilité:
 - appliquer la logique métier de tracé,
 - produire les figures PNG/BMP à partir des données préparées,
 - exposer des fonctions appelables par `scripts/run_charts.py` et les commandes ciblées.
+
+Le pipeline principal `scripts/run_charts.py` est centré sur les 10 graphiques du rapport final (`graph-01` à `graph-10`).
 
 ## Exécution
 
