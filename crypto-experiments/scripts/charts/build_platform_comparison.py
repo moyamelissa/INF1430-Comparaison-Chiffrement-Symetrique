@@ -122,13 +122,19 @@ def cmp1_throughput_all():
     bars_x86 = ax.bar(x - w/2, x86_vals, w, label="Laptop x86 (Windows)",
                       color=colors, edgecolor=BG_COLOR, linewidth=0.8,
                       alpha=PLATFORM_STYLE["x86"]["alpha"])
-    ax.bar(x + w/2, pi_vals, w, label="Raspberry Pi (ARM)",
-           color=colors, edgecolor=BG_COLOR, linewidth=0.8,
-           alpha=PLATFORM_STYLE["pi"]["alpha"], hatch="//")
+    bars_pi = ax.bar(x + w/2, pi_vals, w, label="Raspberry Pi (ARM)",
+                     color=colors, edgecolor=BG_COLOR, linewidth=0.8,
+                     alpha=PLATFORM_STYLE["pi"]["alpha"], hatch="//")
 
     for bar, val in zip(bars_x86, x86_vals):
         if val > 0:
             ax.text(bar.get_x() + bar.get_width() / 2, val + max(x86_vals) * 0.01,
+                    f"{val:.0f}", ha="center", va="bottom",
+                    fontsize=8, color=TEXT_COLOR, fontweight="bold")
+
+    for bar, val in zip(bars_pi, pi_vals):
+        if val > 0:
+            ax.text(bar.get_x() + bar.get_width() / 2, val + max(pi_vals) * 0.01,
                     f"{val:.0f}", ha="center", va="bottom",
                     fontsize=8, color=TEXT_COLOR, fontweight="bold")
 
