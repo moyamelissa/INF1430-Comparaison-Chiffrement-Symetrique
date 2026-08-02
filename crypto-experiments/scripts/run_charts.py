@@ -24,7 +24,6 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
-from charts import build_avalanche_rounds as rounds
 from charts import build_ecb_demo as ecb_demo
 from charts import build_performance as perf
 from charts import build_platform_comparison as platform_cmp
@@ -38,7 +37,6 @@ def _generate_01_debit() -> None:
 def _generate_02_effet_avalanche() -> None:
     perf.generate_groups(["02-avalanche-effect"])
     platform_cmp.generate_groups(["02-avalanche-effect"])
-    rounds.generate_rounds_avalanche_chart()
 
 
 def _generate_03_modes_chiffrement() -> None:

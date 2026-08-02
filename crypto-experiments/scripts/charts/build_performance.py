@@ -259,22 +259,23 @@ def fig4b_key_avalanche():
                label="Valeur idéale (50 %) ")
     ax.set_xticks(x)
     ax.set_xticklabels(algo_order, fontsize=11)
-    ax.set_ylim(40.0, 65.0)
+    ax.set_ylim(49.7, 50.3)
+    ax.set_yticks([49.7, 49.8, 49.9, 50.0, 50.1, 50.2, 50.3])
     ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=11)
     ax.set_title(
-        "Score d'avalanche en fonction du type de perturbation",
+        "Graphique 6 - Score d'avalanche en fonction du type de perturbation (zoom autour de 50 %)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
     for bar, m_pct, c in zip(bars_pt, means_pt_pct, [ALGO_COLORS[a] for a in algo_order]):
-        ax.text(bar.get_x() + bar.get_width()/2, m_pct + 0.1,
+        ax.text(bar.get_x() + bar.get_width()/2, m_pct + 0.012,
                 f"{m_pct:.1f}%", ha="center", va="bottom", fontsize=8, color=c)
     for bar, m_pct, c in zip(bars_key, means_key_pct, [ALGO_COLORS[a] for a in algo_order]):
-        ax.text(bar.get_x() + bar.get_width()/2, m_pct + 0.1,
+        ax.text(bar.get_x() + bar.get_width()/2, m_pct + 0.012,
                 f"{m_pct:.1f}%", ha="center", va="bottom", fontsize=8, color=c)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("02-avalanche-effect/avalanche-plaintext-vs-key.png")
+    savefig("02-avalanche-effect/graph-06-plaintext-vs-key-avalanche-x86.png")
 
 
 # ===========================================================================
@@ -531,10 +532,10 @@ def fig7_ecb_vs_gcm():
     fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
     fig.patch.set_facecolor(BG_COLOR)
     for mode, color, ls, lbl in [
-        ("ECB", "#B03A2E", "-",  "ECB — [!] Non sécurisé (détecte les patterns)"),
-        ("GCM", "#3A7A3A", "--", "GCM — [OK] Recommandé (authentifié)"),
-        ("CTR", "#888888", ":",  "CTR — Authentification externe requise"),
-        ("CBC", "#1A5E8A", "-.", "CBC — Sécurisé mais lent en chiffrement"),
+        ("ECB", "#B03A2E", "-",  "ECB — Non recommandé en production (fuite de motifs)"),
+        ("GCM", "#3A7A3A", "--", "GCM — Recommandé (authentifié)"),
+        ("CTR", "#888888", ":",  "CTR — Authentification séparée requise"),
+        ("CBC", "#1A5E8A", "-.", "CBC — Confidentialité sans authenticité intégrée"),
     ]:
         subset = sorted([r for r in aes128 if r["mode"] == mode],
                         key=lambda r: r["message_size_bytes"])
@@ -548,15 +549,16 @@ def fig7_ecb_vs_gcm():
     ax.set_xticks(msg_sizes)
     ax.set_xticklabels([f"{s:,}" for s in msg_sizes])
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
-    ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
+    ax.set_ylabel("Débit de chiffrement (MB/s, échelle logarithmique)", fontsize=11)
     ax.set_title(
-        "Débit AES-128 en fonction du mode (sécurité et performance)",
+        "Graphique 7 - Débit AES-128 en fonction du mode (sécurité et performance)",
         fontsize=11,
     )
+    ax.set_yscale("log")
     ax.legend(fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
-    savefig("03-encryption-modes/aes-security-vs-performance-by-mode.png")
+    savefig("03-encryption-modes/graph-07-aes-operation-mode-security-vs-throughput.png")
 
 
 # ===========================================================================
@@ -620,26 +622,19 @@ def fig9_synthesis_heatmap():
     cbar.set_label("Score normalisé (0 = faible relatif, 1 = élevé relatif)", fontsize=9)
     cbar.ax.yaxis.label.set_color(TEXT_COLOR)
     ax.set_title(
-        "Carte thermique des scores normalisés (0-1)",
+        "Graphique 10 - Carte thermique des scores normalisés (0-1)",
         fontsize=11, color=TEXT_COLOR,
     )
     plt.tight_layout()
-    savefig("04-decision-support/multicriteria-score-heatmap.png")
+    savefig("04-decision-support/graph-10-multicriteria-heatmap-by-algorithm.png")
 
 
 CHART_GROUPS = {
-    "01-throughput": [
-        fig1_throughput_4096,
-        fig2_throughput_vs_size,
-    ],
+    "01-throughput": [],
     "02-avalanche-effect": [
-        fig4_avalanche,
         fig4b_key_avalanche,
     ],
     "03-encryption-modes": [
-        fig3_aes_mode_comparison,
-        fig5_enc_vs_dec,
-        fig6_key_size_impact,
         fig7_ecb_vs_gcm,
     ],
     "04-decision-support": [
@@ -650,15 +645,9 @@ CHART_GROUPS = {
 # Correspondance explicite: fonction de tracé -> fichier PNG de sortie.
 # Utile pour vérifier rapidement comment chaque graphique est produit.
 GRAPH_OUTPUTS = {
-    fig1_throughput_4096: "01-throughput/throughput-by-algo-mode-x86-4kb.png",
-    fig2_throughput_vs_size: "01-throughput/throughput-vs-message-size-x86.png",
-    fig3_aes_mode_comparison: "03-encryption-modes/aes-throughput-by-mode-128bit.png",
-    fig4_avalanche: "02-avalanche-effect/avalanche-score-by-algo.png",
-    fig4b_key_avalanche: "02-avalanche-effect/avalanche-plaintext-vs-key.png",
-    fig5_enc_vs_dec: "03-encryption-modes/throughput-encrypt-vs-decrypt-ecb.png",
-    fig6_key_size_impact: "03-encryption-modes/aes-throughput-by-key-size.png",
-    fig7_ecb_vs_gcm: "03-encryption-modes/aes-security-vs-performance-by-mode.png",
-    fig9_synthesis_heatmap: "04-decision-support/multicriteria-score-heatmap.png",
+    fig4b_key_avalanche: "02-avalanche-effect/graph-06-plaintext-vs-key-avalanche-x86.png",
+    fig7_ecb_vs_gcm: "03-encryption-modes/graph-07-aes-operation-mode-security-vs-throughput.png",
+    fig9_synthesis_heatmap: "04-decision-support/graph-10-multicriteria-heatmap-by-algorithm.png",
 }
 
 

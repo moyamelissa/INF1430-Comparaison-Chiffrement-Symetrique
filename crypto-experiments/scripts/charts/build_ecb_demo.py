@@ -65,11 +65,11 @@ def generate_ecb_demo_chart():
     axes[2].set_title("Image chiffrée en mode CBC", fontsize=10, color="#3A7A3A", pad=8)
     axes[2].axis("off")
 
-    fig.suptitle("Visibilité des motifs en fonction du mode de chiffrement", fontsize=11, color=TEXT_COLOR, y=1.02)
+    fig.suptitle("Graphique 8 - Visibilité des motifs en fonction du mode de chiffrement", fontsize=11, color=TEXT_COLOR, y=1.02)
     plt.tight_layout()
 
     mode_dir = ensure_chart_dir("03-encryption-modes")
-    out = mode_dir / "ecb-visual-pattern-leakage-demo.png"
+    out = mode_dir / "graph-08-ecb-visual-pattern-leakage-demo.png"
     fig.savefig(out, dpi=180, bbox_inches="tight", facecolor=BG_COLOR)
     plt.close(fig)
     print(f"  Enregistré: {out}")

@@ -119,7 +119,7 @@ def cmp1_throughput_all():
         pi_vals.append( rpi["throughput_enc"] if rpi else 0)
         colors.append(ALGO_COLORS.get(algo, "#888"))
 
-    bars_x86 = ax.bar(x - w/2, x86_vals, w, label="Laptop x86 (Windows)",
+    bars_x86 = ax.bar(x - w/2, x86_vals, w, label="x86 (Windows)",
                       color=colors, edgecolor=BG_COLOR, linewidth=0.8,
                       alpha=PLATFORM_STYLE["x86"]["alpha"])
     bars_pi = ax.bar(x + w/2, pi_vals, w, label="Raspberry Pi (ARM)",
@@ -143,7 +143,7 @@ def cmp1_throughput_all():
     ax.set_xlabel("Algorithme", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Débit de chiffrement en fonction de l'algorithme",
+        "Graphique 1 - Débit de chiffrement en fonction de l'algorithme (4096 octets)",
         fontsize=11,
     )
     legend_handles = [
@@ -152,7 +152,7 @@ def cmp1_throughput_all():
             edgecolor=BG_COLOR,
             linewidth=0.8,
             alpha=PLATFORM_STYLE["x86"]["alpha"],
-            label="Laptop x86 (Windows)",
+            label="x86 (Windows)",
         ),
         mpatches.Patch(
             facecolor="#B0B0B0",
@@ -166,7 +166,7 @@ def cmp1_throughput_all():
     ax.legend(
         handles=legend_handles,
         fontsize=9,
-        title="Mode de ref. : ECB (AES, DES, 3DES, Twofish) | Stream (ChaCha20)",
+        title="Mode de référence : ECB (AES, DES, 3DES, Twofish) ; Stream (ChaCha20)",
         title_fontsize=9,
     )
     ax.yaxis.grid(True)
@@ -176,7 +176,7 @@ def cmp1_throughput_all():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-throughput/throughput-by-algo-x86-vs-arm-4kb.png")
+    savefig("01-throughput/graph-01-throughput-by-algorithm-x86-vs-arm-at-4096-bytes.png")
 
 
 # ===========================================================================
@@ -302,15 +302,15 @@ def cmp2_speedup_ratio():
                 f"{r:.2f}×", ha="center", va="bottom",
                 fontsize=10, fontweight="bold", color=c)
 
-    ax.set_ylabel("Rapport de débit x86 / Pi (×)", fontsize=11)
+    ax.set_ylabel("Rapport de débit x86/Pi (×)", fontsize=11)
     ax.set_xlabel("Algorithme", fontsize=11)
     ax.set_title(
-        "Ratio de performance en fonction de l'algorithme (4096 octets)",
+        "Graphique 2 - Ratio de performance en fonction de l'algorithme (4096 octets)",
         fontsize=11,
     )
     ax.legend(
         fontsize=9,
-        title="Mode de ref. : ECB (AES, DES, 3DES, Twofish) | Stream (ChaCha20)",
+        title="Mode de référence : ECB (AES, DES, 3DES, Twofish) ; Stream (ChaCha20)",
         title_fontsize=9,
     )
     ax.set_ylim(bottom=0)
@@ -321,7 +321,7 @@ def cmp2_speedup_ratio():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-throughput/speedup-ratio-x86-over-arm-by-algo.png")
+    savefig("01-throughput/graph-02-x86-over-arm-speedup-ratio-by-algorithm.png")
 
 
 # ===========================================================================
@@ -425,7 +425,7 @@ def cmp5_chacha20():
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Débit de ChaCha20 en fonction de la taille du message",
+        "Graphique 3 - Débit de ChaCha20 en fonction de la taille du message",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -436,7 +436,7 @@ def cmp5_chacha20():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-throughput/throughput-vs-message-size-chacha20-x86-vs-arm.png")
+    savefig("01-throughput/graph-03-throughput-vs-message-size-chacha20-x86-vs-arm.png")
 
 
 # ===========================================================================
@@ -465,16 +465,23 @@ def cmp6_ci95_stability():
         colors.append(ALGO_COLORS.get(algo, "#888"))
 
     bars_x86 = ax.bar(x - w/2, x86_ci, w,
-                      label="Laptop x86 (Windows)",
+                      label="x86 (Windows)",
                       color=colors, edgecolor=BG_COLOR, linewidth=0.8,
                       alpha=PLATFORM_STYLE["x86"]["alpha"])
-    ax.bar(x + w/2, pi_ci, w,
-           label="Raspberry Pi (ARM)",
-           color=colors, edgecolor=BG_COLOR, linewidth=0.8,
-           alpha=PLATFORM_STYLE["pi"]["alpha"], hatch="//")
+    bars_pi = ax.bar(x + w/2, pi_ci, w,
+                     label="Raspberry Pi (ARM)",
+                     color=colors, edgecolor=BG_COLOR, linewidth=0.8,
+                     alpha=PLATFORM_STYLE["pi"]["alpha"], hatch="//")
 
     # Étiquettes de valeur sur les barres x86.
     for bar, val in zip(bars_x86, x86_ci):
+        if val > 0:
+            ax.text(bar.get_x() + bar.get_width() / 2,
+                    val + max(x86_ci) * 0.012,
+                    f"{val:.2f}", ha="center", va="bottom",
+                    fontsize=8, color=TEXT_COLOR, fontweight="bold")
+
+    for bar, val in zip(bars_pi, pi_ci):
         if val > 0:
             ax.text(bar.get_x() + bar.get_width() / 2,
                     val + max(x86_ci) * 0.012,
@@ -486,7 +493,7 @@ def cmp6_ci95_stability():
     ax.set_xlabel("Algorithme", fontsize=11)
     ax.set_ylabel("Largeur de l'IC95 du débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
-        "Stabilité des mesures en fonction de la plateforme (IC95, n=100 répétitions)",
+        "Graphique 4 - Stabilité des mesures en fonction de la plateforme (IC95, n=100 répétitions)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
@@ -497,7 +504,7 @@ def cmp6_ci95_stability():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("01-throughput/ci95-throughput-stability-x86-vs-arm-4kb.png")
+    savefig("01-throughput/graph-04-ic95-throughput-stability-x86-vs-arm-at-4096-bytes.png")
 
 
 # ===========================================================================
@@ -599,14 +606,18 @@ def cmp4_avalanche():
                label="Valeur idéale (50 %)")
     ax.set_xticks(x)
     ax.set_xticklabels(algos, fontsize=11)
-    ax.set_ylim(42.0, 64.0)
+    ax.set_ylim(49.7, 50.3)
+    ax.set_yticks([49.7, 49.8, 49.9, 50.0, 50.1, 50.2, 50.3])
     ax.set_xlabel("Algorithme", fontsize=11)
     ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=11)
     ax.set_title(
-        "Score d'avalanche en fonction de l'algorithme",
+        "Graphique 5 - Score d'avalanche en fonction de l'algorithme (zoom autour de 50 %)",
         fontsize=11,
     )
     ax.legend(fontsize=9)
+    for xi, xv, pv, color in zip(x, x86_vals_pct, pi_vals_pct, colors):
+        ax.text(xi - w / 2, xv + 0.012, f"{xv:.3f}%", ha="center", va="bottom", fontsize=8, color=color)
+        ax.text(xi + w / 2, pv + 0.012, f"{pv:.3f}%", ha="center", va="bottom", fontsize=8, color=color)
     ax.yaxis.grid(True)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
@@ -614,7 +625,7 @@ def cmp4_avalanche():
     ax.spines["left"].set_edgecolor(GRID_COLOR)
     ax.spines["bottom"].set_edgecolor(GRID_COLOR)
     plt.tight_layout()
-    savefig("02-avalanche-effect/avalanche-score-x86-vs-arm.png")
+    savefig("02-avalanche-effect/graph-05-avalanche-score-by-algorithm-x86-vs-arm.png")
 
 
 # ===========================================================================
@@ -654,7 +665,7 @@ def cmp7_radar():
     n_aval = {a: 1 - abs(aval_scores[a] - 0.5) * 10 for a in algo_order}
     n_port = norm(portability)
 
-    categories = ["Débit\nx86", "Débit\nPi (ARM)", "Avalanche\nqualité", "Portabilité\nPi/x86"]
+    categories = ["Débit\nx86", "Débit\nPi (ARM)", "Qualité\navalanche", "Portabilité\nPi/x86"]
     N      = len(categories)
     angles = np.linspace(0, 2 * np.pi, N, endpoint=False).tolist()
     angles += angles[:1]
@@ -681,23 +692,20 @@ def cmp7_radar():
         ax.fill(angles, vals, alpha=0.08, color=color)
 
     ax.set_title(
-        "Score global en fonction de l'algorithme (synthèse normalisée)",
+        "Graphique 9 - Score global en fonction de l'algorithme (synthèse normalisée)",
         fontsize=11, color=TEXT_COLOR, pad=25,
     )
     ax.legend(loc="upper right", bbox_to_anchor=(1.28, 1.12), fontsize=9)
     plt.tight_layout()
-    savefig("04-decision-support/algorithm-profile-radar-chart.png")
+    savefig("04-decision-support/graph-09-algorithm-profile-radar-throughput-portability-avalanche.png")
 
 
 CHART_GROUPS = {
     "01-throughput": [
         cmp1_throughput_all,
-        cmp1b_throughput_4096_pi,
         cmp2_speedup_ratio,
-        cmp3_throughput_vs_size,
         cmp5_chacha20,
         cmp6_ci95_stability,
-        cmp8_scalability_all_algos,
     ],
     "02-avalanche-effect": [
         cmp4_avalanche,
@@ -710,15 +718,12 @@ CHART_GROUPS = {
 # Correspondance explicite: fonction de tracé -> fichier PNG de sortie.
 # Utile pour vérifier rapidement comment chaque graphique est produit.
 GRAPH_OUTPUTS = {
-    cmp1_throughput_all: "01-throughput/throughput-by-algo-x86-vs-arm-4kb.png",
-    cmp1b_throughput_4096_pi: "01-throughput/throughput-by-algo-mode-arm-4kb.png",
-    cmp2_speedup_ratio: "01-throughput/speedup-ratio-x86-over-arm-by-algo.png",
-    cmp3_throughput_vs_size: "01-throughput/throughput-vs-message-size-x86-vs-arm-ecb.png",
-    cmp4_avalanche: "02-avalanche-effect/avalanche-score-x86-vs-arm.png",
-    cmp5_chacha20: "01-throughput/throughput-vs-message-size-chacha20-x86-vs-arm.png",
-    cmp6_ci95_stability: "01-throughput/ci95-throughput-stability-x86-vs-arm-4kb.png",
-    cmp7_radar: "04-decision-support/algorithm-profile-radar-chart.png",
-    cmp8_scalability_all_algos: "01-throughput/throughput-vs-message-size-x86-vs-arm-all-algos.png",
+    cmp1_throughput_all: "01-throughput/graph-01-throughput-by-algorithm-x86-vs-arm-at-4096-bytes.png",
+    cmp2_speedup_ratio: "01-throughput/graph-02-x86-over-arm-speedup-ratio-by-algorithm.png",
+    cmp5_chacha20: "01-throughput/graph-03-throughput-vs-message-size-chacha20-x86-vs-arm.png",
+    cmp6_ci95_stability: "01-throughput/graph-04-ic95-throughput-stability-x86-vs-arm-at-4096-bytes.png",
+    cmp4_avalanche: "02-avalanche-effect/graph-05-avalanche-score-by-algorithm-x86-vs-arm.png",
+    cmp7_radar: "04-decision-support/graph-09-algorithm-profile-radar-throughput-portability-avalanche.png",
 }
 
 
