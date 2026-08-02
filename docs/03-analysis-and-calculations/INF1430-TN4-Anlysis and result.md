@@ -22,7 +22,7 @@ Le graphique suivant présente le débit de chiffrement observé pour les cinq a
 
 **Graphique 1 — Débit par algorithme, x86 versus ARM à 4096 octets**
 
-[Voir le graphique source](../../crypto-experiments/data/charts/01-throughput/throughput-by-algo-x86-vs-arm-4kb.png)
+[Voir le graphique source](../../crypto-experiments/data/charts/01-throughput/graph-01-throughput-by-algorithm-x86-vs-arm-at-4096-bytes.png)
 
 En fixant la taille du message, ce graphique isole l'effet de la plateforme des variations liées au volume traité. Il montre qu'AES domine largement sur x86 grâce à l'accélération matérielle AES-NI, avec un écart d'environ 2,36 fois par rapport au Raspberry Pi, un écart réduit par rapport au 5,11 fois observé au débit maximal, ce qui confirme que l'avantage d'AES-NI (Stallings, 2017) s'exprime pleinement seulement quand le volume traité par appel est assez élevé pour amortir les coûts fixes, exactement la logique qui justifiait le choix de tester plusieurs tailles de messages dans le protocole. DES et 3DES affichent les écarts les plus faibles du graphique, avec des ratios de 1,13 et 1,12 fois respectivement, cohérents avec leur position déjà observée au débit maximal. ChaCha20 présente un écart modéré d'environ 1,22 fois, conforme à sa conception peu dépendante du matériel. Twofish affiche un écart intermédiaire d'environ 1,53 fois malgré son débit très faible sur les deux plateformes, ce qui montre que l'absence d'accélération matérielle touche autant sa vitesse absolue que la stabilité de son comportement d'une architecture à l'autre. Ce constat renforce l'idée que le choix d'un algorithme doit tenir compte du contexte matériel cible plutôt que d'une performance mesurée sur une seule plateforme de référence.
 
@@ -32,7 +32,7 @@ Le deuxième tableau et le premier graphique ont révélé des écarts de débit
 
 **Graphique 2 — Ratio d'accélération x86 sur ARM par algorithme**
 
-[Voir le graphique source](../../crypto-experiments/data/charts/01-throughput/speedup-ratio-x86-over-arm-by-algo.png)
+[Voir le graphique source](../../crypto-experiments/data/charts/01-throughput/graph-02-x86-over-arm-speedup-ratio-by-algorithm.png)
 
 Ce graphique confirme qu'AES reste l'algorithme le plus dépendant du matériel x86, avec un ratio de 2,36 fois, cohérent avec les deux graphiques précédents. Le classement se complète avec Twofish, à 1,53 fois, puis ChaCha20 à 1,22 fois, DES à 1,13 fois et 3DES à 1,12 fois. Le graphique reproduit ainsi la même hiérarchie que celle observée au Tableau 2, mais avec des écarts globalement moins marqués à cette taille de message intermédiaire, en particulier pour AES, dont le ratio passe de 5,11 fois au débit maximal à 2,36 fois à 4096 octets. Le ratio de Twofish se situe nettement au-dessus de celui de DES, 3DES et ChaCha20, qui ne bénéficient pourtant pas non plus d'accélération matérielle, un écart qui reflète probablement l'hétérogénéité logicielle documentée en méthodologie plutôt qu'un effet matériel additionnel.
 
@@ -40,7 +40,7 @@ Le deuxième graphique a montré que les ratios plateforme se regroupent majorit
 
 **Graphique 3 — Débit en fonction de la taille du message, ChaCha20 x86 versus ARM**
 
-[Voir le graphique source](../../crypto-experiments/data/charts/01-throughput/throughput-vs-message-size-chacha20-x86-vs-arm.png)
+[Voir le graphique source](../../crypto-experiments/data/charts/01-throughput/graph-03-throughput-vs-message-size-chacha20-x86-vs-arm.png)
 
 Ce graphique révèle que l'écart de débit entre x86 et Raspberry Pi pour ChaCha20 varie selon la taille du message, sans tendance claire à la hausse ou à la baisse, ce qui confirme que la faible dépendance matérielle observée au Graphique 2 n'était pas propre à une seule taille de message. Le tableau suivant reprend les valeurs exactes utilisées pour tracer ce graphique, afin de lire précisément le débit mesuré sur chaque plateforme pour chacune des cinq tailles testées.
 
@@ -62,7 +62,7 @@ La stabilité des mesures de débit a été évaluée à l'aide de l'IC95, appli
 
 **Graphique 4 — Stabilité du débit IC95, x86 versus ARM à 4096 octets**
 
-[Voir le graphique source](../../crypto-experiments/data/charts/01-throughput/ci95-throughput-stability-x86-vs-arm-4kb.png)
+[Voir le graphique source](../../crypto-experiments/data/charts/01-throughput/graph-04-ic95-throughput-stability-x86-vs-arm-at-4096-bytes.png)
 
 Ce graphique permet de juger si les écarts de débit observés entre algorithmes se situent clairement au-dessus de la marge d'incertitude de la mesure. La largeur des intervalles de confiance y est exprimée en valeur absolue plutôt qu'en pourcentage, ce qui explique pourquoi AES affiche la largeur la plus élevée du graphique à 11,85 MB/s sur x86, devant ChaCha20 à 7,68 MB/s, DES à 1,73 MB/s, 3DES à 0,56 MB/s et Twofish à 0,10 MB/s. Rapportée au débit correspondant à 4096 octets, cette largeur représente toutefois 13,34 pour cent pour AES sur x86, ce qui dépasse le seuil relatif de 10 pour cent retenu pour le protocole, alors que ChaCha20 reste tout juste sous ce seuil à 9,95 pour cent. Du côté Raspberry Pi, les largeurs observées au même point sont plus faibles pour tous les algorithmes, avec 2,72 MB/s pour AES, 1,99 MB/s pour ChaCha20, 0,76 MB/s pour DES, 0,33 MB/s pour 3DES et 0,01 MB/s pour Twofish. La lecture conjointe du graphique et de l'audit IC95 montre donc que, malgré une conformité globale majoritaire, certaines mesures rapides sur x86 demeurent sensiblement plus sensibles au bruit que leurs équivalents sur ARM.
 
@@ -72,7 +72,7 @@ L'effet d'avalanche mesure la proportion de bits du texte chiffré qui sont modi
 
 **Graphique 5 — Score d’avalanche par algorithme, x86 versus ARM**
 
-[Voir le graphique source](../../crypto-experiments/data/charts/02-avalanche-effect/avalanche-score-x86-vs-arm.png)
+[Voir le graphique source](../../crypto-experiments/data/charts/02-avalanche-effect/graph-05-avalanche-score-by-algorithm-x86-vs-arm.png)
 
 Les propriétés de diffusion mesurées correspondent directement au critère de diffusion stricte, le strict avalanche criterion, décrit par Stallings comme une propriété de conception recherchée pour les chiffrements par blocs, et rattaché par Katz et Lindell au paradigme confusion diffusion de Shannon. Les cinq algorithmes se situent ici très près du point idéal de 50 pour cent, avec des moyennes de 50,004 pour cent et 50,026 pour cent pour AES, 50,141 pour cent et 50,072 pour cent pour DES, 49,935 pour cent et 50,085 pour cent pour 3DES, 50,053 pour cent et 50,006 pour cent pour Twofish, puis 49,987 pour cent et 50,017 pour cent pour ChaCha20, respectivement sur x86 et sur Raspberry Pi. L'écart interplateforme maximal n'atteint que 0,149 point de pourcentage, observé pour 3DES, ce qui confirme empiriquement que la diffusion mesurée dépend du design cryptographique lui-même et non de l'architecture matérielle utilisée pour l'exécuter.
 
@@ -80,6 +80,42 @@ Après avoir observé le comportement global de l'effet d'avalanche, il est pert
 
 **Graphique 6 — Avalanche du texte en clair versus avalanche de la clé**
 
-[Voir le graphique source](../../crypto-experiments/data/charts/02-avalanche-effect/avalanche-plaintext-vs-key.png)
+[Voir le graphique source](../../crypto-experiments/data/charts/02-avalanche-effect/graph-06-plaintext-vs-key-avalanche-x86.png)
 
 AES, Twofish et ChaCha20 présentent un comportement pratiquement identique entre les deux mécanismes, avec un écart inférieur à 0,1 point de pourcentage entre l'avalanche du texte clair et l'avalanche de la clé. Sur x86, AES passe ainsi de 50,004 pour cent à 50,011 pour cent, Twofish de 50,053 pour cent à 49,991 pour cent, et ChaCha20 de 49,987 pour cent à 49,989 pour cent. Une fois les bits de parité exclus du tirage du bit de clé pour DES et 3DES, ces deux algorithmes reviennent eux aussi au voisinage immédiat de 50 pour cent. Le score d'avalanche de la clé atteint alors 50,172 pour cent pour DES et 50,127 pour cent pour 3DES, contre 50,141 pour cent et 49,935 pour cent pour l'avalanche du texte clair. L'écart résiduel tombe ainsi à 0,031 point pour DES et 0,192 point pour 3DES. Le graphique confirme donc que, dans les cinq cas, la diffusion reste essentiellement équivalente qu'on perturbe le texte clair ou la clé. L'asymétrie observée dans la version précédente provenait d'un biais méthodologique, car environ 12,5 pour cent des bits d'une clé DES ou 3DES sont des bits de parité ignorés par le calcul cryptographique effectif.
+
+## Modes de chiffrement
+
+Après avoir comparé les algorithmes entre eux, il est pertinent d'examiner comment un même algorithme se comporte selon le mode d'opération utilisé, puisque le choix du mode influence à la fois le débit obtenu et les garanties de sécurité offertes. Le graphique suivant présente le débit de chiffrement d'AES-128 pour les modes ECB, CBC, CTR et GCM, mesuré sur la plateforme x86 pour différentes tailles de message.
+
+**Graphique 7 — Débit et niveau de sécurité selon le mode d'opération AES**
+
+[Voir le graphique source](../../crypto-experiments/data/charts/03-encryption-modes/graph-07-aes-operation-mode-security-vs-throughput.png)
+
+ECB atteint le débit le plus élevé, suivi de GCM puis de CTR, tandis que CBC reste nettement plus lent à cause du chaînage bloc par bloc. Ce graphique illustre que le mode le plus rapide n'est pas nécessairement celui qui offre les meilleures garanties de sécurité, et que le choix d'un mode d'opération implique un compromis entre performance et protection selon le contexte d'utilisation visé.
+
+Le graphique précédent montre qu'ECB est avantageux en débit, mais ne permet pas de juger sa sécurité structurelle. La démonstration suivante illustre pourquoi ce gain de vitesse ne compense pas la faiblesse d'ECB, en comparant visuellement le chiffrement d'une même image en mode ECB et en mode CBC.
+
+**Graphique 8 — Fuite visuelle des motifs en mode ECB**
+
+[Voir le graphique source](../../crypto-experiments/data/charts/03-encryption-modes/graph-08-ecb-visual-pattern-leakage-demo.png)
+
+Une image chiffrée avec ECB laisse apparaître des motifs répétitifs qui trahissent la structure de l'image d'origine. À l'inverse, la version chiffrée en CBC prend l'apparence d'un bruit homogène, sans structure visuelle exploitable. Cette démonstration justifie pourquoi ECB doit être exclu des usages réels malgré son avantage de performance.
+
+## Vue synthétique multicritère
+
+Après avoir analysé les critères séparément, il est utile de réunir les résultats dans une représentation globale. Le graphique suivant combine sur un diagramme radar quatre axes normalisés, soit le débit sur x86, le débit sur Raspberry Pi, la qualité de l'effet d'avalanche et la portabilité, calculée comme le rapport entre le débit sur Pi et le débit sur x86.
+
+**Graphique 9 — Radar de profil par algorithme, débit, portabilité et avalanche**
+
+[Voir le graphique source](../../crypto-experiments/data/charts/04-decision-support/graph-09-algorithm-profile-radar-throughput-portability-avalanche.png)
+
+Ce radar met en évidence les compromis entre vitesse absolue, régularité interplateforme et diffusion cryptographique. Il confirme qu'aucun algorithme ne domine simultanément tous les axes et qu'un choix pertinent dépend du critère prioritaire dans le scénario cible.
+
+Pour compléter cette vue globale, le graphique suivant présente une carte de chaleur multicritère qui croise chaque algorithme avec trois dimensions synthétiques normalisées, soit le débit, l'efficacité en latence et la robustesse d'avalanche.
+
+**Graphique 10 — Carte de chaleur multicritère par algorithme**
+
+[Voir le graphique source](../../crypto-experiments/data/charts/04-decision-support/graph-10-multicriteria-heatmap-by-algorithm.png)
+
+Cette carte de chaleur fournit une lecture rapide des profils relatifs. Elle complète le radar en rendant immédiatement visibles les compromis de sélection entre performance, latence et diffusion.
