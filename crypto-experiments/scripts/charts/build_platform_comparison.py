@@ -145,7 +145,29 @@ def cmp1_throughput_all():
         "Débit de chiffrement en fonction de l'algorithme",
         fontsize=11,
     )
-    ax.legend(fontsize=9)
+    legend_handles = [
+        mpatches.Patch(
+            facecolor="#666666",
+            edgecolor=BG_COLOR,
+            linewidth=0.8,
+            alpha=PLATFORM_STYLE["x86"]["alpha"],
+            label="Laptop x86 (Windows)",
+        ),
+        mpatches.Patch(
+            facecolor="#B0B0B0",
+            edgecolor=BG_COLOR,
+            linewidth=0.8,
+            alpha=PLATFORM_STYLE["pi"]["alpha"],
+            hatch="//",
+            label="Raspberry Pi (ARM)",
+        ),
+    ]
+    ax.legend(
+        handles=legend_handles,
+        fontsize=9,
+        title="Mode de ref. : ECB (AES, DES, 3DES, Twofish) | Stream (ChaCha20)",
+        title_fontsize=9,
+    )
     ax.yaxis.grid(True)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
