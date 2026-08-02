@@ -140,6 +140,7 @@ def cmp1_throughput_all():
 
     ax.set_xticks(x)
     ax.set_xticklabels(algo_order, fontsize=11)
+    ax.set_xlabel("Algorithme", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
         "Débit de chiffrement en fonction de l'algorithme",
@@ -224,6 +225,7 @@ def cmp1b_throughput_4096_pi():
 
     ax.set_xticks(tick_positions)
     ax.set_xticklabels(tick_labels, fontsize=7)
+    ax.set_xlabel("Mode et taille de clé", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title("Débit de chiffrement en fonction de l'algorithme et du mode", fontsize=11, pad=20)
     ax.text(
@@ -301,11 +303,16 @@ def cmp2_speedup_ratio():
                 fontsize=10, fontweight="bold", color=c)
 
     ax.set_ylabel("Rapport de débit x86 / Pi (×)", fontsize=11)
+    ax.set_xlabel("Algorithme", fontsize=11)
     ax.set_title(
-        "Ratio de performance en fonction de l'algorithme",
+        "Ratio de performance en fonction de l'algorithme (4096 octets)",
         fontsize=11,
     )
-    ax.legend(fontsize=9)
+    ax.legend(
+        fontsize=9,
+        title="Mode de ref. : ECB (AES, DES, 3DES, Twofish) | Stream (ChaCha20)",
+        title_fontsize=9,
+    )
     ax.set_ylim(bottom=0)
     ax.yaxis.grid(True)
     ax.set_axisbelow(True)
@@ -476,6 +483,7 @@ def cmp6_ci95_stability():
 
     ax.set_xticks(x)
     ax.set_xticklabels(algo_order, fontsize=11)
+    ax.set_xlabel("Algorithme", fontsize=11)
     ax.set_ylabel("Largeur de l'IC95 du débit de chiffrement (MB/s)", fontsize=11)
     ax.set_title(
         "Stabilité des mesures en fonction de la plateforme (IC95, n=100 répétitions)",
@@ -592,6 +600,7 @@ def cmp4_avalanche():
     ax.set_xticks(x)
     ax.set_xticklabels(algos, fontsize=11)
     ax.set_ylim(42.0, 64.0)
+    ax.set_xlabel("Algorithme", fontsize=11)
     ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=11)
     ax.set_title(
         "Score d'avalanche en fonction de l'algorithme",
