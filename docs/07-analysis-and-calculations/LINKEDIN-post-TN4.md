@@ -37,11 +37,11 @@ How DevSecOps was applied in practice:
 - Automated dependency update and alert workflow with Dependabot.
 - Integrity verification of external vector files using SHA-256 checks.
 
-Forward-looking research included:
+Forward-looking research showed that:
 
-- Quantum impact assessment on cryptographic risk and long-term algorithm selection.
-- AI impact analysis for security governance, including reliability and risk-management perspectives.
-- A practical focus on crypto-agility, keeping symmetric crypto decisions aligned with evolving standards.
+- Quantum risk is not an immediate replacement trigger, but it is already a strong driver for long-term crypto-agility.
+- AI is accelerating development, which makes critical thinking and security governance more important, not less.
+- Symmetric crypto choices should stay adaptable so they can follow evolving standards and threat models.
 
 Outcome:
 
