@@ -1,4 +1,4 @@
-﻿# Experimental Comparison of Symmetric Encryption Algorithms
+﻿# Cross-Platform Symmetric Encryption Analysis
 
 ![CI](https://img.shields.io/github/actions/workflow/status/moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique/tests.yml?branch=main)
 ![Coverage](https://img.shields.io/badge/Coverage-100%25-2E7D32)
