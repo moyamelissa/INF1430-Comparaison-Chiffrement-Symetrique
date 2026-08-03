@@ -68,7 +68,7 @@ Avant toute mesure de performance, chaque implémentation cryptographique est va
 
 Les vecteurs de validation utilisés dans ce projet proviennent de références normatives reconnues. Le tableau suivant associe chaque algorithme et chaque mode à sa source de validation, afin de rendre la méthode explicite et vérifiable.
 
-**Tableau 2 — Références normatives des tests KAT**
+**Tableau 1 — Références normatives des tests KAT**
 
 | Élément validé   | Référence normative              | Portée de validation                         |
 | ------------------- | ---------------------------------- | --------------------------------------------- |
@@ -100,13 +100,13 @@ Cette automatisation garantit qu'aucune régression ne peut être introduite sil
 
 # Résultats et analyse
 
-Cette section présente une synthèse des principaux résultats expérimentaux obtenus pour les cinq algorithmes sur les deux plateformes. L'analyse met l'accent sur trois axes, le débit de chiffrement, la stabilité statistique des mesures et l'effet d'avalanche. Ces axes correspondent directement aux objectifs de performance et de diffusion définis en introduction. Ils sont traités dans cet ordre afin de construire l'argumentation de façon progressive, d'abord la performance brute observée, ensuite la fiabilité statistique des mesures, puis une propriété cryptographique indépendante du débit. Chaque résultat est mis en relation, lorsque pertinent, avec les sources normatives et la littérature mobilisées dans le rapport.
+Cette section présente une synthèse des principaux résultats expérimentaux obtenus pour les cinq algorithmes sur les deux plateformes. L'analyse met l'accent sur trois axes, le débit de chiffrement, la stabilité statistique des mesures et l'effet d'avalanche. Ces axes correspondent directement aux objectifs de performance et de diffusion définis en introduction. Ils sont traités dans cet ordre afin de construire l'argumentation de façon progressive, d'abord la performance brute observée, ensuite la fiabilité statistique des mesures, puis une propriété cryptographique indépendante du débit. Chaque résultat est mis en relation, lorsque pertinent, avec les sources normatives et la littérature mobilisées dans le rapport. Les références normatives NIST, FIPS et RFC encadrent ici la conformité algorithmique et les propriétés attendues, tandis que les valeurs numériques de débit et d'IC95 proviennent exclusivement de la campagne expérimentale consolidée du projet. Les documents TN3 servent de traçabilité intermédiaire, mais la présente section TN4 constitue la base finale de référence pour les valeurs comparatives.
 
 ## Débit de chiffrement selon la plateforme
 
 Le tableau suivant présente les débits maximaux observés en chiffrement, exprimés en mégaoctets par seconde, en retenant pour chaque algorithme la taille de message, parmi celles testées, ayant produit le débit le plus élevé. Les valeurs reprises ici proviennent de la même campagne finale consolidée que le reste de la section. Contrairement au premier graphique, qui fixe une taille de message unique de 4096 octets afin de comparer les algorithmes dans des conditions strictement identiques, ce tableau vise à capturer la performance de pointe atteignable par chaque algorithme.
 
-**Tableau 3 — Débit maximal de chiffrement par algorithme, x86 versus ARM**
+**Tableau 2 — Débit maximal de chiffrement par algorithme, x86 versus ARM**
 
 | Algorithme | x86 (MB/s) | Pi ARM (MB/s) | Ratio x86/Pi |
 | ---------- | ---------: | ------------: | -----------: |
@@ -116,17 +116,46 @@ Le tableau suivant présente les débits maximaux observés en chiffrement, expr
 | Twofish    |       3,14 |          1,44 |       2,18× |
 | 3DES       |      13,80 |         11,39 |       1,21× |
 
-Le troisième tableau met en évidence une hiérarchie nette des débits maximaux. AES atteint le niveau le plus élevé sur les deux plateformes et son ratio x86/Pi monte à 5,77. ChaCha20 suit à 1,62. DES et 3DES restent proches de 1,22 et 1,21. Twofish demeure le plus lent. Cette distribution s'explique principalement par la présence d'AES-NI sur x86, absente sur Raspberry Pi, tandis que les autres algorithmes reposent davantage sur des chemins logiciels sans accélération dédiée. Cette lecture rejoint l'analyse de Stallings (2017) sur l'influence conjointe de l'algorithme et de l'architecture d'exécution. En conséquence, un débit maximal élevé reflète ici autant le design cryptographique que l'adéquation entre l'algorithme et les capacités matérielles de la plateforme cible.
+Le deuxième tableau met en évidence une hiérarchie nette des débits maximaux. AES atteint le niveau le plus élevé sur les deux plateformes et son ratio x86/Pi monte à 5,77. ChaCha20 suit à 1,62. DES et 3DES restent proches de 1,22 et 1,21. Twofish demeure le plus lent. Cette distribution s'explique principalement par la présence d'AES-NI sur x86, absente sur Raspberry Pi, tandis que les autres algorithmes reposent davantage sur des chemins logiciels sans accélération dédiée. Cette lecture rejoint l'analyse de Stallings (2017) sur l'influence conjointe de l'algorithme et de l'architecture d'exécution. En conséquence, un débit maximal élevé reflète ici autant le design cryptographique que l'adéquation entre l'algorithme et les capacités matérielles de la plateforme cible.
 
-Afin d'isoler l'effet de la plateforme, la comparaison suivante fixe la taille du message à 4096 octets. Le graphique présente, pour chaque algorithme, une paire de barres opposant la plateforme x86 sous Windows au Raspberry Pi sous architecture ARM, en mégaoctets par seconde. Comme pour le troisième tableau, la configuration de référence correspond au mode ECB pour les chiffrements par blocs et au mode natif Stream pour ChaCha20.
+Pour vérifier rigoureusement ces maxima, le tableau suivant détaille, pour AES, DES, 3DES et Twofish, le meilleur débit observé à chaque taille de message sur chaque plateforme, en retenant à chaque palier la combinaison mode-clé la plus performante.
+
+**Tableau 2 bis — Vérification croisée des débits par taille de message (maxima locaux par algorithme)**
+
+| Algorithme | Taille du message (octets) | x86 (MB/s) | Pi ARM (MB/s) |
+| ---------- | -------------------------: | ---------: | ------------: |
+| AES        |                         64 |       3,21 |          1,61 |
+| AES        |                        256 |      12,52 |          5,97 |
+| AES        |                       1024 |      46,13 |         19,38 |
+| AES        |                       4096 |     165,08 |         43,28 |
+| AES        |                      16384 |     398,55 |         69,05 |
+| DES        |                         64 |       2,23 |          1,07 |
+| DES        |                        256 |       8,06 |          4,02 |
+| DES        |                       1024 |      15,07 |         11,70 |
+| DES        |                       4096 |      29,92 |         23,56 |
+| DES        |                      16384 |      38,78 |         31,85 |
+| 3DES       |                         64 |       0,93 |          0,46 |
+| 3DES       |                        256 |       3,10 |          1,58 |
+| 3DES       |                       1024 |       7,66 |          4,57 |
+| 3DES       |                       4096 |      11,57 |          8,77 |
+| 3DES       |                      16384 |      13,80 |         11,39 |
+| Twofish    |                         64 |       2,12 |          0,97 |
+| Twofish    |                        256 |       2,73 |          1,27 |
+| Twofish    |                       1024 |       2,67 |          1,36 |
+| Twofish    |                       4096 |       3,08 |          1,42 |
+| Twofish    |                      16384 |       3,14 |          1,44 |
+
+Cette vérification confirme que les valeurs reportées au Tableau 2 correspondent bien aux maxima observés dans ces séries détaillées, avec un pic atteint à 16384 octets pour ces quatre algorithmes sur les deux plateformes.
+
+Afin d'isoler l'effet de la plateforme, la comparaison suivante fixe la taille du message à 4096 octets. Le graphique présente, pour chaque algorithme, une paire de barres opposant la plateforme x86 sous Windows au Raspberry Pi sous architecture ARM, en mégaoctets par seconde. Comme pour le deuxième tableau, la configuration de référence correspond au mode ECB pour les chiffrements par blocs et au mode natif Stream pour ChaCha20.
 
 **Graphique 1 — Débit par algorithme, x86 versus ARM à 4096 octets**
 
 [Voir le graphique source](../../crypto-experiments/data/charts/01-throughput/graph-01-throughput-by-algorithm-x86-vs-arm-at-4096-bytes.png)
 
-Le graphique 1 confirme cette tendance dans un cadre à taille contrôlée. La lecture est effectuée à 4096 octets avec mode de référence ECB pour AES, DES, 3DES et Twofish, et mode Stream pour ChaCha20. À 4096 octets, AES reste en tête avec un ratio x86/Pi de 3,24. Twofish suit à 2,17, puis ChaCha20, 3DES et DES autour de 1,40, 1,39 et 1,27. L'accélération matérielle demeure le facteur principal pour AES. Toutefois, l'écart plus faible qu'au débit maximal montre aussi que l'amortissement des coûts fixes dépend de la taille du message, ce qui réduit partiellement l'avantage observé en condition de pointe. Sur le plan méthodologique, la comparaison inter-plateforme doit donc toujours être lue à taille de message explicite, car un classement établi à débit maximal ne se transpose pas automatiquement à une charge représentative.
+Cette figure confirme cette tendance dans un cadre à taille contrôlée. La lecture est effectuée à 4096 octets avec mode de référence ECB pour AES, DES, 3DES et Twofish, et mode Stream pour ChaCha20. À 4096 octets, AES reste en tête avec un ratio x86/Pi de 3,24. Twofish suit à 2,17, puis ChaCha20, 3DES et DES autour de 1,40, 1,39 et 1,27. L'accélération matérielle demeure le facteur principal pour AES. Toutefois, l'écart plus faible qu'au débit maximal montre aussi que l'amortissement des coûts fixes dépend de la taille du message, ce qui réduit partiellement l'avantage observé en condition de pointe. Sur le plan méthodologique, la comparaison inter-plateforme doit donc toujours être lue à taille de message explicite, car un classement établi à débit maximal ne se transpose pas automatiquement à une charge représentative.
 
-Ces deux premières lectures, débit de pointe au troisième tableau et débit à taille fixe au premier graphique, remplissent des rôles méthodologiques distincts qui se complètent plutôt qu'ils ne se répètent. Le débit maximal renseigne sur la capacité de traitement la plus élevée qu'un algorithme peut atteindre dans les conditions les plus favorables du protocole, une information utile pour dimensionner un système autour de sa charge de pointe. Le débit à 4096 octets, à l'inverse, reflète une taille de message représentative d'un usage courant, plus proche de ce qu'on rencontre concrètement dans des échanges réseau typiques ou des blocs de stockage usuels, plutôt qu'un scénario optimisé pour maximiser le débit. Cette distinction explique en partie pourquoi le ratio d'AES se contracte notablement entre les deux mesures, le gain apporté par les instructions AES-NI dépend d'un coût fixe amorti sur chaque appel, notamment la préparation du calendrier de clés, un coût qui pèse proportionnellement moins lorsque le message traité est volumineux. Cette nuance justifie de ne pas se fier à une seule de ces deux lectures pour orienter un choix d'algorithme, la performance de pointe et la performance représentative pouvant classer les mêmes algorithmes différemment selon le contexte d'utilisation réel visé.
+Ces deux premières lectures, débit de pointe au deuxième tableau et débit à taille fixe au premier graphique, remplissent des rôles méthodologiques distincts qui se complètent plutôt qu'ils ne se répètent. Le débit maximal renseigne sur la capacité de traitement la plus élevée qu'un algorithme peut atteindre dans les conditions les plus favorables du protocole, une information utile pour dimensionner un système autour de sa charge de pointe. Le débit à 4096 octets, à l'inverse, reflète une taille de message représentative d'un usage courant, plus proche de ce qu'on rencontre concrètement dans des échanges réseau typiques ou des blocs de stockage usuels, plutôt qu'un scénario optimisé pour maximiser le débit. Cette distinction explique en partie pourquoi le ratio d'AES se contracte notablement entre les deux mesures, le gain apporté par les instructions AES-NI dépend d'un coût fixe amorti sur chaque appel, notamment la préparation du calendrier de clés, un coût qui pèse proportionnellement moins lorsque le message traité est volumineux. Cette nuance justifie de ne pas se fier à une seule de ces deux lectures pour orienter un choix d'algorithme, la performance de pointe et la performance représentative pouvant classer les mêmes algorithmes différemment selon le contexte d'utilisation réel visé.
 
 Les deux lectures précédentes mettent en évidence des écarts qui varient selon l'algorithme. Pour quantifier cet effet de manière directe, le graphique suivant exprime le rapport entre le débit x86 et le débit Raspberry Pi, dans la même configuration que le premier graphique. Un ratio proche de 1 traduit une portabilité de performance élevée, alors qu'un ratio plus grand indique une dépendance accrue au matériel x86.
 
@@ -134,7 +163,7 @@ Les deux lectures précédentes mettent en évidence des écarts qui varient sel
 
 [Voir le graphique source](../../crypto-experiments/data/charts/01-throughput/graph-02-x86-over-arm-speedup-ratio-by-algorithm.png)
 
-Le graphique 2 confirme que la dépendance à la plateforme diffère selon l'algorithme. Ce ratio est calculé dans la même configuration de référence que le graphique 1, à 4096 octets, afin d'assurer une comparaison cohérente. AES présente le ratio x86/Pi le plus élevé à 3,24, suivi de Twofish à 2,17, puis de ChaCha20, 3DES et DES à 1,40, 1,39 et 1,27. Ce profil combine l'effet d'AES-NI, l'absence d'instructions dédiées pour DES et 3DES, et un coût logiciel de Twofish plus sensible aux contraintes de cache et de fréquence sur ARM. Il en résulte que la portabilité ne peut pas être inférée d'un seul algorithme. Les gains dus au matériel doivent donc être distingués de ceux liés à l'implémentation.
+Cette figure confirme que la dépendance à la plateforme diffère selon l'algorithme. Ce ratio est calculé dans la même configuration de référence que la figure précédente, à 4096 octets, afin d'assurer une comparaison cohérente. AES présente le ratio x86/Pi le plus élevé à 3,24, suivi de Twofish à 2,17, puis de ChaCha20, 3DES et DES à 1,40, 1,39 et 1,27. Ce profil combine l'effet d'AES-NI, l'absence d'instructions dédiées pour DES et 3DES, et un coût logiciel de Twofish plus sensible aux contraintes de cache et de fréquence sur ARM. Il en résulte que la portabilité ne peut pas être inférée d'un seul algorithme. Les gains dus au matériel doivent donc être distingués de ceux liés à l'implémentation.
 
 La lecture de ce ratio soulève une question naturelle, le comportement observé à 4096 octets reste-t-il stable lorsque la taille des messages varie. Le cas de ChaCha20 est particulièrement pertinent pour cette vérification, car il constitue le seul chiffrement de flux de l'échantillon et présente un ratio intermédiaire d'environ 1,40. Le troisième graphique suit donc son débit sur les deux plateformes de 64 à 16 384 octets.
 
@@ -144,7 +173,7 @@ La lecture de ce ratio soulève une question naturelle, le comportement observé
 
 Le troisième graphique montre que l'écart x86 versus Raspberry Pi pour ChaCha20 varie avec la taille du message et ne suit pas une trajectoire monotone. Cette variation est cohérente avec l'équilibre entre coûts fixes et coûts proportionnels. Les petites tailles amplifient les surcoûts d'appel, alors que les grandes tailles les amortissent davantage, avant que la hiérarchie mémoire et l'ordonnancement ne reprennent du poids. Cette observation indique qu'un point unique de mesure ne suffit pas à caractériser la portabilité de ChaCha20. Une lecture multi-tailles, appuyée par le tableau numérique suivant, est donc nécessaire.
 
-**Tableau 4 — Débit de ChaCha20 selon la taille du message**
+**Tableau 3 — Débit de ChaCha20 selon la taille du message**
 
 | Taille du message (octets) | x86 (MB/s) | Pi ARM (MB/s) | Ratio x86/Pi |
 | -------------------------- | ---------: | ------------: | -----------: |
@@ -154,7 +183,7 @@ Le troisième graphique montre que l'écart x86 versus Raspberry Pi pour ChaCha2
 | 4096                       |      90,17 |         64,40 |       1,40× |
 | 16384                      |     144,55 |         89,35 |       1,62× |
 
-Le quatrième tableau confirme ce comportement de manière chiffrée. Le ratio x86/Pi de ChaCha20 oscille entre 1,40 et 2,05. À 16384 octets, ChaCha20 sur Raspberry Pi atteint 89,35 MB/s, soit un débit supérieur à celui mesuré pour DES sur x86 au même point de mesure (38,78 MB/s en mode ECB). Ce résultat est cohérent avec le design ARX de ChaCha20, qui exploite efficacement les opérations natives des processeurs généralistes, alors que DES reste freiné par des permutations bit à bit coûteuses en logiciel, conformément aux arguments de la RFC 8439 (Nir et Langley, 2018). Ainsi, ChaCha20 présente une robustesse inter-plateforme solide pour des charges réelles, tandis que Twofish demeure le cas le plus pénalisé en performance relative sans accélération matérielle dédiée.
+Le troisième tableau confirme ce comportement de manière chiffrée. Le ratio x86/Pi de ChaCha20 oscille entre 1,40 et 2,05. À 16384 octets, ChaCha20 sur Raspberry Pi atteint 89,35 MB/s, soit un débit supérieur à celui mesuré pour DES sur x86 au même point de mesure (38,78 MB/s en mode ECB). Ce résultat est cohérent avec le design ARX de ChaCha20 et son efficacité logicielle sur processeurs généralistes telle que décrite dans la RFC 8439 (Nir et Langley, 2018), tandis que le coût plus élevé de transformations bit à bit dans DES est cohérent avec la littérature de référence sur les chiffrements par blocs classiques (Stallings, 2017). Ainsi, ChaCha20 présente une robustesse inter-plateforme solide pour des charges réelles, tandis que Twofish demeure le cas le plus pénalisé en performance relative sans accélération matérielle dédiée.
 
 ## Stabilité statistique des mesures
 
@@ -164,7 +193,7 @@ Après l'analyse des niveaux de débit, il est nécessaire de qualifier la robus
 
 [Voir le graphique source](../../crypto-experiments/data/charts/01-throughput/graph-04-ic95-throughput-stability-x86-vs-arm-at-4096-bytes.png)
 
-Ce quatrième graphique 4 confirme une stabilité globale élevée des mesures. La figure correspond à la configuration 4096 octets avec 100 répétitions par mesure, cohérente avec le protocole IC95 décrit plus haut. À 4096 octets, AES sur x86 atteint une largeur absolue de 9,24 MB/s, ce qui correspond à une largeur relative d'environ 7,38 pour cent au regard du débit mesuré sur ce même point. Les autres largeurs absolues sur x86 sont de 7,14 MB/s pour ChaCha20, 1,64 MB/s pour DES, 0,22 MB/s pour 3DES et 0,05 MB/s pour Twofish, tandis que du côté Raspberry Pi on observe 1,03 MB/s pour AES, 1,84 MB/s pour ChaCha20, 0,67 MB/s pour DES, 0,19 MB/s pour 3DES et 0,01 MB/s pour Twofish. Cette situation s'explique par le fait que les algorithmes les plus rapides convertissent de petites fluctuations temporelles en variations MB/s plus visibles, avec une sensibilité possible aux variations de fréquence et aux tâches d'arrière-plan sur l'hôte x86. Les écarts moyens restent donc interprétables, tout en justifiant une prudence statistique explicite pour les comparaisons fines.
+Cette figure confirme une stabilité globale élevée des mesures. La figure correspond à la configuration 4096 octets avec 100 répétitions par mesure, cohérente avec le protocole IC95 décrit plus haut. À 4096 octets, AES sur x86 atteint une largeur absolue de 9,24 MB/s, ce qui correspond à une largeur relative d'environ 7,38 pour cent au regard du débit mesuré sur ce même point. Les autres largeurs absolues sur x86 sont de 7,14 MB/s pour ChaCha20, 1,64 MB/s pour DES, 0,22 MB/s pour 3DES et 0,05 MB/s pour Twofish, tandis que du côté Raspberry Pi on observe 1,03 MB/s pour AES, 1,84 MB/s pour ChaCha20, 0,67 MB/s pour DES, 0,19 MB/s pour 3DES et 0,01 MB/s pour Twofish. Cette situation s'explique par le fait que les algorithmes les plus rapides convertissent de petites fluctuations temporelles en variations MB/s plus visibles, avec une sensibilité possible aux variations de fréquence et aux tâches d'arrière-plan sur l'hôte x86. Les écarts moyens restent donc interprétables, tout en justifiant une prudence statistique explicite pour les comparaisons fines.
 
 ## Effet d’avalanche
 
@@ -174,7 +203,7 @@ Au-delà du débit et de sa stabilité, l'analyse doit aussi couvrir la qualité
 
 [Voir le graphique source](../../crypto-experiments/data/charts/02-avalanche-effect/graph-05-avalanche-score-by-algorithm-x86-vs-arm.png)
 
-Le cinquième graphique montre une diffusion correcte et homogène, les cinq algorithmes restant très proches de l'idéal de 50 pour cent sur x86 comme sur Raspberry Pi, avec un écart interplateforme maximal de 0,038 point de pourcentage. L'axe vertical est volontairement resserré autour de 50 pour cent afin de rendre visibles les écarts fins entre algorithmes et plateformes. Ce résultat découle de la nature de la métrique, l'effet d'avalanche reflétant d'abord la structure interne de l'algorithme plutôt que les capacités de l'hôte d'exécution, en cohérence avec le strict avalanche criterion discuté par Stallings et le cadre confusion diffusion de Katz et Lindell. La qualité de diffusion peut donc être considérée comme stable d'une plateforme à l'autre dans cette campagne, ce qui évite de confondre variation de performance et robustesse cryptographique.
+Le cinquième graphique montre une diffusion correcte et homogène, les cinq algorithmes restant très proches de l'idéal de 50 pour cent sur x86 comme sur Raspberry Pi, avec un écart interplateforme maximal de 0,038 point de pourcentage. L'axe vertical est volontairement resserré autour de 50 pour cent afin de rendre visibles les écarts fins entre algorithmes et plateformes. Ce résultat découle de la nature de la métrique, l'effet d'avalanche reflétant d'abord la structure interne de l'algorithme plutôt que les capacités de l'hôte d'exécution, en cohérence avec le strict avalanche criterion discuté par Stallings (2017) et le cadre confusion diffusion de Katz et Lindell (2020). La qualité de diffusion peut donc être considérée comme stable d'une plateforme à l'autre dans cette campagne, ce qui évite de confondre variation de performance et robustesse cryptographique.
 
 L'étape suivante consiste à distinguer les deux sources de diffusion, une perturbation du texte clair et une perturbation de la clé. Cette comparaison permet de vérifier si chaque algorithme conserve une réponse homogène entre ces deux mécanismes. Le graphique suivant confronte, pour la plateforme x86, le score d'avalanche lié au texte clair et celui lié à la clé.
 
@@ -182,7 +211,7 @@ L'étape suivante consiste à distinguer les deux sources de diffusion, une pert
 
 [Voir le graphique source](../../crypto-experiments/data/charts/02-avalanche-effect/graph-06-plaintext-vs-key-avalanche-x86.png)
 
-Le sixième graphique confirme la cohérence interne des mesures d'avalanche. Comme pour le graphique 5, l'échelle est centrée autour de 50 pour cent pour privilégier la lisibilité des écarts faibles entre les deux types de perturbation. Pour AES, DES, 3DES et Twofish, l'écart entre avalanche du texte clair et avalanche de la clé reste inférieur à 0,1 point de pourcentage. ChaCha20 demeure très proche avec un écart d'environ 0,10 point. Cette proximité s'explique par le fait que les deux perturbations testent la même capacité de diffusion globale du chiffrement, tandis que l'asymétrie observée précédemment provenait d'un artefact de protocole lié aux bits de parité de DES et 3DES, non pris en compte dans le calcul cryptographique effectif. Les scores retenus peuvent ainsi être interprétés comme homogènes entre les deux mécanismes de test, ce qui renforce la validité comparative de l'analyse d'avalanche.
+La sixième figure confirme la cohérence interne des mesures d'avalanche. Comme dans la figure précédente, l'échelle est centrée autour de 50 pour cent pour privilégier la lisibilité des écarts faibles entre les deux types de perturbation. Pour AES, DES, 3DES et Twofish, l'écart entre avalanche du texte clair et avalanche de la clé reste inférieur à 0,1 point de pourcentage. ChaCha20 demeure très proche avec un écart d'environ 0,10 point. Cette proximité s'explique par le fait que les deux perturbations testent la même capacité de diffusion globale du chiffrement, tandis que l'asymétrie observée précédemment provenait d'un artefact de protocole lié aux bits de parité de DES et 3DES, non pris en compte dans le calcul cryptographique effectif. Les scores retenus peuvent ainsi être interprétés comme homogènes entre les deux mécanismes de test, ce qui renforce la validité comparative de l'analyse d'avalanche.
 
 ## Modes de chiffrement
 
@@ -192,7 +221,7 @@ Après la comparaison inter-algorithmes, l'analyse se recentre sur l'effet du mo
 
 [Voir le graphique source](../../crypto-experiments/data/charts/03-encryption-modes/graph-07-aes-operation-mode-security-vs-throughput.png)
 
-Le septième graphique met en évidence le classement des modes, ECB est le plus rapide, GCM et CTR suivent, puis CBC ferme la marche. Ce résultat est structurel, ECB et CTR exploitent mieux l'indépendance des blocs ou la parallélisation du flot, GCM bénéficie d'optimisations matérielles modernes malgré le surcoût d'authentification, alors que CBC impose un chaînage séquentiel qui limite le parallélisme. En pratique, le choix d'un mode ne peut donc pas être guidé par le seul débit et doit intégrer simultanément le niveau de sécurité attendu dans le scénario visé.
+Le septième graphique met en évidence le classement des modes, ECB est le plus rapide, GCM et CTR suivent, puis CBC ferme la marche. Ce résultat est structurel et cohérent avec NIST SP 800-38A, qui documente explicitement que les modes ECB et CTR permettent le calcul parallèle de plusieurs blocs, alors que le chaînage séquentiel du mode CBC empêche cette parallélisation. GCM bénéficie par ailleurs d'optimisations matérielles modernes malgré le surcoût d'authentification. En pratique, le choix d'un mode ne peut donc pas être guidé par le seul débit et doit intégrer simultanément le niveau de sécurité attendu dans le scénario visé.
 
 La supériorité d'ECB en débit ne suffit toutefois pas à établir sa pertinence en pratique. La démonstration suivante explicite la limite structurelle du mode en comparant visuellement le chiffrement d'une même image en ECB et en CBC.
 
@@ -226,6 +255,10 @@ Ce projet visait à comparer expérimentalement cinq algorithmes de chiffrement 
 
 La validation fonctionnelle par KAT a confirmé la conformité de l'ensemble des implémentations aux références normatives retenues, avec 60 assertions sur 60 réussies en profil principal et 2268 sur 2268 en profil complet. Les mesures de performance montrent qu'AES domine nettement sur x86 grâce à AES-NI, avec un écart pouvant atteindre 5,77 fois par rapport au Raspberry Pi dans les conditions de débit maximal. À l'inverse, ChaCha20 présente le meilleur compromis de portabilité entre les deux plateformes, avec un ratio x86/Pi d'environ 1,40 dans la comparaison à 4096 octets. L'analyse de diffusion confirme par ailleurs une cohérence globale avec l'attendu théorique, les scores d'avalanche restant proches de 50 pour cent sur les deux plateformes.
 
+Deux résultats en particulier ne se contentent pas de rejoindre la littérature de façon générale, ils confirment une prédiction explicite formulée par la source elle-même, la stabilité inter-plateforme de ChaCha20 par rapport à la justification de conception de la RFC 8439 (Nir et Langley, 2018), et la convergence vers 50 pour cent de l'effet d'avalanche par rapport au critère de diffusion stricte de Stallings (2017) et au cadre confusion-diffusion de Katz et Lindell (2020). Cette concordance demeure qualitative plutôt que quantitative stricte, les valeurs absolues dépendant du matériel, des bibliothèques et du protocole expérimental propres à ce projet, mais elle confirme que les mécanismes structurels décrits par la littérature se manifestent bel et bien dans les données mesurées.
+
+La confrontation systématique des résultats aux sources normatives a également permis d'identifier deux artefacts méthodologiques initialement masqués par des mesures en apparence cohérentes, l'un dans le protocole de mesure d'avalanche de ChaCha20, l'autre dans la sélection des bits de clé pour DES et 3DES, tous deux corrigés avant consolidation finale des résultats.
+
 ## Validation des hypothèses initiales
 
 Les hypothèses formulées au démarrage du projet sont globalement confirmées par les données finales. Les constats principaux sont les suivants.
@@ -241,15 +274,15 @@ En synthèse, les hypothèses initiales sont validées. Une nuance méthodologiq
 
 Ces résultats conduisent à formuler des recommandations différenciées selon le contexte de déploiement, plutôt qu'à retenir un choix unique d'algorithme.
 
-**Tableau 5 — Recommandations d'algorithme selon le contexte de déploiement**
+**Tableau 4 — Recommandations d'algorithme selon le contexte de déploiement**
 
-| Contexte                                         | Algorithme recommandé                        | Justification                                                                  | Référence     |
-| ------------------------------------------------ | --------------------------------------------- | ------------------------------------------------------------------------------ | --------------- |
-| Production générale                            | AES-256-GCM                                   | Compromis robuste entre sécurité, standardisation et déploiement industriel | NIST SP 800-38D |
-| Systèmes embarqués et IoT (Internet of Things) | ChaCha20                                      | Efficacité logicielle élevée sans AES-NI et bonne portabilité x86/ARM      | RFC 8439        |
-| Référence et audit legacy                      | Éviter DES et 3DES en nouveaux déploiements | Maintien uniquement pour contraintes strictes de compatibilité                | NIST SP 800-67  |
+| Contexte                                         | Algorithme recommandé                        | Justification                                                                  | Référence             |
+| ------------------------------------------------ | --------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------- |
+| Production générale                            | AES-256-GCM                                   | Compromis robuste entre sécurité, standardisation et déploiement industriel | NIST SP 800-38D         |
+| Systèmes embarqués et IoT (Internet of Things) | ChaCha20                                      | Efficacité logicielle élevée sans AES-NI et bonne portabilité x86/ARM      | RFC 8439                |
+| Référence et audit legacy                      | Éviter DES et 3DES en nouveaux déploiements | Maintien uniquement pour contraintes strictes de compatibilité                | NIST SP 800-131A Rev. 2 |
 
-Ce tableau traduit directement les écarts mesurés entre les deux plateformes. AES demeure le choix de référence lorsque le matériel cible dispose d'une accélération dédiée telle qu'AES-NI. En l'absence de ce support, ChaCha20 devient généralement préférable en raison d'un écart interplateforme plus contenu. Quant à DES et 3DES, leur maintien ne se justifie plus que par des impératifs de compatibilité avec des systèmes existants.
+Ce tableau traduit directement les écarts mesurés entre les deux plateformes. AES demeure le choix de référence lorsque le matériel cible dispose d'une accélération dédiée telle qu'AES-NI. En l'absence de ce support, ChaCha20 devient généralement préférable en raison d'un écart interplateforme plus contenu. Quant à DES et 3DES, leur maintien ne se justifie plus que par des impératifs de compatibilité avec des systèmes existants. Cette position est cohérente avec la trajectoire de transition NIST, où SP 800-131A encadre l'usage résiduel des algorithmes legacy.
 
 ## Perspectives et risques émergents
 
@@ -271,17 +304,32 @@ Au total, la contribution principale de ce travail réside dans l'établissement
 
 # Références
 
-1. National Institute of Standards and Technology. FIPS 197: Advanced Encryption Standard (AES). 2001. https://csrc.nist.gov/pubs/fips/197/final
-2. National Institute of Standards and Technology. NIST SP 800-38A: Recommendation for Block Cipher Modes of Operation. 2001. https://csrc.nist.gov/pubs/sp/800/38/a/final
-3. National Institute of Standards and Technology. NIST SP 800-38D: Recommendation for Block Cipher Modes of Operation: GCM and GMAC. 2007. https://csrc.nist.gov/pubs/sp/800/38/d/final
-4. National Institute of Standards and Technology. NIST SP 800-57 Part 1 Rev. 5: Recommendation for Key Management. Statut final. 2020. https://csrc.nist.gov/pubs/sp/800/57/pt1/r5/final. DOI: https://doi.org/10.6028/NIST.SP.800-57pt1r5
-5. National Institute of Standards and Technology. NIST SP 800-67 Rev. 2: Recommendation for the Triple Data Encryption Algorithm (TDEA) Block Cipher. 2017. https://csrc.nist.gov/pubs/sp/800/67/r2/final
-6. National Institute of Standards and Technology. NIST SP 800-17: Modes of Operation Validation System (MOVS): Requirements and Procedures. 1998. https://csrc.nist.gov/pubs/sp/800/17/final
-7. National Institute of Standards and Technology. NIST AI Risk Management Framework (AI RMF 1.0). Statut final. 2023. https://www.nist.gov/itl/ai-risk-management-framework. DOI: https://doi.org/10.6028/NIST.AI.100-1
-8. National Institute of Standards and Technology. NIST AI 600-1: Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile. Statut final. 2024. https://doi.org/10.6028/NIST.AI.600-1
-9. Nir, Y., and Langley, A. RFC 8439: ChaCha20 and Poly1305 for IETF Protocols. 2018. https://www.rfc-editor.org/rfc/rfc8439
-10. Stallings, W. Cryptography and Network Security: Principles and Practice. 7th ed. Pearson. 2017.
-11. Katz, J., and Lindell, Y. Introduction to Modern Cryptography. 3rd ed. CRC Press. 2020.
-12. National Institute of Standards and Technology. FIPS 46-3: Data Encryption Standard (DES). 1999. https://csrc.nist.gov/pubs/fips/46-3/final
-13. Schneier, B., Kelsey, J., Whiting, D., Wagner, D., Hall, C., and Ferguson, N. Twofish Known-Answer Test vectors. https://www.schneier.com/academic/twofish/download/
-14. Sommerville, I. Software Engineering. 10th ed. Pearson. 2016.
+Katz, J., & Lindell, Y. (2020). *Introduction to modern cryptography* (3rd ed.). CRC Press.
+
+National Institute of Standards and Technology. (1998). *NIST SP 800-17: Modes of operation validation system (MOVS): Requirements and procedures*. https://csrc.nist.gov/pubs/sp/800/17/final
+
+National Institute of Standards and Technology. (1999). *FIPS 46-3: Data Encryption Standard (DES)*. https://csrc.nist.gov/pubs/fips/46-3/final
+
+National Institute of Standards and Technology. (2001). *FIPS 197: Advanced Encryption Standard (AES)*. https://csrc.nist.gov/pubs/fips/197/final
+
+National Institute of Standards and Technology. (2001). *NIST SP 800-38A: Recommendation for block cipher modes of operation*. https://csrc.nist.gov/pubs/sp/800/38/a/final
+
+National Institute of Standards and Technology. (2007). *NIST SP 800-38D: Recommendation for block cipher modes of operation: GCM and GMAC*. https://csrc.nist.gov/pubs/sp/800/38/d/final
+
+National Institute of Standards and Technology. (2017). *NIST SP 800-67 Rev. 2: Recommendation for the Triple Data Encryption Algorithm (TDEA) block cipher*. https://csrc.nist.gov/pubs/sp/800/67/r2/final
+
+National Institute of Standards and Technology. (2019). *NIST SP 800-131A Rev. 2: Transitioning the use of cryptographic algorithms and key lengths*. https://doi.org/10.6028/NIST.SP.800-131Ar2
+
+National Institute of Standards and Technology. (2020). *NIST SP 800-57 Part 1 Rev. 5: Recommendation for key management*. https://doi.org/10.6028/NIST.SP.800-57pt1r5
+
+National Institute of Standards and Technology. (2023). *NIST AI Risk Management Framework (AI RMF 1.0)*. https://doi.org/10.6028/NIST.AI.100-1
+
+National Institute of Standards and Technology. (2024). *NIST AI 600-1: Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile*. https://doi.org/10.6028/NIST.AI.600-1
+
+Nir, Y., & Langley, A. (2018). *RFC 8439: ChaCha20 and Poly1305 for IETF protocols*. RFC Editor. https://www.rfc-editor.org/rfc/rfc8439
+
+Schneier, B., Kelsey, J., Whiting, D., Wagner, D., Hall, C., & Ferguson, N. (n.d.). *Twofish known-answer test vectors*. https://www.schneier.com/academic/twofish/download/
+
+Sommerville, I. (2016). *Software engineering* (10th ed.). Pearson.
+
+Stallings, W. (2017). *Cryptography and network security: Principles and practice* (7th ed.). Pearson.

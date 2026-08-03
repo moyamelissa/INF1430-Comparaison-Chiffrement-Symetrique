@@ -1,6 +1,8 @@
 ﻿# Calculs & sources — INF1430 TN3
 ### Traçabilité des valeurs présentées dans [INF1430_PPT_TN3.pptx](INF1430_PPT_TN3.pptx)
 
+> **Statut du document :** snapshot intermédiaire de la phase TN3. Les valeurs de ce fichier correspondent à une campagne antérieure et ne remplacent pas les résultats consolidés finaux de TN4.
+
 **Fichiers de données principaux :**
 - x86 : [windows_experience3.csv](../../crypto-experiments/data/results/windows_experience3.csv)
 - Pi  : [raspberry-pi_experience3.csv](../../crypto-experiments/data/results/raspberry-pi_experience3.csv)

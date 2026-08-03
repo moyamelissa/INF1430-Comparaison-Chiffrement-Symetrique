@@ -1,0 +1,125 @@
+﻿Feedback 1 
+Section : 
+Il s’agit d’analyser le lien entre les choix de conception cryptographique et les performances observées en pratique, en étudiant le comportement de chiffrements symétriques 
+par blocs
+ appliqués selon différents modes d’opération et exécutés sur des plateformes matérielles distinctes.
+Commentaire :
+Pourquoi pas aussi le chiffrement par flot (flux)?
+Feedback 2 
+Section : 
+L’étude vise à évaluer comment le mode d’application d’un algorithme par blocs affecte les dépendances entre blocs, les possibilités de parallélisation et le coût 
+computationnel
+des différentes configurations, notamment à travers la comparaison de modes largement documentés.
+Commentaire : 
+De plus, les modes d'opérations apportent un autre niveau de sécurité.
+Feedback 3 
+Cet indicateur est considéré comme une mesure complémentaire aux performances 
+temporelles
+,
+ permettant d’éclairer la capacité des algorithmes à produire des sorties fortement différenciées à partir de variations minimales de l’entrée.
+Commentaire :
+de sécurité et non temporelle
+Feedback 4
+Section : 
+Il est attendu que les 
+modes d’opération
+ n’introduisant pas de dépendance séquentielle stricte entre les blocs permettent d’obtenir de 
+meilleurs débits
+ que ceux reposant sur un chaînage inter
+blocs.
+commentaire : 
+Il faut considérer l’aspect de sécurité aussi. Un mode d’opération faible (ex. ECB) peut rendre l’algorithme de chiffrement vulnerable.
+Feedback 5
+Section : 
+Axe
+Hypothèse
+Variable observée
+Indicateur
+Performance
+H1
+Algorithme
+Temps, débit
+Modes
+H2
+Mode
+Temps, débit
+Plateforme
+H3
+Plateforme
+Temps
+Diffusion
+H4
+Algorithme
+Effet avalanche
+Commentaire : J
+e dirais: «diffusion/sécurité»
+Feedback 6
+Section : 
+Le 3DES prolonge la logique du DES en appliquant 
+plusieurs
+ opérations successives de chiffrement afin d’en renforcer la sécurité.
+Commentaire : trois
+Feedback 7 
+Section : 
+Tableau 2 - 
+Synthèse des algorithmes étudiés
+Algorithme
+Architecture
+Taille de bloc
+Taille(s) de clé
+DES
+Feistel
+64 bits
+56 bits
+3DES
+Feistel
+64 bits
+Standard
+AES
+Substitution
+permutation
+128 bits
+128, 192, 256 bits
+Twofish
+Feistel
+128 bits
+128 bits
+Commentaire : 
+Que voulez-vous dire par «standard»?
+Feedback 8
+Section : 
+Le développement est réalisé en Python, choix motivé par la volonté d’assurer la 
+neutralité
+ du cadre expérimental plutôt que la maximisation des performances absolues.
+Feedback : 
+Pourquoi Python garantit-il la neutralité? Traditionnellement, c’est le langage C/C++ qui est utilisé en crypto.
+Je n’ai pas d’objection à l’utilisation de Python.
+Feedback 9
+Seciton : 
+La méthodologie intègre la mesure de l’effet d’avalanche, propriété selon laquelle une modification minimale du texte clair ou de la clé doit entraîner une modification significative du texte chiffré. Cette propriété constitue une manifestation concrète de la 
+diffusion
+ et joue un rôle essentiel dans la résistance aux attaques statistiques
+.
+Commentaire : 
+En crypto, on parle de deux effets: diffusion et confusion. Le premier est réalisé par la substitution et le deuxième est réalisé par la permutation. La substitution et la permutation sont deux concepts implémenté dans les algorithmes de chiffrement, tels que DES, AES, etc.
+Feedback 10
+Section : 
+A.4 Protocole de mesure de l’effet avalanche
+La mesure de l’effet d’avalanche 
+sera réalisée indépendamment
+des mesures de performance temporelle, dans le but d’évaluer les propriétés de diffusion des primitives de chiffrement sans introduire de paramètres supplémentaires liés aux modes d’opération ou aux plateformes matérielles.
+Commentaire : J
+e ne pense pas que l’environnement logiciel (OS, langage, libraries) ou materiel (PC, Raspberry PI) a un impact que le score d’avalanche.
+Feedback 11
+Seciton : 
+Ce protocole suivra les étapes suivantes :
+sélection d’un bloc de données de taille correspondant à celle du bloc de l’algorithme étudié ;
+chiffrement de ce bloc afin d’obtenir un texte chiffré de référence ;
+modification minimale du bloc d’entrée, typiquement par inversion d’un seul bit ;
+nouveau chiffrement du bloc modifié avec les mêmes paramètres cryptographiques;
+comparaison bit à bit des deux sorties chiffrées ;
+calcul de la proportion de bits modifiés dans la sortie ;
+répétition de l’expérience sur un nombre élevé d’itérations afin d’obtenir une mesure 
+représentative.
+Commentaire : 
+Une chose que vous pouvez observer est le nombre de tours (rounds) optimal qui donne un score d’avalanche maximal.
