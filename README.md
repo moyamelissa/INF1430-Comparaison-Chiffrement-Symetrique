@@ -11,6 +11,19 @@
 
 Academic project for University TELUQ, course INF1430.
 
+## Contents
+
+- [Overview](#overview)
+- [SDLC Phases and Deliverables](#sdlc-phases-and-deliverables)
+- [DevSecOps Controls](#devsecops-controls)
+- [Technical Scope](#technical-scope)
+- [Project Architecture](#project-architecture)
+- [Repository Structure](#repository-structure)
+- [Tested Platforms](#tested-platforms)
+- [Setup](#setup)
+- [Quick Start](#quick-start)
+- [Data and Reproducibility](#data-and-reproducibility)
+
 ## Overview
 
 This project benchmarks symmetric cryptography implementations with a reproducible workflow and a software engineering approach.
@@ -72,7 +85,7 @@ Main workflows:
 | Algorithm | Family | Supported key sizes |
 |---|---|---|
 | DES | Block cipher | 56 bits |
-| 3DES | Block cipher | 112 / 168 bits |
+| 3DES | Block cipher | 128 / 192 bits |
 | AES | Block cipher | 128 / 192 / 256 bits |
 | Twofish | Block cipher | 128 / 192 / 256 bits |
 | ChaCha20 | Stream cipher | 256 bits |
@@ -193,5 +206,9 @@ To reproduce the full process on a new machine:
 4. Run `python scripts/run_charts.py`.
 
 For cross-platform comparison charts, ensure both Windows and Raspberry Pi CSV files are present in `crypto-experiments/data/results/`.
+
+---
+
+Portfolio contact: Melissa Moya - [LinkedIn](https://www.linkedin.com/in/melissa-moya-39329b296)
 
 
