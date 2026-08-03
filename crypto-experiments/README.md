@@ -2,7 +2,6 @@
 
 Core experiment package for the INF1430 symmetric cryptography comparison project.
 
-Languages / Langues : [English](README.md) | [Français](../README.fr.md)
 
 ## Folder Structure
 
