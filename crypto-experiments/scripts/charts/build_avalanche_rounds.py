@@ -49,7 +49,6 @@ def generate_rounds_avalanche_chart():
     ax.fill_between(rounds_list, [49.0] * 16, [51.0] * 16, alpha=0.10, color="#3A7A3A", label="Plage ±1 % autour de l'idéal")
     ax.set_xlabel("Nombre de tours (rounds)", fontsize=11)
     ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=11)
-    ax.set_title("Score d'avalanche en fonction du nombre de tours DES", fontsize=11)
     ax.set_xticks(rounds_list)
     ax.set_ylim(40, 60)
     ax.legend(fontsize=9)

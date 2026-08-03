@@ -108,8 +108,8 @@ def fig1_throughput_4096():
 
     ax.set_xticks(tick_positions)
     ax.set_xticklabels(tick_labels, fontsize=7)
+    ax.set_xlabel("Mode et taille de clé", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
-    ax.set_title("Débit de chiffrement en fonction de l'algorithme et du mode", fontsize=11, pad=20)
     ax.text(
         0.5,
         1.01,
@@ -170,10 +170,6 @@ def fig2_throughput_vs_size():
     ax.set_xticklabels([f"{s:,}" for s in msg_sizes])
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
-    ax.set_title(
-        "Débit de chiffrement en fonction de la taille du message",
-        fontsize=11,
-    )
     ax.legend(fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
@@ -210,11 +206,8 @@ def fig4_avalanche():
     ax.axhline(50.0, color="#475569", linestyle="--", linewidth=1.4,
                label="Valeur idéale (50 %) ")
     ax.set_ylim(45.0, 56.5)
+    ax.set_xlabel("Algorithme", fontsize=10)
     ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=10)
-    ax.set_title(
-        "Score d'avalanche en fonction de l'algorithme",
-        fontsize=11,
-    )
     ax.legend(fontsize=9)
 
     for bar, mean_pct, std_pct, color in zip(bars, means_pct, stdevs_pct, colors):
@@ -249,30 +242,21 @@ def fig4b_key_avalanche():
     w = 0.32
     fig, ax = plt.subplots(figsize=(9, 5))
     fig.patch.set_facecolor(BG_COLOR)
-    bars_pt  = ax.bar(x - w/2, means_pt_pct,  w, label="Avalanche (texte clair)",
+    bars_pt  = ax.bar(x - w/2, means_pt_pct,  w, label="Avalanche texte clair",
                       color=[ALGO_COLORS[a] for a in algo_order],
                       edgecolor=BG_COLOR, linewidth=0.8, alpha=0.50)
-    bars_key = ax.bar(x + w/2, means_key_pct, w, label="Avalanche (clé)",
+    bars_key = ax.bar(x + w/2, means_key_pct, w, label="Avalanche clé",
                       color=[ALGO_COLORS[a] for a in algo_order],
                       edgecolor=BG_COLOR, linewidth=0.8, alpha=0.88)
     ax.axhline(50.0, color="#475569", linestyle="--", linewidth=1.4,
-               label="Valeur idéale (50 %) ")
+               label="Valeur idéale (50 %)")
     ax.set_xticks(x)
     ax.set_xticklabels(algo_order, fontsize=11)
     ax.set_ylim(49.7, 50.3)
     ax.set_yticks([49.7, 49.8, 49.9, 50.0, 50.1, 50.2, 50.3])
+    ax.set_xlabel("Algorithme", fontsize=11)
     ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=11)
-    ax.set_title(
-        "Graphique 6 - Score d'avalanche en fonction du type de perturbation (zoom autour de 50 %)",
-        fontsize=11,
-    )
     ax.legend(fontsize=9)
-    for bar, m_pct, c in zip(bars_pt, means_pt_pct, [ALGO_COLORS[a] for a in algo_order]):
-        ax.text(bar.get_x() + bar.get_width()/2, m_pct + 0.012,
-                f"{m_pct:.1f}%", ha="center", va="bottom", fontsize=8, color=c)
-    for bar, m_pct, c in zip(bars_key, means_key_pct, [ALGO_COLORS[a] for a in algo_order]):
-        ax.text(bar.get_x() + bar.get_width()/2, m_pct + 0.012,
-                f"{m_pct:.1f}%", ha="center", va="bottom", fontsize=8, color=c)
     _style_ax(ax)
     plt.tight_layout()
     savefig("02-avalanche-effect/graph-06-plaintext-vs-key-avalanche-x86.png")
@@ -312,10 +296,6 @@ def fig3_aes_mode_comparison():
     ax.set_xticklabels([f"{s:,}" for s in msg_sizes])
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
-    ax.set_title(
-        "Débit AES-128 en fonction du mode d'opération",
-        fontsize=11,
-    )
     ax.legend(title="Mode", fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
@@ -351,12 +331,9 @@ def fig5_enc_vs_dec():
 
     ax.set_xticks(x)
     ax.set_xticklabels(labels, fontsize=8)
+    ax.set_xlabel("Algorithme et taille de clé", fontsize=11)
     ax.set_ylabel("Débit (MB/s)", fontsize=11)
-    ax.set_title(
-        "Débit de chiffrement en fonction de l'opération (ECB)",
-        fontsize=11,
-    )
-    ax.legend(fontsize=9)
+    ax.legend(fontsize=9, title="Configuration : mode ECB, 4096 octets", title_fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
     savefig("03-encryption-modes/throughput-encrypt-vs-decrypt-ecb.png")
@@ -391,11 +368,7 @@ def fig6_key_size_impact():
     ax.set_xticklabels([f"{k} bits" for k in key_bits])
     ax.set_xlabel("Taille de clé AES", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
-    ax.set_title(
-        "Débit AES en fonction de la taille de clé",
-        fontsize=11,
-    )
-    ax.legend(title="Mode", fontsize=9)
+    ax.legend(title="Mode · 4096 octets", fontsize=9)
     _style_ax(ax)
     plt.tight_layout()
     savefig("03-encryption-modes/aes-throughput-by-key-size.png")
@@ -435,8 +408,6 @@ def algo_profile(algo_name):
         ax1.set_xticklabels([f"{s:,}" for s in msg_sizes])
         ax1.set_xlabel("Taille du message (octets)", fontsize=10)
         ax1.set_ylabel("Débit (MB/s)", fontsize=10)
-        ax1.set_title(f"Profil {algo_name} — Débit en fonction de la taille du message",
-                      fontsize=11, fontweight="bold")
         ax1.legend(fontsize=9)
         _style_ax(ax1)
 
@@ -450,7 +421,6 @@ def algo_profile(algo_name):
         ax2.set_xlabel("Taille du message (octets)", fontsize=10)
         ax2.set_ylabel("Score d'avalanche", fontsize=10)
         ax2.set_ylim(0.45, 0.65)
-        ax2.set_title(f"Profil {algo_name} — Avalanche en fonction de la taille du message", fontsize=10)
         _style_ax(ax2)
 
         plt.tight_layout()
@@ -493,8 +463,6 @@ def algo_profile(algo_name):
     ax1.set_xticks(x)
     ax1.set_xticklabels([f"{k} bits" for k in key_bits_list])
     ax1.set_ylabel("Débit de chiffrement (MB/s)", fontsize=10)
-    ax1.set_title(f"Profil {algo_name} — Débit en fonction du mode et de la taille de clé",
-                  fontsize=11, fontweight="bold")
     ax1.legend(title="Mode", fontsize=8, ncol=4)
     _style_ax(ax1)
 
@@ -514,7 +482,6 @@ def algo_profile(algo_name):
     ax2.set_xlabel("Taille de clé", fontsize=10)
     ax2.set_ylabel("Score d'avalanche", fontsize=10)
     ax2.set_ylim(0.45, 0.55)
-    ax2.set_title(f"Profil {algo_name} — Avalanche en fonction du mode et de la taille de clé", fontsize=10)
     _style_ax(ax2)
 
     plt.tight_layout()
@@ -531,31 +498,28 @@ def fig7_ecb_vs_gcm():
 
     fig, ax = plt.subplots(figsize=(FIG_W, 5.5))
     fig.patch.set_facecolor(BG_COLOR)
-    for mode, color, ls, lbl in [
-        ("ECB", "#B03A2E", "-",  "ECB — Non recommandé en production (fuite de motifs)"),
-        ("GCM", "#3A7A3A", "--", "GCM — Recommandé (authentifié)"),
-        ("CTR", "#888888", ":",  "CTR — Authentification séparée requise"),
-        ("CBC", "#1A5E8A", "-.", "CBC — Confidentialité sans authenticité intégrée"),
+    for mode, color, marker in [
+        ("ECB", "#B03A2E", "o"),
+        ("GCM", "#3A7A3A", "s"),
+        ("CTR", "#888888", "D"),
+        ("CBC", "#1A5E8A", "^"),
     ]:
         subset = sorted([r for r in aes128 if r["mode"] == mode],
                         key=lambda r: r["message_size_bytes"])
         if subset:
             ax.plot([r["message_size_bytes"] for r in subset],
                     [r["throughput_enc_mbps"] for r in subset],
-                    marker="o", linewidth=2.2, linestyle=ls, color=color,
-                    label=lbl, alpha=0.9, markersize=5)
+                    linewidth=2.4, linestyle="-", color=color,
+                    marker=marker, markersize=5,
+                    label=mode, alpha=0.95)
 
     ax.set_xscale("log", base=2)
     ax.set_xticks(msg_sizes)
     ax.set_xticklabels([f"{s:,}" for s in msg_sizes])
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
-    ax.set_ylabel("Débit de chiffrement (MB/s, échelle logarithmique)", fontsize=11)
-    ax.set_title(
-        "Graphique 7 - Débit AES-128 en fonction du mode (sécurité et performance)",
-        fontsize=11,
-    )
+    ax.set_ylabel("Débit (MB/s)", fontsize=11)
     ax.set_yscale("log")
-    ax.legend(fontsize=9)
+    ax.legend(fontsize=9, ncol=2, loc="upper left")
     _style_ax(ax)
     plt.tight_layout()
     savefig("03-encryption-modes/graph-07-aes-operation-mode-security-vs-throughput.png")
@@ -608,6 +572,7 @@ def fig9_synthesis_heatmap():
     ax.set_xticklabels(metrics, fontsize=11, color=TEXT_COLOR)
     ax.set_yticks(range(len(algo_order)))
     ax.set_yticklabels(algo_order, fontsize=11, color=TEXT_COLOR)
+    ax.set_xlabel("Critères", fontsize=11, color=TEXT_COLOR)
     ax.tick_params(colors=TEXT_COLOR)
     for i in range(len(algo_order)):
         for j in range(len(metrics)):
@@ -621,10 +586,6 @@ def fig9_synthesis_heatmap():
     cbar.ax.tick_params(colors=TEXT_COLOR, labelsize=8)
     cbar.set_label("Score normalisé (0 = faible relatif, 1 = élevé relatif)", fontsize=9)
     cbar.ax.yaxis.label.set_color(TEXT_COLOR)
-    ax.set_title(
-        "Graphique 10 - Carte thermique des scores normalisés (0-1)",
-        fontsize=11, color=TEXT_COLOR,
-    )
     plt.tight_layout()
     savefig("04-decision-support/graph-10-multicriteria-heatmap-by-algorithm.png")
 

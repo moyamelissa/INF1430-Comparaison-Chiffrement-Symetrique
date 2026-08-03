@@ -126,26 +126,22 @@ def cmp1_throughput_all():
                      color=colors, edgecolor=BG_COLOR, linewidth=0.8,
                      alpha=PLATFORM_STYLE["pi"]["alpha"], hatch="//")
 
-    for bar, val in zip(bars_x86, x86_vals):
+    for bar, val, c in zip(bars_x86, x86_vals, colors):
         if val > 0:
             ax.text(bar.get_x() + bar.get_width() / 2, val + max(x86_vals) * 0.01,
                     f"{val:.2f}", ha="center", va="bottom",
-                    fontsize=8, color=TEXT_COLOR, fontweight="bold")
+                    fontsize=8, color=c, fontweight="bold")
 
-    for bar, val in zip(bars_pi, pi_vals):
+    for bar, val, c in zip(bars_pi, pi_vals, colors):
         if val > 0:
             ax.text(bar.get_x() + bar.get_width() / 2, val + max(pi_vals) * 0.01,
                     f"{val:.2f}", ha="center", va="bottom",
-                    fontsize=8, color=TEXT_COLOR, fontweight="bold")
+                    fontsize=8, color=c, fontweight="bold")
 
     ax.set_xticks(x)
     ax.set_xticklabels(algo_order, fontsize=11)
     ax.set_xlabel("Algorithme", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
-    ax.set_title(
-        "Graphique 1 - Débit de chiffrement en fonction de l'algorithme (4096 octets)",
-        fontsize=11,
-    )
     legend_handles = [
         mpatches.Patch(
             facecolor="#666666",
@@ -166,8 +162,7 @@ def cmp1_throughput_all():
     ax.legend(
         handles=legend_handles,
         fontsize=9,
-        title="Mode de référence : ECB (AES, DES, 3DES, Twofish) ; Stream (ChaCha20)",
-        title_fontsize=9,
+        loc="upper right",
     )
     ax.yaxis.grid(True)
     ax.set_axisbelow(True)
@@ -227,7 +222,6 @@ def cmp1b_throughput_4096_pi():
     ax.set_xticklabels(tick_labels, fontsize=7)
     ax.set_xlabel("Mode et taille de clé", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
-    ax.set_title("Débit de chiffrement en fonction de l'algorithme et du mode", fontsize=11, pad=20)
     ax.text(
         0.5,
         1.01,
@@ -304,15 +298,7 @@ def cmp2_speedup_ratio():
 
     ax.set_ylabel("Rapport de débit x86/Pi (×)", fontsize=11)
     ax.set_xlabel("Algorithme", fontsize=11)
-    ax.set_title(
-        "Graphique 2 - Ratio de performance en fonction de l'algorithme (4096 octets)",
-        fontsize=11,
-    )
-    ax.legend(
-        fontsize=9,
-        title="Mode de référence : ECB (AES, DES, 3DES, Twofish) ; Stream (ChaCha20)",
-        title_fontsize=9,
-    )
+    ax.legend(fontsize=9)
     ax.set_ylim(bottom=0)
     ax.yaxis.grid(True)
     ax.set_axisbelow(True)
@@ -366,7 +352,6 @@ def cmp3_throughput_vs_size():
     ax.set_xticklabels([f"{s:,}" for s in msg_sizes])
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
-    ax.set_title("Débit en fonction de la taille du message", fontsize=11, pad=20)
     ax.text(
         0.5,
         1.01,
@@ -405,6 +390,7 @@ def cmp5_chacha20():
     cc_color = ALGO_COLORS["ChaCha20"]
     fig, ax = plt.subplots(figsize=(9, 5))
     fig.patch.set_facecolor(BG_COLOR)
+    y_values = []
     for data_rows, label, ls, marker, alpha in [
         (x86_rows, "ChaCha20 — Laptop x86", "-",  "o", 0.95),
         (pi_rows,  "ChaCha20 — Raspberry Pi", "--", "s", 0.50),
@@ -414,6 +400,7 @@ def cmp5_chacha20():
             key=lambda r: r["message_size_bytes"]
         )
         if pts:
+            y_values.extend([r["throughput_enc"] for r in pts])
             ax.plot([r["message_size_bytes"] for r in pts],
                     [r["throughput_enc"] for r in pts],
                     marker=marker, linewidth=2.2, linestyle=ls,
@@ -424,10 +411,9 @@ def cmp5_chacha20():
     ax.set_xticklabels([f"{s:,}" for s in msg_sizes])
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
-    ax.set_title(
-        "Graphique 3 - Débit de ChaCha20 en fonction de la taille du message",
-        fontsize=11,
-    )
+    if y_values:
+        y_max = max(y_values)
+        ax.set_ylim(0, y_max * 1.12)
     ax.legend(fontsize=9)
     ax.yaxis.grid(True)
     ax.set_axisbelow(True)
@@ -474,28 +460,24 @@ def cmp6_ci95_stability():
                      alpha=PLATFORM_STYLE["pi"]["alpha"], hatch="//")
 
     # Étiquettes de valeur sur les barres x86.
-    for bar, val in zip(bars_x86, x86_ci):
+    for bar, val, c in zip(bars_x86, x86_ci, colors):
         if val > 0:
             ax.text(bar.get_x() + bar.get_width() / 2,
                     val + max(x86_ci) * 0.012,
                     f"{val:.2f}", ha="center", va="bottom",
-                    fontsize=8, color=TEXT_COLOR, fontweight="bold")
+                    fontsize=8, color=c, fontweight="bold")
 
-    for bar, val in zip(bars_pi, pi_ci):
+    for bar, val, c in zip(bars_pi, pi_ci, colors):
         if val > 0:
             ax.text(bar.get_x() + bar.get_width() / 2,
                     val + max(x86_ci) * 0.012,
                     f"{val:.2f}", ha="center", va="bottom",
-                    fontsize=8, color=TEXT_COLOR, fontweight="bold")
+                    fontsize=8, color=c, fontweight="bold")
 
     ax.set_xticks(x)
     ax.set_xticklabels(algo_order, fontsize=11)
     ax.set_xlabel("Algorithme", fontsize=11)
     ax.set_ylabel("Largeur de l'IC95 du débit de chiffrement (MB/s)", fontsize=11)
-    ax.set_title(
-        "Graphique 4 - Stabilité des mesures en fonction de la plateforme (IC95, n=100 répétitions)",
-        fontsize=11,
-    )
     ax.legend(fontsize=9)
     ax.yaxis.grid(True)
     ax.set_axisbelow(True)
@@ -547,7 +529,6 @@ def cmp8_scalability_all_algos():
     ax.set_xticklabels([f"{s:,}" for s in msg_sizes])
     ax.set_xlabel("Taille du message (octets)", fontsize=11)
     ax.set_ylabel("Débit de chiffrement (MB/s)", fontsize=11)
-    ax.set_title("Débit en fonction de la taille du message — tous algorithmes", fontsize=11, pad=20)
     ax.text(
         0.5,
         1.01,
@@ -610,14 +591,7 @@ def cmp4_avalanche():
     ax.set_yticks([49.7, 49.8, 49.9, 50.0, 50.1, 50.2, 50.3])
     ax.set_xlabel("Algorithme", fontsize=11)
     ax.set_ylabel("Pourcentage de bits modifiés dans le texte chiffré (%)", fontsize=11)
-    ax.set_title(
-        "Graphique 5 - Score d'avalanche en fonction de l'algorithme (zoom autour de 50 %)",
-        fontsize=11,
-    )
-    ax.legend(fontsize=9)
-    for xi, xv, pv, color in zip(x, x86_vals_pct, pi_vals_pct, colors):
-        ax.text(xi - w / 2, xv + 0.012, f"{xv:.3f}%", ha="center", va="bottom", fontsize=8, color=color)
-        ax.text(xi + w / 2, pv + 0.012, f"{pv:.3f}%", ha="center", va="bottom", fontsize=8, color=color)
+    ax.legend(fontsize=9, loc="upper right")
     ax.yaxis.grid(True)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
@@ -691,11 +665,13 @@ def cmp7_radar():
         ax.plot(angles, vals, linewidth=2, color=color, label=algo, alpha=0.9)
         ax.fill(angles, vals, alpha=0.08, color=color)
 
-    ax.set_title(
-        "Graphique 9 - Score global en fonction de l'algorithme (synthèse normalisée)",
-        fontsize=11, color=TEXT_COLOR, pad=25,
+    ax.legend(
+        loc="upper right",
+        bbox_to_anchor=(1.28, 1.12),
+        fontsize=9,
+        title="Synthèse normalisée",
+        title_fontsize=9,
     )
-    ax.legend(loc="upper right", bbox_to_anchor=(1.28, 1.12), fontsize=9)
     plt.tight_layout()
     savefig("04-decision-support/graph-09-algorithm-profile-radar-throughput-portability-avalanche.png")
 

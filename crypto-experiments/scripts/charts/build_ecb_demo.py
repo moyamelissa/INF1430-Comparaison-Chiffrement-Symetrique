@@ -54,18 +54,16 @@ def generate_ecb_demo_chart():
         ax.set_facecolor(PANEL_COLOR)
 
     axes[0].imshow(orig_arr, cmap="gray", vmin=0, vmax=255)
-    axes[0].set_title("Image originale", fontsize=10, color=TEXT_COLOR, pad=8)
+    axes[0].set_title("Image A: originale", fontsize=10, color=TEXT_COLOR, pad=8)
     axes[0].axis("off")
 
     axes[1].imshow(ecb_arr, cmap="gray", vmin=0, vmax=255)
-    axes[1].set_title("Image chiffrée en mode ECB", fontsize=10, color="#B03A2E", pad=8)
+    axes[1].set_title("Image B: chiffree en mode ECB", fontsize=10, color=TEXT_COLOR, pad=8)
     axes[1].axis("off")
 
     axes[2].imshow(cbc_arr, cmap="gray", vmin=0, vmax=255)
-    axes[2].set_title("Image chiffrée en mode CBC", fontsize=10, color="#3A7A3A", pad=8)
+    axes[2].set_title("Image C: chiffree en mode CBC", fontsize=10, color=TEXT_COLOR, pad=8)
     axes[2].axis("off")
-
-    fig.suptitle("Graphique 8 - Visibilité des motifs en fonction du mode de chiffrement", fontsize=11, color=TEXT_COLOR, y=1.02)
     plt.tight_layout()
 
     mode_dir = ensure_chart_dir("03-encryption-modes")
