@@ -96,6 +96,7 @@ INF1430-Comparaison-Chiffrement-Symetrique/
 │       └── evidence/
 ├── resources/
 │   └── KAT/
+│       ├── references/
 │       └── Twofish-kat/
 ├── deliverables/
 │   ├── INF1430-TN1-Melissa-Moya.pdf
