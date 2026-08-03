@@ -1,4 +1,4 @@
-﻿# INF1430 - Experimental Comparison of Symmetric Encryption Algorithms
+﻿# Experimental Comparison of Symmetric Encryption Algorithms
 
 ![CI](https://img.shields.io/github/actions/workflow/status/moyamelissa/INF1430-Comparaison-Chiffrement-Symetrique/tests.yml?branch=main)
 ![Coverage](https://img.shields.io/badge/Coverage-100%25-2E7D32)
