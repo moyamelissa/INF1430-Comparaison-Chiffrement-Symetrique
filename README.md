@@ -153,7 +153,7 @@ python scripts/run_charts.py 04
 
 ## SDLC Phases and Deliverables
 
-This project follows a course-oriented Software Development Life Cycle(SDLC) progression where each phase produces a concrete submission artifact.
+This project follows a course-oriented Software Development Life Cycle (SDLC) progression where each phase produces a concrete submission artifact.
 
 | SDLC phase | Focus | Main deliverable |
 |---|---|---|
