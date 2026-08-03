@@ -161,8 +161,8 @@ This project follows a course-oriented Software Development Life Cycle (SDLC) pr
 |---|---|---|
 | Phase 1 - Scope and design baseline | Problem framing, architecture direction, and initial planning | [TN1 Report](deliverables/INF1430-TN1-Melissa-Moya.pdf) |
 | Phase 2 - Implementation and validation setup | Core implementation choices, testing approach, and measurement protocol | [TN2 Report](deliverables/INF1430-TN2-Melissa-Moya.pdf) |
-| Phase 3 - Experimental execution and visual analysis | Data collection, chart production, and interpretation support | [TN3 Presentation](deliverables/INF1430-TN3-Melissa_Moya.pdf) |
-| Phase 4 - Final synthesis and recommendations | Consolidated evidence, comparative conclusions, and final recommendations | [TN4 Final Report](deliverables/INF1430-TN4-Melissa_Moya.pdf) |
+| Phase 3 - Experimental execution and visual analysis | Data collection, chart production, and interpretation support | [TN3 Presentation](deliverables/INF1430-TN3-Melissa-Moya.pdf) |
+| Phase 4 - Final synthesis and recommendations | Consolidated evidence, comparative conclusions, and final recommendations | [TN4 Final Report](deliverables/INF1430-TN4-Melissa-Moya.pdf) |
 
 ## DevSecOps Controls
 
