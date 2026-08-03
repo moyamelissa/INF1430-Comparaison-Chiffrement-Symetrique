@@ -38,6 +38,10 @@ This project follows a course-oriented SDLC progression where each phase produce
 
 DevSecOps practices are implemented through automated validation, statistical quality gates, and security checks across local and CI workflows.
 
+### Why this matters
+
+In this project, performance numbers are only meaningful if implementation correctness and measurement stability are continuously verified. The DevSecOps layer is used to prevent silent regressions, detect data-quality drift early, and keep evidence reproducible from one run to the next.
+
 ### Validation and CI
 
 - Unit and integration tests via `pytest`.
@@ -54,6 +58,12 @@ Main workflows:
 
 - `.github/workflows/tests.yml`
 - `.github/workflows/security.yml`
+
+### Quantum and AI readiness perspective
+
+- Quantum readiness: the project does not assume immediate practical breaks of modern symmetric cryptography, but it prepares migration discipline through crypto-agility practices, repeatable validation, and evidence-based comparison across algorithm choices.
+- AI risk readiness: the main near-term risk is operational misuse rather than new cryptanalysis. Automated checks reduce exposure to configuration errors, vulnerable dependencies, and unnoticed implementation drift.
+- Practical outcome: the repository keeps a verifiable baseline that can support future transitions, including post-quantum planning for asymmetric components while maintaining robust symmetric controls.
 
 ## Technical Scope
 
