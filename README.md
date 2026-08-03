@@ -11,8 +11,6 @@
 
 Academic project for University TELUQ, course INF1430.
 
-Languages / Langues : English | [Français](README.fr.md)
-
 ## Contents
 
 - [Overview](#overview)
